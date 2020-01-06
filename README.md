@@ -1,4 +1,8 @@
-# web-wallet
+# Unification Mainchain Web wallet
+
+Official Unification  Mainchain Web-based wallet.
+
+**Please Note** this is currently heavily under development.
 
 ## Project setup
 ```
@@ -33,6 +37,3 @@ docker run -d -p 8080:80 web-wallet
 ```
 
 Wallet available on http://localhost:8080
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
