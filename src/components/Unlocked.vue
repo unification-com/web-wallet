@@ -59,7 +59,6 @@
         Send: <input type="text" v-model="transfer.und" placeholder=""> UND<br>
         To: <input type="text" v-model="transfer.to" placeholder=""><br>
         Memo: <input type="text" v-model="transfer.memo" placeholder=""><br>
-        <p v-show="hasError">{{ errorMsg }}</p>
         <button @click="showConfirmTransferUnd()">Transfer</button>
       </div>
       <div class="tab-pane fade" :class="{ 'active show': isActive('stake') }" id="stake">Staking stuff</div>
@@ -100,8 +99,6 @@
           memo: 'sent from Unification Web Wallet'
         },
         isConfirmTransferUnd: false,
-        hasError: false,
-        errorMsg: ''
       }
     },
     watch: {
@@ -133,17 +130,25 @@
         }
       },
       showConfirmTransferUnd: function() {
-        this.hasError = false
-        this.errorMsg = ''
 
         if(!UndClient.crypto.checkAddress(this.transfer.to, 'und')) {
-          this.hasError = true
-          this.errorMsg = '"' + this.transfer.to + '" is not a valid address'
+          this.$bvToast.toast('"' + this.transfer.to + '" is not a valid address', {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
           return false
         }
         if(this.transfer.und <= 0 || isNaN(this.transfer.und)) {
-          this.hasError = true
-          this.errorMsg = 'Amount must be greater than zero'
+          this.$bvToast.toast('Amount must be greater than zero', {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
           return false
         }
         this.isConfirmTransferUnd = true
@@ -206,11 +211,28 @@
           this.transfer.memo
           )
 
+          console.log(res)
+
+          if(res.status === 200) {
+            this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
+              title: 'Tx successfully broadcast',
+              variant: 'success',
+              solid: true,
+              autoHideDelay: 10000,
+              appendToast: true
+            })
+          }
+
           this.closeConfirmTransferUnd()
           this.clearTransfer()
         } catch (err) {
-          this.hasError = true
-          this.errorMsg = err.toString()
+          this.$bvToast.toast(err.toString(), {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
         }
         this.updateWallet()
       }
