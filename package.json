@@ -4,7 +4,7 @@
   "description": "Unification Mainchain Web Wallet",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --modern",
     "test:unit": "vue-cli-service test:unit"
   },
   "repository": {
@@ -21,7 +21,12 @@
   "homepage": "https://github.com/unification-com/web-wallet#readme",
   "dependencies": {
     "@unification-com/und-js": "^1.1.0",
+    "big.js": "^5.2.2",
+    "bootstrap": "^4.4.1",
+    "bootstrap-vue": "^2.1.0",
     "core-js": "^3.4.4",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.16.0",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
   },

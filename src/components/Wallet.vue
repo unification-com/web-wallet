@@ -5,12 +5,12 @@
     v-show="isNewWalletModalVisible"
     @close="closeNewWalletModal"
     >
-      <template v-slot:headerHeader>
+      <template v-slot:modalHeader>
         Create New Wallet
       </template>
       <template v-slot:modalBody>
-        Enter new wallet password: <input v-model="walletPass" placeholder=""><br>
-        Confirm new wallet password: <input v-model="walletPassCheck" placeholder="">
+        Enter new wallet password: <input type="password" v-model="wallet.walletPass" placeholder=""><br>
+        Confirm new wallet password: <input type="password" v-model="wallet.walletPassCheck" placeholder="">
         <p v-show="hasError">{{ errorMsg }}</p>
       </template>
       <template v-slot:modalFooter>
@@ -37,12 +37,14 @@
     v-show="isMnemonicModalVisible"
     @close="closeMnemonicModal"
     >
-      <template v-slot:headerHeader>
+      <template v-slot:modalHeader>
         Your Mnemonic
       </template>
       <template v-slot:modalBody>
         This is your master Mnemonic. IMPORTANT - DO NOT LOSE THIS<br>
-        {{ mnemonic }}
+        {{ wallet.mnemonic }}
+        <br>
+        <input type="checkbox" id="checkbox" v-model="isMnemonicSaved"> I have saved this Mnemonic
       </template>
       <template v-slot:modalFooter>
         <button
@@ -50,6 +52,7 @@
         class="btn-green"
         @click="createWallet"
         aria-label="Create"
+        v-show="isMnemonicSaved"
         >
           Download Wallet
         </button>
@@ -60,12 +63,12 @@
     v-show="isUnlockWalletModalVisible"
     @close="closeUnlockWalletModal"
     >
-      <template v-slot:headerHeader>
+      <template v-slot:modalHeader>
         Unlock Wallet
       </template>
       <template v-slot:modalBody>
-        Enter wallet password: <input v-model="walletPass" placeholder=""><br>
-        <input type="file" @change="loadTextFromFile">
+        Enter wallet password: <input type="password" v-model="wallet.walletPass" placeholder=""><br>
+        Select Wallet file: <input type="file" @change="loadTextFromFile">
         <p v-show="hasError">{{ errorMsg }}</p>
       </template>
       <template v-slot:modalFooter>
@@ -89,20 +92,18 @@
     </Modal>
 
     Change Network <select @change="changeNetwork($event)">
+      <option value="https://rest-testnet.unification.io">TestNet</option>
       <option value="http://localhost:1318">DevNet</option>
-      <option value="http://3.136.239.157:1317">TestNet</option>
     </select>
 
     <h1>{{ chainId }}</h1>
     <button @click="newWallet()">Create New Wallet</button>
     <button @click="showUnlockWalletModal()">Unlock Wallet</button>
 
-    <button @click="getBalance()" v-show="isWalletUnlocked">get balance</button>
-    <button @click="clearData()" v-show="isWalletUnlocked">unload</button>
-    <br/>
-    <div v-show="isWalletUnlocked">Address: {{ address }}</div>
-    <br/>
-    <div v-show="isWalletUnlocked">Balance: {{ balance }}</div>
+    <button @click="clearData()" v-show="wallet.isWalletUnlocked">unload</button>
+
+    <Unlocked v-show="wallet.isWalletUnlocked" v-bind:wallet="this.wallet" v-bind:client="this.client" />
+    <Help v-show="!wallet.isWalletUnlocked"/>
   </div>
 </template>
 
@@ -110,33 +111,40 @@
   const UndClient = require('@unification-com/und-js')
 
   import Modal from '@/components/Modal.vue'
+  import Unlocked from '@/components/Unlocked.vue'
+  import Help from '@/components/Help.vue'
 
   export default {
     name: 'Wallet',
     components: {
-      Modal
-    },
-    props: {
-      msg: String
+      Modal,
+      Unlocked,
+      Help
     },
     data: function () {
       return {
-        rest: 'http://localhost:1318',
+        rest: 'https://rest-testnet.unification.io',
         chainId: 'not connected',
         client: null,
-        balance: '0',
-        address: '',
         isNewWalletModalVisible: false,
         isMnemonicModalVisible: false,
         isUnlockWalletModalVisible: false,
+        isMnemonicSaved: false,
         hasError: false,
         errorMsg: '',
-        isWalletUnlocked: false,
-        mnemonic: '',
-        walletPass: '',
-        walletPassCheck: '',
-        walletFile: '',
-        privateKey: '',
+
+        wallet: {
+          isWalletUnlocked: false,
+          json: '',
+          mnemonic: '',
+          walletPass: '',
+          walletPassCheck: '',
+          walletFile: '',
+          privateKey: '',
+          balance: '0',
+          balanceNund: '0',
+          address: '',
+        }
       }
     },
     mounted: function () {
@@ -159,23 +167,35 @@
         this.isUnlockWalletModalVisible = false
       },
       showUnlockWalletModal() {
+        this.clearData()
         this.isUnlockWalletModalVisible = true
       },
       initChain: async function () {
-        this.client = new UndClient(this.rest)
-        await this.client.initChain()
+        let client = new UndClient(this.rest)
+        await client.initChain()
+        if(this.wallet.privateKey.length > 0) {
+          client.setPrivateKey(this.wallet.privateKey, true)
+        }
+        this.client = client
         this.chainId = this.client.chainId
       },
       clearData: function() {
-        this.walletPass = ''
-        this.walletPassCheck = ''
-        this.mnemonic = ''
-        this.privateKey = ''
-        this.address = ''
+        this.wallet = {
+          isWalletUnlocked: false,
+          json: '',
+          mnemonic: '',
+          walletPass: '',
+          walletPassCheck: '',
+          walletFile: '',
+          privateKey: '',
+          balance: '0',
+          balanceNund: '0',
+          address: '',
+        }
+
+        this.isMnemonicSaved = false
         this.errorMsg = ''
-        this.balance = '0'
         this.hasError = false
-        this.isWalletUnlocked = false
       },
       changeNetwork: function(event) {
         this.rest = event.target.value
@@ -187,26 +207,26 @@
       },
       showWallet: function() {
 
-        if(this.walletPass.length < 8) {
+        if(this.wallet.walletPass.length < 8) {
           this.errorMsg = "enter a password > 8 chars"
           this.hasError = true
           return false
         }
-        if(this.walletPass !== this.walletPassCheck) {
+        if(this.wallet.walletPass !== this.wallet.walletPassCheck) {
           this.errorMsg = "passwords do not match"
           this.hasError = true
           return false
         }
 
-        this.mnemonic = UndClient.crypto.generateMnemonic()
-        this.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
-        this.address = UndClient.crypto.getAddressFromPrivateKey(this.privateKey, 'und')
+        this.wallet.mnemonic = UndClient.crypto.generateMnemonic()
+        this.wallet.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.wallet.mnemonic)
+        this.wallet.address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
 
         this.closeNewWalletModal()
         this.showMnemonicModal()
       },
       createWallet: function() {
-        const keystore = UndClient.crypto.generateKeyStore(this.privateKey, this.walletPass)
+        const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
         this.download(JSON.stringify(keystore), keystore.id + ".json", "text/json")
         this.closeMnemonicModal()
         this.clearData()
@@ -219,7 +239,7 @@
         a.click();
       },
       loadTextFromFile: function (ev) {
-        this.walletFile = ev.target.files[0]
+        this.wallet.walletFile = ev.target.files[0]
       },
       unlockWallet: function() {
         this.errorMsg = ''
@@ -227,27 +247,21 @@
         const reader = new FileReader();
 
         reader.onload = e => this.loadWallet(e);
-        reader.readAsText(this.walletFile);
+        reader.readAsText(this.wallet.walletFile);
       },
       loadWallet: async function(e) {
         try {
-          const res = this.client.recoverAccountFromKeystore(e.target.result, this.walletPass)
-          this.address = res.address
+          this.wallet.json = e.target.result
+          const res = this.client.recoverAccountFromKeystore(e.target.result, this.wallet.walletPass)
+          this.wallet.address = res.address
+          this.wallet.privateKey = res.privateKey
           await this.client.setPrivateKey(res.privateKey, true)
-          this.isWalletUnlocked = true
           this.closeUnlockWalletModal()
-          this.getBalance()
+          this.wallet.isWalletUnlocked = true
         } catch(e) {
           this.errorMsg = e.toString()
           this.hasError = true
-        }
-      },
-      getBalance: async function() {
-        const res = await this.client.getBalance()
-        if(res.length > 0) {
-          this.balance = res[0].amount + res[0].denom
-        } else {
-          this.balance = '0nund'
+          this.clearData()
         }
       }
     }
