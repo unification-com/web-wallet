@@ -32,6 +32,21 @@
           case 'cosmos-sdk/MsgSend':
             this.formatMsgSend()
             break
+          case 'cosmos-sdk/MsgCreateValidator':
+          case 'cosmos-sdk/MsgEditValidator':
+          case 'cosmos-sdk/MsgDelegate':
+          case 'cosmos-sdk/MsgUndelegate':
+          case 'cosmos-sdk/MsgBeginRedelegate':
+          case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+          case 'cosmos-sdk/MsgWithdrawDelegationReward':
+          case 'cosmos-sdk/MsgModifyWithdrawAddress':
+          case 'cosmos-sdk/MsgUnjail':
+          case 'enterprise/PurchaseUnd':
+          case 'enterprise/ProcessUndPurchaseOrder':
+          case 'wrkchain/RegisterWrkChain':
+          case 'wrkchain/RecordWrkChainBlock':
+          case 'beacon/RegisterBeacon':
+          case 'beacon/RecordBeaconTimestamp':
           default:
             this.formatted = this.msg
             break
