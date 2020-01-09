@@ -41,14 +41,11 @@
         this.loadTransactions()
       }
     },
-    mounted() {
-      this.loadTransactions()
-    },
     methods: {
       loadTransactions: async function () {
-        this.txs = []
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
           let res = await this.clnt.getTransactions()
+          this.txs = []
           if (res.status === 200) {
             this.txs = res.result.txs
           }
