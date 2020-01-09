@@ -2,12 +2,13 @@
   <div>
     <button @click="loadTransactions()">Refresh</button>
     <h3>Successful Transactions</h3>
-    <p>Please note - the wallet only lists successful transactions. Please see Explorer for all transactions, including unsuccessful transactions</p>
-    <ul id="transaction-list">
-      <li v-for="tx in txs">
+    <p><b>Please note</b> - the wallet only lists successful transactions. Please see Explorer for all transactions, including unsuccessful transactions</p>
+
+    <b-list-group>
+      <b-list-group-item v-for="tx in txs" v-bind:key="tx.txhash">
         <Tx v-bind:tx="tx"/>
-      </li>
-    </ul>
+      </b-list-group-item>
+    </b-list-group>
   </div>
 </template>
 
