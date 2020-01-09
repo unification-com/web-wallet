@@ -1,38 +1,6 @@
 <template>
   <div class="container">
 
-    <Modal
-    v-show="isConfirmTransferUnd"
-    @close="closeConfirmTransferUnd"
-    >
-      <template v-slot:modalHeader>
-        Confirm Transfer
-      </template>
-      <template v-slot:modalBody>
-        <p>Please confirm:</p>
-        Sending {{transfer.und}} UND<br>
-        To {{transfer.to}}
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
-        @click="transferUnd"
-        aria-label="Create"
-        >
-          Confirm
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeConfirmTransferUnd"
-        aria-label="Close modal"
-        >
-          Close
-        </button>
-      </template>
-    </Modal>
-
     <div>Address: {{ wallet.address }}</div>
     <br/>
     <div>Balance: {{ wallet.balance }} UND</div>
@@ -46,40 +14,47 @@
            href="#transfer">Transfer</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" @click.prevent="setActive('enterprise'), updateWallet()" :class="{ active: isActive('enterprise') }"
+           href="#enterprise">Enterprise</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" @click.prevent="setActive('stake'), updateWallet()" :class="{ active: isActive('stake') }"
            href="#stake">Stake</a>
       </li>
     </ul>
-    <div class="tab-content py-3" id="myTabContent">
+    <div class="tab-content py-3" id="unlocked-wallet-content">
       <div class="tab-pane fade" :class="{ 'active show': isActive('transactions') }" id="transactions">
-        <Transactions v-bind:txs="transactions" />
+        <Transactions v-bind:client="clnt" v-bind:wallet="w" />
+      </div>
+      <div class="tab-pane fade" :class="{ 'active show': isActive('enterprise') }" id="enterprise">
+        <Enterprise v-bind:client="clnt" v-bind:wallet="w" />
       </div>
       <div class="tab-pane fade" :class="{ 'active show': isActive('transfer') }" id="transfer">
-
-        Send: <input type="text" v-model="transfer.und" placeholder=""> UND<br>
-        To: <input type="text" v-model="transfer.to" placeholder=""><br>
-        Memo: <input type="text" v-model="transfer.memo" placeholder=""><br>
-        <button @click="showConfirmTransferUnd()">Transfer</button>
+        <Transfer v-bind:client="clnt" v-bind:wallet="w"/>
       </div>
-      <div class="tab-pane fade" :class="{ 'active show': isActive('stake') }" id="stake">Staking stuff</div>
+      <div class="tab-pane fade" :class="{ 'active show': isActive('stake') }" id="stake">
+        <Staking v-bind:client="clnt" v-bind:wallet="w"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
   import Big from 'big.js'
-  const UndClient = require('@unification-com/und-js')
+  import {UND_CONFIG} from '@/constants.js'
 
-  import Modal from '@/components/Modal.vue'
+  import Enterprise from '@/components/Enterprise.vue'
+  import Staking from '@/components/Staking.vue'
   import Transactions from '@/components/Transactions.vue'
-
-  const BASENUMBER = Math.pow(10, 9)
+  import Transfer from '@/components/Transfer.vue'
 
   export default {
     name: 'Unlocked',
     components: {
+      Enterprise,
+      Staking,
       Transactions,
-      Modal
+      Transfer,
     },
     props: {
       wallet: Object,
@@ -92,18 +67,11 @@
         chainId: '',
         w: this.wallet,
         clnt: this.client,
-        transactions: [],
-        transfer: {
-          to: '',
-          und: '0',
-          memo: 'sent from Unification Web Wallet'
-        },
-        isConfirmTransferUnd: false,
       }
     },
     watch: {
       wallet: function (newWallet) {
-        this.wallet = newWallet
+        this.w = newWallet
         this.refreshWallet()
         if(newWallet.isWalletUnlocked) {
           this.updateWallet()
@@ -122,40 +90,6 @@
       clearInterval(this.timer)
     },
     methods: {
-      clearTransfer: function() {
-        this.transfer = {
-          to: '',
-          und: '0',
-          memo: 'sent from Unification Web Wallet'
-        }
-      },
-      showConfirmTransferUnd: function() {
-
-        if(!UndClient.crypto.checkAddress(this.transfer.to, 'und')) {
-          this.$bvToast.toast('"' + this.transfer.to + '" is not a valid address', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
-          return false
-        }
-        if(this.transfer.und <= 0 || isNaN(this.transfer.und)) {
-          this.$bvToast.toast('Amount must be greater than zero', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
-          return false
-        }
-        this.isConfirmTransferUnd = true
-      },
-      closeConfirmTransferUnd: function() {
-        this.isConfirmTransferUnd = false
-      },
       refreshWallet: function() {
         clearInterval(this.timer)
         this.timer = setInterval(this.updateWallet, 5000)
@@ -167,74 +101,20 @@
         this.activeItem = menuItem
       },
       updateWallet: function () {
-        if (this.clnt !== null && this.wallet.isWalletUnlocked > 0) {
-          this.loadTransactions()
+        if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
           this.getBalance()
-        }
-      },
-      loadTransactions: async function () {
-        let res = await this.client.getTransactions()
-        if (res.status === 200) {
-          this.transactions = res.result.txs
         }
       },
       getBalance: async function () {
         const res = await this.clnt.getBalance()
         if (res.length > 0) {
           let amount = new Big(res[0].amount)
-          this.wallet.balance = Number(amount.div(BASENUMBER))
-          this.wallet.balanceNund = res[0].amount
+          this.w.balance = Number(amount.div(UND_CONFIG.BASENUMBER))
+          this.w.balanceNund = res[0].amount
         } else {
-          this.wallet.balance = '0'
-          this.wallet.balanceNund = '0'
+          this.w.balance = '0'
+          this.w.balanceNund = '0'
         }
-      },
-      transferUnd: async function() {
-
-        let fee = {
-          "amount": [
-            {
-              "denom": "nund",
-              "amount": "2500"
-            }
-          ],
-          "gas": "90000"
-        }
-
-        try {
-          let res = await this.clnt.transferUnd(
-          this.transfer.to,
-          this.transfer.und,
-          fee,
-          "und",
-          this.wallet.address,
-          this.transfer.memo
-          )
-
-          console.log(res)
-
-          if(res.status === 200) {
-            this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
-              title: 'Tx successfully broadcast',
-              variant: 'success',
-              solid: true,
-              autoHideDelay: 10000,
-              appendToast: true
-            })
-          }
-
-          this.closeConfirmTransferUnd()
-          this.clearTransfer()
-        } catch (err) {
-          this.$bvToast.toast(err.toString(), {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
-        }
-        this.updateWallet()
       }
     }
   };

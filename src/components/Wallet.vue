@@ -1,6 +1,5 @@
 <template>
   <div class="wallet">
-
     <Modal
     v-show="isNewWalletModalVisible"
     @close="closeNewWalletModal"
@@ -97,10 +96,10 @@
     </select>
 
     <h1>{{ chainId }}</h1>
-    <button @click="newWallet()">Create New Wallet</button>
-    <button @click="showUnlockWalletModal()">Unlock Wallet</button>
+    <button @click="newWallet()" v-show="!wallet.isWalletUnlocked">Create New Wallet</button>
+    <button @click="showUnlockWalletModal()" v-show="!wallet.isWalletUnlocked">Unlock Wallet</button>
 
-    <button @click="clearData()" v-show="wallet.isWalletUnlocked">unload</button>
+    <button @click="clearData()" v-show="wallet.isWalletUnlocked">Close Wallet</button>
 
     <Unlocked v-show="wallet.isWalletUnlocked" v-bind:wallet="this.wallet" v-bind:client="this.client" />
     <Help v-show="!wallet.isWalletUnlocked"/>
