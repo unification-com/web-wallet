@@ -1,12 +1,14 @@
 <template>
-  <div v-html="formatted">
+  <div>
+    <span>
+      <b-badge variant="info">{{action}}</b-badge>
+    </span>
+    <span v-html="formatted">
+    </span>
   </div>
 </template>
 
 <script>
-
-  import Big from 'big.js'
-  import {UND_CONFIG} from '@/constants.js'
 
   export default {
     name: 'Tx',
@@ -18,7 +20,11 @@
         txhash: this.tx.txhash,
         txData: this.tx.tx,
         msg: this.tx.tx.value.msg[0],
-        formatted: ''
+        formatted: '',
+        action: '',
+        address: '',
+        datetime: '',
+        amount: '',
       }
     },
     mounted() {
@@ -28,21 +34,27 @@
       formatMsg: function() {
         switch(this.msg.type) {
           case 'cosmos-sdk/MsgSend':
+            this.action = "Sent"
             this.formatMsgSend()
             break
           case 'cosmos-sdk/MsgDelegate':
+            this.action = "Delegated"
             this.formatMsgDelegate()
             break
           case 'cosmos-sdk/MsgUndelegate':
+            this.action = "Undelegated"
             this.formatMsgUnDelegate()
             break
           case 'cosmos-sdk/MsgBeginRedelegate':
+            this.action = "Redelegated"
             this.formatted = this.msg
             break
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+            this.action = "Withdrew Validator Commision"
             this.formatted = this.msg
             break
           case 'cosmos-sdk/MsgWithdrawDelegationReward':
+            this.action = "Withdrew Delegation Reward"
             this.formatMsgWithdrawDelegationReward()
             break
           case 'cosmos-sdk/MsgModifyWithdrawAddress':
@@ -52,6 +64,7 @@
             this.formatted = this.msg
             break
           case 'enterprise/PurchaseUnd':
+            this.action = "Raised Enterprise Purchase Order"
             this.formatPurchaseUnd(this.msg.value)
             break
           case 'enterprise/ProcessUndPurchaseOrder':
@@ -76,22 +89,22 @@
       },
       formatMsgSend: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount[0].amount)
-        this.formatted = '<span class="tx-action">Sent</span> <span class="tx-amount">' + formattedAmt + '</span> to <span class="tx-address">' + msg.to_address + '</span> on <span class="tx-time">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + msg.to_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatPurchaseUnd: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = '<span class="tx-action">Raised Enterprise Purchase Order</span> for <span class="tx-amount">' + formattedAmt + '</span> on <span class="tx-time">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        this.formatted = ' for <span class="text-info">' + formattedAmt + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgDelegate: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = '<span class="tx-action">Delegated</span> ' + formattedAmt + ' to <span class="tx-address">' + msg.validator_address + '</span> on <span class="tx-time">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgUnDelegate: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = '<span class="tx-action">Undelegated</span> ' + formattedAmt + ' from <span class="tx-address">' + msg.validator_address + '</span> on <span class="tx-time">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgWithdrawDelegationReward: function(msg = this.msg.value) {
-        this.formatted = '<span class="tx-action">Withdrew Reward</span> from <span class="tx-address">' + msg.validator_address + '</span> on <span class="tx-time">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        this.formatted = ' from <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       }
     }
   }

@@ -1,203 +1,416 @@
 <template>
   <div>
 
-    <Modal
-    v-show="isConfirmDelegate"
-    @close="closeConfirmDelegate"
-    >
-      <template v-slot:modalHeader>
-        Confirm Delegation
+    <!-- delegate UND confirmation modal -->
+    <b-modal id="bv-modal-confirm-delegate-und">
+      <template v-slot:modal-title>
+        <h3>Confirm Delegate UND</h3>
       </template>
-      <template v-slot:modalBody>
-        <p>Please confirm:</p>
-        Amount: {{delegateData.und}} UND<br>
-        Validator: {{getValidatorMoniker(delegateData.address)}}
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
+      <p>Please confirm delegation:</p>
+      Amount: <span class="text-info">{{delegateData.und}} UND</span><br>
+      Validator: {{getValidatorMoniker(delegateData.address)}}<br>
+      Fee: {{fee.amount[0].amount}}nund<br>
+      Gas: {{fee.gas}}
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
         @click="confirmDelegation"
-        aria-label="Create"
+        aria-label="Confirm"
         >
           Confirm
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeConfirmDelegate"
-        aria-label="Close modal"
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-confirm-delegate-und')"
+        aria-label="Cancel"
         >
-          Close
-        </button>
+          Cancel
+        </b-button>
       </template>
-    </Modal>
+    </b-modal>
 
-    <Modal
-    v-show="isInitUndelegate"
-    @close="closeInitUndelegate"
-    >
-      <template v-slot:modalHeader>
-        Undelegate
+    <!-- undelegate modal -->
+    <b-modal id="bv-modal-undelegate-und">
+      <template v-slot:modal-title>
+        <h3>Undelegate UND</h3>
       </template>
-      <template v-slot:modalBody>
-        Undelegate <input type="text" v-model="undelegateData.und" placeholder=""> UND<br>
-        from {{getValidatorMoniker(undelegateData.address)}}<br>
-        (maximum {{undelegateData.max}}UND)<br>
+        <b-form-group
+        id="undelegate-und-label"
+        label="Undelegate:"
+        label-for="undelegate-und"
+        description="Amount of UND to undelegate"
+        >
+          <b-input-group append="UND">
+            <b-form-input
+            id="undelegate-und"
+            v-model="undelegateData.und"
+            type="text"
+            required
+            />
+          </b-input-group>
+        </b-form-group>
+        <b-form-group
+        id="undelegate-from-label"
+        label="From:"
+        label-for="undelegate-from"
+        description="Address to undelegate from"
+        >
+          <b-form-input
+          id="undelegate-from"
+          v-model="undelegateData.address"
+          type="text"
+          required
+          />
+        </b-form-group>
+
+        <b-form-group
+        id="undelegate-fee-amount-label"
+        label="Fee:"
+        label-for="undelegate-fee-amount"
+        description="Fees in nund"
+        v-show="isShowFee"
+        >
+          <b-input-group append="nund">
+            <b-form-input
+            id="undelegate-fee-amount"
+            v-model="fee.amount[0].amount"
+            type="text"
+            trim
+            />
+          </b-input-group>
+        </b-form-group>
+        <b-form-group
+        id="undelegate-fee-gas-label"
+        label="Gas:"
+        label-for="undelegate-fee-gas"
+        description="Gas"
+        v-show="isShowFee"
+        >
+          <b-form-input
+          id="undelegate-fee-gas"
+          v-model="fee.gas"
+          type="text"
+          trim
+          />
+        </b-form-group>
+
+        <b-form-checkbox
+        id="undelegate-show-fee"
+        v-model="isShowFee"
+        name="undelegate-show-fee"
+        >
+          Manually set Fees
+        </b-form-checkbox>
+      <p>
+        <b>(maximum {{undelegateData.max}}UND)</b><br>
         <b>Note:</b> outstanding rewards will automatically be withdrawn during undelegation
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
+      </p>
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
         @click="showConfirmUnDelegation"
         aria-label="Create"
         >
           Undelegate
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeInitUndelegate"
-        aria-label="Close modal"
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-undelegate-und')"
+        aria-label="Cancel"
         >
-          Close
-        </button>
+          Cancel
+        </b-button>
       </template>
-    </Modal>
+    </b-modal>
 
-    <Modal
-    v-show="isConfirmUndelegate"
-    @close="closeConfirmUndelegate"
-    >
-      <template v-slot:modalHeader>
-        Confirm Undelegate
+    <!-- confirm undelegate modal -->
+    <b-modal id="bv-modal-confirm-undelegate-und">
+      <template v-slot:modal-title>
+        <h3>Confirm Undelegate UND</h3>
       </template>
-      <template v-slot:modalBody>
-        Undelegate {{ undelegateData.und }} UND
-        from {{getValidatorMoniker(undelegateData.address)}}?
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
+      Undelegate <span class="text-info">{{ undelegateData.und }}UND</span>
+      from {{getValidatorMoniker(undelegateData.address)}}?<br>
+      Fee: {{fee.amount[0].amount}}nund<br>
+      Gas: {{fee.gas}}
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
         @click="confirmUndelegation"
         aria-label="Create"
         >
           Confirm
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeConfirmUndelegate"
-        aria-label="Close modal"
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-confirm-undelegate-und')"
+        aria-label="Cancel"
         >
-          Close
-        </button>
+          Cancel
+        </b-button>
       </template>
-    </Modal>
+    </b-modal>
 
-    <Modal
-    v-show="isConfirmWithdraw"
-    @close="closeConfirmWithdraw"
-    >
-      <template v-slot:modalHeader>
-        Confirm Withdraw Rewards
+    <!-- confirm withdraw rewards modal -->
+    <b-modal id="bv-modal-confirm-withdraw-rewards">
+      <template v-slot:modal-title>
+        <h3>Confirm Withdraw Rewards</h3>
       </template>
-      <template v-slot:modalBody>
-        Withdraw {{ withdrawData.und }} UND<br>
-        from {{getValidatorMoniker(withdrawData.address)}}<br>
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
+      Withdraw <span class="text-info">{{ withdrawData.und }} UND</span><br>
+      from {{getValidatorMoniker(withdrawData.address)}}<br><br>
+      Fee: {{fee.amount[0].amount}}nund<br>
+      Gas: {{fee.gas}}
+      <b-form-group
+      id="withdraw-fee-amount-label"
+      label="Fee:"
+      label-for="withdraw-fee-amount"
+      description="Fees in nund"
+      v-show="isShowFee"
+      >
+        <b-input-group append="nund">
+          <b-form-input
+          id="withdraw-fee-amount"
+          v-model="fee.amount[0].amount"
+          type="text"
+          trim
+          />
+        </b-input-group>
+      </b-form-group>
+      <b-form-group
+      id="withdraw-fee-gas-label"
+      label="Gas:"
+      label-for="withdraw-fee-gas"
+      description="Gas"
+      v-show="isShowFee"
+      >
+        <b-form-input
+        id="withdraw-fee-gas"
+        v-model="fee.gas"
+        type="text"
+        trim
+        />
+      </b-form-group>
+
+      <b-form-checkbox
+      id="withdraw-show-fee"
+      v-model="isShowFee"
+      name="withdraw-show-fee"
+      >
+        Manually set Fees
+      </b-form-checkbox>
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
         @click="confirmWithdrawReward"
         aria-label="Create"
         >
           Confirm
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeConfirmWithdraw"
-        aria-label="Close modal"
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-confirm-withdraw-rewards')"
+        aria-label="Cancel"
         >
-          Close
-        </button>
+          Cancel
+        </b-button>
       </template>
-    </Modal>
+    </b-modal>
 
-    <ul class="nav nav-tabs nav-justified">
+    <b-card no-body>
+      <b-tabs pills card>
+        <b-tab title="Delegations" active @click.prevent="getDelegations()">
+          <b-card-text>
+            <b-container class="bv-example-row">
+              <b-row>
+                <b-col>
+                  <h3>Current Delegations and Rewards</h3>
+                </b-col>
+                <b-col>
+                  <b-button @click="getDelegations()">Refresh</b-button>
+                </b-col>
+              </b-row>
+            </b-container>
 
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('delegations'), getDelegations()"
-           :class="{ active: isActive('delegations') }"
-           href="#transfer">Delegations</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('stake')"
-           :class="{ active: isActive('stake') }" href="#stake">Stake</a>
-      </li>
-    </ul>
-    <div class="tab-content py-3" id="staking-content">
-      <div class="tab-pane fade" :class="{ 'active show': isActive('delegations') }" id="delegations">
-        <button @click="getDelegations()">Refresh</button>
-        <div>
-          <b-table :items="delegations" striped responsive="sm">
-            <template v-slot:cell(undelegate)="row">
-              <b-button size="sm" @click="initUndelegate(row.item)" class="mr-2">
-                Undelegate
-              </b-button>
-            </template>
+            <div v-show="isDataLoading">
+              <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
+            </div>
 
-            <template v-slot:cell(shares)="data">
-              <b class="text-info">{{ Number(data.value) }}</b>
-            </template>
-            <template v-slot:cell(stake)="data">
-              <b class="text-info">{{ formatAmount(data.value)}}</b>
-            </template>
-            <template v-slot:cell(rewards)="data">
-              <b class="text-info">{{ formatAmount(data.value)}}</b>
-            </template>
-            <template v-slot:cell(withdraw)="row">
-              <b-button size="sm" @click="showConfirmWithdraw(row.item)" class="mr-2">
-                Withdraw
-              </b-button>
-            </template>
-          </b-table>
-        </div>
-      </div>
-      <div class="tab-pane fade" :class="{ 'active show': isActive('stake') }" id="stake">
+            <div v-show="!isDataLoading">
+              <b-table :items="delegations" :fields="delegationsFields" striped responsive="sm">
 
-        <h3>Delegate</h3>
-        Select Existing Validator <select v-model="delegateData.address">
-        <option v-for="val of validators" v-bind:value="val['operator_address']">
-          {{ val['description']['moniker'] }}
-        </option>
-      </select><br>
-        Or enter Validator Operator Address: <input type="text" v-model="delegateData.address" placeholder="">
-        (note - this starts with "undvaloper")<br>
-        Amount: <input type="text" v-model="delegateData.und" placeholder=""> UND<br>
-        Memo: <input type="text" v-model="delegateData.memo" placeholder=""><br>
-        <button @click="showConfirmDelegate()">Delegate UND</button><br>
-        <b>Note:</b> outstanding rewards will automatically be withdrawn during delegation
-      </div>
-    </div>
+                <template v-slot:cell(show_details)="row">
+                  <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                  </b-button>
+                </template>
+                <template v-slot:row-details="row">
+                  <b-card>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Moniker:</b></b-col>
+                      <b-col>{{ row.item.description.moniker }}</b-col>
+                    </b-row>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Address:</b></b-col>
+                      <b-col>{{ row.item.validator_address }}</b-col>
+                    </b-row>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Identity:</b></b-col>
+                      <b-col>{{ row.item.description.identity }}</b-col>
+                    </b-row>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Website:</b></b-col>
+                      <b-col>{{ row.item.description.website }}</b-col>
+                    </b-row>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Security Contact:</b></b-col>
+                      <b-col>{{ row.item.description.security_contact }}</b-col>
+                    </b-row>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Details:</b></b-col>
+                      <b-col>{{ row.item.description.details }}</b-col>
+                    </b-row>
+                    <b-button variant="danger" size="sm" @click="initUndelegate(row.item)" class="mr-2">
+                      Undelegate
+                    </b-button>
+                    <b-button variant="success" size="sm" @click="showConfirmWithdraw(row.item)" class="mr-2">
+                      Withdraw Rewards
+                    </b-button>
+                    <b-button size="sm" @click="row.toggleDetails">
+                      Hide Details
+                    </b-button>
+                  </b-card>
+                </template>
+                <template v-slot:cell(shares)="data">
+                  <b class="text-info">{{ Number(data.value) }}</b>
+                </template>
+                <template v-slot:cell(stake)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+                <template v-slot:cell(rewards)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+              </b-table>
+            </div>
+          </b-card-text>
+        </b-tab>
+        <b-tab title="Stake" @click.prevent="getDelegations()">
+          <b-card-text>
+            <h3>Stake UND</h3>
+
+            <div v-show="isDataLoading">
+              <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
+            </div>
+
+            <div v-show="!isDataLoading">
+              <b-form v-on:@submit.prevent="false">
+                <b-form-group
+                id="delegate-node-label"
+                label="Select Existing Validator:"
+                label-for="delegate-node"
+                description="Select an existing validator"
+                >
+                  <b-form-select id="delegate-node" v-model="delegateData.address" :options="validatorsSelect"/>
+                </b-form-group>
+              </b-form>
+
+              <b-form v-on:@submit.prevent="false">
+                <b-form-group
+                id="delegate-manual-node-label"
+                label="Or Manually Enter Validator:"
+                label-for="delegate-manual-node"
+                description="Alternatively, enter a validator address manually (note - this starts with undvaloper)"
+                >
+                  <b-form-input
+                  id="delegate-manual-node"
+                  v-model="delegateData.address"
+                  type="text"
+                  required
+                  />
+                </b-form-group>
+
+                <b-form-group
+                id="delegate-und-label"
+                label="Amount:"
+                label-for="delegate-und"
+                description="Amount of UND to delegate"
+                >
+                  <b-input-group append="UND">
+                    <b-form-input
+                    id="delegate-und"
+                    v-model="delegateData.und"
+                    type="text"
+                    required
+                    placeholder=""
+                    />
+                  </b-input-group>
+                </b-form-group>
+                <b-form-group
+                id="delegate-memo-label"
+                label="Memo:"
+                label-for="delegate-memo"
+                description="Optional Memo"
+                >
+                  <b-form-input
+                  id="delegate-memo"
+                  v-model="delegateData.memo"
+                  type="text"
+                  trim
+                  />
+                </b-form-group>
+
+                <b-form-group
+                id="delegate-fee-amount-label"
+                label="Fee:"
+                label-for="delegate-fee-amount"
+                description="Fees in nund"
+                v-show="isShowFee"
+                >
+                  <b-input-group append="nund">
+                    <b-form-input
+                    id="delegate-fee-amount"
+                    v-model="fee.amount[0].amount"
+                    type="text"
+                    trim
+                    />
+                  </b-input-group>
+                </b-form-group>
+                <b-form-group
+                id="delegate-fee-gas-label"
+                label="Gas:"
+                label-for="delegate-fee-gas"
+                description="Gas"
+                v-show="isShowFee"
+                >
+                  <b-form-input
+                  id="delegate-fee-gas"
+                  v-model="fee.gas"
+                  type="text"
+                  trim
+                  />
+                </b-form-group>
+
+                <b-form-checkbox
+                id="delegate-show-fee"
+                v-model="isShowFee"
+                name="delegate-show-fee"
+                >
+                  Manually set Fees
+                </b-form-checkbox>
+
+                <b-button variant="success" @click="showConfirmDelegate()">Delegate UND</b-button>
+              </b-form>
+              <br>
+              <b>Note:</b> outstanding rewards will automatically be withdrawn during delegation
+            </div>
+          </b-card-text>
+        </b-tab>
+      </b-tabs>
+    </b-card>
   </div>
 </template>
 
 <script>
-  import Modal from '@/components/Modal.vue'
   import {UND_CONFIG} from '@/constants.js'
 
   const UndClient = require('@unification-com/und-js')
 
   export default {
     name: "Staking",
-    components: {
-      Modal
-    },
     props: {
       client: Object,
       wallet: Object
@@ -222,12 +435,30 @@
           address: '',
           und: ''
         },
+        defaultFee: {
+          amount: [
+            {
+              denom: "nund",
+              amount: "5000"
+            }
+          ],
+          gas: "190000"
+        },
+        fee: {
+          amount: [
+            {
+              denom: "nund",
+              amount: "5000"
+            }
+          ],
+          gas: "190000"
+        },
         validators: {},
+        validatorsSelect: [],
         delegations: [],
-        isConfirmDelegate: false,
-        isConfirmUndelegate: false,
-        isInitUndelegate: false,
-        isConfirmWithdraw: false
+        delegationsFields: ['name', 'shares', 'stake', 'rewards', 'show_details'],
+        isDataLoading: false,
+        isShowFee: false,
       }
     },
     watch: {
@@ -239,12 +470,6 @@
       }
     },
     methods: {
-      isActive: function (menuItem) {
-        return this.activeItem === menuItem
-      },
-      setActive: function (menuItem) {
-        this.activeItem = menuItem
-      },
       showConfirmDelegate: function () {
         if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
           this.$bvToast.toast('Amount must be greater than zero', {
@@ -256,7 +481,7 @@
           })
           return false
         }
-        if(this.delegateData.und >= this.w.balance) {
+        if (this.delegateData.und >= this.w.balance) {
           this.$bvToast.toast('cannot delegate more than your balance', {
             title: 'Error',
             variant: 'danger',
@@ -276,19 +501,9 @@
           })
           return false
         }
-        this.isConfirmDelegate = true
+        this.$bvModal.show('bv-modal-confirm-delegate-und')
       },
-      closeConfirmDelegate: function () {
-        this.isConfirmDelegate = false
-        this.clearDelegateData()
-      },
-      showInitUndelegate: function() {
-        this.isInitUndelegate = true
-      },
-      closeInitUndelegate: function() {
-        this.isInitUndelegate = false
-      },
-      showConfirmUnDelegation: function() {
+      showConfirmUnDelegation: function () {
         if (this.undelegateData.und <= 0 || isNaN(this.undelegateData.und) || this.undelegateData.und > this.undelegateData.max) {
           this.$bvToast.toast('Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND', {
             title: 'Error',
@@ -309,20 +524,14 @@
           })
           return false
         }
-        this.closeInitUndelegate()
-        this.isConfirmUndelegate = true
+        this.$bvModal.hide('bv-modal-undelegate-und')
+        this.$bvModal.show('bv-modal-confirm-undelegate-und')
       },
-      closeConfirmUndelegate: function() {
-        this.isConfirmUndelegate = false
-      },
-      showConfirmWithdraw: function(item) {
+      showConfirmWithdraw: function (item) {
         this.clearWithdrawData()
         this.withdrawData.address = item.validator_address
         this.withdrawData.und = this.nundToUnd(item.rewards)
-        this.isConfirmWithdraw = true
-      },
-      closeConfirmWithdraw: function() {
-        this.isConfirmWithdraw = false
+        this.$bvModal.show('bv-modal-confirm-withdraw-rewards')
       },
       clearDelegateData: function () {
         this.delegateData = {
@@ -330,6 +539,8 @@
           und: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
+        this.fee = this.defaultFee
+        this.isShowFee = false
       },
       clearUnDelegateData: function () {
         this.undelegateData = {
@@ -338,18 +549,22 @@
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
+        this.fee = this.defaultFee
+        this.isShowFee = false
       },
-      clearWithdrawData: function() {
+      clearWithdrawData: function () {
         this.withdrawData = {
           address: '',
           und: ''
         }
+        this.fee = this.defaultFee
+        this.isShowFee = false
       },
-      initUndelegate: function(item) {
+      initUndelegate: function (item) {
         this.clearUnDelegateData()
         this.undelegateData.address = item.validator_address
         this.undelegateData.max = this.nundToUnd(item.stake)
-        this.showInitUndelegate()
+        this.$bvModal.show('bv-modal-undelegate-und')
       },
       clientError: function () {
         this.$bvToast.toast("Client not connected or wallet not unlocked. Please reload", {
@@ -360,50 +575,73 @@
           appendToast: true
         })
       },
-      getValidatorMoniker: function(validatorAddress) {
+      getValidatorMoniker: function (validatorAddress) {
         let moniker = validatorAddress
         if (validatorAddress in this.validators) {
           moniker = this.validators[validatorAddress]['description']['moniker']
         }
         return moniker
       },
+      getValidatorDescription: function (validatorAddress) {
+        let description = {
+          moniker: '',
+          identity: '',
+          website: '',
+          security_contact: '',
+          details: '',
+        }
+        if (validatorAddress in this.validators) {
+          description = this.validators[validatorAddress]['description']
+        }
+        return description
+      },
       getValidators: async function () {
+        this.validators = {}
+        this.validatorsSelect = []
         if (this.clnt !== null && this.w.isWalletUnlocked) {
           let res = await this.clnt.getValidators()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               this.validators[res.result.result[i].operator_address] = res.result.result[i]
+              let valOption = {
+                value: res.result.result[i].operator_address,
+                text: res.result.result[i].description.moniker
+              }
+              this.validatorsSelect.push(valOption)
             }
           }
         }
       },
       getDelegations: async function () {
+        this.delegations = []
         if (this.clnt !== null && this.w.isWalletUnlocked) {
+          this.isDataLoading = true
           await this.getValidators()
           let res = await this.clnt.getDelegations()
-          this.delegations = []
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               let moniker = ''
               let validator_address = res.result.result[i].validator_address
               if (validator_address in this.validators) {
                 moniker = this.validators[validator_address]['description']['moniker']
-              }//x.toFixed(15).replace(/0+$/, "")
+              }
+
               let del = {
                 name: moniker,
                 validator_address: validator_address,
                 shares: res.result.result[i].shares,
                 stake: res.result.result[i].balance.amount,
                 rewards: await this.getRewards(validator_address),
-                undelegate: '',
-                withdraw: '',
+                description: this.getValidatorDescription(validator_address)
               }
+
               this.delegations.push(del)
             }
           }
+          this.isDataLoading = false
         }
       },
-      getRewards: async function(valAddress) {
+      getRewards: async function (valAddress) {
         let rewards = '0'
         if (this.clnt !== null && this.w.isWalletUnlocked) {
           let res = await this.clnt.getDelegatorRewards(this.w.address, valAddress)
@@ -413,26 +651,16 @@
         }
         return rewards
       },
-      confirmDelegation: function() {
+      confirmDelegation: function () {
         this.confirmDelegationAsync()
       },
       confirmDelegationAsync: async function () {
         if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let fee = {
-            "amount": [
-              {
-                "denom": "nund",
-                "amount": "5000"
-              }
-            ],
-            "gas": "190000"
-          }
-
           try {
             let res = await this.clnt.delegate(
             this.delegateData.address,
             this.delegateData.und,
-            fee,
+            this.fee,
             "und",
             this.w.address,
             this.delegateData.memo
@@ -458,32 +686,23 @@
             })
 
           }
-          this.isConfirmDelegate = false
         } else {
           this.clientError()
         }
-        this.closeConfirmDelegate()
+        this.clearDelegateData()
+        this.$bvModal.hide('bv-modal-confirm-delegate-und')
       },
-      confirmUndelegation: function() {
+      confirmUndelegation: function () {
         this.confirmUndelegationAsync()
       },
-      confirmUndelegationAsync: async function() {
+      confirmUndelegationAsync: async function () {
         if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let fee = {
-            "amount": [
-              {
-                "denom": "nund",
-                "amount": "5000"
-              }
-            ],
-            "gas": "190000"
-          }
 
           try {
             let res = await this.clnt.undelegate(
             this.undelegateData.address,
             this.undelegateData.und,
-            fee,
+            this.fee,
             "und",
             this.w.address,
             this.undelegateData.memo
@@ -511,27 +730,18 @@
         } else {
           this.clientError()
         }
-        this.closeConfirmUndelegate()
+        this.clearUnDelegateData()
+        this.$bvModal.hide('bv-modal-confirm-undelegate-und')
       },
-      confirmWithdrawReward: function() {
+      confirmWithdrawReward: function () {
         this.confirmWithdrawRewardAsync()
       },
-      confirmWithdrawRewardAsync: async function() {
+      confirmWithdrawRewardAsync: async function () {
         if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let fee = {
-            "amount": [
-              {
-                "denom": "nund",
-                "amount": "5000"
-              }
-            ],
-            "gas": "190000"
-          }
-
           try {
             let res = await this.clnt.withdrawDelegationReward(
             this.withdrawData.address,
-            fee,
+            this.fee,
             this.w.address,
             this.undelegateData.memo
             )
@@ -558,12 +768,8 @@
         } else {
           this.clientError()
         }
-        this.closeConfirmWithdraw()
+        this.$bvModal.hide('bv-modal-confirm-withdraw-rewards')
       }
     }
   }
 </script>
-
-<style scoped>
-
-</style>
