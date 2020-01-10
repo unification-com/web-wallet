@@ -61,7 +61,7 @@
         transfer: {
           to: '',
           und: '0',
-          memo: 'sent from Unification Web Wallet'
+          memo: UND_CONFIG.DEFAULT_MEMO
         },
         isConfirmTransferUnd: false,
       }
@@ -79,7 +79,7 @@
         this.transfer = {
           to: '',
           und: '0',
-          memo: 'sent from Unification Web Wallet'
+          memo: UND_CONFIG.DEFAULT_MEMO
         }
       },
       showConfirmTransferUnd: function() {
@@ -109,7 +109,10 @@
       closeConfirmTransferUnd: function() {
         this.isConfirmTransferUnd = false
       },
-      transferUnd: async function() {
+      transferUnd: function() {
+        this.transferUndAsync()
+      },
+      transferUndAsync: async function() {
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
           let fee = {
             "amount": [

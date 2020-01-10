@@ -8,7 +8,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "@unification-com/und-js": "^1.2.1",
+    "@unification-com/und-js": "^1.3.0",
     "big.js": "^5.2.2",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.1.0",

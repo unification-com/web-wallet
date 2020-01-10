@@ -10,7 +10,6 @@
       <template v-slot:modalBody>
         Enter new wallet password: <input type="password" v-model="wallet.walletPass" placeholder=""><br>
         Confirm new wallet password: <input type="password" v-model="wallet.walletPassCheck" placeholder="">
-        <p v-show="hasError">{{ errorMsg }}</p>
       </template>
       <template v-slot:modalFooter>
         <button
@@ -66,9 +65,9 @@
         Unlock Wallet
       </template>
       <template v-slot:modalBody>
-        Enter wallet password: <input type="password" v-model="wallet.walletPass" placeholder=""><br>
-        Select Wallet file: <input type="file" @change="loadTextFromFile">
-        <p v-show="hasError">{{ errorMsg }}</p>
+
+        Select Wallet file: <input type="file" @change="loadTextFromFile" ref="walletFileInput"><br>
+        Enter wallet password: <input type="password" v-model="wallet.walletPass" placeholder="">
       </template>
       <template v-slot:modalFooter>
         <button
@@ -129,10 +128,15 @@
         isMnemonicModalVisible: false,
         isUnlockWalletModalVisible: false,
         isMnemonicSaved: false,
-        hasError: false,
-        errorMsg: '',
-
-        wallet: {
+        wallet: this.newEmptyWallet()
+      }
+    },
+    mounted: function () {
+      this.initChain()
+    },
+    methods: {
+      newEmptyWallet: function() {
+        let newWallet = {
           isWalletUnlocked: false,
           json: '',
           mnemonic: '',
@@ -142,14 +146,12 @@
           privateKey: '',
           balance: '0',
           balanceNund: '0',
+          locked: '0',
+          lockedNund: '0',
           address: '',
         }
-      }
-    },
-    mounted: function () {
-      this.initChain()
-    },
-    methods: {
+        return newWallet
+      },
       showNewWalletModal() {
         this.isNewWalletModalVisible = true
       },
@@ -179,24 +181,14 @@
         this.chainId = this.client.chainId
       },
       clearData: function() {
-        this.wallet = {
-          isWalletUnlocked: false,
-          json: '',
-          mnemonic: '',
-          walletPass: '',
-          walletPassCheck: '',
-          walletFile: '',
-          privateKey: '',
-          balance: '0',
-          balanceNund: '0',
-          address: '',
-        }
-
+        const walletFileInput = this.$refs.walletFileInput;
+        walletFileInput.type = 'text';
+        walletFileInput.type = 'file';
+        this.wallet = this.newEmptyWallet()
         this.isMnemonicSaved = false
-        this.errorMsg = ''
-        this.hasError = false
       },
       changeNetwork: function(event) {
+        this.clearData()
         this.rest = event.target.value
         this.initChain()
       },
@@ -207,13 +199,23 @@
       showWallet: function() {
 
         if(this.wallet.walletPass.length < 8) {
-          this.errorMsg = "enter a password > 8 chars"
-          this.hasError = true
+          this.$bvToast.toast("enter a password > 8 chars", {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
           return false
         }
         if(this.wallet.walletPass !== this.wallet.walletPassCheck) {
-          this.errorMsg = "passwords do not match"
-          this.hasError = true
+          this.$bvToast.toast("passwords do not match", {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
           return false
         }
 
@@ -241,8 +243,6 @@
         this.wallet.walletFile = ev.target.files[0]
       },
       unlockWallet: function() {
-        this.errorMsg = ''
-        this.hasError = false
         const reader = new FileReader();
 
         reader.onload = e => this.loadWallet(e);
@@ -258,8 +258,13 @@
           this.closeUnlockWalletModal()
           this.wallet.isWalletUnlocked = true
         } catch(e) {
-          this.errorMsg = e.toString()
-          this.hasError = true
+          this.$bvToast.toast(e.toString(), {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
           this.clearData()
         }
       }
