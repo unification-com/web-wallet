@@ -1,6 +1,6 @@
 # Unification Mainchain Web wallet
 
-Official Unification  Mainchain Web-based wallet.
+Official Unification Mainchain Web-based wallet.
 
 **Please Note** this is currently heavily under development.
 
@@ -24,16 +24,12 @@ npm run build
 npm run test:unit
 ```
 
-### Run dist in Docker
+### Run in Docker
+
+A docker composition will build and bring up the web wallet
 
 ```bash
-docker build . -t web-wallet
+make docker-dev
 ```
 
-Run:
-
-```bash
-docker run -d -p 8080:80 web-wallet
-```
-
-Wallet available on http://localhost:8080
+The wallet will be available on http://localhost:8080
