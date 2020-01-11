@@ -1,55 +1,132 @@
 <template>
   <div>
-    <Modal
-    v-show="isConfirmTransferUnd"
-    @close="closeConfirmTransferUnd"
-    >
-      <template v-slot:modalHeader>
-        Confirm Transfer
+    <b-modal id="bv-modal-transfer-und">
+      <template v-slot:modal-title>
+        <h3>Confirm UND Transfer</h3>
       </template>
-      <template v-slot:modalBody>
-        <p>Please confirm:</p>
-        Sending {{transfer.und}} UND<br>
-        To {{transfer.to}}
-      </template>
-      <template v-slot:modalFooter>
-        <button
-        type="button"
-        class="btn-green"
+      <p>Please confirm:</p>
+      Sending {{transfer.und}} UND<br>
+      To {{transfer.to}}<br>
+      Fee: {{fee.amount[0].amount}}nund<br>
+      Gas: {{fee.gas}}
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
         @click="transferUnd"
         aria-label="Create"
         >
           Confirm
-        </button>
-        <button
-        type="button"
-        class="btn-green"
-        @click="closeConfirmTransferUnd"
-        aria-label="Close modal"
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-transfer-und')"
+        aria-label="Cancel"
         >
-          Close
-        </button>
+          Cancel
+        </b-button>
       </template>
-    </Modal>
+    </b-modal>
 
-    Send: <input type="text" v-model="transfer.und" placeholder=""> UND<br>
-    To: <input type="text" v-model="transfer.to" placeholder=""><br>
-    Memo: <input type="text" v-model="transfer.memo" placeholder=""><br>
-    <button @click="showConfirmTransferUnd()">Transfer</button>
+    <h3>Transfer UND</h3>
+
+    <b-form v-on:@submit.prevent="false">
+      <b-form-group
+      id="transfer-send-und-label"
+      label="Send:"
+      label-for="transfer-send-und"
+      description="Amount of UND to send"
+      append="UND"
+      >
+        <b-input-group append="UND">
+        <b-form-input
+        id="transfer-send-und"
+        v-model="transfer.und"
+        type="text"
+        required
+        />
+        </b-input-group>
+      </b-form-group>
+
+      <b-form-group
+      id="transfer-send-to-label"
+      label="To:"
+      label-for="transfer-send-to"
+      description="Address to send to"
+      >
+        <b-form-input
+        id="transfer-send-to"
+        v-model="transfer.to"
+        type="text"
+        required
+        placeholder=""
+        trim
+        />
+      </b-form-group>
+
+      <b-form-group
+      id="transfer-send-memo-label"
+      label="Memo:"
+      label-for="transfer-send-memo"
+      description="Optional Memo"
+      >
+        <b-form-input
+        id="transfer-send-memo"
+        v-model="transfer.memo"
+        type="text"
+        trim
+        />
+      </b-form-group>
+
+      <b-form-group
+      id="transfer-fee-amount-label"
+      label="Fee:"
+      label-for="transfer-fee-amount"
+      description="Fees in nund"
+      v-show="isShowFee"
+      >
+        <b-input-group append="nund">
+        <b-form-input
+        id="transfer-fee-amount"
+        v-model="fee.amount[0].amount"
+        type="text"
+        trim
+        />
+        </b-input-group>
+      </b-form-group>
+      <b-form-group
+      id="transfer-fee-gas-label"
+      label="Gas:"
+      label-for="transfer-fee-gas"
+      description="Gas"
+      v-show="isShowFee"
+      >
+        <b-form-input
+        id="transfer-fee-gas"
+        v-model="fee.gas"
+        type="text"
+        trim
+        />
+      </b-form-group>
+
+      <b-form-checkbox
+      id="transfer-show-fee"
+      v-model="isShowFee"
+      name="transfer-show-fee"
+      >
+        Manually set Fees
+      </b-form-checkbox>
+
+      <b-button variant="success" @click="showConfirmTransferUnd()">Transfer</b-button>
+    </b-form>
 
   </div>
 </template>
 
 <script>
-  import Modal from '@/components/Modal.vue'
   import {UND_CONFIG} from '@/constants.js'
   const UndClient = require('@unification-com/und-js')
 
   export default {
     name: "Transfer",
-    components: {
-      Modal
-    },
     props: {
       client: Object,
       wallet: Object
@@ -63,7 +140,25 @@
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
-        isConfirmTransferUnd: false,
+        defaultFee: {
+          amount: [
+            {
+              denom: "nund",
+              amount: "5000"
+            }
+          ],
+          gas: "190000"
+        },
+        fee: {
+          amount: [
+            {
+              denom: "nund",
+              amount: "2500"
+            }
+          ],
+          gas: "70000"
+        },
+        isShowFee: false,
       }
     },
     watch: {
@@ -81,6 +176,7 @@
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
+        this.fee = this.defaultFee
       },
       showConfirmTransferUnd: function() {
 
@@ -104,31 +200,19 @@
           })
           return false
         }
-        this.isConfirmTransferUnd = true
-      },
-      closeConfirmTransferUnd: function() {
-        this.isConfirmTransferUnd = false
+        this.$bvModal.show('bv-modal-transfer-und')
       },
       transferUnd: function() {
         this.transferUndAsync()
       },
       transferUndAsync: async function() {
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
-          let fee = {
-            "amount": [
-              {
-                "denom": "nund",
-                "amount": "2500"
-              }
-            ],
-            "gas": "90000"
-          }
 
           try {
             let res = await this.clnt.transferUnd(
             this.transfer.to,
             this.transfer.und,
-            fee,
+            this.fee,
             "und",
             this.w.address,
             this.transfer.memo
@@ -144,7 +228,7 @@
               })
             }
 
-            this.closeConfirmTransferUnd()
+            this.$bvModal.hide('bv-modal-transfer-und')
             this.clearTransfer()
           } catch (err) {
             this.$bvToast.toast(err.toString(), {
@@ -168,7 +252,3 @@
     }
   }
 </script>
-
-<style scoped>
-
-</style>

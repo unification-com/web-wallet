@@ -1,0 +1,21 @@
+// see node_modules/bootstrap/scss/_variables.scss for variables
+
+$primary:       #014270;
+$secondary:     #6c757d;
+$success:       #12c702;
+$info:          #0174C7;
+$warning:       #c75402;
+$danger:        #dc3545;
+$light:         #f8f9fa;
+$dark:          #343a40;
+
+$theme-colors: (
+        "primary":    $primary,
+        "secondary":  $secondary,
+        "success":    $success,
+        "info":       $info,
+        "warning":    $warning,
+        "danger":     $danger,
+        "light":      $light,
+        "dark":       $dark
+);

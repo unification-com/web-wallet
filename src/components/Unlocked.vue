@@ -1,42 +1,49 @@
 <template>
   <div class="container">
 
-    <div>Address: {{ w.address }}</div>
-    <br/>
-    <div>Balance: {{ w.balance }} UND</div>
-    <div v-show="w.locked > 0">Enterprise Locked: {{ w.locked }} UND</div>
-    <ul class="nav nav-tabs nav-justified">
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('transfer'), updateWallet()" :class="{ active: isActive('transfer') }"
-           href="#transfer">Transfer</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('transactions'), updateWallet()"
-           :class="{ active: isActive('transactions') }" href="#transactions">Transactions</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('stake'), updateWallet()" :class="{ active: isActive('stake') }"
-           href="#stake">Staking</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" @click.prevent="setActive('enterprise'), updateWallet()" :class="{ active: isActive('enterprise') }"
-           href="#enterprise">Enterprise</a>
-      </li>
-    </ul>
-    <div class="tab-content py-3" id="unlocked-wallet-content">
-      <div class="tab-pane fade" :class="{ 'active show': isActive('transactions') }" id="transactions">
-        <Transactions v-bind:client="clnt" v-bind:wallet="w" ref="txcomponent" />
-      </div>
-      <div class="tab-pane fade" :class="{ 'active show': isActive('enterprise') }" id="enterprise">
-        <Enterprise v-bind:client="clnt" v-bind:wallet="w" />
-      </div>
-      <div class="tab-pane fade" :class="{ 'active show': isActive('transfer') }" id="transfer">
-        <Transfer v-bind:client="clnt" v-bind:wallet="w"/>
-      </div>
-      <div class="tab-pane fade" :class="{ 'active show': isActive('stake') }" id="stake">
-        <Staking v-bind:client="clnt" v-bind:wallet="w" ref="stakingcomponent"/>
-      </div>
-    </div>
+    <b-container class="bv-example-row">
+      <b-row>
+        <b-col>
+          <h4>Wallet Address</h4>
+        </b-col>
+        <b-col>
+          <h4>Balance</h4>
+        </b-col>
+        <b-col v-show="w.locked > 0">
+          <h4>Enterprise Locked</h4>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>{{ w.address }}</b-col>
+        <b-col>{{ w.balance }} UND</b-col>
+        <b-col v-show="w.locked > 0">{{ w.locked }} UND</b-col>
+      </b-row>
+    </b-container>
+
+    <b-card no-body>
+      <b-tabs pills card>
+        <b-tab title="Transfer" active @click.prevent="updateWallet()">
+          <b-card-text>
+            <Transfer v-bind:client="clnt" v-bind:wallet="w"/>
+          </b-card-text>
+        </b-tab>
+        <b-tab title="Transactions" @click.prevent="updateWallet()">
+          <b-card-text>
+            <Transactions v-bind:client="clnt" v-bind:wallet="w" ref="txcomponent" />
+          </b-card-text>
+        </b-tab>
+        <b-tab title="Staking" @click.prevent="updateWallet()">
+          <b-card-text>
+            <Staking v-bind:client="clnt" v-bind:wallet="w" ref="stakingcomponent"/>
+          </b-card-text>
+        </b-tab>
+        <b-tab title="Enterprise" @click.prevent="updateWallet()">
+          <b-card-text>
+            <Enterprise v-bind:client="clnt" v-bind:wallet="w" />
+          </b-card-text>
+        </b-tab>
+      </b-tabs>
+    </b-card>
   </div>
 </template>
 
@@ -94,12 +101,6 @@
       refreshBalance: function() {
         clearInterval(this.timer)
         this.timer = setInterval(this.getBalance, 5000)
-      },
-      isActive: function (menuItem) {
-        return this.activeItem === menuItem
-      },
-      setActive: function (menuItem) {
-        this.activeItem = menuItem
       },
       updateWallet: function () {
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {

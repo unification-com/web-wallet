@@ -1,5 +1,10 @@
 <template>
-  <div v-html="formatted">
+  <div>
+    <span>
+      <b-badge variant="info">PO #{{po.id}}</b-badge>
+    </span>
+    <span v-html="formatted">
+    </span>
   </div>
 </template>
 
@@ -22,12 +27,8 @@
     },
     methods: {
       formatPo: function() {
-        this.formatted = 'PO #' + this.po.id + ' raised for ' + this.formatAmount(this.po.amount.amount) + ' on ' + this.formatDateTime(this.po.raise_time) + '. Status: ' + this.po.status
+        this.formatted = ' raised for <span class="text-info">' + this.formatAmount(this.po.amount.amount) + '</span> on <span class="text-info">' + this.formatDateTime(this.po.raise_time) + '</span>. Status: ' + this.po.status
       }
     }
   }
 </script>
-
-<style scoped>
-
-</style>
