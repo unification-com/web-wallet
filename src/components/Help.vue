@@ -29,7 +29,7 @@
 
       <h3>Close Wallet</h3>
 
-      <p>To close a loaded wallet, just click "Close Wallet". This will unload all wallet data, anc clear your session</p>
+      <p>To close a loaded wallet, just click "Close Wallet". This will unload all wallet data, and clear your session</p>
     </b-jumbotron>
   </div>
 </template>
