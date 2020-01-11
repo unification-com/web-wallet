@@ -44,7 +44,7 @@
 
     <b-navbar toggleable="lg" type="dark" variant="info" fixed="bottom">
       <b-navbar-brand>
-        2019 Unification Foundation.
+        2020 Unification Foundation.
       </b-navbar-brand>
       <b-navbar-nav class="ml-auto">
         <div class="socials">
