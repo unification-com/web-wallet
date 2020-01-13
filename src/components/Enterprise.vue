@@ -45,7 +45,7 @@
                   <b-form-input
                   id="po-und"
                   v-model="po.und"
-                  type="text"
+                  type="number"
                   required
                   v-on:keydown.enter.prevent="preventSubmit"
                   />
@@ -79,7 +79,7 @@
                   <b-form-input
                   id="enterprise-fee-amount"
                   v-model="fee.amount[0].amount"
-                  type="text"
+                  type="number"
                   trim
                   v-on:keydown.enter.prevent="preventSubmit"
                   />
@@ -95,7 +95,7 @@
                 <b-form-input
                 id="enterprise-fee-gas"
                 v-model="fee.gas"
-                type="text"
+                type="number"
                 trim
                 v-on:keydown.enter.prevent="preventSubmit"
                 />
@@ -223,13 +223,7 @@
       showConfirmRaisePo: function () {
 
         if (this.po.und <= 0 || isNaN(this.po.und)) {
-          this.$bvToast.toast('Amount must be greater than zero', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'Amount must be greater than zero')
           return false
         }
         this.$bvModal.show('bv-modal-confirm-raise-po')
@@ -248,31 +242,13 @@
             )
 
             if (res.status === 200) {
-              this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
-                title: 'Tx successfully broadcast',
-                variant: 'success',
-                solid: true,
-                autoHideDelay: 10000,
-                appendToast: true
-              })
+              this.showToast('success', 'Tx hash: ' + res.result.txhash)
             }
           } catch (err) {
-            this.$bvToast.toast(err.toString(), {
-              title: 'Error',
-              variant: 'danger',
-              solid: true,
-              autoHideDelay: 10000,
-              appendToast: true
-            })
+            this.showToast('danger', err.toString())
           }
         } else {
-          this.$bvToast.toast("Client not connected or wallet not unlocked. Please reload", {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'Client not connected or wallet not unlocked. Please reload')
         }
 
         this.$bvModal.hide('bv-modal-confirm-raise-po')

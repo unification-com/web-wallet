@@ -40,9 +40,11 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <div class="main-content">
-      <Wallet ref="walletComponent"/>
-    </div>
+    <b-container fluid="sm">
+      <div class="main-content">
+        <Wallet ref="walletComponent"/>
+      </div>
+    </b-container>
 
     <b-navbar toggleable="lg" type="dark" variant="info">
       <b-navbar-brand>

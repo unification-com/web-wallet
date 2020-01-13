@@ -5,7 +5,7 @@
 @import '~bootstrap-vue/src/index.scss';
 
 body {
-  background-color: #0174C7;
+  background-color: $white;
 }
 
 #app {
@@ -19,6 +19,7 @@ body {
   display: block;
   clear: both;
   background-color: $white;
+  padding-top: 20px;
 }
 
 .socials {

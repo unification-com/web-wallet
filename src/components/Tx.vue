@@ -47,7 +47,7 @@
             break
           case 'cosmos-sdk/MsgBeginRedelegate':
             this.action = "Redelegated"
-            this.formatted = this.msg
+            this.formatMsgBeginRedelegate()
             break
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
             this.action = "Withdrew Validator Commision"
@@ -105,6 +105,10 @@
       },
       formatMsgWithdrawDelegationReward: function(msg = this.msg.value) {
         this.formatted = ' from <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+      },
+      formatMsgBeginRedelegate: function(msg = this.msg.value) {
+        let formattedAmt = this.formatAmount(msg.amount.amount)
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.validator_src_address + '</span> to <span class="text-info">' + msg.validator_dst_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       }
     }
   }
