@@ -28,7 +28,7 @@
 
     <h3>Transfer UND</h3>
 
-    <b-form v-on:@submit.prevent="false">
+    <b-form @submit.prevent="preventSubmit">
       <b-form-group
       id="transfer-send-und-label"
       label="Send:"
@@ -42,6 +42,7 @@
         v-model="transfer.und"
         type="text"
         required
+        v-on:keydown.enter.prevent="preventSubmit"
         />
         </b-input-group>
       </b-form-group>
@@ -59,6 +60,7 @@
         required
         placeholder=""
         trim
+        v-on:keydown.enter.prevent="preventSubmit"
         />
       </b-form-group>
 
@@ -73,6 +75,7 @@
         v-model="transfer.memo"
         type="text"
         trim
+        v-on:keydown.enter.prevent="preventSubmit"
         />
       </b-form-group>
 
@@ -89,6 +92,7 @@
         v-model="fee.amount[0].amount"
         type="text"
         trim
+        v-on:keydown.enter.prevent="preventSubmit"
         />
         </b-input-group>
       </b-form-group>
@@ -104,6 +108,7 @@
         v-model="fee.gas"
         type="text"
         trim
+        v-on:keydown.enter.prevent="preventSubmit"
         />
       </b-form-group>
 
@@ -170,6 +175,9 @@
       }
     },
     methods: {
+      preventSubmit: function() {
+        return false
+      },
       clearTransfer: function () {
         this.transfer = {
           to: '',

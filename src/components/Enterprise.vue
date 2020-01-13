@@ -34,7 +34,7 @@
           <b-card-text>
             <h3>Raise a New Enterprise Purchase Order</h3>
 
-            <b-form v-on:@submit.prevent="false">
+            <b-form @submit.prevent="preventSubmit">
               <b-form-group
               id="po-und-label"
               label="Raise Purchase Order for:"
@@ -47,6 +47,7 @@
                   v-model="po.und"
                   type="text"
                   required
+                  v-on:keydown.enter.prevent="preventSubmit"
                   />
                 </b-input-group>
               </b-form-group>
@@ -63,6 +64,7 @@
                 type="text"
                 trim
                 required
+                v-on:keydown.enter.prevent="preventSubmit"
                 />
               </b-form-group>
 
@@ -79,6 +81,7 @@
                   v-model="fee.amount[0].amount"
                   type="text"
                   trim
+                  v-on:keydown.enter.prevent="preventSubmit"
                   />
                 </b-input-group>
               </b-form-group>
@@ -94,6 +97,7 @@
                 v-model="fee.gas"
                 type="text"
                 trim
+                v-on:keydown.enter.prevent="preventSubmit"
                 />
               </b-form-group>
 
@@ -194,6 +198,9 @@
       }
     },
     methods: {
+      preventSubmit: function() {
+        return false
+      },
       clearPo: function () {
         this.po = {
           und: '0',

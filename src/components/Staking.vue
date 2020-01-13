@@ -33,6 +33,7 @@
       <template v-slot:modal-title>
         <h3>Undelegate UND</h3>
       </template>
+      <b-form @submit.prevent="preventSubmit">
         <b-form-group
         id="undelegate-und-label"
         label="Undelegate:"
@@ -45,6 +46,7 @@
             v-model="undelegateData.und"
             type="text"
             required
+            v-on:keydown.enter.prevent="preventSubmit"
             />
           </b-input-group>
         </b-form-group>
@@ -59,6 +61,7 @@
           v-model="undelegateData.address"
           type="text"
           required
+          v-on:keydown.enter.prevent="preventSubmit"
           />
         </b-form-group>
 
@@ -75,6 +78,7 @@
             v-model="fee.amount[0].amount"
             type="text"
             trim
+            v-on:keydown.enter.prevent="preventSubmit"
             />
           </b-input-group>
         </b-form-group>
@@ -90,6 +94,7 @@
           v-model="fee.gas"
           type="text"
           trim
+          v-on:keydown.enter.prevent="preventSubmit"
           />
         </b-form-group>
 
@@ -100,10 +105,11 @@
         >
           Manually set Fees
         </b-form-checkbox>
-      <p>
-        <b>(maximum {{undelegateData.max}}UND)</b><br>
-        <b>Note:</b> outstanding rewards will automatically be withdrawn during undelegation
-      </p>
+        <p>
+          <b>(maximum {{undelegateData.max}}UND)</b><br>
+          <b>Note:</b> outstanding rewards will automatically be withdrawn during undelegation
+        </p>
+      </b-form>
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -156,44 +162,48 @@
       from {{getValidatorMoniker(withdrawData.address)}}<br><br>
       Fee: {{fee.amount[0].amount}}nund<br>
       Gas: {{fee.gas}}
-      <b-form-group
-      id="withdraw-fee-amount-label"
-      label="Fee:"
-      label-for="withdraw-fee-amount"
-      description="Fees in nund"
-      v-show="isShowFee"
-      >
-        <b-input-group append="nund">
+      <b-form @submit.prevent="preventSubmit">
+        <b-form-group
+        id="withdraw-fee-amount-label"
+        label="Fee:"
+        label-for="withdraw-fee-amount"
+        description="Fees in nund"
+        v-show="isShowFee"
+        >
+          <b-input-group append="nund">
+            <b-form-input
+            id="withdraw-fee-amount"
+            v-model="fee.amount[0].amount"
+            type="text"
+            trim
+            v-on:keydown.enter.prevent="preventSubmit"
+            />
+          </b-input-group>
+        </b-form-group>
+        <b-form-group
+        id="withdraw-fee-gas-label"
+        label="Gas:"
+        label-for="withdraw-fee-gas"
+        description="Gas"
+        v-show="isShowFee"
+        >
           <b-form-input
-          id="withdraw-fee-amount"
-          v-model="fee.amount[0].amount"
+          id="withdraw-fee-gas"
+          v-model="fee.gas"
           type="text"
           trim
+          v-on:keydown.enter.prevent="preventSubmit"
           />
-        </b-input-group>
-      </b-form-group>
-      <b-form-group
-      id="withdraw-fee-gas-label"
-      label="Gas:"
-      label-for="withdraw-fee-gas"
-      description="Gas"
-      v-show="isShowFee"
-      >
-        <b-form-input
-        id="withdraw-fee-gas"
-        v-model="fee.gas"
-        type="text"
-        trim
-        />
-      </b-form-group>
+        </b-form-group>
 
-      <b-form-checkbox
-      id="withdraw-show-fee"
-      v-model="isShowFee"
-      name="withdraw-show-fee"
-      >
-        Manually set Fees
-      </b-form-checkbox>
+        <b-form-checkbox
+        id="withdraw-show-fee"
+        v-model="isShowFee"
+        name="withdraw-show-fee"
+        >
+          Manually set Fees
+        </b-form-checkbox>
+      </b-form>
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -297,7 +307,7 @@
             </div>
 
             <div v-show="!isDataLoading">
-              <b-form v-on:@submit.prevent="false">
+              <b-form @submit.prevent="preventSubmit">
                 <b-form-group
                 id="delegate-node-label"
                 label="Select Existing Validator:"
@@ -306,9 +316,6 @@
                 >
                   <b-form-select id="delegate-node" v-model="delegateData.address" :options="validatorsSelect"/>
                 </b-form-group>
-              </b-form>
-
-              <b-form v-on:@submit.prevent="false">
                 <b-form-group
                 id="delegate-manual-node-label"
                 label="Or Manually Enter Validator:"
@@ -320,6 +327,7 @@
                   v-model="delegateData.address"
                   type="text"
                   required
+                  v-on:keydown.enter.prevent="preventSubmit"
                   />
                 </b-form-group>
 
@@ -336,6 +344,7 @@
                     type="text"
                     required
                     placeholder=""
+                    v-on:keydown.enter.prevent="preventSubmit"
                     />
                   </b-input-group>
                 </b-form-group>
@@ -350,6 +359,7 @@
                   v-model="delegateData.memo"
                   type="text"
                   trim
+                  v-on:keydown.enter.prevent="preventSubmit"
                   />
                 </b-form-group>
 
@@ -366,6 +376,7 @@
                     v-model="fee.amount[0].amount"
                     type="text"
                     trim
+                    v-on:keydown.enter.prevent="preventSubmit"
                     />
                   </b-input-group>
                 </b-form-group>
@@ -381,6 +392,7 @@
                   v-model="fee.gas"
                   type="text"
                   trim
+                  v-on:keydown.enter.prevent="preventSubmit"
                   />
                 </b-form-group>
 
@@ -470,6 +482,9 @@
       }
     },
     methods: {
+      preventSubmit: function() {
+        return false
+      },
       showConfirmDelegate: function () {
         if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
           this.$bvToast.toast('Amount must be greater than zero', {
