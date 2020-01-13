@@ -1,18 +1,18 @@
 <template>
   <div class="container">
 
-    <b-container class="bv-example-row">
+    <b-container>
       <b-row>
         <b-col>
           <h4>Wallet Address</h4>
         </b-col>
         <b-col>
-          {{ w.address }}
+          <b><span class="text-primary">{{ w.address }}</span></b>
         </b-col>
       </b-row>
       <b-row>
         <b-col><h4>Balance</h4></b-col>
-        <b-col>{{ w.balance }} UND</b-col>
+        <b-col><b><span class="text-success">{{ w.balance }} UND</span></b></b-col>
       </b-row>
       <b-row v-show="w.locked > 0">
         <b-col v-show="w.locked > 0">
@@ -125,9 +125,11 @@
       },
       getEnterpriseLocked: async function() {
         const res = await this.clnt.getEnterpriseLocked()
-        let amount = new Big(res.amount)
-        this.w.locked = Number(amount.div(UND_CONFIG.BASENUMBER))
-        this.w.lockedNund = res.amount
+        if('amount' in res) {
+          let amount = new Big(res.amount)
+          this.w.locked = Number(amount.div(UND_CONFIG.BASENUMBER))
+          this.w.lockedNund = res.amount
+        }
       }
     }
   };

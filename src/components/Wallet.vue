@@ -204,13 +204,7 @@
           this.chainId = this.client.chainId
         } catch(e) {
           this.chainId = 'not connected'
-          this.$bvToast.toast('Error connecting to ' + this.rest + ' - ' + e.toString(), {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'Error connecting to ' + this.rest + ' - ' + e.toString())
         }
       },
       clearData: function () {
@@ -230,23 +224,11 @@
       showWallet: function () {
 
         if (this.wallet.walletPass.length < 8) {
-          this.$bvToast.toast("enter a password > 8 chars", {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'enter a password > 8 chars')
           return false
         }
         if (this.wallet.walletPass !== this.wallet.walletPassCheck) {
-          this.$bvToast.toast("passwords do not match", {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'passwords do not match')
           return false
         }
 
@@ -288,13 +270,7 @@
           this.$bvModal.hide('bv-modal-unlock-wallet')
           this.wallet.isWalletUnlocked = true
         } catch (e) {
-          this.$bvToast.toast(e.toString(), {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', e.toString())
           this.clearData()
         }
       }

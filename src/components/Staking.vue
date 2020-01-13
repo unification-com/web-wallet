@@ -44,12 +44,15 @@
             <b-form-input
             id="undelegate-und"
             v-model="undelegateData.und"
-            type="text"
+            type="number"
             required
             v-on:keydown.enter.prevent="preventSubmit"
             />
           </b-input-group>
         </b-form-group>
+        <p>
+          <b>(maximum {{undelegateData.max}}UND)</b><br>
+        </p>
         <b-form-group
         id="undelegate-from-label"
         label="From:"
@@ -59,9 +62,9 @@
           <b-form-input
           id="undelegate-from"
           v-model="undelegateData.address"
-          type="text"
+          type="hidden"
           required
-          v-on:keydown.enter.prevent="preventSubmit"
+          plaintext
           />
         </b-form-group>
 
@@ -76,7 +79,7 @@
             <b-form-input
             id="undelegate-fee-amount"
             v-model="fee.amount[0].amount"
-            type="text"
+            type="number"
             trim
             v-on:keydown.enter.prevent="preventSubmit"
             />
@@ -92,7 +95,7 @@
           <b-form-input
           id="undelegate-fee-gas"
           v-model="fee.gas"
-          type="text"
+          type="number"
           trim
           v-on:keydown.enter.prevent="preventSubmit"
           />
@@ -106,7 +109,6 @@
           Manually set Fees
         </b-form-checkbox>
         <p>
-          <b>(maximum {{undelegateData.max}}UND)</b><br>
           <b>Note:</b> outstanding rewards will automatically be withdrawn during undelegation
         </p>
       </b-form>
@@ -152,6 +154,160 @@
         </b-button>
       </template>
     </b-modal>
+
+    <!-- redelegate modal -->
+    <b-modal id="bv-modal-redelegate-und">
+      <template v-slot:modal-title>
+        <h3>Redelegate UND</h3>
+      </template>
+      <b-form @submit.prevent="preventSubmit">
+        <b-form-group
+        id="redelegate-und-label"
+        label="redelegate:"
+        label-for="redelegate-und"
+        description="Amount of UND to redelegate"
+        >
+          <b-input-group append="UND">
+            <b-form-input
+            id="redelegate-und"
+            v-model="redelegateData.und"
+            type="number"
+            required
+            v-on:keydown.enter.prevent="preventSubmit"
+            />
+          </b-input-group>
+        </b-form-group>
+        <p>
+          <b>(maximum {{redelegateData.max}}UND)</b><br>
+        </p>
+        <b-form-group
+        id="redelegate-from-label"
+        label="From:"
+        label-for="redelegate-from"
+        description="Address to redelegate from"
+        >
+          <b-form-input
+          id="redelegate-from"
+          v-model="redelegateData.src"
+          type="text"
+          required
+          plaintext
+          v-on:keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-group
+        id="redelegate-node-label"
+        label="To:"
+        label-for="redelegate-node"
+        description="Select an existing validator"
+        >
+          <b-form-select id="redelegate-node" v-model="redelegateData.dst" :options="validatorsSelect"/>
+        </b-form-group>
+        <b-form-group
+        id="redelegate-manual-node-label"
+        label="Or Manually Enter Validator:"
+        label-for="redelegate-manual-node"
+        description="Alternatively, enter a validator address manually (note - this starts with undvaloper)"
+        >
+          <b-form-input
+          id="redelegate-manual-node"
+          v-model="redelegateData.dst"
+          type="text"
+          required
+          v-on:keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-group
+        id="redelegate-fee-amount-label"
+        label="Fee:"
+        label-for="redelegate-fee-amount"
+        description="Fees in nund"
+        v-show="isShowFee"
+        >
+          <b-input-group append="nund">
+            <b-form-input
+            id="redelegate-fee-amount"
+            v-model="fee.amount[0].amount"
+            type="number"
+            trim
+            v-on:keydown.enter.prevent="preventSubmit"
+            />
+          </b-input-group>
+        </b-form-group>
+        <b-form-group
+        id="redelegate-fee-gas-label"
+        label="Gas:"
+        label-for="redelegate-fee-gas"
+        description="Gas"
+        v-show="isShowFee"
+        >
+          <b-form-input
+          id="redelegate-fee-gas"
+          v-model="fee.gas"
+          type="number"
+          trim
+          v-on:keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-checkbox
+        id="redelegate-show-fee"
+        v-model="isShowFee"
+        name="redelegate-show-fee"
+        >
+          Manually set Fees
+        </b-form-checkbox>
+      </b-form>
+
+      <p>
+        <b>Note:</b> outstanding rewards will automatically be withdrawn during redelegation
+      </p>
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
+        @click="showConfirmReDelegation"
+        aria-label="Create"
+        >
+          redelegate
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-redelegate-und')"
+        aria-label="Cancel"
+        >
+          Cancel
+        </b-button>
+      </template>
+    </b-modal>
+
+    <!-- confirm redelegate modal -->
+    <b-modal id="bv-modal-confirm-redelegate-und">
+      <template v-slot:modal-title>
+        <h3>Confirm redelegate UND</h3>
+      </template>
+      redelegate <span class="text-info">{{ redelegateData.und }}UND</span>
+      from {{getValidatorMoniker(redelegateData.src)}}?<br>
+      to {{getValidatorMoniker(redelegateData.dst)}}?<br>
+      Fee: {{fee.amount[0].amount}}nund<br>
+      Gas: {{fee.gas}}
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
+        @click="confirmRedelegation"
+        aria-label="Confirm"
+        >
+          Confirm
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-confirm-redelegate-und')"
+        aria-label="Cancel"
+        >
+          Cancel
+        </b-button>
+      </template>
+    </b-modal>
+
 
     <!-- confirm withdraw rewards modal -->
     <b-modal id="bv-modal-confirm-withdraw-rewards">
@@ -274,10 +430,14 @@
                       <b-col sm="3" class="text-sm-right"><b>Details:</b></b-col>
                       <b-col>{{ row.item.description.details }}</b-col>
                     </b-row>
-                    <b-button variant="danger" size="sm" @click="initUndelegate(row.item)" class="mr-2">
+                    <b-button variant="warning" size="sm" @click="initUndelegate(row.item)" class="mr-2">
                       Undelegate
                     </b-button>
-                    <b-button variant="success" size="sm" @click="showConfirmWithdraw(row.item)" class="mr-2">
+
+                    <b-button variant="info" size="sm" @click="initRedelegate(row.item)" class="mr-2">
+                      Redelegate
+                    </b-button>
+                    <b-button v-show="row.item.rewards > 0" variant="success" size="sm" @click="showConfirmWithdraw(row.item)" class="mr-2">
                       Withdraw Rewards
                     </b-button>
                     <b-button size="sm" @click="row.toggleDetails">
@@ -341,7 +501,7 @@
                     <b-form-input
                     id="delegate-und"
                     v-model="delegateData.und"
-                    type="text"
+                    type="number"
                     required
                     placeholder=""
                     v-on:keydown.enter.prevent="preventSubmit"
@@ -374,7 +534,7 @@
                     <b-form-input
                     id="delegate-fee-amount"
                     v-model="fee.amount[0].amount"
-                    type="text"
+                    type="number"
                     trim
                     v-on:keydown.enter.prevent="preventSubmit"
                     />
@@ -390,7 +550,7 @@
                   <b-form-input
                   id="delegate-fee-gas"
                   v-model="fee.gas"
-                  type="text"
+                  type="number"
                   trim
                   v-on:keydown.enter.prevent="preventSubmit"
                   />
@@ -443,6 +603,13 @@
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
+        redelegateData: {
+          src: '',
+          dst: '',
+          und: '',
+          max: '',
+          memo: UND_CONFIG.DEFAULT_MEMO
+        },
         withdrawData: {
           address: '',
           und: ''
@@ -487,60 +654,50 @@
       },
       showConfirmDelegate: function () {
         if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
-          this.$bvToast.toast('Amount must be greater than zero', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'Amount must be greater than zero')
           return false
         }
         if (this.delegateData.und >= this.w.balance) {
-          this.$bvToast.toast('cannot delegate more than your balance', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'cannot delegate more than your balance')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.delegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.$bvToast.toast('"' + this.delegateData.address + '" is not a valid operator address', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', '"' + this.delegateData.address + '" is not a valid operator address')
           return false
         }
         this.$bvModal.show('bv-modal-confirm-delegate-und')
       },
       showConfirmUnDelegation: function () {
         if (this.undelegateData.und <= 0 || isNaN(this.undelegateData.und) || this.undelegateData.und > this.undelegateData.max) {
-          this.$bvToast.toast('Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.undelegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.$bvToast.toast('"' + this.undelegateData.address + '" is not a valid operator address', {
-            title: 'Error',
-            variant: 'danger',
-            solid: true,
-            autoHideDelay: 10000,
-            appendToast: true
-          })
+          this.showToast('danger', '"' + this.undelegateData.address + '" is not a valid operator address')
           return false
         }
         this.$bvModal.hide('bv-modal-undelegate-und')
         this.$bvModal.show('bv-modal-confirm-undelegate-und')
+      },
+      showConfirmReDelegation: function() {
+        if (this.redelegateData.und <= 0 || isNaN(this.redelegateData.und) || this.redelegateData.und > this.redelegateData.max) {
+          this.showToast('danger', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + 'UND')
+          return false
+        }
+        if (!UndClient.crypto.checkAddress(this.redelegateData.dst, UND_CONFIG.BECH32_VAL_PREFIX)) {
+          this.showToast('danger', '"' + this.redelegateData.dst + '" is not a valid operator address')
+          return false
+        }
+        if (!UndClient.crypto.checkAddress(this.redelegateData.src, UND_CONFIG.BECH32_VAL_PREFIX)) {
+          this.showToast('danger', '"' + this.redelegateData.src + '" is not a valid operator address')
+          return false
+        }
+        if(this.redelegateData.src === this.redelegateData.dst) {
+          this.showToast('danger', 'cannot redelegate to same address')
+          return false
+        }
+        this.$bvModal.hide('bv-modal-redelegate-und')
+        this.$bvModal.show('bv-modal-confirm-redelegate-und')
       },
       showConfirmWithdraw: function (item) {
         this.clearWithdrawData()
@@ -567,6 +724,17 @@
         this.fee = this.defaultFee
         this.isShowFee = false
       },
+      clearReDelegateData: function () {
+        this.redelegateData = {
+          src: '',
+          dst: '',
+          und: '',
+          max: '',
+          memo: UND_CONFIG.DEFAULT_MEMO
+        }
+        this.fee = this.defaultFee
+        this.isShowFee = false
+      },
       clearWithdrawData: function () {
         this.withdrawData = {
           address: '',
@@ -581,14 +749,14 @@
         this.undelegateData.max = this.nundToUnd(item.stake)
         this.$bvModal.show('bv-modal-undelegate-und')
       },
+      initRedelegate: function(item) {
+        this.clearReDelegateData()
+        this.redelegateData.src = item.validator_address
+        this.redelegateData.max = this.nundToUnd(item.stake)
+        this.$bvModal.show('bv-modal-redelegate-und')
+      },
       clientError: function () {
-        this.$bvToast.toast("Client not connected or wallet not unlocked. Please reload", {
-          title: 'Error',
-          variant: 'danger',
-          solid: true,
-          autoHideDelay: 10000,
-          appendToast: true
-        })
+        this.showToast('danger', 'Client not connected or wallet not unlocked. Please reload')
       },
       getValidatorMoniker: function (validatorAddress) {
         let moniker = validatorAddress
@@ -682,24 +850,11 @@
             )
 
             if (res.status === 200) {
-              this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
-                title: 'Tx successfully broadcast',
-                variant: 'success',
-                solid: true,
-                autoHideDelay: 10000,
-                appendToast: true
-              })
+              this.showToast('success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.$bvToast.toast(err.toString(), {
-              title: 'Error',
-              variant: 'danger',
-              solid: true,
-              autoHideDelay: 10000,
-              appendToast: true
-            })
-
+            this.showToast('danger', err.toString())
           }
         } else {
           this.clientError()
@@ -724,29 +879,47 @@
             )
 
             if (res.status === 200) {
-              this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
-                title: 'Tx successfully broadcast',
-                variant: 'success',
-                solid: true,
-                autoHideDelay: 10000,
-                appendToast: true
-              })
+              this.showToast('success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.$bvToast.toast(err.toString(), {
-              title: 'Error',
-              variant: 'danger',
-              solid: true,
-              autoHideDelay: 10000,
-              appendToast: true
-            })
+            this.showToast('danger', err.toString())
           }
         } else {
           this.clientError()
         }
         this.clearUnDelegateData()
         this.$bvModal.hide('bv-modal-confirm-undelegate-und')
+      },
+      confirmRedelegation: function() {
+        this.confirmRedelegationAsync()
+      },
+      confirmRedelegationAsync: async function() {
+        if (this.clnt !== null && this.w.isWalletUnlocked) {
+
+          try {
+            let res = await this.clnt.redelegate(
+            this.redelegateData.src,
+            this.redelegateData.dst,
+            this.redelegateData.und,
+            this.fee,
+            "und",
+            this.w.address,
+            this.redelegateData.memo
+            )
+
+            if (res.status === 200) {
+              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+            }
+
+          } catch (err) {
+            this.showToast('danger', err.toString())
+          }
+        } else {
+          this.clientError()
+        }
+        this.clearReDelegateData()
+        this.$bvModal.hide('bv-modal-confirm-redelegate-und')
       },
       confirmWithdrawReward: function () {
         this.confirmWithdrawRewardAsync()
@@ -762,23 +935,11 @@
             )
 
             if (res.status === 200) {
-              this.$bvToast.toast('Tx hash: ' + res.result.txhash, {
-                title: 'Tx successfully broadcast',
-                variant: 'success',
-                solid: true,
-                autoHideDelay: 10000,
-                appendToast: true
-              })
+              this.showToast('success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.$bvToast.toast(err.toString(), {
-              title: 'Error',
-              variant: 'danger',
-              solid: true,
-              autoHideDelay: 10000,
-              appendToast: true
-            })
+            this.showToast('danger', err.toString())
           }
         } else {
           this.clientError()
