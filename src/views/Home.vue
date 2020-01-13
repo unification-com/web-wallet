@@ -3,7 +3,7 @@
 
     <b-navbar toggleable="lg" type="dark" variant="info" sticky>
       <b-navbar-brand>
-        <img src="@/assets/images/logo_top.png"/> Mainchain Web Wallet
+        <img src="@/assets/images/logo_top.png"/> Mainchain Web Wallet v{{ wallet_version }}
       </b-navbar-brand>
 
       <!-- Right aligned nav items -->
@@ -63,6 +63,7 @@
 <script>
   // @ is an alias to /src
   import Wallet from '@/components/Wallet.vue'
+  import {version} from '../../package.json';
 
   export default {
     name: 'home',
@@ -74,7 +75,8 @@
     },
     data: function () {
       return {
-        mounted: false
+        mounted: false,
+        wallet_version: version
       }
     }
   }
