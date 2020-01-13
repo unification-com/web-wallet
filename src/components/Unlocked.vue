@@ -7,15 +7,17 @@
           <h4>Wallet Address</h4>
         </b-col>
         <b-col>
-          <h4>Balance</h4>
-        </b-col>
-        <b-col v-show="w.locked > 0">
-          <h4>Enterprise Locked</h4>
+          {{ w.address }}
         </b-col>
       </b-row>
       <b-row>
-        <b-col>{{ w.address }}</b-col>
+        <b-col><h4>Balance</h4></b-col>
         <b-col>{{ w.balance }} UND</b-col>
+      </b-row>
+      <b-row v-show="w.locked > 0">
+        <b-col v-show="w.locked > 0">
+          <h4>Enterprise Locked</h4>
+        </b-col>
         <b-col v-show="w.locked > 0">{{ w.locked }} UND</b-col>
       </b-row>
     </b-container>

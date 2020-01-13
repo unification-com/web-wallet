@@ -6,6 +6,7 @@
       <template v-slot:modal-title>
         <h3>Create New Wallet</h3>
       </template>
+      <b-form @submit.prevent="preventSubmit">
         <b-form-group
         id="create-new-wallet-1"
         label="Password:"
@@ -18,6 +19,7 @@
           type="password"
           required
           placeholder="Enter password"
+          v-on:keydown.enter.prevent="preventSubmit"
           />
         </b-form-group>
 
@@ -33,8 +35,10 @@
           type="password"
           required
           placeholder="Confirm password"
+          v-on:keydown.enter.prevent="preventSubmit"
           />
         </b-form-group>
+      </b-form>
       <template v-slot:modal-footer>
         <b-button variant="success"
                   @click="showWallet"
@@ -82,6 +86,7 @@
       <template v-slot:modal-title>
         <h3>Unlock Wallet on:<br> {{ chainId }}</h3>
       </template>
+      <b-form @submit.prevent="preventSubmit">
         <b-form-group
         id="wallet file"
         label="Wallet File:"
@@ -111,8 +116,10 @@
           type="password"
           required
           placeholder="Wallet password"
+          v-on:keydown.enter.prevent="preventSubmit"
           />
         </b-form-group>
+      </b-form>
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -155,13 +162,16 @@
         chainId: 'not connected',
         client: null,
         isMnemonicSaved: false,
-        wallet: this.newEmptyWallet()
+        wallet: this.newEmptyWallet(),
       }
     },
     mounted: function () {
       this.initChain()
     },
     methods: {
+      preventSubmit: function() {
+        return false
+      },
       newEmptyWallet: function () {
         let newWallet = {
           isWalletUnlocked: false,
@@ -184,13 +194,24 @@
         this.$bvModal.show('bv-modal-unlock-wallet')
       },
       initChain: async function () {
-        let client = new UndClient(this.rest)
-        await client.initChain()
-        if (this.wallet.privateKey.length > 0) {
-          client.setPrivateKey(this.wallet.privateKey, true)
+        try {
+          let client = new UndClient(this.rest)
+          await client.initChain()
+          if (this.wallet.privateKey.length > 0) {
+            client.setPrivateKey(this.wallet.privateKey, true)
+          }
+          this.client = client
+          this.chainId = this.client.chainId
+        } catch(e) {
+          this.chainId = 'not connected'
+          this.$bvToast.toast('Error connecting to ' + this.rest + ' - ' + e.toString(), {
+            title: 'Error',
+            variant: 'danger',
+            solid: true,
+            autoHideDelay: 10000,
+            appendToast: true
+          })
         }
-        this.client = client
-        this.chainId = this.client.chainId
       },
       clearData: function () {
         this.wallet = null

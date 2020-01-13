@@ -4,6 +4,23 @@
 @import '~bootstrap/scss/bootstrap.scss';
 @import '~bootstrap-vue/src/index.scss';
 
+body {
+  background-color: #0174C7;
+}
+
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+.main-content {
+  display: block;
+  clear: both;
+  background-color: $white;
+}
+
 .socials {
   font-size: 0;
 

@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="app-wrapper">
 
-    <b-navbar toggleable="lg" type="dark" variant="info" fixed="top">
+    <b-navbar toggleable="lg" type="dark" variant="info" sticky>
       <b-navbar-brand>
-        <img src="@/assets/images/logo_top.png"/> Mainchain Web Wallet
+        <img src="@/assets/images/logo_top.png"/> Mainchain Web Wallet v{{ wallet_version }}
       </b-navbar-brand>
 
       <!-- Right aligned nav items -->
@@ -40,9 +40,11 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <Wallet ref="walletComponent"/>
+    <div class="main-content">
+      <Wallet ref="walletComponent"/>
+    </div>
 
-    <b-navbar toggleable="lg" type="dark" variant="info" fixed="bottom">
+    <b-navbar toggleable="lg" type="dark" variant="info">
       <b-navbar-brand>
         2020 Unification Foundation.
       </b-navbar-brand>
@@ -61,6 +63,7 @@
 <script>
   // @ is an alias to /src
   import Wallet from '@/components/Wallet.vue'
+  import {version} from '../../package.json';
 
   export default {
     name: 'home',
@@ -72,7 +75,8 @@
     },
     data: function () {
       return {
-        mounted: false
+        mounted: false,
+        wallet_version: version
       }
     }
   }
