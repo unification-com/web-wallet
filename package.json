@@ -1,6 +1,6 @@
 {
   "name": "web-wallet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unification Mainchain Web Wallet",
   "scripts": {
     "serve": "vue-cli-service serve",
