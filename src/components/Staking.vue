@@ -62,7 +62,7 @@
           <b-form-input
           id="undelegate-from"
           v-model="undelegateData.address"
-          type="hidden"
+          type="text"
           required
           plaintext
           />
@@ -454,6 +454,7 @@
                 <template v-slot:cell(rewards)="data">
                   <b class="text-info">{{ formatAmount(data.value)}}</b>
                 </template>
+
               </b-table>
             </div>
           </b-card-text>
@@ -706,6 +707,8 @@
         this.$bvModal.show('bv-modal-confirm-withdraw-rewards')
       },
       clearDelegateData: function () {
+        this.delegateData = null
+        this.fee = null
         this.delegateData = {
           address: '',
           und: '',
@@ -715,6 +718,8 @@
         this.isShowFee = false
       },
       clearUnDelegateData: function () {
+        this.undelegateData = null
+        this.fee = null
         this.undelegateData = {
           address: '',
           und: '',
@@ -725,6 +730,8 @@
         this.isShowFee = false
       },
       clearReDelegateData: function () {
+        this.redelegateData = null
+        this.fee = null
         this.redelegateData = {
           src: '',
           dst: '',
@@ -736,6 +743,8 @@
         this.isShowFee = false
       },
       clearWithdrawData: function () {
+        this.withdrawData = null
+        this.fee = null
         this.withdrawData = {
           address: '',
           und: ''

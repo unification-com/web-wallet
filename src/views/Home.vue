@@ -40,7 +40,7 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <b-container fluid="sm">
+    <b-container fluid>
       <div class="main-content">
         <Wallet ref="walletComponent"/>
       </div>

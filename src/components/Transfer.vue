@@ -179,12 +179,15 @@
         return false
       },
       clearTransfer: function () {
+        this.transfer = null
+        this.fee = null
         this.transfer = {
           to: '',
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
         this.fee = this.defaultFee
+        this.isShowFee = false
       },
       showConfirmTransferUnd: function() {
 
@@ -194,6 +197,10 @@
         }
         if(this.transfer.und <= 0 || isNaN(this.transfer.und)) {
           this.showToast('danger', 'Amount must be greater than zero')
+          return false
+        }
+        if(this.transfer.und > this.w.balance) {
+          this.showToast('danger', 'cannot transfer more than balance')
           return false
         }
         this.$bvModal.show('bv-modal-transfer-und')

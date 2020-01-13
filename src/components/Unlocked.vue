@@ -1,26 +1,7 @@
 <template>
   <div class="container">
 
-    <b-container>
-      <b-row>
-        <b-col>
-          <h4>Wallet Address</h4>
-        </b-col>
-        <b-col>
-          <b><span class="text-primary">{{ w.address }}</span></b>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col><h4>Balance</h4></b-col>
-        <b-col><b><span class="text-success">{{ w.balance }} UND</span></b></b-col>
-      </b-row>
-      <b-row v-show="w.locked > 0">
-        <b-col v-show="w.locked > 0">
-          <h4>Enterprise Locked</h4>
-        </b-col>
-        <b-col v-show="w.locked > 0">{{ w.locked }} UND</b-col>
-      </b-row>
-    </b-container>
+    <Summary v-bind:wallet="w"/>
 
     <b-card no-body>
       <b-tabs pills card>
@@ -55,6 +36,7 @@
 
   import Enterprise from '@/components/Enterprise.vue'
   import Staking from '@/components/Staking.vue'
+  import Summary from '@/components/Summary.vue'
   import Transactions from '@/components/Transactions.vue'
   import Transfer from '@/components/Transfer.vue'
 
@@ -63,6 +45,7 @@
     components: {
       Enterprise,
       Staking,
+      Summary,
       Transactions,
       Transfer,
     },
@@ -108,6 +91,7 @@
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
           this.getBalance()
           this.getEnterpriseLocked()
+          this.getRewards()
           this.$refs.txcomponent.loadTransactions()
           this.$refs.stakingcomponent.getDelegations()
         }
@@ -129,6 +113,35 @@
           let amount = new Big(res.amount)
           this.w.locked = Number(amount.div(UND_CONFIG.BASENUMBER))
           this.w.lockedNund = res.amount
+        }
+      },
+      getRewards: async function() {
+        if (this.clnt !== null && this.w.isWalletUnlocked) {
+          const delRes = await this.clnt.getDelegations()
+          this.wallet.staking.totalDelegations = 0
+          this.wallet.staking.totalShares = '0'
+          this.wallet.staking.totalStaked = '0'
+          this.wallet.staking.totalRewards = '0'
+
+          let totalShares = new Big('0')
+          let totalStaked = new Big('0')
+          let totalRewards = new Big('0')
+
+          if (delRes.status === 200) {
+            for (let i = 0; i < delRes.result.result.length; i++) {
+              this.wallet.staking.totalDelegations++
+              let validatorAddress = delRes.result.result[i].validator_address
+              totalShares = totalShares.add(delRes.result.result[i].shares)
+              totalStaked = totalStaked.add(delRes.result.result[i].balance.amount)
+              let res = await this.clnt.getDelegatorRewards(this.w.address, validatorAddress)
+              if (res.status === 200 && res.result.result.length > 0) {
+                totalRewards = totalRewards.add(res.result.result[0].amount)
+              }
+            }
+          }
+          this.wallet.staking.totalShares = Number(totalShares)
+          this.wallet.staking.totalStaked = Number(totalStaked)
+          this.wallet.staking.totalRewards = Number(totalRewards)
         }
       }
     }

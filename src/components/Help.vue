@@ -1,5 +1,4 @@
 <template>
-  <div>
     <b-jumbotron header="Web Wallet" lead="Unification's Mainchain web wallet">
       <p>
         Welcome to the Unification Mainchain Web wallet.
@@ -8,7 +7,13 @@
       <h3>Network</h3>
 
       <p>
-        Please ensure you are connected to the correct network <em>before</em> executing any transactions.
+        Please ensure you are connected to the correct network <em>before</em> unlocking your wallet and executing any transactions.
+      </p>
+
+      <h3>Security</h3>
+      <p>
+        Web Wallet is "client side only", meaning your wallet file and private key are <b><em>never</em></b> transmitted or sent over the web.
+        All transactions are signed <em>locally</em>, and only the final signed transaction is broadcast to the network.
       </p>
 
       <h3>Create a new wallet</h3>
@@ -31,5 +36,4 @@
 
       <p>To close a loaded wallet, just click "Close Wallet". This will unload all wallet data, and clear your session</p>
     </b-jumbotron>
-  </div>
 </template>
