@@ -202,6 +202,8 @@
         return false
       },
       clearPo: function () {
+        this.po = null
+        this.fee = null
         this.po = {
           und: '0',
           memo: ''

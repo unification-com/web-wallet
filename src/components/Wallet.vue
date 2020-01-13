@@ -173,7 +173,7 @@
         return false
       },
       newEmptyWallet: function () {
-        let newWallet = {
+        let emptyWallet = {
           isWalletUnlocked: false,
           json: '',
           mnemonic: '',
@@ -186,8 +186,14 @@
           locked: '0',
           lockedNund: '0',
           address: '',
+          staking: {
+            totalRewards: '0',
+            totalShares: '0',
+            totalStaked: '0',
+            totalDelegations: 0
+          }
         }
-        return newWallet
+        return emptyWallet
       },
       showUnlockWalletModal() {
         this.clearData()
