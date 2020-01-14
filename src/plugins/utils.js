@@ -52,9 +52,9 @@ Vue.mixin({
       let nund = Number(amountBig.mul(UND_CONFIG.BASENUMBER))
       return nund
     },
-    showToast: function(variant, msg) {
+    showToast: function(variant, title, msg) {
       this.$bvToast.toast(msg, {
-        title: 'Error',
+        title: title,
         variant: variant,
         solid: true,
         autoHideDelay: 10000,

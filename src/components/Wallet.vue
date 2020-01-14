@@ -190,8 +190,10 @@
             totalRewards: '0',
             totalShares: '0',
             totalStaked: '0',
+            totalUnbonding: '0',
             totalDelegations: 0
-          }
+          },
+          totalBalance: '0'
         }
         return emptyWallet
       },
@@ -210,7 +212,7 @@
           this.chainId = this.client.chainId
         } catch(e) {
           this.chainId = 'not connected'
-          this.showToast('danger', 'Error connecting to ' + this.rest + ' - ' + e.toString())
+          this.showToast('danger', 'Error', 'Error connecting to ' + this.rest + ' - ' + e.toString())
         }
       },
       clearData: function () {
@@ -230,11 +232,11 @@
       showWallet: function () {
 
         if (this.wallet.walletPass.length < 8) {
-          this.showToast('danger', 'enter a password > 8 chars')
+          this.showToast('danger', 'Error', 'enter a password > 8 chars')
           return false
         }
         if (this.wallet.walletPass !== this.wallet.walletPassCheck) {
-          this.showToast('danger', 'passwords do not match')
+          this.showToast('danger', 'Error', 'passwords do not match')
           return false
         }
 
@@ -276,7 +278,7 @@
           this.$bvModal.hide('bv-modal-unlock-wallet')
           this.wallet.isWalletUnlocked = true
         } catch (e) {
-          this.showToast('danger', e.toString())
+          this.showToast('danger', 'Error', e.toString())
           this.clearData()
         }
       }

@@ -15,7 +15,7 @@
             <Transactions v-bind:client="clnt" v-bind:wallet="w" ref="txcomponent" />
           </b-card-text>
         </b-tab>
-        <b-tab title="Staking" @click.prevent="updateWallet()">
+        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getDelegations()">
           <b-card-text>
             <Staking v-bind:client="clnt" v-bind:wallet="w" ref="stakingcomponent"/>
           </b-card-text>
@@ -65,19 +65,20 @@
     watch: {
       wallet: function (newWallet) {
         this.w = newWallet
-        this.refreshBalance()
         if(newWallet.isWalletUnlocked) {
           this.updateWallet()
         }
       },
       client: function (newClient) {
         this.clnt = newClient
-        this.refreshBalance()
         if (newClient !== null) {
           this.chainId = newClient.chainId
           this.updateWallet()
         }
       }
+    },
+    mounted() {
+      this.refreshBalance()
     },
     beforeDestroy () {
       clearInterval(this.timer)
@@ -85,15 +86,15 @@
     methods: {
       refreshBalance: function() {
         clearInterval(this.timer)
-        this.timer = setInterval(this.getBalance, 5000)
+        this.timer = setInterval(this.updateWallet, 5000)
       },
-      updateWallet: function () {
+      updateWallet: async function () {
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
-          this.getBalance()
-          this.getEnterpriseLocked()
-          this.getRewards()
-          this.$refs.txcomponent.loadTransactions()
-          this.$refs.stakingcomponent.getDelegations()
+          await this.getBalance()
+          await this.getEnterpriseLocked()
+          await this.getRewards()
+          await this.getUnbonding()
+          this.getTotalUnd()
         }
       },
       getBalance: async function () {
@@ -118,18 +119,15 @@
       getRewards: async function() {
         if (this.clnt !== null && this.w.isWalletUnlocked) {
           const delRes = await this.clnt.getDelegations()
-          this.wallet.staking.totalDelegations = 0
-          this.wallet.staking.totalShares = '0'
-          this.wallet.staking.totalStaked = '0'
-          this.wallet.staking.totalRewards = '0'
 
           let totalShares = new Big('0')
           let totalStaked = new Big('0')
           let totalRewards = new Big('0')
 
           if (delRes.status === 200) {
+            this.w.staking.totalDelegations = 0
             for (let i = 0; i < delRes.result.result.length; i++) {
-              this.wallet.staking.totalDelegations++
+              this.w.staking.totalDelegations++
               let validatorAddress = delRes.result.result[i].validator_address
               totalShares = totalShares.add(delRes.result.result[i].shares)
               totalStaked = totalStaked.add(delRes.result.result[i].balance.amount)
@@ -139,10 +137,34 @@
               }
             }
           }
-          this.wallet.staking.totalShares = Number(totalShares)
-          this.wallet.staking.totalStaked = Number(totalStaked)
-          this.wallet.staking.totalRewards = Number(totalRewards)
+          this.w.staking.totalShares = Number(totalShares)
+          this.w.staking.totalStaked = Number(totalStaked)
+          this.w.staking.totalRewards = Number(totalRewards)
         }
+      },
+      getUnbonding: async function() {
+        if (this.clnt !== null && this.w.isWalletUnlocked) {
+          let res = await this.clnt.getUnbondingDelegations()
+          let totalUnbonding = new Big('0')
+          if (res.status === 200) {
+            for (let i = 0; i < res.result.result.length; i++) {
+              for(let j = 0; j < res.result.result[i].entries.length; j++) {
+                totalUnbonding = totalUnbonding.add(res.result.result[i].entries[j].balance)
+              }
+            }
+          }
+          this.w.staking.totalUnbonding = Number(totalUnbonding)
+        }
+      },
+      getTotalUnd: function() {
+        let totalBalance = new Big(this.w.balanceNund)
+        let totalStaked = new Big(this.w.staking.totalStaked)
+        let totalUnbonding = new Big(this.w.staking.totalUnbonding)
+        let totalLocked = new Big(this.w.lockedNund)
+        totalBalance = totalBalance.add(totalStaked)
+        totalBalance = totalBalance.add(totalUnbonding)
+        totalBalance = totalBalance.add(totalLocked)
+        this.w.totalBalance = totalBalance
       }
     }
   };

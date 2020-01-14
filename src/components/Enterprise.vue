@@ -225,7 +225,7 @@
       showConfirmRaisePo: function () {
 
         if (this.po.und <= 0 || isNaN(this.po.und)) {
-          this.showToast('danger', 'Amount must be greater than zero')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
         this.$bvModal.show('bv-modal-confirm-raise-po')
@@ -244,13 +244,13 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
-          this.showToast('danger', 'Client not connected or wallet not unlocked. Please reload')
+          this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
         }
 
         this.$bvModal.hide('bv-modal-confirm-raise-po')
