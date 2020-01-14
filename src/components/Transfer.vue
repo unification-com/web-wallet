@@ -192,15 +192,15 @@
       showConfirmTransferUnd: function() {
 
         if(!UndClient.crypto.checkAddress(this.transfer.to, UND_CONFIG.BECH32_PREFIX)) {
-          this.showToast('danger', '"' + this.transfer.to + '" is not a valid address')
+          this.showToast('danger', 'Error', '"' + this.transfer.to + '" is not a valid address')
           return false
         }
         if(this.transfer.und <= 0 || isNaN(this.transfer.und)) {
-          this.showToast('danger', 'Amount must be greater than zero')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
         if(this.transfer.und > this.w.balance) {
-          this.showToast('danger', 'cannot transfer more than balance')
+          this.showToast('danger', 'Error', 'cannot transfer more than balance')
           return false
         }
         this.$bvModal.show('bv-modal-transfer-und')
@@ -221,16 +221,16 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
 
             this.$bvModal.hide('bv-modal-transfer-und')
             this.clearTransfer()
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
-          this.showToast('danger', 'Client not connected or wallet not unlocked. Please reload')
+          this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
         }
       }
     }

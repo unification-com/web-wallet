@@ -90,7 +90,7 @@
       },
       updateWallet: async function () {
         if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
-          this.getBalance()
+          await this.getBalance()
           await this.getEnterpriseLocked()
           await this.getRewards()
           await this.getUnbonding()
@@ -160,8 +160,10 @@
         let totalBalance = new Big(this.w.balanceNund)
         let totalStaked = new Big(this.w.staking.totalStaked)
         let totalUnbonding = new Big(this.w.staking.totalUnbonding)
+        let totalLocked = new Big(this.w.lockedNund)
         totalBalance = totalBalance.add(totalStaked)
         totalBalance = totalBalance.add(totalUnbonding)
+        totalBalance = totalBalance.add(totalLocked)
         this.w.totalBalance = totalBalance
       }
     }

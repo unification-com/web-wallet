@@ -741,26 +741,26 @@
       },
       showConfirmDelegate: function () {
         if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
-          this.showToast('danger', 'Amount must be greater than zero')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
         if (this.delegateData.und >= this.w.balance) {
-          this.showToast('danger', 'cannot delegate more than your balance')
+          this.showToast('danger', 'Error', 'cannot delegate more than your balance')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.delegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.showToast('danger', '"' + this.delegateData.address + '" is not a valid operator address')
+          this.showToast('danger', 'Error', '"' + this.delegateData.address + '" is not a valid operator address')
           return false
         }
         this.$bvModal.show('bv-modal-confirm-delegate-und')
       },
       showConfirmUnDelegation: function () {
         if (this.undelegateData.und <= 0 || isNaN(this.undelegateData.und) || this.undelegateData.und > this.undelegateData.max) {
-          this.showToast('danger', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.undelegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.showToast('danger', '"' + this.undelegateData.address + '" is not a valid operator address')
+          this.showToast('danger', 'Error', '"' + this.undelegateData.address + '" is not a valid operator address')
           return false
         }
         this.$bvModal.hide('bv-modal-undelegate-und')
@@ -768,19 +768,19 @@
       },
       showConfirmReDelegation: function() {
         if (this.redelegateData.und <= 0 || isNaN(this.redelegateData.und) || this.redelegateData.und > this.redelegateData.max) {
-          this.showToast('danger', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + 'UND')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + 'UND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.redelegateData.dst, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.showToast('danger', '"' + this.redelegateData.dst + '" is not a valid operator address')
+          this.showToast('danger', 'Error', '"' + this.redelegateData.dst + '" is not a valid operator address')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.redelegateData.src, UND_CONFIG.BECH32_VAL_PREFIX)) {
-          this.showToast('danger', '"' + this.redelegateData.src + '" is not a valid operator address')
+          this.showToast('danger', 'Error', '"' + this.redelegateData.src + '" is not a valid operator address')
           return false
         }
         if(this.redelegateData.src === this.redelegateData.dst) {
-          this.showToast('danger', 'cannot redelegate to same address')
+          this.showToast('danger', 'Error', 'cannot redelegate to same address')
           return false
         }
         this.$bvModal.hide('bv-modal-redelegate-und')
@@ -851,7 +851,7 @@
         this.$bvModal.show('bv-modal-redelegate-und')
       },
       clientError: function () {
-        this.showToast('danger', 'Client not connected or wallet not unlocked. Please reload')
+        this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
       },
       getValidatorMoniker: function (validatorAddress) {
         let moniker = validatorAddress
@@ -1010,11 +1010,11 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
           this.clientError()
@@ -1039,11 +1039,11 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
           this.clientError()
@@ -1069,11 +1069,11 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
           this.clientError()
@@ -1095,11 +1095,11 @@
             )
 
             if (res.status === 200) {
-              this.showToast('success', 'Tx hash: ' + res.result.txhash)
+              this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
             }
 
           } catch (err) {
-            this.showToast('danger', err.toString())
+            this.showToast('danger', 'Error', err.toString())
           }
         } else {
           this.clientError()
