@@ -31,6 +31,7 @@
       this.formatMsg()
     },
     methods: {
+      // Todo - missing Msgs
       formatMsg: function() {
         switch(this.msg.type) {
           case 'cosmos-sdk/MsgSend':

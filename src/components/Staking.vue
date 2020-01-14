@@ -736,6 +736,7 @@
       }
     },
     methods: {
+      // Todo - display and modify withdraw address
       preventSubmit: function() {
         return false
       },
