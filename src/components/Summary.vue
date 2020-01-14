@@ -10,8 +10,17 @@
     </b-row>
 
     <b-row>
-      <b-col><h4>Balance</h4></b-col>
-      <b-col cols="9"><b><span class="text-success">{{ w.balance }} UND</span></b></b-col>
+      <b-col><h4 v-b-popover.hover.right="'Amount of UND available for transfer and staking'" title="Available Balance">Available Balance</h4></b-col>
+      <b-col cols="9">
+        <h4><span class="text-success">{{ w.balance }} UND</span></h4>
+      </b-col>
+    </b-row>
+
+    <b-row v-show="w.staking.totalDelegations > 0">
+      <b-col><h4>Total Balance</h4></b-col>
+      <b-col cols="9">
+        <span class="text-info">{{ formatAmount(w.totalBalance) }}</span>
+      </b-col>
     </b-row>
 
     <b-row v-show="w.staking.totalDelegations > 0">
@@ -28,8 +37,12 @@
           <b-col>{{ w.staking.totalShares }}</b-col>
         </b-row>
         <b-row>
-          <b-col>Staked</b-col>
+          <b-col>Delegated</b-col>
           <b-col>{{ formatAmount(w.staking.totalStaked) }}</b-col>
+        </b-row>
+        <b-row v-show="w.staking.totalUnbonding > 0">
+          <b-col>Unbonding</b-col>
+          <b-col>{{ formatAmount(w.staking.totalUnbonding) }}</b-col>
         </b-row>
         <b-row>
           <b-col>Rewards</b-col>
@@ -55,7 +68,7 @@
     },
     data: function () {
       return {
-        w: this.wallet,
+        w: this.wallet
       }
     },
     watch: {

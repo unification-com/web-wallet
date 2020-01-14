@@ -190,8 +190,10 @@
             totalRewards: '0',
             totalShares: '0',
             totalStaked: '0',
+            totalUnbonding: '0',
             totalDelegations: 0
-          }
+          },
+          totalBalance: '0'
         }
         return emptyWallet
       },

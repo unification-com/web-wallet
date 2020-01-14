@@ -448,7 +448,7 @@
                 <template v-slot:cell(shares)="data">
                   <b class="text-info">{{ Number(data.value) }}</b>
                 </template>
-                <template v-slot:cell(stake)="data">
+                <template v-slot:cell(delegated)="data">
                   <b class="text-info">{{ formatAmount(data.value)}}</b>
                 </template>
                 <template v-slot:cell(rewards)="data">
@@ -459,9 +459,83 @@
             </div>
           </b-card-text>
         </b-tab>
-        <b-tab title="Stake" @click.prevent="getDelegations()">
+
+        <b-tab title="Unbonding Delegations" @click.prevent="getUnbondingDelegations(), getRedelegations()">
           <b-card-text>
-            <h3>Stake UND</h3>
+            <b-container class="bv-example-row">
+              <b-row>
+                <b-col>
+                  <h3>Current Unbonding Delegations</h3>
+                </b-col>
+                <b-col>
+                  <b-button @click="getUnbondingDelegations()">Refresh</b-button>
+                </b-col>
+              </b-row>
+            </b-container>
+
+            <div v-show="isDataLoading">
+              <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
+            </div>
+
+            <div v-show="!isDataLoading">
+              <b-table :items="unbondingDelegations" :fields="unbondingDelegationsFields" striped responsive="sm">
+
+                <template v-slot:cell(completion_time)="data">
+                  <b class="text-info">{{ formatDateTime(data.value)}}</b>
+                </template>
+                <template v-slot:cell(balance)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+                <template v-slot:cell(initial_balance)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+
+              </b-table>
+            </div>
+          </b-card-text>
+        </b-tab>
+
+        <b-tab title="Redelegations" @click.prevent="getRedelegations()">
+          <b-card-text>
+            <b-container class="bv-example-row">
+              <b-row>
+                <b-col>
+                  <h3>Redelegations</h3>
+                </b-col>
+                <b-col>
+                  <b-button @click="getRedelegations()">Refresh</b-button>
+                </b-col>
+              </b-row>
+            </b-container>
+
+            <div v-show="isDataLoading">
+              <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
+            </div>
+
+            <div v-show="!isDataLoading">
+              <b-table :items="redelegations" :fields="redelegationFields" striped responsive="sm">
+
+                <template v-slot:cell(completion_time)="data">
+                  <b class="text-info">{{ formatDateTime(data.value)}}</b>
+                </template>
+                <template v-slot:cell(balance)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+                <template v-slot:cell(initial_balance)="data">
+                  <b class="text-info">{{ formatAmount(data.value)}}</b>
+                </template>
+                <template v-slot:cell(shares)="data">
+                  <b class="text-info">{{ Number(data.value) }}</b>
+                </template>
+
+              </b-table>
+            </div>
+          </b-card-text>
+        </b-tab>
+
+        <b-tab title="Delegate" @click.prevent="getDelegations()">
+          <b-card-text>
+            <h3>Delegate UND</h3>
 
             <div v-show="isDataLoading">
               <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
@@ -619,10 +693,10 @@
           amount: [
             {
               denom: "nund",
-              amount: "5000"
+              amount: "5500"
             }
           ],
-          gas: "190000"
+          gas: "200000"
         },
         fee: {
           amount: [
@@ -631,12 +705,16 @@
               amount: "5000"
             }
           ],
-          gas: "190000"
+          gas: "200000"
         },
         validators: {},
         validatorsSelect: [],
         delegations: [],
-        delegationsFields: ['name', 'shares', 'stake', 'rewards', 'show_details'],
+        unbondingDelegations: [],
+        delegationsFields: ['name', 'shares', 'delegated', 'rewards', 'show_details'],
+        unbondingDelegationsFields: ['name', 'creation_height', 'completion_time', 'initial_balance', 'balance'],
+        redelegations: [],
+        redelegationFields: ['from', 'to', 'creation_height', 'completion_time', 'initial_balance', 'balance', 'shares'],
         isDataLoading: false,
         isShowFee: false,
       }
@@ -644,9 +722,17 @@
     watch: {
       wallet: function (newWallet) {
         this.w = newWallet
+        this.validators = []
+        this.delegations = []
+        this.validatorsSelect = []
+        this.unbondingDelegations = []
       },
       client: function (newClient) {
         this.clnt = newClient
+        this.validators = []
+        this.delegations = []
+        this.validatorsSelect = []
+        this.unbondingDelegations = []
       }
     },
     methods: {
@@ -755,13 +841,13 @@
       initUndelegate: function (item) {
         this.clearUnDelegateData()
         this.undelegateData.address = item.validator_address
-        this.undelegateData.max = this.nundToUnd(item.stake)
+        this.undelegateData.max = this.nundToUnd(item.delegated)
         this.$bvModal.show('bv-modal-undelegate-und')
       },
       initRedelegate: function(item) {
         this.clearReDelegateData()
         this.redelegateData.src = item.validator_address
-        this.redelegateData.max = this.nundToUnd(item.stake)
+        this.redelegateData.max = this.nundToUnd(item.delegated)
         this.$bvModal.show('bv-modal-redelegate-und')
       },
       clientError: function () {
@@ -822,12 +908,77 @@
                 name: moniker,
                 validator_address: validator_address,
                 shares: res.result.result[i].shares,
-                stake: res.result.result[i].balance.amount,
+                delegated: res.result.result[i].balance.amount,
                 rewards: await this.getRewards(validator_address),
                 description: this.getValidatorDescription(validator_address)
               }
 
               this.delegations.push(del)
+            }
+          }
+          this.isDataLoading = false
+        }
+      },
+      getUnbondingDelegations: async function () {
+        this.unbondingDelegations = []
+        if (this.clnt !== null && this.w.isWalletUnlocked) {
+          this.isDataLoading = true
+          await this.getValidators()
+          let res = await this.clnt.getUnbondingDelegations()
+          if (res.status === 200) {
+            for (let i = 0; i < res.result.result.length; i++) {
+              let moniker = ''
+              let validator_address = res.result.result[i].validator_address
+              if (validator_address in this.validators) {
+                moniker = this.validators[validator_address]['description']['moniker']
+              }
+              for(let j = 0; j < res.result.result[i].entries.length; j++) {
+                let unbond = {
+                  name: moniker,
+                  validator_address: validator_address,
+                  creation_height: res.result.result[i].entries[j].creation_height,
+                  completion_time: res.result.result[i].entries[j].completion_time,
+                  initial_balance: res.result.result[i].entries[j].initial_balance,
+                  balance: res.result.result[i].entries[j].balance
+                }
+                this.unbondingDelegations.push(unbond)
+              }
+            }
+          }
+          this.isDataLoading = false
+        }
+      },
+      getRedelegations: async function() {
+        this.redelegations = []
+        if (this.clnt !== null && this.w.isWalletUnlocked) {
+          this.isDataLoading = true
+          await this.getValidators()
+          let res = await this.clnt.getRedelegations(this.w.address)
+          if (res.status === 200) {
+            for (let i = 0; i < res.result.result.length; i++) {
+              let monikerSrc = ''
+              let monikerDst = ''
+              let validator_src_address = res.result.result[i].validator_src_address
+              let validator_dst_address = res.result.result[i].validator_dst_address
+              if (validator_src_address in this.validators) {
+                monikerSrc = this.validators[validator_src_address]['description']['moniker']
+              }
+              if (validator_dst_address in this.validators) {
+                monikerDst = this.validators[validator_dst_address]['description']['moniker']
+              }
+              for(let j = 0; j < res.result.result[i].entries.length; j++) {
+                let redeleg = {
+                  from: monikerSrc,
+                  to: monikerDst,
+                  validator_src_address: validator_src_address,
+                  creation_height: res.result.result[i].entries[j].creation_height,
+                  completion_time: res.result.result[i].entries[j].completion_time,
+                  initial_balance: res.result.result[i].entries[j].initial_balance,
+                  balance: res.result.result[i].entries[j].balance,
+                  shares: res.result.result[i].entries[j].shares_dst,
+                }
+                this.redelegations.push(redeleg)
+              }
             }
           }
           this.isDataLoading = false
