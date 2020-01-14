@@ -10,7 +10,7 @@
             <Transfer v-bind:client="clnt" v-bind:wallet="w"/>
           </b-card-text>
         </b-tab>
-        <b-tab title="Transactions" @click.prevent="updateWallet()">
+        <b-tab title="Transactions" @click.prevent="updateWallet(), $refs.txcomponent.loadTransactions()">
           <b-card-text>
             <Transactions v-bind:client="clnt" v-bind:wallet="w" ref="txcomponent" />
           </b-card-text>
@@ -120,14 +120,14 @@
         if (this.clnt !== null && this.w.isWalletUnlocked) {
           const delRes = await this.clnt.getDelegations()
 
+          let totalDelegations = 0
           let totalShares = new Big('0')
           let totalStaked = new Big('0')
           let totalRewards = new Big('0')
 
           if (delRes.status === 200) {
-            this.w.staking.totalDelegations = 0
             for (let i = 0; i < delRes.result.result.length; i++) {
-              this.w.staking.totalDelegations++
+              totalDelegations++
               let validatorAddress = delRes.result.result[i].validator_address
               totalShares = totalShares.add(delRes.result.result[i].shares)
               totalStaked = totalStaked.add(delRes.result.result[i].balance.amount)
@@ -137,6 +137,7 @@
               }
             }
           }
+          this.w.staking.totalDelegations = totalDelegations
           this.w.staking.totalShares = Number(totalShares)
           this.w.staking.totalStaked = Number(totalStaked)
           this.w.staking.totalRewards = Number(totalRewards)
