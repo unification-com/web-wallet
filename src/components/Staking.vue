@@ -411,7 +411,7 @@
                       <b-col>{{ row.item.description.moniker }}</b-col>
                     </b-row>
                     <b-row class="mb-2">
-                      <b-col sm="3" class="text-sm-right"><b>Address:</b></b-col>
+                      <b-col sm="3" class="text-sm-right"><b>Operator Address:</b></b-col>
                       <b-col>{{ row.item.validator_address }}</b-col>
                     </b-row>
                     <b-row class="mb-2">

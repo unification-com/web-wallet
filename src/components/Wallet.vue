@@ -249,7 +249,7 @@
       },
       createWallet: function () {
         const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
-        this.download(JSON.stringify(keystore), keystore.id + ".json", "text/json")
+        this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
         this.$bvModal.hide('bv-modal-download-wallet')
         this.clearData()
       },
