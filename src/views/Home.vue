@@ -16,6 +16,10 @@
                     v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Create New Wallet
           </b-button>
 
+          <b-button variant="primary" @click="$refs.walletComponent.showRecoverkWalletModal()"
+                    v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Recover Wallet
+          </b-button>
+
           <b-button variant="primary" @click="$refs.walletComponent.showUnlockWalletModal()"
                     v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Unlock Wallet
           </b-button>

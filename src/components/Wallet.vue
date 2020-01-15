@@ -25,7 +25,7 @@
 
         <b-form-group
         id="create-new-wallet-2"
-        label="Confirm:"
+        label="Confirm Password:"
         label-for="wallet-confirm-password"
         description="Confirm you password"
         >
@@ -88,7 +88,7 @@
       </template>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
-        id="wallet file"
+        id="wallet-file"
         label="Wallet File:"
         label-for="unlock-wallet-file"
         description="Wallet File:"
@@ -130,6 +130,99 @@
         </b-button>
         <b-button
         @click="$bvModal.hide('bv-modal-unlock-wallet')"
+        aria-label="Cancel"
+        >
+          Cancel
+        </b-button>
+      </template>
+    </b-modal>
+
+    <!-- wallet downloaded -->
+    <b-modal id="bv-modal-wallet-downloaded">
+      <template v-slot:modal-title>
+        <h3>Wallet Downloaded</h3>
+      </template>
+      <h4>Wallet file downloaded!</h4>
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
+        @click="$bvModal.hide('bv-modal-wallet-downloaded')"
+        aria-label="OK"
+        >
+          OK
+        </b-button>
+      </template>
+    </b-modal>
+
+    <!-- recover wallet from mnemonic -->
+    <b-modal id="bv-modal-recover-wallet">
+      <template v-slot:modal-title>
+        <h3>Recover Wallet</h3>
+      </template>
+
+      <p>
+        Recover a wallet file from an existing Mnemonic
+      </p>
+      <b-form @submit.prevent="preventSubmit">
+        <b-form-group
+        id="wallet-mnemonic"
+        label="Mnemonic:"
+        label-for="recover-wallet-file"
+        description="Enter your mnemonic to recover the wallet"
+        >
+          <b-form-textarea
+          id="textarea"
+          v-model="wallet.mnemonic"
+          placeholder=""
+          rows="3"
+          max-rows="6"
+          required
+          trim
+          />
+        </b-form-group>
+        <b-form-group
+        id="recover-wallet-1"
+        label="New Password:"
+        label-for="recover-wallet-password"
+        description="Enter a secure password for your wallet"
+        >
+          <b-form-input
+          id="recover-wallet-password"
+          v-model="wallet.walletPass"
+          type="password"
+          required
+          placeholder="Enter password"
+          v-on:keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-group
+        id="recover-wallet-2"
+        label="Confirm Password:"
+        label-for="recover-wallet-confirm-password"
+        description="Confirm you password"
+        >
+          <b-form-input
+          id="recover-wallet-confirm-password"
+          v-model="wallet.walletPassCheck"
+          type="password"
+          required
+          placeholder="Confirm password"
+          v-on:keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+      </b-form>
+
+      <template v-slot:modal-footer>
+        <b-button
+        variant="success"
+        @click="recoverWallet"
+        aria-label="Recover"
+        >
+          Recover Wallet
+        </b-button>
+        <b-button
+        @click="$bvModal.hide('bv-modal-recover-wallet')"
         aria-label="Cancel"
         >
           Cancel
@@ -201,6 +294,10 @@
         this.clearData()
         this.$bvModal.show('bv-modal-unlock-wallet')
       },
+      showRecoverkWalletModal() {
+        this.clearData()
+        this.$bvModal.show('bv-modal-recover-wallet')
+      },
       initChain: async function () {
         try {
           let client = new UndClient(this.rest)
@@ -251,6 +348,7 @@
         const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
         this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
         this.$bvModal.hide('bv-modal-download-wallet')
+        this.$bvModal.show('bv-modal-wallet-downloaded')
         this.clearData()
       },
       download: function (content, fileName, contentType) {
@@ -259,6 +357,28 @@
         a.href = URL.createObjectURL(file);
         a.download = fileName;
         a.click();
+      },
+      recoverWallet: function() {
+        if (this.wallet.walletPass.length < 8) {
+          this.showToast('danger', 'Error', 'enter a password > 8 chars')
+          return false
+        }
+        if (this.wallet.walletPass !== this.wallet.walletPassCheck) {
+          this.showToast('danger', 'Error', 'passwords do not match')
+          return false
+        }
+        try {
+          this.wallet.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.wallet.mnemonic)
+        } catch(e) {
+          this.showToast('danger', 'Error', e.toString())
+          return false
+        }
+        this.wallet.address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
+        const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
+        this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
+        this.clearData()
+        this.$bvModal.hide('bv-modal-recover-wallet')
+        this.$bvModal.show('bv-modal-wallet-downloaded')
       },
       loadTextFromFile: function (ev) {
         this.wallet.walletFile = ev.target.files[0]
