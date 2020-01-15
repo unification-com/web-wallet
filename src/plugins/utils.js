@@ -60,6 +60,13 @@ Vue.mixin({
         autoHideDelay: 10000,
         appendToast: true
       })
+    },
+    wait: function(ms) {
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          resolve()
+        }, ms)
+      })
     }
   }
 })

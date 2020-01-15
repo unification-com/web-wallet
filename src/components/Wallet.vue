@@ -81,6 +81,18 @@
       </template>
     </b-modal>
 
+    <b-modal id="bv-modal-please-wait" busy>
+      <template v-slot:modal-title>
+        <h3>Please wait</h3>
+      </template>
+      <div class="d-flex justify-content-center mb-3">
+        <b-spinner label="Please wait"/>
+      </div>
+      <template v-slot:modal-footer>
+        <p></p>
+      </template>
+    </b-modal>
+
     <!-- unlock wallet -->
     <b-modal id="bv-modal-unlock-wallet">
       <template v-slot:modal-title>
@@ -344,10 +356,16 @@
         this.$bvModal.hide('bv-modal-create-wallet')
         this.$bvModal.show('bv-modal-download-wallet')
       },
-      createWallet: function () {
+      createWallet: async function () {
+        this.$bvModal.hide('bv-modal-download-wallet')
+        this.$bvModal.show('bv-modal-please-wait')
+        await this.wait(200)
+        this.generateWallet()
+      },
+      generateWallet: function() {
         const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
         this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
-        this.$bvModal.hide('bv-modal-download-wallet')
+        this.$bvModal.hide('bv-modal-please-wait')
         this.$bvModal.show('bv-modal-wallet-downloaded')
         this.clearData()
       },
@@ -358,7 +376,7 @@
         a.download = fileName;
         a.click();
       },
-      recoverWallet: function() {
+      recoverWallet: async function() {
         if (this.wallet.walletPass.length < 8) {
           this.showToast('danger', 'Error', 'enter a password > 8 chars')
           return false
@@ -374,11 +392,11 @@
           return false
         }
         this.wallet.address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
-        const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
-        this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
-        this.clearData()
+
         this.$bvModal.hide('bv-modal-recover-wallet')
-        this.$bvModal.show('bv-modal-wallet-downloaded')
+        this.$bvModal.show('bv-modal-please-wait')
+        await this.wait(200)
+        this.generateWallet()
       },
       loadTextFromFile: function (ev) {
         this.wallet.walletFile = ev.target.files[0]
@@ -389,13 +407,16 @@
         reader.readAsText(this.wallet.walletFile);
       },
       loadWallet: async function (e) {
+        this.$bvModal.hide('bv-modal-unlock-wallet')
+        this.$bvModal.show('bv-modal-please-wait')
+        await this.wait(200)
         try {
           this.wallet.json = e.target.result
           const res = this.client.recoverAccountFromKeystore(e.target.result, this.wallet.walletPass)
           this.wallet.address = res.address
           this.wallet.privateKey = res.privateKey
           await this.client.setPrivateKey(res.privateKey, true)
-          this.$bvModal.hide('bv-modal-unlock-wallet')
+          this.$bvModal.hide('bv-modal-please-wait')
           this.wallet.isWalletUnlocked = true
         } catch (e) {
           this.showToast('danger', 'Error', e.toString())
