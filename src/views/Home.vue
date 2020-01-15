@@ -12,17 +12,33 @@
           <b-navbar-brand>
             Network: {{ $refs.walletComponent.chainId }}
           </b-navbar-brand>
-          <b-button variant="success" @click="$refs.walletComponent.newWallet()"
-                    v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Create New Wallet
-          </b-button>
+          <b-dropdown variant="primary" class="mx-1" right text="My Wallet">
+            <b-dropdown-item>
+              <b-button variant="success" @click="$refs.walletComponent.newWallet()"
+                        v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Create New Wallet
+              </b-button>
+            </b-dropdown-item>
 
-          <b-button variant="primary" @click="$refs.walletComponent.showUnlockWalletModal()"
-                    v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Unlock Wallet
-          </b-button>
+            <b-dropdown-item>
+              <b-button variant="primary" @click="$refs.walletComponent.showRecoverkWalletModal()"
+                        v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Recover Wallet
+              </b-button>
+            </b-dropdown-item>
 
-          <b-button variant="warning" @click="$refs.walletComponent.clearData()"
-                    v-show="$refs.walletComponent.wallet.isWalletUnlocked">Close Wallet
-          </b-button>
+            <b-dropdown-item>
+              <b-button variant="primary" @click="$refs.walletComponent.showUnlockWalletModal()"
+                        v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Unlock Wallet
+              </b-button>
+            </b-dropdown-item>
+
+            <b-dropdown-item>
+              <b-button variant="warning" @click="$refs.walletComponent.clearData()"
+                        v-show="$refs.walletComponent.wallet.isWalletUnlocked">Close Wallet
+              </b-button>
+            </b-dropdown-item>
+          </b-dropdown>
+
+
         </template>
         <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
@@ -48,7 +64,7 @@
 
     <b-navbar toggleable="lg" type="dark" variant="info">
       <b-navbar-brand>
-        2020 Unification Foundation.
+        2019 - {{ yearNow }} Unification Foundation
       </b-navbar-brand>
       <b-navbar-nav class="ml-auto">
         <div class="socials">
@@ -79,6 +95,12 @@
       return {
         mounted: false,
         wallet_version: version
+      }
+    },
+    computed: {
+      yearNow: function() {
+        let d = new Date()
+        return d.getFullYear()
       }
     }
   }
