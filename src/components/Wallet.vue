@@ -60,10 +60,16 @@
       <template v-slot:modal-title>
         <h3>Save Your New Wallet</h3>
       </template>
-      <p>This is your master Mnemonic. IMPORTANT - DO NOT LOSE THIS</p>
-      <h5>
+      <p>
+        This is your master Mnemonic. Please ensure you save this in a safe place
+      </p>
+      <p>
+        <b><em>IMPORTANT - DO NOT LOSE THIS</em></b>
+      </p>
+      <h4 class="text-info">
         <b>{{ wallet.mnemonic }}</b>
-      </h5>
+      </h4>
+      <br/>
       <b-form-group id="mnemonic-saved-group">
         <b-form-checkbox-group id="mnemonic-saved">
           <b-form-checkbox v-model="isMnemonicSaved">I have saved this Mnemonic somewhere safe</b-form-checkbox>
@@ -155,6 +161,7 @@
         <h3>Wallet Downloaded</h3>
       </template>
       <h4>Wallet file downloaded!</h4>
+      <p>You can now unlock and use your wallet</p>
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -359,7 +366,7 @@
       createWallet: async function () {
         this.$bvModal.hide('bv-modal-download-wallet')
         this.$bvModal.show('bv-modal-please-wait')
-        await this.wait(200)
+        await this.wait(300)
         this.generateWallet()
       },
       generateWallet: function() {
@@ -395,7 +402,7 @@
 
         this.$bvModal.hide('bv-modal-recover-wallet')
         this.$bvModal.show('bv-modal-please-wait')
-        await this.wait(200)
+        await this.wait(300)
         this.generateWallet()
       },
       loadTextFromFile: function (ev) {
@@ -409,7 +416,7 @@
       loadWallet: async function (e) {
         this.$bvModal.hide('bv-modal-unlock-wallet')
         this.$bvModal.show('bv-modal-please-wait')
-        await this.wait(200)
+        await this.wait(300)
         try {
           this.wallet.json = e.target.result
           const res = this.client.recoverAccountFromKeystore(e.target.result, this.wallet.walletPass)
