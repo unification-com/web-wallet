@@ -109,11 +109,16 @@
         }
       },
       getEnterpriseLocked: async function() {
-        const res = await this.clnt.getEnterpriseLocked()
-        if('amount' in res) {
-          let amount = new Big(res.amount)
-          this.w.locked = Number(amount.div(UND_CONFIG.BASENUMBER))
-          this.w.lockedNund = res.amount
+        try {
+          const res = await this.clnt.getEnterpriseLocked()
+          if ('amount' in res) {
+            let amount = new Big(res.amount)
+            this.w.locked = Number(amount.div(UND_CONFIG.BASENUMBER))
+            this.w.lockedNund = res.amount
+          }
+        } catch(e) {
+          this.w.locked = '0'
+          this.w.lockedNund = '0'
         }
       },
       getRewards: async function() {
