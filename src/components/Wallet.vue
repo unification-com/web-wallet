@@ -251,7 +251,7 @@
 
     <div class="main-container">
       <Unlocked v-show="wallet.isWalletUnlocked" v-bind:wallet="this.wallet" v-bind:client="this.client"/>
-      <Help v-show="!wallet.isWalletUnlocked"/>
+      <Help v-show="!wallet.isWalletUnlocked" v-bind:is-web="isWeb"/>
     </div>
   </div>
 </template>
@@ -267,6 +267,9 @@
     components: {
       Unlocked,
       Help
+    },
+    props: {
+      isWeb: Boolean
     },
     data: function () {
       return {

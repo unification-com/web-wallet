@@ -1,10 +1,13 @@
 {
   "name": "web-wallet",
-  "version": "0.6.2",
-  "description": "Unification Mainchain Web Wallet",
+  "version": "0.7.0",
+  "private": true,
+  "description": "Unification UND Mainchain Web Wallet",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --modern",
+    "serve": "vue-cli-service build --mode development --watch",
+    "serve:web": "vue-cli-service serve --open",
+    "build": "vue-cli-service build --dest dist/chrome-extension",
+    "build:web": "vue-cli-service build --dest dist/web --inline-vue",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
@@ -34,6 +37,7 @@
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-bootstrap-vue": "^0.6.0",
+    "vue-cli-plugin-browser-extension": "^0.24.0",
     "vue-template-compiler": "^2.6.10"
   },
   "bugs": {
