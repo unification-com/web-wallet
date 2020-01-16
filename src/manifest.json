@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+  "name": "UND Web Wallet",
+  "homepage_url": "https://unification.com",
+  "description": "Unification UND Web Wallet Browser Extension",
+  "default_locale": "en",
+  "permissions": [],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "UND Web Wallet",
+    "default_icon": {
+      "19": "icons/19.png",
+      "38": "icons/38.png"
+    }
+  }
+}

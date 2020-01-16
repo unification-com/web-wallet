@@ -11,8 +11,7 @@
       </b-row>
     </b-container>
 
-    <p><b>Please note</b> - the wallet only lists successful transactions. Please see Explorer for all transactions,
-      including unsuccessful transactions</p>
+    <p><b>Please note</b> - the wallet currently only lists successful transactions recorded by the network.</p>
 
     <div v-show="isDataLoading">
       <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>

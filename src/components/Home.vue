@@ -58,7 +58,7 @@
 
     <b-container fluid>
       <div class="main-content">
-        <Wallet ref="walletComponent"/>
+        <Wallet ref="walletComponent" v-bind:is-web="isWeb"/>
       </div>
     </b-container>
 
@@ -87,6 +87,9 @@
     name: 'home',
     components: {
       Wallet
+    },
+    props: {
+      isWeb: Boolean
     },
     mounted() {
       this.mounted = true;
