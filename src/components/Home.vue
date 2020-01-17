@@ -20,7 +20,7 @@
             </b-dropdown-item>
 
             <b-dropdown-item>
-              <b-button variant="primary" @click="$refs.walletComponent.showRecoverkWalletModal()"
+              <b-button variant="primary" @click="$refs.walletComponent.showRecoverWalletModal()"
                         v-show="!$refs.walletComponent.wallet.isWalletUnlocked">Recover Wallet
               </b-button>
             </b-dropdown-item>

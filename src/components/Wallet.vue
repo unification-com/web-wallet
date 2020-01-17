@@ -15,7 +15,7 @@
         >
           <b-form-input
           id="wallet-password"
-          v-model="wallet.walletPass"
+          v-model="walletPass"
           type="password"
           required
           placeholder="Enter password"
@@ -31,7 +31,7 @@
         >
           <b-form-input
           id="wallet-confirm-password"
-          v-model="wallet.walletPassCheck"
+          v-model="walletPassCheck"
           type="password"
           required
           placeholder="Confirm password"
@@ -130,7 +130,7 @@
         >
           <b-form-input
           id="unlock-wallet-password"
-          v-model="wallet.walletPass"
+          v-model="walletPass"
           type="password"
           required
           placeholder="Wallet password"
@@ -191,7 +191,7 @@
         >
           <b-form-textarea
           id="textarea"
-          v-model="wallet.mnemonic"
+          v-model="mnemonic"
           placeholder=""
           rows="3"
           max-rows="6"
@@ -207,7 +207,7 @@
         >
           <b-form-input
           id="recover-wallet-password"
-          v-model="wallet.walletPass"
+          v-model="walletPass"
           type="password"
           required
           placeholder="Enter password"
@@ -223,7 +223,7 @@
         >
           <b-form-input
           id="recover-wallet-confirm-password"
-          v-model="wallet.walletPassCheck"
+          v-model="walletPassCheck"
           type="password"
           required
           placeholder="Confirm password"
@@ -250,13 +250,14 @@
     </b-modal>
 
     <div class="main-container">
-      <Unlocked v-show="wallet.isWalletUnlocked" v-bind:wallet="this.wallet" v-bind:client="this.client"/>
+      <Unlocked v-show="wallet.isWalletUnlocked"/>
       <Help v-show="!wallet.isWalletUnlocked" v-bind:is-web="isWeb"/>
     </div>
   </div>
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   const UndClient = require('@unification-com/und-js')
 
   import Unlocked from '@/components/Unlocked.vue'
@@ -271,13 +272,23 @@
     props: {
       isWeb: Boolean
     },
+    computed: {
+      ...mapState({
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        isClientConnected: state => state.client.isConnected,
+        wallet: state => state.wallet,
+        txs: state => state.txs,
+        validators: state => state.validators
+      }),
+    },
     data: function () {
       return {
         rest: 'https://rest-testnet.unification.io',
-        chainId: 'not connected',
-        client: null,
         isMnemonicSaved: false,
-        wallet: this.newEmptyWallet(),
+        mnemonic: null,
+        walletPass: null,
+        walletPassCheck: null
       }
     },
     mounted: function () {
@@ -287,81 +298,66 @@
       preventSubmit: function() {
         return false
       },
-      newEmptyWallet: function () {
-        let emptyWallet = {
-          isWalletUnlocked: false,
-          json: '',
-          mnemonic: '',
-          walletPass: '',
-          walletPassCheck: '',
-          walletFile: null,
-          privateKey: '',
-          balance: '0',
-          balanceNund: '0',
-          locked: '0',
-          lockedNund: '0',
-          address: '',
-          staking: {
-            totalRewards: '0',
-            totalShares: '0',
-            totalStaked: '0',
-            totalUnbonding: '0',
-            totalDelegations: 0
-          },
-          totalBalance: '0'
-        }
-        return emptyWallet
-      },
       showUnlockWalletModal() {
         this.clearData()
         this.$bvModal.show('bv-modal-unlock-wallet')
       },
-      showRecoverkWalletModal() {
+      showRecoverWalletModal() {
         this.clearData()
         this.$bvModal.show('bv-modal-recover-wallet')
       },
       initChain: async function () {
+        await this.$store.dispatch('client/clearClient')
         try {
           let client = new UndClient(this.rest)
           await client.initChain()
-          if (this.wallet.privateKey.length > 0) {
+          if (this.wallet.privateKey !== null) {
             client.setPrivateKey(this.wallet.privateKey, true)
           }
-          this.client = client
-          this.chainId = this.client.chainId
+          await this.$store.dispatch('client/setClient', client)
         } catch(e) {
-          this.chainId = 'not connected'
           this.showToast('danger', 'Error', 'Error connecting to ' + this.rest + ' - ' + e.toString())
+          await this.$store.dispatch('client/clearClient')
+          await this.clearData()
         }
       },
-      clearData: function () {
-        this.wallet = null
-        this.wallet = this.newEmptyWallet()
+      clearData: async function () {
+        await this.$store.dispatch('wallet/clearWallet')
+        await this.$store.dispatch('txs/clearTxs')
+        await this.$store.dispatch('validators/clearValidators')
         this.isMnemonicSaved = false
+        this.walletPass = null
+        this.walletPassCheck = null
+        this.mnemonic = null
       },
-      changeNetwork: function (network) {
-        this.clearData()
+      changeNetwork: async function (network) {
+        await this.clearData()
         this.rest = network
         this.initChain()
+
       },
       newWallet: function () {
         this.clearData()
         this.$bvModal.show('bv-modal-create-wallet')
       },
-      showWallet: function () {
-
-        if (this.wallet.walletPass.length < 8) {
+      showWallet: async function () {
+        if (this.walletPass.length < 8) {
           this.showToast('danger', 'Error', 'enter a password > 8 chars')
           return false
         }
-        if (this.wallet.walletPass !== this.wallet.walletPassCheck) {
+        if (this.walletPass !== this.walletPassCheck) {
           this.showToast('danger', 'Error', 'passwords do not match')
           return false
         }
 
-        this.wallet.mnemonic = UndClient.crypto.generateMnemonic()
-        this.wallet.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.wallet.mnemonic)
-        this.wallet.address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
+        await this.$store.dispatch('wallet/setWalletPass', this.walletPass)
+        await this.$store.dispatch('wallet/setWalletPassCheck', this.walletPassCheck)
+        let mnemonic = UndClient.crypto.generateMnemonic()
+        await this.$store.dispatch('wallet/setMnemonic', mnemonic)
+        let privateKey =  UndClient.crypto.getPrivateKeyFromMnemonic(mnemonic)
+        await this.$store.dispatch('wallet/setPrivateKey', privateKey)
+        let address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
+        await this.$store.dispatch('wallet/setAddress', address)
 
         this.$bvModal.hide('bv-modal-create-wallet')
         this.$bvModal.show('bv-modal-download-wallet')
@@ -387,29 +383,41 @@
         a.click();
       },
       recoverWallet: async function() {
-        if (this.wallet.walletPass.length < 8) {
+        if (this.walletPass.length < 8) {
           this.showToast('danger', 'Error', 'enter a password > 8 chars')
           return false
         }
-        if (this.wallet.walletPass !== this.wallet.walletPassCheck) {
+        if (this.walletPass !== this.walletPassCheck) {
           this.showToast('danger', 'Error', 'passwords do not match')
           return false
         }
+
+        await this.$store.dispatch('wallet/setWalletPass', this.walletPass)
+        await this.$store.dispatch('wallet/setWalletPassCheck', this.walletPassCheck)
+
         try {
-          this.wallet.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.wallet.mnemonic)
+          await this.$store.dispatch('wallet/setMnemonic', this.mnemonic)
+          let privateKey =  UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
+          this.mnemonic = null
+          await this.$store.dispatch('wallet/setPrivateKey', privateKey)
         } catch(e) {
           this.showToast('danger', 'Error', e.toString())
           return false
         }
-        this.wallet.address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
+
+        let address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
+        await this.$store.dispatch('wallet/setAddress', address)
 
         this.$bvModal.hide('bv-modal-recover-wallet')
         this.$bvModal.show('bv-modal-please-wait')
         await this.wait(300)
         this.generateWallet()
       },
-      loadTextFromFile: function (ev) {
-        this.wallet.walletFile = ev.target.files[0]
+      loadTextFromFile: function(ev) {
+        this.loadTextFromFileAsync(ev)
+      },
+      loadTextFromFileAsync: async function (ev) {
+        await this.$store.dispatch('wallet/setWalletFile', ev.target.files[0])
       },
       unlockWallet: function () {
         const reader = new FileReader();
@@ -420,17 +428,23 @@
         this.$bvModal.hide('bv-modal-unlock-wallet')
         this.$bvModal.show('bv-modal-please-wait')
         await this.wait(300)
-        try {
-          this.wallet.json = e.target.result
-          const res = this.client.recoverAccountFromKeystore(e.target.result, this.wallet.walletPass)
-          this.wallet.address = res.address
-          this.wallet.privateKey = res.privateKey
-          await this.client.setPrivateKey(res.privateKey, true)
-          this.$bvModal.hide('bv-modal-please-wait')
-          this.wallet.isWalletUnlocked = true
-        } catch (e) {
-          this.showToast('danger', 'Error', e.toString())
-          this.clearData()
+        if(this.isClientConnected) {
+          try {
+            await this.$store.dispatch('wallet/setJson', e.target.result)
+            const res = this.client.recoverAccountFromKeystore(e.target.result, this.walletPass)
+
+            await this.$store.dispatch('wallet/setPrivateKey', res.privateKey)
+            await this.$store.dispatch('wallet/setAddress', res.address)
+
+            await this.client.setPrivateKey(res.privateKey, true)
+            this.$bvModal.hide('bv-modal-please-wait')
+            await this.$store.dispatch('wallet/setIsWalletUnlocked', true)
+          } catch (e) {
+            this.showToast('danger', 'Error', e.toString())
+            this.clearData()
+          }
+        } else {
+          this.showToast('danger', 'Error', 'Not connected to network')
         }
       }
     }

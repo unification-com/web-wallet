@@ -653,19 +653,23 @@
 
 <script>
   import {UND_CONFIG} from '@/constants.js'
+  import { mapState } from 'vuex'
 
   const UndClient = require('@unification-com/und-js')
 
   export default {
     name: "Staking",
-    props: {
-      client: Object,
-      wallet: Object
+    computed: {
+      ...mapState({
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        isClientConnected: state => state.client.isConnected,
+        wallet: state => state.wallet,
+        txs: state => state.txs
+      }),
     },
     data: function () {
       return {
-        clnt: this.client,
-        w: this.wallet,
         activeItem: 'delegations',
         delegateData: {
           address: '',
@@ -719,22 +723,6 @@
         isShowFee: false,
       }
     },
-    watch: {
-      wallet: function (newWallet) {
-        this.w = newWallet
-        this.validators = []
-        this.delegations = []
-        this.validatorsSelect = []
-        this.unbondingDelegations = []
-      },
-      client: function (newClient) {
-        this.clnt = newClient
-        this.validators = []
-        this.delegations = []
-        this.validatorsSelect = []
-        this.unbondingDelegations = []
-      }
-    },
     methods: {
       // Todo - display and modify withdraw address
       preventSubmit: function() {
@@ -745,7 +733,7 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
-        if (this.delegateData.und >= this.w.balance) {
+        if (this.delegateData.und >= this.wallet.balance) {
           this.showToast('danger', 'Error', 'cannot delegate more than your balance')
           return false
         }
@@ -877,8 +865,8 @@
       getValidators: async function () {
         this.validators = {}
         this.validatorsSelect = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let res = await this.clnt.getValidators()
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          let res = await this.client.getValidators()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               this.validators[res.result.result[i].operator_address] = res.result.result[i]
@@ -893,10 +881,10 @@
       },
       getDelegations: async function () {
         this.delegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
           await this.getValidators()
-          let res = await this.clnt.getDelegations()
+          let res = await this.client.getDelegations()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               let moniker = ''
@@ -922,10 +910,10 @@
       },
       getUnbondingDelegations: async function () {
         this.unbondingDelegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
           await this.getValidators()
-          let res = await this.clnt.getUnbondingDelegations()
+          let res = await this.client.getUnbondingDelegations()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               let moniker = ''
@@ -951,10 +939,10 @@
       },
       getRedelegations: async function() {
         this.redelegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
           await this.getValidators()
-          let res = await this.clnt.getRedelegations(this.w.address)
+          let res = await this.client.getRedelegations(this.wallet.address)
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
               let monikerSrc = ''
@@ -987,8 +975,8 @@
       },
       getRewards: async function (valAddress) {
         let rewards = '0'
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let res = await this.clnt.getDelegatorRewards(this.w.address, valAddress)
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          let res = await this.client.getDelegatorRewards(this.wallet.address, valAddress)
           if (res.status === 200 && res.result.result.length > 0) {
             rewards = res.result.result[0].amount
           }
@@ -999,19 +987,20 @@
         this.confirmDelegationAsync()
       },
       confirmDelegationAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           try {
-            let res = await this.clnt.delegate(
+            let res = await this.client.delegate(
             this.delegateData.address,
             this.delegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.delegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1027,20 +1016,21 @@
         this.confirmUndelegationAsync()
       },
       confirmUndelegationAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
 
           try {
-            let res = await this.clnt.undelegate(
+            let res = await this.client.undelegate(
             this.undelegateData.address,
             this.undelegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.undelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1056,21 +1046,22 @@
         this.confirmRedelegationAsync()
       },
       confirmRedelegationAsync: async function() {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
 
           try {
-            let res = await this.clnt.redelegate(
+            let res = await this.client.redelegate(
             this.redelegateData.src,
             this.redelegateData.dst,
             this.redelegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.redelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1086,17 +1077,18 @@
         this.confirmWithdrawRewardAsync()
       },
       confirmWithdrawRewardAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           try {
-            let res = await this.clnt.withdrawDelegationReward(
+            let res = await this.client.withdrawDelegationReward(
             this.withdrawData.address,
             this.fee,
-            this.w.address,
+            this.wallet.address,
             this.undelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
