@@ -72,7 +72,14 @@
     methods: {
       refreshBalance: function() {
         clearInterval(this.timer)
-        this.timer = setInterval(this.updateWallet, 5000)
+        this.timer = setInterval(this.updateWallet, 10000)
+      },
+      runOnUnlocked: async function() {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+          await this.updateWallet()
+          await this.$refs.txcomponent.loadTransactions()
+          await this.$refs.stakingcomponent.getValidators()
+        }
       },
       updateWallet: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {

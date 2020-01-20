@@ -32,7 +32,7 @@
             </b-dropdown-item>
 
             <b-dropdown-item>
-              <b-button variant="warning" @click="$refs.walletComponent.clearData()"
+              <b-button variant="warning" @click="$refs.walletComponent.closeWallet()"
                         v-show="$refs.walletComponent.wallet.isWalletUnlocked">Close Wallet
               </b-button>
             </b-dropdown-item>

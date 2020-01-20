@@ -13,13 +13,12 @@
       <h3>Security</h3>
 
       <p v-show="isShowHostedWarning" class="text-warning">
-        <b>This hosted version of Web Wallet should preferably only be used for testing, and only on either TestNet or DevNet.
+        <b>This hosted version of Web Wallet should only be used for testing, and only on either TestNet or DevNet.
         <em>Use on MainNet at your own risk!</em></b>
       </p>
 
       <p v-show="isWeb">
         <b><em><span class="text-info">The most secure way to use Web Wallet is to install the Chrome Browser extension.</span></em></b>
-        <span v-show="isShowHostedWarning">The next most secure method is to clone the Github repository and run the local Docker composition.</span>
       </p>
 
       <p>

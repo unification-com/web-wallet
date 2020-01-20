@@ -146,6 +146,7 @@
 <script>
   import PurchaseOrder from '@/components/PurchaseOrder.vue'
   import { mapState } from 'vuex'
+  import {UND_CONFIG} from "../constants";
 
   export default {
     name: "Enterprise",
@@ -169,24 +170,7 @@
           memo: ''
         },
         pos: [],
-        defaultFee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "90000"
-        },
-        fee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "90000"
-        },
+        fee: UND_CONFIG.DEFAULT_RAISE_PO_FEE,
         isDataLoading: false,
         isShowFee: false,
       }
@@ -202,7 +186,7 @@
           und: '0',
           memo: ''
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_RAISE_PO_FEE
         this.isShowFee = false
       },
       getPurchaseOrders: async function () {

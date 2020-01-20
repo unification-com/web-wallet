@@ -149,24 +149,7 @@
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
-        defaultFee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "5000"
-            }
-          ],
-          gas: "190000"
-        },
-        fee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "70000"
-        },
+        fee: UND_CONFIG.DEFAULT_TRANSFER_FEES,
         isShowFee: false,
       }
     },
@@ -182,7 +165,7 @@
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_TRANSFER_FEES
         this.isShowFee = false
       },
       showConfirmTransferUnd: function() {

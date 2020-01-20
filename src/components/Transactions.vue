@@ -3,7 +3,7 @@
     <b-container class="bv-example-row">
       <b-row>
         <b-col>
-          <h3>Successful Transactions</h3>
+          <h3>Transactions</h3>
         </b-col>
         <b-col>
           <b-button @click="loadTransactions()">Refresh</b-button>
@@ -11,7 +11,9 @@
       </b-row>
     </b-container>
 
-    <p><b>Please note</b> - the wallet currently only lists successful transactions recorded by the network.</p>
+    <p>
+      Your transactions, including any transaction which failed to broadcast during <em>this session</em>
+    </p>
 
     <div v-show="isDataLoading">
       <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
@@ -20,8 +22,8 @@
     <div v-show="!isDataLoading">
       <b-list-group>
         <b-list-group-item v-for="tx in txs.txs" v-bind:key="tx.txhash">
-          <Tx v-bind:tx="tx"/>
-          <div v-show="!tx.logs[0].success">
+          <Tx v-bind:tx="tx" :key="componentKey"/>
+          <div v-show="!tx.txSuccess">
             <b-badge variant="danger">FAILED</b-badge> <span class="text-danger">{{ tx.parsedErrorMsg }}</span>
           </div>
         </b-list-group-item>
@@ -51,13 +53,17 @@
     },
     data: function () {
       return {
-        isDataLoading: false
+        isDataLoading: false,
+        componentKey: 0
       }
     },
     methods: {
       parseTxErrorMsg: function(msg) {
         let msgObj = JSON.parse(msg)
         return msgObj.message
+      },
+      forceRerender() {
+        this.componentKey += 1;
       },
       loadTransactions: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
@@ -74,12 +80,21 @@
             let txData = await this.getTx(txHash)
             if('raw_log' in txData) {
               txData.parsedErrorMsg = ''
-              if(!txData.logs[0].success) {
-                txData.parsedErrorMsg = this.parseTxErrorMsg(txData.logs[0].log)
+              if('logs' in txData) {
+                txData.txSuccess = txData.logs[0].success
+                if(!txData.logs[0].success) {
+                  txData.parsedErrorMsg = this.parseTxErrorMsg(txData.logs[0].log)
+                }
+              } else if('code' in txData) {
+                txData.parsedErrorMsg = this.parseTxErrorMsg(txData.raw_log)
+                txData.txSuccess = false
               }
+
+
               await this.$store.dispatch('txs/addTx', txData)
             }
           }
+          this.forceRerender()
           this.isDataLoading = false
         }
       },

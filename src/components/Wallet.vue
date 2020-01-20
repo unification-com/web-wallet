@@ -250,7 +250,7 @@
     </b-modal>
 
     <div class="main-container">
-      <Unlocked v-show="wallet.isWalletUnlocked"/>
+      <Unlocked v-show="wallet.isWalletUnlocked" ref="unlockedcomponent"/>
       <Help v-show="!wallet.isWalletUnlocked" v-bind:is-web="isWeb"/>
     </div>
   </div>
@@ -279,7 +279,8 @@
         isClientConnected: state => state.client.isConnected,
         wallet: state => state.wallet,
         txs: state => state.txs,
-        validators: state => state.validators
+        validators: state => state.validators,
+        delegations: state => state.delegations
       }),
     },
     data: function () {
@@ -321,10 +322,15 @@
           await this.clearData()
         }
       },
+      closeWallet: async function() {
+        this.clearData()
+        this.initChain()
+      },
       clearData: async function () {
         await this.$store.dispatch('wallet/clearWallet')
         await this.$store.dispatch('txs/clearTxs')
         await this.$store.dispatch('validators/clearValidators')
+        await this.$store.dispatch('delegations/clearAll')
         this.isMnemonicSaved = false
         this.walletPass = null
         this.walletPassCheck = null
@@ -420,6 +426,14 @@
         await this.$store.dispatch('wallet/setWalletFile', ev.target.files[0])
       },
       unlockWallet: function () {
+        if (this.wallet.walletFile === null) {
+          this.showToast('danger', 'Error', 'select your wallet file')
+          return false
+        }
+        if (this.walletPass === null) {
+          this.showToast('danger', 'Error', 'enter your wallet password')
+          return false
+        }
         const reader = new FileReader();
         reader.onload = e => this.loadWallet(e);
         reader.readAsText(this.wallet.walletFile);
@@ -437,13 +451,11 @@
             await this.$store.dispatch('wallet/setAddress', res.address)
 
             await this.client.setPrivateKey(res.privateKey, true)
-            
-            // unset passwords - no longer required
-            await this.$store.dispatch('wallet/setWalletPass', '')
-            await this.$store.dispatch('wallet/setWalletPassCheck',  '')
 
-            this.$bvModal.hide('bv-modal-please-wait')
+            this.walletPass = null
             await this.$store.dispatch('wallet/setIsWalletUnlocked', true)
+
+            await this.$refs.unlockedcomponent.runOnUnlocked()
           } catch (e) {
             this.showToast('danger', 'Error', e.toString())
             this.clearData()
@@ -451,6 +463,8 @@
         } else {
           this.showToast('danger', 'Error', 'Not connected to network')
         }
+
+        this.$bvModal.hide('bv-modal-please-wait')
       }
     }
   }
