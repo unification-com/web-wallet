@@ -437,6 +437,11 @@
             await this.$store.dispatch('wallet/setAddress', res.address)
 
             await this.client.setPrivateKey(res.privateKey, true)
+            
+            // unset passwords - no longer required
+            await this.$store.dispatch('wallet/setWalletPass', '')
+            await this.$store.dispatch('wallet/setWalletPassCheck',  '')
+
             this.$bvModal.hide('bv-modal-please-wait')
             await this.$store.dispatch('wallet/setIsWalletUnlocked', true)
           } catch (e) {
