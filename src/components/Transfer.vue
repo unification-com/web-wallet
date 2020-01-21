@@ -128,50 +128,29 @@
 
 <script>
   import {UND_CONFIG} from '@/constants.js'
+  import { mapState } from 'vuex'
   const UndClient = require('@unification-com/und-js')
 
   export default {
     name: "Transfer",
-    props: {
-      client: Object,
-      wallet: Object
+    computed: {
+      ...mapState({
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        isClientConnected: state => state.client.isConnected,
+        wallet: state => state.wallet,
+        txs: state => state.txs
+      }),
     },
     data: function () {
       return {
-        clnt: this.client,
-        w: this.wallet,
         transfer: {
           to: '',
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
-        defaultFee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "5000"
-            }
-          ],
-          gas: "190000"
-        },
-        fee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "70000"
-        },
+        fee: UND_CONFIG.DEFAULT_TRANSFER_FEES,
         isShowFee: false,
-      }
-    },
-    watch: {
-      wallet: function (newWallet) {
-        this.w = newWallet
-      },
-      client: function (newClient) {
-        this.clnt = newClient
       }
     },
     methods: {
@@ -186,7 +165,7 @@
           und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_TRANSFER_FEES
         this.isShowFee = false
       },
       showConfirmTransferUnd: function() {
@@ -199,7 +178,7 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
-        if(this.transfer.und > this.w.balance) {
+        if(this.transfer.und > this.wallet.balance) {
           this.showToast('danger', 'Error', 'cannot transfer more than balance')
           return false
         }
@@ -209,19 +188,20 @@
         this.transferUndAsync()
       },
       transferUndAsync: async function() {
-        if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
           try {
-            let res = await this.clnt.transferUnd(
+            let res = await this.client.transferUnd(
             this.transfer.to,
             this.transfer.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.transfer.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
             this.$bvModal.hide('bv-modal-transfer-und')

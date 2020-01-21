@@ -1,14 +1,14 @@
 {
   "name": "web-wallet",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Unification UND Mainchain Web Wallet",
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
-    "serve:web": "vue-cli-service serve --open",
     "build": "vue-cli-service build --dest dist/chrome-extension",
+    "test:unit": "vue-cli-service test:unit",
     "build:web": "vue-cli-service build --dest dist/web --inline-vue",
-    "test:unit": "vue-cli-service test:unit"
+    "serve:web": "vue-cli-service serve --open"
   },
   "dependencies": {
     "@unification-com/und-js": "^1.3.1",
@@ -17,15 +17,18 @@
     "bootstrap-vue": "^2.2.1",
     "core-js": "^3.4.4",
     "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
     "popper.js": "^1.16.0",
     "vue": "^2.6.10",
-    "vue-router": "^3.1.3"
+    "vue-router": "^3.1.3",
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.7.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.1.0",
+    "@vue/cli-plugin-vuex": "^4.1.2",
     "@vue/cli-service": "^4.1.0",
     "@vue/test-utils": "1.0.0-beta.29",
     "bootstrap": "^4.3.1",

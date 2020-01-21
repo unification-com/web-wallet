@@ -202,7 +202,7 @@
         label-for="redelegate-node"
         description="Select an existing validator"
         >
-          <b-form-select id="redelegate-node" v-model="redelegateData.dst" :options="validatorsSelect"/>
+          <b-form-select id="redelegate-node" v-model="redelegateData.dst" :options="validators.validatorsSelect"/>
         </b-form-group>
         <b-form-group
         id="redelegate-manual-node-label"
@@ -397,7 +397,7 @@
             </div>
 
             <div v-show="!isDataLoading">
-              <b-table :items="delegations" :fields="delegationsFields" striped responsive="sm">
+              <b-table :items="JSON.parse(JSON.stringify(delegations.delegations.slice()))" :fields="delegationsFields" striped responsive="sm">
 
                 <template v-slot:cell(show_details)="row">
                   <b-button size="sm" @click="row.toggleDetails" class="mr-2">
@@ -478,7 +478,7 @@
             </div>
 
             <div v-show="!isDataLoading">
-              <b-table :items="unbondingDelegations" :fields="unbondingDelegationsFields" striped responsive="sm">
+              <b-table :items="delegations.unbondingDelegations" :fields="unbondingDelegationsFields" striped responsive="sm">
 
                 <template v-slot:cell(completion_time)="data">
                   <b class="text-info">{{ formatDateTime(data.value)}}</b>
@@ -513,7 +513,7 @@
             </div>
 
             <div v-show="!isDataLoading">
-              <b-table :items="redelegations" :fields="redelegationFields" striped responsive="sm">
+              <b-table :items="delegations.redelegations" :fields="redelegationFields" striped responsive="sm">
 
                 <template v-slot:cell(completion_time)="data">
                   <b class="text-info">{{ formatDateTime(data.value)}}</b>
@@ -549,7 +549,7 @@
                 label-for="delegate-node"
                 description="Select an existing validator"
                 >
-                  <b-form-select id="delegate-node" v-model="delegateData.address" :options="validatorsSelect"/>
+                  <b-form-select id="delegate-node" v-model="delegateData.address" :options="validators.validatorsSelect"/>
                 </b-form-group>
                 <b-form-group
                 id="delegate-manual-node-label"
@@ -653,19 +653,30 @@
 
 <script>
   import {UND_CONFIG} from '@/constants.js'
+  import { mapState, mapGetters } from 'vuex'
 
   const UndClient = require('@unification-com/und-js')
 
   export default {
     name: "Staking",
-    props: {
-      client: Object,
-      wallet: Object
+    computed: {
+      ...mapState({
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        isClientConnected: state => state.client.isConnected,
+        wallet: state => state.wallet,
+        txs: state => state.txs,
+        validators: state => state.validators,
+        delegations: state => state.delegations
+      }),
+      ...mapGetters('validators', [
+        'getValidatorDescription',
+        'getValidatorMoniker',
+        'getValidatorsSelect',
+      ])
     },
     data: function () {
       return {
-        clnt: this.client,
-        w: this.wallet,
         activeItem: 'delegations',
         delegateData: {
           address: '',
@@ -689,50 +700,12 @@
           address: '',
           und: ''
         },
-        defaultFee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "5500"
-            }
-          ],
-          gas: "200000"
-        },
-        fee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "5000"
-            }
-          ],
-          gas: "200000"
-        },
-        validators: {},
-        validatorsSelect: [],
-        delegations: [],
-        unbondingDelegations: [],
+        fee: UND_CONFIG.DEFULT_DELEGATE_FEE,
         delegationsFields: ['name', 'shares', 'delegated', 'rewards', 'show_details'],
         unbondingDelegationsFields: ['name', 'creation_height', 'completion_time', 'initial_balance', 'balance'],
-        redelegations: [],
         redelegationFields: ['from', 'to', 'creation_height', 'completion_time', 'initial_balance', 'balance', 'shares'],
         isDataLoading: false,
         isShowFee: false,
-      }
-    },
-    watch: {
-      wallet: function (newWallet) {
-        this.w = newWallet
-        this.validators = []
-        this.delegations = []
-        this.validatorsSelect = []
-        this.unbondingDelegations = []
-      },
-      client: function (newClient) {
-        this.clnt = newClient
-        this.validators = []
-        this.delegations = []
-        this.validatorsSelect = []
-        this.unbondingDelegations = []
       }
     },
     methods: {
@@ -745,7 +718,7 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
-        if (this.delegateData.und >= this.w.balance) {
+        if (this.delegateData.und >= this.wallet.balance) {
           this.showToast('danger', 'Error', 'cannot delegate more than your balance')
           return false
         }
@@ -801,7 +774,7 @@
           und: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFULT_DELEGATE_FEE
         this.isShowFee = false
       },
       clearUnDelegateData: function () {
@@ -813,7 +786,7 @@
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_UNDELEGATE_FEE
         this.isShowFee = false
       },
       clearReDelegateData: function () {
@@ -826,7 +799,7 @@
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_REDELEGATE_FEE
         this.isShowFee = false
       },
       clearWithdrawData: function () {
@@ -836,7 +809,7 @@
           address: '',
           und: ''
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_WITHDRAW_REWARDS_FEE
         this.isShowFee = false
       },
       initUndelegate: function (item) {
@@ -854,85 +827,49 @@
       clientError: function () {
         this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
       },
-      getValidatorMoniker: function (validatorAddress) {
-        let moniker = validatorAddress
-        if (validatorAddress in this.validators) {
-          moniker = this.validators[validatorAddress]['description']['moniker']
-        }
-        return moniker
-      },
-      getValidatorDescription: function (validatorAddress) {
-        let description = {
-          moniker: '',
-          identity: '',
-          website: '',
-          security_contact: '',
-          details: '',
-        }
-        if (validatorAddress in this.validators) {
-          description = this.validators[validatorAddress]['description']
-        }
-        return description
-      },
       getValidators: async function () {
-        this.validators = {}
-        this.validatorsSelect = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let res = await this.clnt.getValidators()
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          let res = await this.client.getValidators()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
-              this.validators[res.result.result[i].operator_address] = res.result.result[i]
-              let valOption = {
-                value: res.result.result[i].operator_address,
-                text: res.result.result[i].description.moniker
-              }
-              this.validatorsSelect.push(valOption)
+              await this.$store.dispatch('validators/addValidator', res.result.result[i])
             }
           }
+          await this.$store.dispatch('validators/updateValidatorsSelect')
         }
       },
       getDelegations: async function () {
-        this.delegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
-          await this.getValidators()
-          let res = await this.clnt.getDelegations()
+          let res = await this.client.getDelegations()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
-              let moniker = ''
               let validator_address = res.result.result[i].validator_address
-              if (validator_address in this.validators) {
-                moniker = this.validators[validator_address]['description']['moniker']
-              }
+              let description = this.getValidatorDescription(validator_address)
+              let rewards = await this.getRewards(validator_address)
 
               let del = {
-                name: moniker,
+                name: description['moniker'],
                 validator_address: validator_address,
                 shares: res.result.result[i].shares,
                 delegated: res.result.result[i].balance.amount,
-                rewards: await this.getRewards(validator_address),
-                description: this.getValidatorDescription(validator_address)
+                rewards: rewards,
+                description: description
               }
-
-              this.delegations.push(del)
+              await this.$store.dispatch('delegations/addEditDelegation', del)
             }
           }
           this.isDataLoading = false
         }
       },
       getUnbondingDelegations: async function () {
-        this.unbondingDelegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
-          await this.getValidators()
-          let res = await this.clnt.getUnbondingDelegations()
+          let res = await this.client.getUnbondingDelegations()
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
-              let moniker = ''
               let validator_address = res.result.result[i].validator_address
-              if (validator_address in this.validators) {
-                moniker = this.validators[validator_address]['description']['moniker']
-              }
+              let moniker = this.getValidatorMoniker(validator_address)
               for(let j = 0; j < res.result.result[i].entries.length; j++) {
                 let unbond = {
                   name: moniker,
@@ -942,7 +879,7 @@
                   initial_balance: res.result.result[i].entries[j].initial_balance,
                   balance: res.result.result[i].entries[j].balance
                 }
-                this.unbondingDelegations.push(unbond)
+                await this.$store.dispatch('delegations/addEditUnbondingDelegation', unbond)
               }
             }
           }
@@ -950,35 +887,31 @@
         }
       },
       getRedelegations: async function() {
-        this.redelegations = []
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
-          await this.getValidators()
-          let res = await this.clnt.getRedelegations(this.w.address)
+          let res = await this.client.getRedelegations(this.wallet.address)
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
-              let monikerSrc = ''
-              let monikerDst = ''
-              let validator_src_address = res.result.result[i].validator_src_address
-              let validator_dst_address = res.result.result[i].validator_dst_address
-              if (validator_src_address in this.validators) {
-                monikerSrc = this.validators[validator_src_address]['description']['moniker']
-              }
-              if (validator_dst_address in this.validators) {
-                monikerDst = this.validators[validator_dst_address]['description']['moniker']
-              }
-              for(let j = 0; j < res.result.result[i].entries.length; j++) {
+              let redelegRes = res.result.result[i]
+              let validator_src_address = redelegRes.validator_src_address
+              let validator_dst_address = redelegRes.validator_dst_address
+
+              let monikerSrc = this.getValidatorMoniker(validator_src_address)
+              let monikerDst = this.getValidatorMoniker(validator_dst_address)
+
+              for(let j = 0; j < redelegRes.entries.length; j++) {
+                let entry = redelegRes.entries[j]
                 let redeleg = {
                   from: monikerSrc,
                   to: monikerDst,
                   validator_src_address: validator_src_address,
-                  creation_height: res.result.result[i].entries[j].creation_height,
-                  completion_time: res.result.result[i].entries[j].completion_time,
-                  initial_balance: res.result.result[i].entries[j].initial_balance,
-                  balance: res.result.result[i].entries[j].balance,
-                  shares: res.result.result[i].entries[j].shares_dst,
+                  creation_height: entry.creation_height,
+                  completion_time: entry.completion_time,
+                  initial_balance: entry.initial_balance,
+                  balance: entry.balance,
+                  shares: entry.shares_dst,
                 }
-                this.redelegations.push(redeleg)
+                await this.$store.dispatch('delegations/addEditReDelegation', redeleg)
               }
             }
           }
@@ -987,8 +920,8 @@
       },
       getRewards: async function (valAddress) {
         let rewards = '0'
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
-          let res = await this.clnt.getDelegatorRewards(this.w.address, valAddress)
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          let res = await this.client.getDelegatorRewards(this.wallet.address, valAddress)
           if (res.status === 200 && res.result.result.length > 0) {
             rewards = res.result.result[0].amount
           }
@@ -999,19 +932,20 @@
         this.confirmDelegationAsync()
       },
       confirmDelegationAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           try {
-            let res = await this.clnt.delegate(
+            let res = await this.client.delegate(
             this.delegateData.address,
             this.delegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.delegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1027,20 +961,21 @@
         this.confirmUndelegationAsync()
       },
       confirmUndelegationAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
 
           try {
-            let res = await this.clnt.undelegate(
+            let res = await this.client.undelegate(
             this.undelegateData.address,
             this.undelegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.undelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1056,21 +991,22 @@
         this.confirmRedelegationAsync()
       },
       confirmRedelegationAsync: async function() {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
 
           try {
-            let res = await this.clnt.redelegate(
+            let res = await this.client.redelegate(
             this.redelegateData.src,
             this.redelegateData.dst,
             this.redelegateData.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.redelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {
@@ -1086,17 +1022,18 @@
         this.confirmWithdrawRewardAsync()
       },
       confirmWithdrawRewardAsync: async function () {
-        if (this.clnt !== null && this.w.isWalletUnlocked) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           try {
-            let res = await this.clnt.withdrawDelegationReward(
+            let res = await this.client.withdrawDelegationReward(
             this.withdrawData.address,
             this.fee,
-            this.w.address,
+            this.wallet.address,
             this.undelegateData.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
 
           } catch (err) {

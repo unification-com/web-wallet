@@ -145,56 +145,34 @@
 
 <script>
   import PurchaseOrder from '@/components/PurchaseOrder.vue'
-
-  const UndClient = require('@unification-com/und-js')
+  import { mapState } from 'vuex'
+  import {UND_CONFIG} from "../constants";
 
   export default {
     name: "Enterprise",
     components: {
       PurchaseOrder
     },
-    props: {
-      client: Object,
-      wallet: Object
+    computed: {
+      ...mapState({
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        isClientConnected: state => state.client.isConnected,
+        wallet: state => state.wallet,
+        txs: state => state.txs
+      }),
     },
     data: function () {
       return {
-        clnt: this.client,
-        w: this.wallet,
         activeItem: 'raise',
         po: {
           und: '0',
           memo: ''
         },
         pos: [],
-        defaultFee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "90000"
-        },
-        fee: {
-          amount: [
-            {
-              denom: "nund",
-              amount: "2500"
-            }
-          ],
-          gas: "90000"
-        },
+        fee: UND_CONFIG.DEFAULT_RAISE_PO_FEE,
         isDataLoading: false,
         isShowFee: false,
-      }
-    },
-    watch: {
-      wallet: function (newWallet) {
-        this.w = newWallet
-      },
-      client: function (newClient) {
-        this.clnt = newClient
       }
     },
     methods: {
@@ -208,14 +186,14 @@
           und: '0',
           memo: ''
         }
-        this.fee = this.defaultFee
+        this.fee = UND_CONFIG.DEFAULT_RAISE_PO_FEE
         this.isShowFee = false
       },
       getPurchaseOrders: async function () {
         this.pos = []
         this.isDataLoading = true
-        if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
-          let res = await this.clnt.getEnteprisePos()
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+          let res = await this.client.getEnteprisePos()
           if (res.status === 200) {
             this.pos = res.result.result
           }
@@ -232,19 +210,20 @@
       },
       raisePo: async function () {
 
-        if (this.clnt !== null && this.w.isWalletUnlocked > 0) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
 
           try {
-            let res = await this.clnt.raiseEnterprisePO(
+            let res = await this.client.raiseEnterprisePO(
             this.po.und,
             this.fee,
             "und",
-            this.w.address,
+            this.wallet.address,
             this.po.memo
             )
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
+              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
             }
           } catch (err) {
             this.showToast('danger', 'Error', err.toString())

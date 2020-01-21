@@ -1,17 +1,22 @@
 <template>
   <div>
-    <span>
-      <b-badge variant="info">{{action}}</b-badge>
-    </span>
+    <span>{{txhash}}</span><br/>
+    <span :class="badge">{{ action }}</span>
     <span v-html="formatted">
     </span>
   </div>
 </template>
 
 <script>
+  import { mapGetters } from 'vuex'
 
   export default {
     name: 'Tx',
+    computed: {
+      ...mapGetters('validators', [
+        'getValidatorMoniker',
+      ])
+    },
     props: {
       tx: Object
     },
@@ -22,9 +27,7 @@
         msg: this.tx.tx.value.msg[0],
         formatted: '',
         action: '',
-        address: '',
-        datetime: '',
-        amount: '',
+        badge: 'badge badge-info'
       }
     },
     mounted() {
@@ -36,29 +39,37 @@
         switch(this.msg.type) {
           case 'cosmos-sdk/MsgSend':
             this.action = "Sent"
+            this.badge ='badge badge-success'
             this.formatMsgSend()
             break
           case 'cosmos-sdk/MsgDelegate':
             this.action = "Delegated"
+            this.badge ='badge badge-warning'
             this.formatMsgDelegate()
             break
           case 'cosmos-sdk/MsgUndelegate':
             this.action = "Undelegated"
+            this.badge ='badge badge-warning'
             this.formatMsgUnDelegate()
             break
           case 'cosmos-sdk/MsgBeginRedelegate':
             this.action = "Redelegated"
+            this.badge ='badge badge-warning'
             this.formatMsgBeginRedelegate()
             break
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
             this.action = "Withdrew Validator Commision"
+            this.badge ='badge badge-warning'
             this.formatted = this.msg
             break
           case 'cosmos-sdk/MsgWithdrawDelegationReward':
             this.action = "Withdrew Delegation Reward"
+            this.badge ='badge badge-warning'
             this.formatMsgWithdrawDelegationReward()
             break
           case 'cosmos-sdk/MsgModifyWithdrawAddress':
+            this.action = "Modified Withdraw Address"
+            this.badge ='badge badge-warning'
             this.formatted = this.msg
             break
           case 'cosmos-sdk/MsgUnjail':
@@ -66,6 +77,7 @@
             break
           case 'enterprise/PurchaseUnd':
             this.action = "Raised Enterprise Purchase Order"
+            this.badge ='badge badge-info'
             this.formatPurchaseUnd(this.msg.value)
             break
           case 'enterprise/ProcessUndPurchaseOrder':
@@ -98,18 +110,23 @@
       },
       formatMsgDelegate: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        let moniker = this.getValidatorMoniker(msg.validator_address)
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgUnDelegate: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        let moniker = this.getValidatorMoniker(msg.validator_address)
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgWithdrawDelegationReward: function(msg = this.msg.value) {
-        this.formatted = ' from <span class="text-info">' + msg.validator_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        let moniker = this.getValidatorMoniker(msg.validator_address)
+        this.formatted = ' from <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       },
       formatMsgBeginRedelegate: function(msg = this.msg.value) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.validator_src_address + '</span> to <span class="text-info">' + msg.validator_dst_address + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
+        let moniker_src = this.getValidatorMoniker(msg.validator_src_address)
+        let moniker_dst = this.getValidatorMoniker(msg.validator_dst_address)
+        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker_src + '</span> to <span class="text-info">' + moniker_dst + '</span> on <span class="text-info">' + this.formatDateTime(this.tx.timestamp) + '</span>'
       }
     }
   }

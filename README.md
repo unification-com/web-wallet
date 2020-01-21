@@ -80,9 +80,8 @@ The process is similar, with some additional steps:
 This will load the extension, and you should see the Extension button for Web wallet
 in your browser.
 
-**Note:** code modifications are hot-reloaded into the `dist` directory,
-but not in the extension itself. To see any changes, simply do steps 3 & 4
-above again.
+Any code changes made are hot-reloaded, but the tab with the extension loaded
+must be manually refreshed.
 
 ### Compiles and minifies for production
 
