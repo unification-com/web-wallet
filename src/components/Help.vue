@@ -18,7 +18,8 @@
       </p>
 
       <p v-show="isWeb">
-        <b><em><span class="text-info">The most secure way to use Web Wallet is to install the Chrome Browser extension.</span></em></b>
+        <b><em><span class="text-info">The best way to use Web Wallet is to install the
+          <a href="https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk" target="_blank">Chrome Browser extension</a>.</span></em></b>
       </p>
 
       <p>
