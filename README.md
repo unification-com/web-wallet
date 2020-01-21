@@ -6,14 +6,17 @@ Official Unification Mainchain Web-based wallet.
 
 **Please Note** this is currently heavily under development.
 
-Two options are currently available - running as a Google Chrome browser
-extension, or running as either a hosted, or local web application.
+Two options are currently available - running as a [Google Chrome browser
+extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk),
+ or running as a local (Dockerised) web application.
 
-**The most secure method is to install the Chrome browser extension**
+**The best method is to install the 
+[Google Chrome browser extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk)**
 
-## Running the web application locally
+## Running the Dockerised web application locally
 
-The production version of the web application can be run in a Docker environment:
+If you don't use Chrome, the production version of the web application
+can be run in a Docker environment:
 
 ```bash
 docker-compose -f Docker/docker-compose.yml up --build
