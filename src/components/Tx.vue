@@ -78,7 +78,7 @@
           case 'enterprise/PurchaseUnd':
             this.action = "Raised Enterprise Purchase Order"
             this.badge ='badge badge-info'
-            this.formatPurchaseUnd(this.msg.value)
+            this.formatPurchaseUnd()
             break
           case 'enterprise/ProcessUndPurchaseOrder':
             this.formatted = this.msg
