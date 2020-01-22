@@ -798,6 +798,12 @@
         }
         this.$bvModal.show('bv-modal-confirm-withdraw-rewards')
       },
+      clearAll: function() {
+        this.clearDelegateData()
+        this.clearUnDelegateData()
+        this.clearReDelegateData()
+        this.clearWithdrawData()
+      },
       clearDelegateData: function () {
         this.delegateData = null
         this.fee = null

@@ -22,7 +22,7 @@
         </b-tab>
         <b-tab title="Enterprise" @click.prevent="updateWallet()">
           <b-card-text>
-            <Enterprise />
+            <Enterprise ref="enterprisecomponent" />
           </b-card-text>
         </b-tab>
       </b-tabs>
@@ -70,6 +70,11 @@
       clearInterval(this.timer)
     },
     methods: {
+      clearFormData: function() {
+        this.$refs.transfercomponent.clearTransfer()
+        this.$refs.enterprisecomponent.clearPo()
+        this.$refs.stakingcomponent.clearAll()
+      },
       refreshBalance: function() {
         clearInterval(this.timer)
         this.timer = setInterval(this.updateWallet, 10000)
