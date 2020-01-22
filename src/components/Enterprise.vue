@@ -108,7 +108,7 @@
               >
                 Manually set Fees
               </b-form-checkbox>
-              <b-button variant="success" @click="showConfirmRaisePo()">Raise Ourchse Order</b-button>
+              <b-button variant="success" @click="showConfirmRaisePo()">Raise Purchase Order</b-button>
             </b-form>
           </b-card-text>
         </b-tab>
