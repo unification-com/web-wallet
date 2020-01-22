@@ -206,6 +206,15 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
+        if(this.wallet.balance === 0) {
+          this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
+          return false
+        }
+        if(!this.wallet.accountExists) {
+          this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
+
         this.$bvModal.show('bv-modal-confirm-raise-po')
       },
       raisePo: async function () {

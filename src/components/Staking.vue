@@ -718,6 +718,14 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
+        if(this.wallet.balance === 0) {
+          this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
+          return false
+        }
+        if(!this.wallet.accountExists) {
+          this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
         if (this.delegateData.und >= this.wallet.balance) {
           this.showToast('danger', 'Error', 'cannot delegate more than your balance')
           return false
@@ -729,6 +737,14 @@
         this.$bvModal.show('bv-modal-confirm-delegate-und')
       },
       showConfirmUnDelegation: function () {
+        if(this.wallet.balance === 0) {
+          this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
+          return false
+        }
+        if(!this.wallet.accountExists) {
+          this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
         if (this.undelegateData.und <= 0 || isNaN(this.undelegateData.und) || this.undelegateData.und > this.undelegateData.max) {
           this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND')
           return false
@@ -741,6 +757,14 @@
         this.$bvModal.show('bv-modal-confirm-undelegate-und')
       },
       showConfirmReDelegation: function() {
+        if(this.wallet.balance === 0) {
+          this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
+          return false
+        }
+        if(!this.wallet.accountExists) {
+          this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
         if (this.redelegateData.und <= 0 || isNaN(this.redelegateData.und) || this.redelegateData.und > this.redelegateData.max) {
           this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + 'UND')
           return false
@@ -764,6 +788,14 @@
         this.clearWithdrawData()
         this.withdrawData.address = item.validator_address
         this.withdrawData.und = this.nundToUnd(item.rewards)
+        if(this.wallet.balance === 0) {
+          this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
+          return false
+        }
+        if(!this.wallet.accountExists) {
+          this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
         this.$bvModal.show('bv-modal-confirm-withdraw-rewards')
       },
       clearDelegateData: function () {
