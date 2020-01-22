@@ -48,7 +48,12 @@
                   type="number"
                   required
                   v-on:keydown.enter.prevent="preventSubmit"
+                  :state="amountState"
+                  aria-describedby="input-live-feedback-amount"
                   />
+                  <b-form-invalid-feedback id="input-live-feedback-amount">
+                    Invalid amount
+                  </b-form-invalid-feedback>
                 </b-input-group>
               </b-form-group>
 
@@ -82,7 +87,12 @@
                   type="number"
                   trim
                   v-on:keydown.enter.prevent="preventSubmit"
+                  aria-describedby="input-live-feedback-fees"
+                  :state="feeState"
                   />
+                  <b-form-invalid-feedback id="input-live-feedback-fees">
+                    Invalid fees
+                  </b-form-invalid-feedback>
                 </b-input-group>
               </b-form-group>
               <b-form-group
@@ -98,7 +108,12 @@
                 type="number"
                 trim
                 v-on:keydown.enter.prevent="preventSubmit"
+                aria-describedby="input-live-feedback-gas"
+                :state="gasState"
                 />
+                <b-form-invalid-feedback id="input-live-feedback-gas">
+                  Invalid gas
+                </b-form-invalid-feedback>
               </b-form-group>
 
               <b-form-checkbox
@@ -108,7 +123,7 @@
               >
                 Manually set Fees
               </b-form-checkbox>
-              <b-button variant="success" @click="showConfirmRaisePo()">Raise Purchase Order</b-button>
+              <b-button variant="success" @click="showConfirmRaisePo()" :disabled="!formState">Raise Purchase Order</b-button>
             </b-form>
           </b-card-text>
         </b-tab>
@@ -161,6 +176,18 @@
         wallet: state => state.wallet,
         txs: state => state.txs
       }),
+      amountState() {
+        return this.isValidAmount(this.po.und)
+      },
+      gasState() {
+        return this.isValidGas(this.fee.gas)
+      },
+      feeState() {
+        return this.isValidFee(this.fee)
+      },
+      formState() {
+        return (this.amountState && this.gasState && this.feeState)
+      }
     },
     data: function () {
       return {
@@ -206,12 +233,28 @@
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
           return false
         }
+        if(!this.isValidAmount(this.po.und)) {
+          this.showToast('danger', 'Error', 'invalid amount')
+          return false
+        }
         if(this.wallet.balance === 0) {
           this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
           return false
         }
         if(!this.wallet.accountExists) {
           this.showToast('danger', 'Error', 'account does not exists on chain yet')
+          return false
+        }
+        if(!this.isValidFee(this.fee)) {
+          this.showToast('danger', 'Error', 'invalid fees')
+          return false
+        }
+        if(!this.isValidGas(this.fee.gas)) {
+          this.showToast('danger', 'Error', 'invalid gas amount')
+          return false
+        }
+        if(this.po.memo.length > 100) {
+          this.showToast('danger', 'Error', 'proof/receipt too long > 100 characters')
           return false
         }
 

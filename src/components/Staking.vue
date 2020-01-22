@@ -47,7 +47,12 @@
             type="number"
             required
             v-on:keydown.enter.prevent="preventSubmit"
+            :state="unDelegateAmountState"
+            aria-describedby="input-live-feedback-undelegate-amount"
             />
+            <b-form-invalid-feedback id="input-live-feedback-undelegate-amount">
+              Invalid amount
+            </b-form-invalid-feedback>
           </b-input-group>
         </b-form-group>
         <p>
@@ -82,7 +87,12 @@
             type="number"
             trim
             v-on:keydown.enter.prevent="preventSubmit"
+            aria-describedby="input-live-feedback-undelegate-fees"
+            :state="feeState"
             />
+            <b-form-invalid-feedback id="input-live-feedback-undelegate-fees">
+              Invalid fees
+            </b-form-invalid-feedback>
           </b-input-group>
         </b-form-group>
         <b-form-group
@@ -98,7 +108,12 @@
           type="number"
           trim
           v-on:keydown.enter.prevent="preventSubmit"
+          aria-describedby="input-live-feedback-undelegate-gas"
+          :state="gasState"
           />
+          <b-form-invalid-feedback id="input-live-feedback-undelegate-gas">
+            Invalid gas
+          </b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-checkbox
@@ -117,6 +132,7 @@
         variant="success"
         @click="showConfirmUnDelegation"
         aria-label="Create"
+        :disabled="!unDelegateFormState"
         >
           Undelegate
         </b-button>
@@ -174,7 +190,12 @@
             type="number"
             required
             v-on:keydown.enter.prevent="preventSubmit"
+            :state="reDelegateAmountState"
+            aria-describedby="input-live-feedback-redelegate-amount"
             />
+            <b-form-invalid-feedback id="input-live-feedback-redelegate-amount">
+              Invalid amount
+            </b-form-invalid-feedback>
           </b-input-group>
         </b-form-group>
         <p>
@@ -233,7 +254,12 @@
             type="number"
             trim
             v-on:keydown.enter.prevent="preventSubmit"
+            aria-describedby="input-live-feedback-redelegate-fees"
+            :state="feeState"
             />
+            <b-form-invalid-feedback id="input-live-feedback-redelegate-fees">
+              Invalid fees
+            </b-form-invalid-feedback>
           </b-input-group>
         </b-form-group>
         <b-form-group
@@ -249,7 +275,12 @@
           type="number"
           trim
           v-on:keydown.enter.prevent="preventSubmit"
+          aria-describedby="input-live-feedback-redelegate-gas"
+          :state="gasState"
           />
+          <b-form-invalid-feedback id="input-live-feedback-redelegate-gas">
+            Invalid gas
+          </b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-checkbox
@@ -268,9 +299,10 @@
         <b-button
         variant="success"
         @click="showConfirmReDelegation"
-        aria-label="Create"
+        aria-label="Redelegate"
+        :disabled="!reDelegateFormState"
         >
-          redelegate
+          Redelegate
         </b-button>
         <b-button
         @click="$bvModal.hide('bv-modal-redelegate-und')"
@@ -333,7 +365,12 @@
             type="text"
             trim
             v-on:keydown.enter.prevent="preventSubmit"
+            aria-describedby="input-live-feedback-withdraw-fees"
+            :state="feeState"
             />
+            <b-form-invalid-feedback id="input-live-feedback-withdraw-fees">
+              Invalid fees
+            </b-form-invalid-feedback>
           </b-input-group>
         </b-form-group>
         <b-form-group
@@ -349,7 +386,12 @@
           type="text"
           trim
           v-on:keydown.enter.prevent="preventSubmit"
+          aria-describedby="input-live-feedback-withdraw-gas"
+          :state="gasState"
           />
+          <b-form-invalid-feedback id="input-live-feedback-withdraw-gas">
+            Invalid gas
+          </b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-checkbox
@@ -365,6 +407,7 @@
         variant="success"
         @click="confirmWithdrawReward"
         aria-label="Create"
+        :disabled="!withdrawFormState"
         >
           Confirm
         </b-button>
@@ -580,7 +623,12 @@
                     required
                     placeholder=""
                     v-on:keydown.enter.prevent="preventSubmit"
+                    :state="delegateAmountState"
+                    aria-describedby="input-live-feedback-delegate-amount"
                     />
+                    <b-form-invalid-feedback id="input-live-feedback-delegate-amount">
+                      Invalid amount
+                    </b-form-invalid-feedback>
                   </b-input-group>
                 </b-form-group>
                 <b-form-group
@@ -612,7 +660,12 @@
                     type="number"
                     trim
                     v-on:keydown.enter.prevent="preventSubmit"
+                    aria-describedby="input-live-feedback-delegate-fees"
+                    :state="feeState"
                     />
+                    <b-form-invalid-feedback id="input-live-feedback-delegate-fees">
+                      Invalid fees
+                    </b-form-invalid-feedback>
                   </b-input-group>
                 </b-form-group>
                 <b-form-group
@@ -628,7 +681,12 @@
                   type="number"
                   trim
                   v-on:keydown.enter.prevent="preventSubmit"
+                  aria-describedby="input-live-feedback-delegate-gas"
+                  :state="gasState"
                   />
+                  <b-form-invalid-feedback id="input-live-feedback-delegate-gas">
+                    Invalid gas
+                  </b-form-invalid-feedback>
                 </b-form-group>
 
                 <b-form-checkbox
@@ -639,7 +697,7 @@
                   Manually set Fees
                 </b-form-checkbox>
 
-                <b-button variant="success" @click="showConfirmDelegate()">Delegate UND</b-button>
+                <b-button variant="success" @click="showConfirmDelegate()" :disabled="!delegateFormState">Delegate UND</b-button>
               </b-form>
               <br>
               <b>Note:</b> outstanding rewards will automatically be withdrawn during delegation
@@ -673,32 +731,59 @@
         'getValidatorDescription',
         'getValidatorMoniker',
         'getValidatorsSelect',
-      ])
+      ]),
+      delegateAmountState() {
+        return this.isValidAmount(this.delegateData.und)
+      },
+      delegateFormState() {
+        return (this.delegateAmountState && this.gasState && this.feeState)
+      },
+      unDelegateAmountState() {
+        return this.isValidAmount(this.undelegateData.und)
+      },
+      unDelegateFormState() {
+        return (this.unDelegateAmountState && this.gasState && this.feeState)
+      },
+      reDelegateAmountState() {
+        return this.isValidAmount(this.redelegateData.und)
+      },
+      reDelegateFormState() {
+        return (this.reDelegateAmountState && this.gasState && this.feeState)
+      },
+      withdrawFormState() {
+        return (this.gasState && this.feeState)
+      },
+      gasState() {
+        return this.isValidGas(this.fee.gas)
+      },
+      feeState() {
+        return this.isValidFee(this.fee)
+      }
     },
     data: function () {
       return {
         activeItem: 'delegations',
         delegateData: {
           address: '',
-          und: '',
+          und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
         undelegateData: {
           address: '',
-          und: '',
+          und: '0',
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
         redelegateData: {
           src: '',
           dst: '',
-          und: '',
+          und: '0',
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         },
         withdrawData: {
           address: '',
-          und: ''
+          und: '0'
         },
         fee: UND_CONFIG.DEFULT_DELEGATE_FEE,
         delegationsFields: ['name', 'shares', 'delegated', 'rewards', 'show_details'],
@@ -713,9 +798,24 @@
       preventSubmit: function() {
         return false
       },
+      checkFeesAndGas: function() {
+        if(!this.isValidFee(this.fee)) {
+          this.showToast('danger', 'Error', 'invalid fees')
+          return false
+        }
+        if(!this.isValidGas(this.fee.gas)) {
+          this.showToast('danger', 'Error', 'invalid gas amount')
+          return false
+        }
+        return true
+      },
       showConfirmDelegate: function () {
         if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
           this.showToast('danger', 'Error', 'Amount must be greater than zero')
+          return false
+        }
+        if(!this.isValidAmount(this.delegateData.und)) {
+          this.showToast('danger', 'Error', 'invalid amount')
           return false
         }
         if(this.wallet.balance === 0) {
@@ -734,9 +834,20 @@
           this.showToast('danger', 'Error', '"' + this.delegateData.address + '" is not a valid operator address')
           return false
         }
+        if(this.delegateData.memo.length > 100) {
+          this.showToast('danger', 'Error', 'memo too long > 100 characters')
+          return false
+        }
+        if(!this.checkFeesAndGas()) {
+          return false
+        }
         this.$bvModal.show('bv-modal-confirm-delegate-und')
       },
       showConfirmUnDelegation: function () {
+        if(!this.isValidAmount(this.undelegateData.und)) {
+          this.showToast('danger', 'Error', 'invalid amount')
+          return false
+        }
         if(this.wallet.balance === 0) {
           this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
           return false
@@ -753,10 +864,22 @@
           this.showToast('danger', 'Error', '"' + this.undelegateData.address + '" is not a valid operator address')
           return false
         }
+        if(this.undelegateData.memo.length > 100) {
+          this.showToast('danger', 'Error', 'memo too long > 100 characters')
+          return false
+        }
+        if(!this.checkFeesAndGas()) {
+          return false
+        }
         this.$bvModal.hide('bv-modal-undelegate-und')
         this.$bvModal.show('bv-modal-confirm-undelegate-und')
       },
       showConfirmReDelegation: function() {
+
+        if(!this.isValidAmount(this.redelegateData.und)) {
+          this.showToast('danger', 'Error', 'invalid amount')
+          return false
+        }
         if(this.wallet.balance === 0) {
           this.showToast('danger', 'Error', 'cannot send a transaction with zero available balance')
           return false
@@ -779,6 +902,13 @@
         }
         if(this.redelegateData.src === this.redelegateData.dst) {
           this.showToast('danger', 'Error', 'cannot redelegate to same address')
+          return false
+        }
+        if(this.redelegateData.memo.length > 100) {
+          this.showToast('danger', 'Error', 'memo too long > 100 characters')
+          return false
+        }
+        if(!this.checkFeesAndGas()) {
           return false
         }
         this.$bvModal.hide('bv-modal-redelegate-und')
@@ -809,7 +939,7 @@
         this.fee = null
         this.delegateData = {
           address: '',
-          und: '',
+          und: '0',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
         this.fee = UND_CONFIG.DEFULT_DELEGATE_FEE
@@ -820,7 +950,7 @@
         this.fee = null
         this.undelegateData = {
           address: '',
-          und: '',
+          und: '0',
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
@@ -833,7 +963,7 @@
         this.redelegateData = {
           src: '',
           dst: '',
-          und: '',
+          und: '0',
           max: '',
           memo: UND_CONFIG.DEFAULT_MEMO
         }
@@ -845,7 +975,7 @@
         this.fee = null
         this.withdrawData = {
           address: '',
-          und: ''
+          und: '0'
         }
         this.fee = UND_CONFIG.DEFAULT_WITHDRAW_REWARDS_FEE
         this.isShowFee = false
