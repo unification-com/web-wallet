@@ -281,7 +281,7 @@
             this.showToast('danger', 'Error', err.toString())
           }
         } else {
-          this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
+          this.clientError()
         }
 
         this.$bvModal.hide('bv-modal-confirm-raise-po')
