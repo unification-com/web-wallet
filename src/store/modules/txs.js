@@ -24,7 +24,7 @@ const actions = {
   },
 
   addTx(context, tx) {
-    if (!(tx.txhash in context.state.txs)) {
+    if (!(tx.txhash in context.state.txs) && tx.hasOwnProperty('tx')) {
       context.commit('addTx', tx)
     }
   }

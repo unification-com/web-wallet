@@ -22,7 +22,8 @@ const state = {
     totalUnbonding: '0',
     totalDelegations: 0
   },
-  totalBalance: '0'
+  totalBalance: '0',
+  accountExists: false,
 }
 
 // getters
@@ -88,32 +89,36 @@ const actions = {
   },
   setTotalBalance(context, totalBalance) {
     context.commit('setTotalBalance', totalBalance)
+  },
+  setAccountExists(context, accountExists) {
+    context.commit('setAccountExists', accountExists)
   }
 }
 
 // mutations
 const mutations = {
   clearWallet (state) {
-    state.isWalletUnlocked = false,
-    state.json =  null,
-    state.mnemonic = null,
-    state.walletPass = null,
-    state.walletPassCheck = null,
-    state.walletFile = null,
-    state.privateKey = null,
-    state.balance = '0',
-    state.balanceNund = '0',
-    state.locked = '0',
-    state.lockedNund = '0',
-    state.address = null,
+    state.isWalletUnlocked = false;
+    state.json =  null;
+    state.mnemonic = null;
+    state.walletPass = null;
+    state.walletPassCheck = null;
+    state.walletFile = null;
+    state.privateKey = null;
+    state.balance = '0';
+    state.balanceNund = '0';
+    state.locked = '0';
+    state.lockedNund = '0';
+    state.address = null;
     state.staking = {
       totalRewards: '0',
       totalShares: '0',
       totalStaked: '0',
       totalUnbonding: '0',
       totalDelegations: 0
-    },
-    state.totalBalance = '0'
+    };
+    state.totalBalance = '0';
+    state.accountExists = false;
   },
   setWalletPass(state, walletPass) {
     state.walletPass = walletPass
@@ -168,6 +173,9 @@ const mutations = {
   },
   setTotalBalance(state, totalBalance) {
     state.totalBalance = totalBalance
+  },
+  setAccountExists(state, accountExists) {
+    state.accountExists = accountExists
   }
 }
 

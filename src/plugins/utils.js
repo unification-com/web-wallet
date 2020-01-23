@@ -4,6 +4,43 @@ import {UND_CONFIG} from '@/constants.js'
 
 Vue.mixin({
   methods: {
+    isValidAmount: function(value, maxExp = 7, maxDp = 8) {
+      if(value === '' || value == null) {
+        return false
+      }
+      let amount = new Big(value)
+
+      if(amount.s < 0) {
+        return false
+      }
+
+      // max amount = 999999999.99999999
+      if(amount.e > maxExp) {
+        return false
+      }
+      let dps = amount.c.slice(amount.e+1).length
+
+      if(dps > maxDp) {
+        return false
+      }
+
+      return true
+    },
+    isValidFee: function(fee) {
+      if(!this.isValidAmount(fee.amount[0].amount, 7, 0)) {
+        return false
+      }
+      if(fee.amount[0].denom !== 'nund') {
+        return false
+      }
+      return true
+    },
+    isValidGas: function(gas) {
+      if(!this.isValidAmount(gas, 7, 0)) {
+        return false
+      }
+      return true
+    },
     formatAmount: function (amount) {
       let formattedAmt = Number(amount) + 'nund'
 
@@ -67,6 +104,9 @@ Vue.mixin({
           resolve()
         }, ms)
       })
+    },
+    clientError: function () {
+      this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
     }
   }
 })

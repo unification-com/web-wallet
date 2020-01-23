@@ -335,6 +335,7 @@
         this.walletPass = null
         this.walletPassCheck = null
         this.mnemonic = null
+        this.$refs.unlockedcomponent.clearFormData()
       },
       changeNetwork: async function (network) {
         await this.clearData()

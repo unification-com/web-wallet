@@ -7,7 +7,7 @@
       <b-tabs pills card>
         <b-tab title="Transfer" active @click.prevent="updateWallet()">
           <b-card-text>
-            <Transfer />
+            <Transfer ref="transfercomponent" />
           </b-card-text>
         </b-tab>
         <b-tab title="Transactions" @click.prevent="updateWallet(), $refs.txcomponent.loadTransactions()">
@@ -15,14 +15,14 @@
             <Transactions ref="txcomponent" />
           </b-card-text>
         </b-tab>
-        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getDelegations()">
+        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getValidators()">
           <b-card-text>
             <Staking ref="stakingcomponent"/>
           </b-card-text>
         </b-tab>
         <b-tab title="Enterprise" @click.prevent="updateWallet()">
           <b-card-text>
-            <Enterprise />
+            <Enterprise ref="enterprisecomponent" />
           </b-card-text>
         </b-tab>
       </b-tabs>
@@ -70,6 +70,11 @@
       clearInterval(this.timer)
     },
     methods: {
+      clearFormData: function() {
+        this.$refs.transfercomponent.clearTransfer()
+        this.$refs.enterprisecomponent.clearPo()
+        this.$refs.stakingcomponent.clearAll()
+      },
       refreshBalance: function() {
         clearInterval(this.timer)
         this.timer = setInterval(this.updateWallet, 10000)
@@ -83,12 +88,41 @@
       },
       updateWallet: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+          if(!this.wallet.accountExists) {
+            const exists = await this.checkAccountExists()
+            if(exists === true) {
+              await this.$store.dispatch('wallet/setAccountExists', true)
+            }
+          }
           await this.getBalance()
           await this.getEnterpriseLocked()
           await this.getRewards()
           await this.getUnbonding()
           this.getTotalUnd()
         }
+      },
+      checkAccountExists: async function() {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+          try {
+            const accountData = await this.client.getAccount()
+            if(accountData === null) {
+              return false
+            }
+            if(accountData.result.result.hasOwnProperty('value')) {
+              if(accountData.result.result.value.address === this.wallet.address) {
+                return true
+              }
+            } else if(accountData.result.result.hasOwnProperty('account')) {
+              if(accountData.result.result.account.value.address === this.wallet.address) {
+                return true
+              }
+            }
+          } catch(e) {
+            console.warn(e)
+            return false
+          }
+        }
+        return false
       },
       getBalance: async function () {
         const res = await this.client.getBalance()
