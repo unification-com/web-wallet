@@ -104,6 +104,9 @@ Vue.mixin({
           resolve()
         }, ms)
       })
+    },
+    clientError: function () {
+      this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
     }
   }
 })
