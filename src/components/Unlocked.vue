@@ -15,7 +15,7 @@
             <Transactions ref="txcomponent" />
           </b-card-text>
         </b-tab>
-        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getDelegations()">
+        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getValidators()">
           <b-card-text>
             <Staking ref="stakingcomponent"/>
           </b-card-text>
