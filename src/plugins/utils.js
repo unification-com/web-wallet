@@ -42,13 +42,13 @@ Vue.mixin({
       return true
     },
     formatAmount: function (amount) {
-      let formattedAmt = Number(amount) + 'nund'
+      let formattedAmt = Number(amount) + ' nund'
 
       try {
         let amountBig = new Big(amount)
         if (amountBig.e >= 6) {
           let und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
-          formattedAmt = und + 'UND'
+          formattedAmt = und + ' UND'
         }
       } catch(e) {}
 
@@ -76,6 +76,7 @@ Vue.mixin({
       + d.getHours() + ':'
       + min + ':'
       + sec
+      + ' UTC'
 
       return formatted
     },

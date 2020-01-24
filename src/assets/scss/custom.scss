@@ -96,3 +96,29 @@ body {
     }
   }
 }
+
+// Tx component Action badge colours
+.badge-transfer {
+  background-color: #00897b;
+  color: white;
+}
+
+.badge-staking {
+  background-color: #3949ab;
+  color: white;
+}
+
+.badge-enterprise {
+  background-color: #7952b3;
+  color: white;
+}
+
+.badge-wrkchain {
+  background-color: #7cb342;
+  color: white;
+}
+
+.badge-beacon {
+  background-color: #43a047;
+  color: white;
+}
