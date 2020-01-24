@@ -252,7 +252,10 @@
 
             if (res.status === 200) {
               this.showToast('success', 'Success', 'Tx hash: ' + res.result.txhash)
-              await this.$store.dispatch('txs/addTxHash', res.result.txhash)
+              await this.$store.dispatch('txs/addTx', {
+                txhash: res.result.txhash,
+                timestamp: null,
+                isSent: true})
             }
 
             this.$bvModal.hide('bv-modal-transfer-und')
