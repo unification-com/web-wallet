@@ -5,9 +5,6 @@ import Big from "big.js";
 const state = {
   isWalletUnlocked: false,
   json: null,
-  mnemonic: null,
-  walletPass: null,
-  walletPassCheck: null,
   walletFile: null,
   privateKey: null,
   balance: '0',
@@ -35,15 +32,6 @@ const getters = {
 const actions = {
   clearWallet(context) {
     context.commit('clearWallet')
-  },
-  setWalletPass(context, walletPass) {
-    context.commit('setWalletPass', walletPass)
-  },
-  setWalletPassCheck(context, walletPassCheck) {
-    context.commit('setWalletPassCheck', walletPassCheck)
-  },
-  setMnemonic(context, mnemonic) {
-    context.commit('setMnemonic', mnemonic)
   },
   setPrivateKey(context, privateKey) {
     context.commit('setPrivateKey', privateKey)
@@ -100,9 +88,6 @@ const mutations = {
   clearWallet (state) {
     state.isWalletUnlocked = false;
     state.json =  null;
-    state.mnemonic = null;
-    state.walletPass = null;
-    state.walletPassCheck = null;
     state.walletFile = null;
     state.privateKey = null;
     state.balance = '0';
@@ -119,15 +104,6 @@ const mutations = {
     };
     state.totalBalance = '0';
     state.accountExists = false;
-  },
-  setWalletPass(state, walletPass) {
-    state.walletPass = walletPass
-  },
-  setWalletPassCheck(state, walletPassCheck) {
-    state.walletPassCheck = walletPassCheck
-  },
-  setMnemonic(state, mnemonic) {
-    state.mnemonic = mnemonic
   },
   setPrivateKey(state, privateKey) {
     state.privateKey = privateKey

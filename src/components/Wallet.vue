@@ -67,7 +67,7 @@
         <b><em>IMPORTANT - DO NOT LOSE THIS</em></b>
       </p>
       <h4 class="text-info">
-        <b>{{ wallet.mnemonic }}</b>
+        <b>{{ mnemonic }}</b>
       </h4>
       <br/>
       <b-form-group id="mnemonic-saved-group">
@@ -300,11 +300,11 @@
         return false
       },
       showUnlockWalletModal() {
-        this.clearData()
+        this.clearWalletData()
         this.$bvModal.show('bv-modal-unlock-wallet')
       },
       showRecoverWalletModal() {
-        this.clearData()
+        this.clearWalletData()
         this.$bvModal.show('bv-modal-recover-wallet')
       },
       initChain: async function () {
@@ -319,14 +319,14 @@
         } catch(e) {
           this.showToast('danger', 'Error', 'Error connecting to ' + this.rest + ' - ' + e.toString())
           await this.$store.dispatch('client/clearClient')
-          await this.clearData()
+          await this.clearWalletData()
         }
       },
       closeWallet: async function() {
-        this.clearData()
+        this.clearWalletData()
         this.initChain()
       },
-      clearData: async function () {
+      clearWalletData: async function () {
         await this.$store.dispatch('wallet/clearWallet')
         await this.$store.dispatch('txs/clearTxs')
         await this.$store.dispatch('validators/clearValidators')
@@ -338,13 +338,13 @@
         this.$refs.unlockedcomponent.clearFormData()
       },
       changeNetwork: async function (network) {
-        await this.clearData()
+        await this.clearWalletData()
         this.rest = network
         this.initChain()
 
       },
       newWallet: function () {
-        this.clearData()
+        this.clearWalletData()
         this.$bvModal.show('bv-modal-create-wallet')
       },
       showWallet: async function () {
@@ -357,11 +357,9 @@
           return false
         }
 
-        await this.$store.dispatch('wallet/setWalletPass', this.walletPass)
-        await this.$store.dispatch('wallet/setWalletPassCheck', this.walletPassCheck)
-        let mnemonic = UndClient.crypto.generateMnemonic()
-        await this.$store.dispatch('wallet/setMnemonic', mnemonic)
-        let privateKey =  UndClient.crypto.getPrivateKeyFromMnemonic(mnemonic)
+        this.mnemonic = UndClient.crypto.generateMnemonic()
+
+        let privateKey =  UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
         await this.$store.dispatch('wallet/setPrivateKey', privateKey)
         let address = UndClient.crypto.getAddressFromPrivateKey(this.wallet.privateKey, 'und')
         await this.$store.dispatch('wallet/setAddress', address)
@@ -376,11 +374,11 @@
         this.generateWallet()
       },
       generateWallet: function() {
-        const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.wallet.walletPass)
+        const keystore = UndClient.crypto.generateKeyStore(this.wallet.privateKey, this.walletPass)
         this.download(JSON.stringify(keystore), 'und-wallet_' + keystore.id + ".json", "text/json")
         this.$bvModal.hide('bv-modal-please-wait')
         this.$bvModal.show('bv-modal-wallet-downloaded')
-        this.clearData()
+        this.clearWalletData()
       },
       download: function (content, fileName, contentType) {
         var a = document.createElement("a");
@@ -399,13 +397,8 @@
           return false
         }
 
-        await this.$store.dispatch('wallet/setWalletPass', this.walletPass)
-        await this.$store.dispatch('wallet/setWalletPassCheck', this.walletPassCheck)
-
         try {
-          await this.$store.dispatch('wallet/setMnemonic', this.mnemonic)
           let privateKey =  UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
-          this.mnemonic = null
           await this.$store.dispatch('wallet/setPrivateKey', privateKey)
         } catch(e) {
           this.showToast('danger', 'Error', e.toString())
@@ -459,7 +452,7 @@
             await this.$refs.unlockedcomponent.runOnUnlocked()
           } catch (e) {
             this.showToast('danger', 'Error', e.toString())
-            this.clearData()
+            this.clearWalletData()
           }
         } else {
           this.showToast('danger', 'Error', 'Not connected to network')
