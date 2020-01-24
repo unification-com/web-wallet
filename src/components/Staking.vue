@@ -67,6 +67,9 @@
         this.$refs.stakingdelegationsconponent.clearReDelegateData()
         this.$refs.stakingdelegationsconponent.clearWithdrawData()
       },
+      loadDelegations: function() {
+        this.$refs.stakingdelegationsconponent.getDelegations()
+      },
       getValidators: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           let res = await this.client.getValidators()
