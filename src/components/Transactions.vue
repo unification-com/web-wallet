@@ -20,11 +20,22 @@
     </div>
 
     <div v-show="!isDataLoading">
-      <b-list-group>
-        <b-list-group-item v-for="tx in orderedTxs" v-bind:key="tx.txSummary.txhash">
+      <b-list-group
+      id="tx-list"
+      :per-page="perPage"
+      :current-page="currentPage"
+      >
+        <b-list-group-item v-for="tx in paginatedOrderedTxs" v-bind:key="tx.txSummary.txhash">
           <Tx v-bind:tx="tx" :key="componentKey"/>
         </b-list-group-item>
       </b-list-group>
+      <b-pagination
+      v-model="currentPage"
+      :total-rows="numTxs"
+      :per-page="perPage"
+      aria-controls="tx-list"
+      v-show="numTxs > perPage"
+      />
     </div>
   </div>
 </template>
@@ -50,13 +61,24 @@
       }),
       ...mapGetters('txs', [
         'getAllTxs',
-      ])
+      ]),
+      numTxs() {
+        return this.orderedTxs.length
+      },
+      paginatedOrderedTxs() {
+        return this.orderedTxs.slice(
+        (this.currentPage - 1) * this.perPage,
+        this.currentPage * this.perPage
+        )
+      }
     },
     data: function () {
       return {
         isDataLoading: false,
         componentKey: 0,
-        orderedTxs: []
+        orderedTxs: [],
+        perPage: 10,
+        currentPage: 1,
       }
     },
     methods: {
