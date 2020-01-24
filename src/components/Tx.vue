@@ -3,7 +3,7 @@
     <span class="badge badge-success" v-show="!fullTx.txSummary.isSent && fullTx.txSummary.txSuccess" style=" margin-right:5px;">
       <b-icon-download style="width:20px; height:20px"/>
     </span>
-    <span class="badge badge-warning" v-show="fullTx.txSummary.isSent && fullTx.txSummary.txSuccess" style=" margin-right:5px;">
+    <span class="badge badge-info" v-show="fullTx.txSummary.isSent && fullTx.txSummary.txSuccess" style=" margin-right:5px;">
       <b-icon-upload style="width:20px; height:20px"/>
     </span>
     <span class="badge badge-danger" v-show="!fullTx.txSummary.txSuccess && fullTx.txData !== null" style=" margin-right:5px;">
