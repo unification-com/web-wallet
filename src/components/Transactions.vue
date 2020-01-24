@@ -12,7 +12,7 @@
     </b-container>
 
     <p>
-      Your transactions, including any transaction which failed to broadcast during <em>this session</em>
+      Your latest transactions, including any transaction which failed to broadcast during <em>this session</em>
     </p>
 
     <div v-show="isDataLoading">
@@ -21,11 +21,8 @@
 
     <div v-show="!isDataLoading">
       <b-list-group>
-        <b-list-group-item v-for="tx in txs.txs" v-bind:key="tx.txhash">
+        <b-list-group-item v-for="tx in orderedTxs" v-bind:key="tx.txSummary.txhash">
           <Tx v-bind:tx="tx" :key="componentKey"/>
-          <div v-show="!tx.txSuccess">
-            <b-badge variant="danger">FAILED</b-badge> <span class="text-danger">{{ tx.parsedErrorMsg }}</span>
-          </div>
         </b-list-group-item>
       </b-list-group>
     </div>
@@ -35,7 +32,8 @@
 <script>
 
   import Tx from '@/components/Tx.vue'
-  import { mapState } from 'vuex'
+  import {mapGetters, mapState} from 'vuex'
+  const _ = require('lodash');
 
   export default {
     name: 'Transactions',
@@ -50,11 +48,15 @@
         wallet: state => state.wallet,
         txs: state => state.txs
       }),
+      ...mapGetters('txs', [
+        'getAllTxs',
+      ])
     },
     data: function () {
       return {
         isDataLoading: false,
-        componentKey: 0
+        componentKey: 0,
+        orderedTxs: []
       }
     },
     methods: {
@@ -68,32 +70,46 @@
       loadTransactions: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
           this.isDataLoading = true
-          let res = await this.client.getTransactions()
-          if (res.status === 200) {
-            for(let i = 0; i < res.result.txs.length; i++) {
-              await this.$store.dispatch('txs/addTxHash', res.result.txs[i].txhash)
+          const sentTxRes = await this.client.getTransactions()
+          if (sentTxRes.status === 200) {
+            for(let i = 0; i < sentTxRes.result.txs.length; i++) {
+              await this.$store.dispatch('txs/addTx', {
+                txhash: sentTxRes.result.txs[i].txhash,
+                timestamp: sentTxRes.result.txs[i].timestamp,
+                isSent: true})
             }
           }
 
-          for(let i = 0; i < this.txs.txHashes.length; i++) {
-            let txHash = this.txs.txHashes[i]
-            let txData = await this.getTx(txHash)
-            if('raw_log' in txData) {
-              txData.parsedErrorMsg = ''
-              if('logs' in txData) {
-                txData.txSuccess = txData.logs[0].success
-                if(!txData.logs[0].success) {
-                  txData.parsedErrorMsg = this.parseTxErrorMsg(txData.logs[0].log)
+          const recTxRes = await this.client.getTransactionsReceived()
+          if (recTxRes.status === 200) {
+            for(let i = 0; i < recTxRes.result.txs.length; i++) {
+              await this.$store.dispatch('txs/addTx', {
+              txhash: recTxRes.result.txs[i].txhash,
+              timestamp: recTxRes.result.txs[i].timestamp,
+              isSent: false})
+            }
+          }
+
+          const entries = Object.entries(this.txs.txs)
+          for (const [txHash, tx] of entries) {
+            if(tx.txData === null) {
+              let txData = await this.getTx(txHash)
+              if('raw_log' in txData) {
+                txData.parsedErrorMsg = ''
+                if('logs' in txData) {
+                  txData.txSuccess = txData.logs[0].success
+                  if(!txData.logs[0].success) {
+                    txData.parsedErrorMsg = this.parseTxErrorMsg(txData.logs[0].log)
+                  }
+                } else if('code' in txData) {
+                  txData.parsedErrorMsg = this.parseTxErrorMsg(txData.raw_log)
+                  txData.txSuccess = false
                 }
-              } else if('code' in txData) {
-                txData.parsedErrorMsg = this.parseTxErrorMsg(txData.raw_log)
-                txData.txSuccess = false
+                await this.$store.dispatch('txs/addTxData', txData)
               }
-
-
-              await this.$store.dispatch('txs/addTx', txData)
             }
           }
+          this.orderTxs()
           this.forceRerender()
           this.isDataLoading = false
         }
@@ -111,6 +127,14 @@
             return {}
           }
         }
+      },
+      orderTxs: function() {
+        let orderedTxs = []
+        const txEntries = Object.entries(this.txs.txs)
+        for (const [txHash, tx] of txEntries) {
+          orderedTxs.push(tx)
+        }
+        this.orderedTxs = _.orderBy(orderedTxs, ['txSummary.timestamp'], ['desc']);
       }
     }
   }
