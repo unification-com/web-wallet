@@ -1,14 +1,18 @@
 // initial state
 import {is} from "bootstrap-vue/esm/utils/object";
+const _ = require('lodash');
 
 const state = {
-  txHashes: [],
-  txs: {}
+  txs: {},
+  lastPage: 0,
+  totalPages: 1
 }
 
 // getters
 const getters = {
-
+  getAllTxs: (state) => {
+    return state.txs
+  },
 }
 
 // actions
@@ -17,15 +21,37 @@ const actions = {
     context.commit('clearTxs')
   },
 
-  addTxHash(context, txHash) {
-    if(!context.state.txHashes.includes(txHash)) {
-      context.commit('addTxHash', txHash)
+  addTx(context, payload) {
+    let d = new Date()
+    if(payload.timestamp !== null) {
+      d = new Date(payload.timestamp)
+    }
+
+    let unixtime = Math.floor(d.getTime() / 1000)
+
+    if (!(payload.txhash in context.state.txs)) {
+      let txSummary = {
+        txhash: payload.txhash,
+        timestamp: unixtime,
+        txSuccess: null,
+        parsedErrorMsg: null,
+        isSent: payload.isSent
+      }
+      let txObj = {
+        txSummary: txSummary,
+        txData: null
+      }
+      context.commit('addTx', txObj)
     }
   },
 
-  addTx(context, tx) {
-    if (!(tx.txhash in context.state.txs) && tx.hasOwnProperty('tx')) {
-      context.commit('addTx', tx)
+  addTxData(context, txData) {
+    if ((txData.txhash in context.state.txs) && txData.hasOwnProperty('tx')) {
+      let newTx = JSON.parse(JSON.stringify(context.state.txs[txData.txhash]))
+      newTx.txData = txData
+      newTx.txSummary.txSuccess = txData.txSuccess
+      newTx.txSummary.parsedErrorMsg = txData.parsedErrorMsg
+      context.commit('addTxData', newTx)
     }
   }
 
@@ -34,16 +60,15 @@ const actions = {
 // mutations
 const mutations = {
   clearTxs (state) {
-    state.txHashes = []
     state.txs = {}
   },
 
-  addTxHash (state, txHash) {
-    state.txHashes.push(txHash)
+  addTx(state, tx) {
+    state.txs[tx.txSummary.txhash] = tx
   },
 
-  addTx(state, tx) {
-    state.txs[tx.txhash] = tx
+  addTxData(state, newTx) {
+    state.txs[newTx.txSummary.txhash] = newTx
   }
 }
 
