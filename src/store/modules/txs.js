@@ -34,7 +34,6 @@ const actions = {
         txhash: payload.txhash,
         timestamp: unixtime,
         txSuccess: null,
-        parsedErrorMsg: null,
         isSent: payload.isSent
       }
       let txObj = {
@@ -49,8 +48,11 @@ const actions = {
     if ((txData.txhash in context.state.txs) && txData.hasOwnProperty('tx')) {
       let newTx = JSON.parse(JSON.stringify(context.state.txs[txData.txhash]))
       newTx.txData = txData
-      newTx.txSummary.txSuccess = txData.txSuccess
-      newTx.txSummary.parsedErrorMsg = txData.parsedErrorMsg
+      if('codespace' in txData || 'code' in txData) {
+        newTx.txSummary.txSuccess = false
+      } else {
+        newTx.txSummary.txSuccess = true
+      }
       context.commit('addTxData', newTx)
     }
   }
