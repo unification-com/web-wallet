@@ -93,6 +93,7 @@
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
           this.isDataLoading = true
           const sentTxRes = await this.client.getTransactions(this.wallet.address, 1, 200)
+
           if (sentTxRes.status === 200) {
             for(let i = 0; i < sentTxRes.result.txs.length; i++) {
               await this.$store.dispatch('txs/addTx', {
@@ -103,6 +104,7 @@
           }
 
           const recTxRes = await this.client.getTransactionsReceived(this.wallet.address, 1, 200)
+
           if (recTxRes.status === 200) {
             for(let i = 0; i < recTxRes.result.txs.length; i++) {
               await this.$store.dispatch('txs/addTx', {
@@ -116,19 +118,7 @@
           for (const [txHash, tx] of entries) {
             if(tx.txData === null) {
               let txData = await this.getTx(txHash)
-              if('raw_log' in txData) {
-                txData.parsedErrorMsg = ''
-                if('logs' in txData) {
-                  txData.txSuccess = txData.logs[0].success
-                  if(!txData.logs[0].success) {
-                    txData.parsedErrorMsg = this.parseTxErrorMsg(txData.logs[0].log)
-                  }
-                } else if('code' in txData) {
-                  txData.parsedErrorMsg = this.parseTxErrorMsg(txData.raw_log)
-                  txData.txSuccess = false
-                }
-                await this.$store.dispatch('txs/addTxData', txData)
-              }
+              await this.$store.dispatch('txs/addTxData', txData)
             }
           }
           this.orderTxs()
@@ -140,6 +130,7 @@
         if (this.clnt !== null && this.wallet.isWalletUnlocked > 0) {
           try {
             let res = await this.client.getTx(txhash)
+
             if (res.status === 200) {
               return res.result
             } else {
