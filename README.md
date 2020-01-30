@@ -25,7 +25,7 @@ docker-compose -f Docker/docker-compose.yml up --build
 Alternativey, using the `make` target:
 
 ```bash
-make docker-dev
+make docker-wallet
 ```
 
 The Web Wallet will be available on http://localhost:8080

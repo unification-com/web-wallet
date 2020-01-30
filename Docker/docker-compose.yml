@@ -3,7 +3,7 @@ services:
   web-wallet:
     build:
       context: ..
-      dockerfile: ./Docker/dev/Dockerfile
+      dockerfile: Docker/wallet/Dockerfile
     container_name: web-wallet
     ports:
       - "8080:80"

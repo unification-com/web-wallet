@@ -1,11 +1,11 @@
 .DEFAULT_GOAL := docker-dev
 
 
-docker-dev:
+docker-wallet:
 	docker-compose -f Docker/docker-compose.yml down --remove-orphans
 	docker-compose -f Docker/docker-compose.yml up --build
 
-docker-dev-down:
+docker-wallet-down:
 	docker-compose -f Docker/docker-compose.yml down --remove-orphans
 
 builder:
