@@ -4,8 +4,16 @@
       <b-col>
         <h4>Wallet Address</h4>
       </b-col>
-      <b-col cols="9">
-        <b><span class="text-primary">{{ w.address }}</span></b>
+      <b-col cols="6">
+        <b><span class="text-primary">{{ wallet.address }}</span></b>
+      </b-col>
+      <b-col cols="3">
+        <span v-show="!isManualRefresh" class="h3 mb-2">
+          <b-icon-arrow-clockwise @click="manualRefresh()"/>
+        </span>
+        <span v-show="isManualRefresh">
+          <b-spinner label="Spinning"/>
+        </span>
       </b-col>
     </b-row>
 
@@ -16,22 +24,22 @@
         </h4>
       </b-col>
       <b-col cols="9">
-        <h4><span class="text-success">{{ w.balance }} UND</span></h4>
+        <h4><span class="text-success">{{ wallet.balance }} UND</span></h4>
       </b-col>
     </b-row>
 
-    <b-row v-show="w.staking.totalDelegations > 0">
+    <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
           Total Balance <b-icon-info v-b-popover.hover.right="'Total UND in this wallet, including any staked UND, unbonding UND and Enterprise Locked UND'" title="Total Balance"/>
         </h4>
       </b-col>
       <b-col cols="9">
-        <span class="text-info">{{ formatAmount(w.totalBalance) }}</span>
+        <span class="text-info">{{ formatAmount(wallet.totalBalance) }}</span>
       </b-col>
     </b-row>
 
-    <b-row v-show="w.staking.totalDelegations > 0">
+    <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
           Staking <b-icon-info v-b-popover.hover.right="'Your current staking and delegations'" title="Staking"/>
@@ -40,55 +48,61 @@
       <b-col cols="9">
         <b-row>
           <b-col>Delegations</b-col>
-          <b-col>{{ w.staking.totalDelegations }}</b-col>
+          <b-col>{{ wallet.staking.totalDelegations }}</b-col>
         </b-row>
         <b-row>
           <b-col>Shares</b-col>
-          <b-col>{{ w.staking.totalShares }}</b-col>
+          <b-col>{{ wallet.staking.totalShares }}</b-col>
         </b-row>
         <b-row>
           <b-col>Delegated</b-col>
-          <b-col><span class="text-info">{{ formatAmount(w.staking.totalStaked) }}</span></b-col>
+          <b-col><span class="text-info">{{ formatAmount(wallet.staking.totalStaked) }}</span></b-col>
         </b-row>
-        <b-row v-show="w.staking.totalUnbonding > 0">
+        <b-row v-show="wallet.staking.totalUnbonding > 0">
           <b-col>Unbonding</b-col>
-          <b-col><span class="text-info">{{ formatAmount(w.staking.totalUnbonding) }}</span></b-col>
+          <b-col><span class="text-info">{{ formatAmount(wallet.staking.totalUnbonding) }}</span></b-col>
         </b-row>
         <b-row>
           <b-col>Rewards</b-col>
-          <b-col><span class="text-info">{{ formatAmount(w.staking.totalRewards) }}</span></b-col>
+          <b-col><span class="text-info">{{ formatAmount(wallet.staking.totalRewards) }}</span></b-col>
         </b-row>
       </b-col>
     </b-row>
 
-    <b-row v-show="w.locked > 0">
+    <b-row v-show="wallet.locked > 0">
       <b-col>
         <h4>
           Enterprise Locked <b-icon-info v-b-popover.hover.right="'Amount of purchased locked Enterprise UND which can be used for WRKChain and BEACON fees'" title="Enterprise Locked"/>
         </h4>
       </b-col>
       <b-col cols="9">
-        <span class="text-info">{{ w.locked }} UND</span>
+        <span class="text-info">{{ wallet.locked }} UND</span>
       </b-col>
     </b-row>
   </b-container>
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+  
   export default {
     name: "Summary",
-    props: {
-      wallet: Object
+    computed: {
+      ...mapState({
+        wallet: state => state.wallet
+      }),
     },
     data: function () {
       return {
-        w: this.wallet
+        isManualRefresh: false
       }
     },
-    watch: {
-      wallet: function (newWallet) {
-        this.w = newWallet
+    methods: {
+      manualRefresh: async function() {
+        this.isManualRefresh = true
+        await this.$parent.manualRefresh()
+        this.isManualRefresh = false
       }
-    },
+    }
   }
 </script>

@@ -36,9 +36,20 @@ const actions = {
         txSuccess: null,
         isSent: payload.isSent
       }
+
+      let txData = null;
+      if(payload.data !== null && payload.data !== undefined) {
+        txData = payload.data
+        if('codespace' in txData || 'code' in txData) {
+          txSummary.txSuccess = false
+        } else {
+          txSummary.txSuccess = true
+        }
+      }
+
       let txObj = {
         txSummary: txSummary,
-        txData: null
+        txData: txData
       }
       context.commit('addTx', txObj)
     }

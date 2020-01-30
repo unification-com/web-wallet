@@ -20,19 +20,6 @@
     >
       <b-icon-three-dots />
     </span>
-    <b-collapse :id="'more-tx-' + txSummary.txhash" class="mt-2">
-      <b-card>
-        Tx Hash: {{ txSummary.txhash }}<br />
-        Block: {{ txSummary.height }}<br />
-        Gas Wanted: {{ txSummary.gas_wanted }}<br />
-        Gas Used: {{ txSummary.gas_used }}<br />
-        Fee: {{ txSummary.fee }}<br />
-
-        <div v-show="txSummary.txSuccess === false">
-          <span class="text-danger">Fail Reason: {{ failReason }}</span>
-        </div>
-      </b-card>
-    </b-collapse>
 
     <br/>
     <div>
@@ -42,6 +29,23 @@
       <span :class="badge">{{ action }}</span>
       <span v-html="formatted">
     </span>
+
+      <b-collapse :id="'more-tx-' + txSummary.txhash" class="mt-2">
+        <b-card>
+          Tx Hash: {{ txSummary.txhash }}<br />
+          Block: {{ txSummary.height }}<br />
+          Memo: {{ txSummary.memo }}<br />
+          <span v-show="txSummary.isSent">
+          Gas Wanted: {{ txSummary.gas_wanted }}<br />
+          Gas Used: {{ txSummary.gas_used }}<br />
+          Fee: {{ txSummary.fee }}<br />
+        </span>
+
+          <div v-show="txSummary.txSuccess === false">
+            <span class="text-danger">Fail Reason: {{ failReason }}</span>
+          </div>
+        </b-card>
+      </b-collapse>
     </div>
   </div>
 </template>
@@ -89,6 +93,7 @@
       },
       // Todo - missing Msgs
       formatMsg: function () {
+
         if (this.fullTx.txData === null) {
           this.action = "Pending"
           this.badge = 'badge badge-info'
@@ -97,11 +102,13 @@
           this.txSummary.gas_wanted = ''
           this.txSummary.gas_used = ''
           this.txSummary.fee = ''
+          this.txSummary.memo = ''
         } else {
           this.txSummary.height = this.fullTx.txData.height
           this.txSummary.gas_wanted = this.fullTx.txData.gas_wanted
           this.txSummary.gas_used = this.fullTx.txData.gas_used
           this.txSummary.fee = this.fullTx.txData.tx.value.fee.amount[0].amount + this.fullTx.txData.tx.value.fee.amount[0].denom
+          this.txSummary.memo = this.fullTx.txData.tx.value.memo
 
           if(this.txSummary.txSuccess === false) {
             if(!('codespace' in this.fullTx.txData)) {

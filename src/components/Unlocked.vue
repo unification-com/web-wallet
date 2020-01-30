@@ -1,7 +1,7 @@
 <template>
   <div class="container">
 
-    <Summary v-bind:wallet="wallet"/>
+    <Summary />
 
     <b-card no-body>
       <b-tabs pills card>
@@ -61,6 +61,7 @@
       return {
         timer: null,
         activeItem: 'transfer',
+        isUpdating: false,
       }
     },
     mounted() {
@@ -77,7 +78,7 @@
       },
       refreshBalance: function() {
         clearInterval(this.timer)
-        this.timer = setInterval(this.updateWallet, 10000)
+        this.timer = setInterval(this.updateWallet, 60000)
       },
       runOnUnlocked: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
@@ -86,8 +87,12 @@
           await this.$refs.stakingcomponent.getValidators()
         }
       },
+      manualRefresh: async function() {
+        await this.updateWallet()
+      },
       updateWallet: async function () {
-        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0 && !this.isUpdating) {
+          this.isUpdating = true // prevent requests from stacking
           if(!this.wallet.accountExists) {
             const exists = await this.checkAccountExists()
             if(exists === true) {
@@ -99,6 +104,7 @@
           await this.getRewards()
           await this.getUnbonding()
           this.getTotalUnd()
+          this.isUpdating = false
         }
       },
       checkAccountExists: async function() {
