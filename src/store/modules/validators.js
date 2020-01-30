@@ -63,6 +63,7 @@ const actions = {
 const mutations = {
   clearValidators (state) {
     state.validators = {}
+    state.validatorsSelect = []
   },
 
   addValidator(state, validator) {

@@ -150,7 +150,7 @@
         <b-button variant="success" @click="showConfirmDelegate()" :disabled="!delegateFormState">Delegate UND</b-button>
       </b-form>
       <br>
-      <b>Note:</b> outstanding rewards will automatically be withdrawn during delegation
+      <b>Note:</b> if you are delegating to an EV you already have a stake with, outstanding rewards will be automatically withdrawn
     </div>
   </div>
 </template>
