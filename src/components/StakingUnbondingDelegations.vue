@@ -81,6 +81,8 @@
                 await this.$store.dispatch('delegations/addEditUnbondingDelegation', unbond)
               }
             }
+          } else {
+            this.handleUndJsError(res)
           }
           this.isDataLoading = false
         }

@@ -77,6 +77,8 @@
             for (let i = 0; i < res.result.result.length; i++) {
               await this.$store.dispatch('validators/addValidator', res.result.result[i])
             }
+          } else {
+            this.handleUndJsError(res)
           }
           await this.$store.dispatch('validators/updateValidatorsSelect')
         }

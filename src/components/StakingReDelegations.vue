@@ -92,6 +92,8 @@
                 await this.$store.dispatch('delegations/addEditReDelegation', redeleg)
               }
             }
+          } else {
+            this.handleUndJsError(res)
           }
           this.isDataLoading = false
         }
