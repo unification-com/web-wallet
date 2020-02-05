@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.12.0 - 05/02/2020
+
+[PR23](https://github.com/unification-com/web-wallet/pull/23)
+
+- Update UND-JS to v1.5.0
+- Allow input/connection to custom REST server
+- Get and store REST server's `node_info` response in client Vuex
+- Output `node_info` in popover
+- Implement UND-JS error handler
+- Typos
+
 ## v0.11.0 - 31/01/2020
 
 [PR22](https://github.com/unification-com/web-wallet/pull/22)

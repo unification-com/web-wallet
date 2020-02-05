@@ -170,6 +170,8 @@
                 totalRewards = totalRewards.add(res.result.result[0].amount)
               }
             }
+          } else {
+            this.handleUndJsError(delRes)
           }
 
           await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
@@ -188,6 +190,8 @@
                 totalUnbonding = totalUnbonding.add(res.result.result[i].entries[j].balance)
               }
             }
+          } else {
+            this.handleUndJsError(res)
           }
           await this.$store.dispatch('wallet/setTotalUnbonding', totalUnbonding)
         }

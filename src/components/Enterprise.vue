@@ -223,6 +223,8 @@
           let res = await this.client.getEnteprisePos()
           if (res.status === 200) {
             this.pos = res.result.result
+          } else {
+            this.handleUndJsError(res)
           }
         }
         this.isDataLoading = false

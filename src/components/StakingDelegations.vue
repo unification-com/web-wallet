@@ -708,6 +708,8 @@
               }
               await this.$store.dispatch('delegations/addEditDelegation', del)
             }
+          } else {
+            this.handleUndJsError(res)
           }
           this.isDataLoading = false
         }
@@ -718,6 +720,10 @@
           let res = await this.client.getDelegatorRewards(this.wallet.address, valAddress)
           if (res.status === 200 && res.result.result.length > 0) {
             rewards = res.result.result[0].amount
+          } else {
+            if(res.status !== 200) {
+              this.handleUndJsError(res)
+            }
           }
         }
         return rewards

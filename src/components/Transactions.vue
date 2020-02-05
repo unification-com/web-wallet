@@ -144,6 +144,8 @@
           } else {
             await this.addNewTxs(txsRes, true)
           }
+        } else {
+          this.handleUndJsError(res)
         }
       },
       getRecTxs: async function() {
@@ -163,6 +165,8 @@
           } else {
             await this.addNewTxs(txsRes, false)
           }
+        } else {
+          this.handleUndJsError(res)
         }
       },
       processPendingTxs: async function() {
@@ -194,6 +198,7 @@
             if (res.status === 200) {
               return res.result
             } else {
+              this.handleUndJsError(res)
               return {}
             }
           } catch(e) {
