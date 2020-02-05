@@ -108,6 +108,25 @@ Vue.mixin({
     },
     clientError: function () {
       this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
+    },
+    handleUndJsError: function (resObj) {
+      if('error' in resObj.result) {
+        console.log('UND-JS returned an error.', 'status:', resObj.status, 'message:', resObj.result.error)
+      } else {
+        console.log('UND-JS returned an error:', resObj.toString())
+      }
+    },
+    isValidRestUrl: function (str)
+    {
+      let regexp =  /^(?:(?:https?):\/\/)/;
+      if (regexp.test(str))
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   }
 })
