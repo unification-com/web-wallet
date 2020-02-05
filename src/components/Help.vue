@@ -30,7 +30,7 @@
       <h3>Create a new wallet</h3>
 
       <p>
-        To get stated, click on the "Create New Wallet" button, and choose a secure password to encrypt the wallet.
+        To get started, click on the "Create New Wallet" button, and choose a secure password to encrypt the wallet.
         Once generated, the dialog will output your unique Mnemonic - DO NOT LOSE THIS! If you lose this, you will
         not be able to recover your wallet and accounts. Unification <b>cannot</b> recover this for you, as it never leaves
         your computer.
