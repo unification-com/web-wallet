@@ -4,7 +4,11 @@ import {is} from "bootstrap-vue/esm/utils/object";
 const state = {
   client: null,
   chainId: 'not connected',
-  isConnected: false
+  isConnected: false,
+  nodeData: {
+    node_info: {},
+    application_version: {}
+  }
 }
 
 // getters
@@ -36,6 +40,14 @@ const actions = {
       context.commit('clearClient')
       context.commit('setIsConnected', false)
     }
+  },
+
+  setNodeInfo(context, nodeInfo) {
+    let nodeData = {
+      node_info: nodeInfo.node_info,
+      application_version: nodeInfo.application_version
+    }
+    context.commit('setNodeInfo', nodeData)
   }
 }
 
@@ -44,6 +56,11 @@ const mutations = {
   clearClient (state) {
     state.client = null
     state.chainId = 'not connected'
+    state.nodeData = {
+      node_info: {},
+      application_version: {}
+    }
+    state.isConnected = false
   },
 
   setClient (state, client) {
@@ -56,6 +73,10 @@ const mutations = {
 
   setIsConnected(state, isConnected) {
     state.isConnected = isConnected
+  },
+
+  setNodeInfo(state, nodeData) {
+    state.nodeData = nodeData
   }
 }
 
