@@ -257,6 +257,7 @@
 </template>
 
 <script>
+  import axios from 'axios'
   import { mapState } from 'vuex'
   const UndClient = require('@unification-com/und-js')
 
@@ -315,6 +316,14 @@
           if (this.wallet.privateKey !== null) {
             client.setPrivateKey(this.wallet.privateKey, true)
           }
+
+          axios.get(this.rest + '/node_info')
+          .then((result) => {
+            if(result.status === 200) {
+              this.$store.dispatch('client/setNodeInfo', result.data)
+            }
+          })
+
           await this.$store.dispatch('client/setClient', client)
         } catch(e) {
           this.showToast('danger', 'Error', 'Error connecting to ' + this.rest + ' - ' + e.toString())
@@ -339,9 +348,12 @@
       },
       changeNetwork: async function (network) {
         await this.clearWalletData()
+        if(!this.isValidRestUrl(network)) {
+          this.showToast('danger', 'Error', 'enter a valid REST URL: "' + network + '" invalid')
+          return false
+        }
         this.rest = network
         this.initChain()
-
       },
       newWallet: function () {
         this.clearWalletData()

@@ -11,6 +11,21 @@
         <template v-if="mounted">
           <b-navbar-brand>
             Network: {{ $refs.walletComponent.chainId }}
+            <b-icon-info id="network-info-popover" v-show="$refs.walletComponent.chainId !== 'not connected'"/>
+            <b-popover target="network-info-popover" triggers="hover" placement="bottom">
+              <template v-slot:title>Node & Network Info</template>
+              <p>
+                REST: {{ $refs.walletComponent.rest }} <br/>
+                Network: {{ nodeData.node_info.network }} <br/>
+                Node Moniker: {{ nodeData.node_info.moniker }}
+              </p>
+              <p>
+                <b>Application</b><br>
+                {{ nodeData.application_version.name  }}<br/>
+                {{ nodeData.application_version.server_name  }} v{{ nodeData.application_version.version  }}<br>
+                {{ nodeData.application_version.client_name  }} v{{ nodeData.application_version.version  }}
+              </p>
+            </b-popover>
           </b-navbar-brand>
           <b-dropdown variant="primary" class="mx-1" right text="My Wallet">
             <b-dropdown-item>
@@ -40,7 +55,7 @@
 
 
         </template>
-        <b-nav-item-dropdown right>
+        <b-dropdown right id="networkdropdown" ref="networkdropdown">
           <!-- Using 'button-content' slot -->
           <template v-slot:button-content>
             <em>Change Network</em>
@@ -52,7 +67,23 @@
           <b-dropdown-item href="#" @click="$refs.walletComponent.changeNetwork('http://localhost:1318')">
             DevNet - http://localhost:1318
           </b-dropdown-item>
-        </b-nav-item-dropdown>
+
+          <b-dropdown-divider/>
+
+          <b-dropdown-form href="#" @submit.stop.prevent>
+            <b-form inline>
+              <b-input
+              id="custom-rest"
+              v-model="customRest"
+              type="url"
+              trim
+              placeholder="Custom - http:// or https://"
+             />
+              <b-button variant="primary" @click="$refs.walletComponent.changeNetwork(customRest), $refs.networkdropdown.hide(true)">Connect</b-button>
+            </b-form>
+
+          </b-dropdown-form>
+        </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
 
@@ -79,6 +110,7 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   // @ is an alias to /src
   import Wallet from '@/components/Wallet.vue'
   import {version} from '../../package.json';
@@ -97,10 +129,14 @@
     data: function () {
       return {
         mounted: false,
-        wallet_version: version
+        wallet_version: version,
+        customRest: null
       }
     },
     computed: {
+      ...mapState({
+        nodeData: state => state.client.nodeData,
+      }),
       yearNow: function() {
         let d = new Date()
         return d.getFullYear()
