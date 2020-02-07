@@ -419,11 +419,21 @@
           <b-card>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Moniker:</b></b-col>
-              <b-col>{{ row.item.description.moniker }}</b-col>
+              <b-col>
+                <a :href="explorerUrlPrefix + '/validator/' + row.item.validator_address" target="_blank">
+                  {{ row.item.description.moniker }}
+                  <b-icon-box-arrow-up-right/>
+                </a>
+              </b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Operator Address:</b></b-col>
-              <b-col>{{ row.item.validator_address }}</b-col>
+              <b-col>
+                <a :href="explorerUrlPrefix + '/validator/' + row.item.validator_address" target="_blank">
+                {{ row.item.validator_address }}
+                  <b-icon-box-arrow-up-right/>
+                </a>
+              </b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Identity:</b></b-col>
@@ -492,6 +502,9 @@
         'getValidatorDescription',
         'getValidatorMoniker',
       ]),
+      explorerUrlPrefix: function() {
+        return this.explorerUrl(this.chainId)
+      },
       unDelegateAmountState() {
         return this.isValidAmount(this.undelegateData.und)
       },
