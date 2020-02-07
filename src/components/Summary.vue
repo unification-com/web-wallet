@@ -5,7 +5,14 @@
         <h4>Wallet Address</h4>
       </b-col>
       <b-col cols="6">
-        <b><span class="text-primary">{{ wallet.address }}</span></b>
+        <b>
+          <span class="text-primary">
+            <a :href="explorerUrlPrefix + '/account/' +  wallet.address" target="_blank">
+              {{ wallet.address }}
+              <b-icon-box-arrow-up-right/>
+            </a>
+          </span>
+        </b>
       </b-col>
       <b-col cols="3">
         <span v-show="!isManualRefresh" class="h3 mb-2">
@@ -24,7 +31,7 @@
         </h4>
       </b-col>
       <b-col cols="9">
-        <h4><span class="text-success">{{ wallet.balance }} UND</span></h4>
+        <h4><span class="text-success">{{ formatAmount(wallet.balanceNund) }}</span></h4>
       </b-col>
     </b-row>
 
@@ -89,8 +96,12 @@
     name: "Summary",
     computed: {
       ...mapState({
-        wallet: state => state.wallet
+        wallet: state => state.wallet,
+        chainId: state => state.client.chainId,
       }),
+      explorerUrlPrefix: function() {
+        return this.explorerUrl(this.chainId)
+      }
     },
     data: function () {
       return {

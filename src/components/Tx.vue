@@ -32,8 +32,18 @@
 
       <b-collapse :id="'more-tx-' + txSummary.txhash" class="mt-2">
         <b-card>
-          Tx Hash: {{ txSummary.txhash }}<br />
-          Block: {{ txSummary.height }}<br />
+          Tx Hash:
+          <a :href="explorerUrlPrefix + '/transactions/' + txSummary.txhash" target="_blank">
+            {{ txSummary.txhash }}
+            <b-icon-box-arrow-up-right/>
+          </a>
+          <br />
+          Block:
+          <a :href="explorerUrlPrefix + '/blocks/' + txSummary.height" target="_blank">
+            {{ txSummary.height }}
+            <b-icon-box-arrow-up-right/>
+          </a>
+          <br />
           Memo: {{ txSummary.memo }}<br />
           <span v-show="txSummary.isSent">
           Gas Wanted: {{ txSummary.gas_wanted }}<br />
@@ -51,14 +61,20 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapGetters, mapState} from 'vuex'
 
   export default {
     name: 'Tx',
     computed: {
       ...mapGetters('validators', [
         'getValidatorMoniker',
-      ])
+      ]),
+      ...mapState({
+        chainId: state => state.client.chainId,
+      }),
+      explorerUrlPrefix: function() {
+        return this.explorerUrl(this.chainId)
+      }
     },
     props: {
       tx: Object

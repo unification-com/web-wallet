@@ -48,7 +48,8 @@ Vue.mixin({
         let amountBig = new Big(amount)
         if (amountBig.e >= 6) {
           let und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
-          formattedAmt = und + ' UND'
+          let undFormatted = new Intl.NumberFormat('en-GB', { maximumSignificantDigits: 18 }).format(und)
+          formattedAmt = undFormatted + ' UND'
         }
       } catch(e) {}
 
@@ -126,6 +127,16 @@ Vue.mixin({
       else
       {
         return false;
+      }
+    },
+    explorerUrl: function(chainId) {
+      switch(chainId) {
+        case 'UND-Mainchain-DevNet':
+          return 'http://localhost:3000'
+        case 'UND-Mainchain-TestNet':
+          return 'https://explorer-testnet.unification.io'
+        default:
+          return 'http://localhost:3000'
       }
     }
   }
