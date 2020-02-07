@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.12.1 - 07/02/2020
+
+[PR24](https://github.com/unification-com/web-wallet/pull/24)
+
+- Update UND-JS to v1.5.1
+- Better storage/handling of internal client `node_info` and `app_version` data
+- Network information styling tweaks
+- Ensure client is fully nullified on network connection error due to invalid REST URL
+
 ## v0.12.0 - 05/02/2020
 
 [PR23](https://github.com/unification-com/web-wallet/pull/23)
