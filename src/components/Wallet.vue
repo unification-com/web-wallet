@@ -310,26 +310,20 @@
       },
       initChain: async function () {
         await this.$store.dispatch('client/clearClient')
+        let newClient = null
         try {
-          let client = new UndClient(this.rest)
-          await client.initChain()
+          newClient = new UndClient(this.rest)
+          await newClient.initChain()
           if (this.wallet.privateKey !== null) {
-            client.setPrivateKey(this.wallet.privateKey, true)
+            newClient.setPrivateKey(this.wallet.privateKey, true)
           }
-
-          axios.get(this.rest + '/node_info')
-          .then((result) => {
-            if(result.status === 200) {
-              this.$store.dispatch('client/setNodeInfo', result.data)
-            }
-          })
-
-          await this.$store.dispatch('client/setClient', client)
         } catch(e) {
           this.showToast('danger', 'Error', 'Error connecting to ' + this.rest + ' - ' + e.toString())
           await this.$store.dispatch('client/clearClient')
+          newClient = null
           await this.clearWalletData()
         }
+        await this.$store.dispatch('client/setClient', newClient)
       },
       closeWallet: async function() {
         this.clearWalletData()

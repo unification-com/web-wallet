@@ -3,12 +3,10 @@ import {is} from "bootstrap-vue/esm/utils/object";
 
 const state = {
   client: null,
-  chainId: 'not connected',
+  chainId: null,
+  nodeInfo: {},
+  nodeAppVersion: {},
   isConnected: false,
-  nodeData: {
-    node_info: {},
-    application_version: {}
-  }
 }
 
 // getters
@@ -21,7 +19,7 @@ const getters = {
   },
   getIsConnected: state => {
     return state.isConnected
-  }
+  },
 }
 
 // actions
@@ -33,21 +31,18 @@ const actions = {
 
   setClient(context, client) {
     context.commit('setClient', client)
-    if (client !== null && 'chainId' in client) {
+    if (client !== null
+    && 'chainId' in client
+    && 'node_info' in client
+    && 'node_app_version' in client) {
       context.commit('setChainId', client.chainId)
+      context.commit('setNodeInfo', client.node_info)
+      context.commit('setNodeAppVersion', client.node_app_version)
       context.commit('setIsConnected', true)
     } else {
       context.commit('clearClient')
       context.commit('setIsConnected', false)
     }
-  },
-
-  setNodeInfo(context, nodeInfo) {
-    let nodeData = {
-      node_info: nodeInfo.node_info,
-      application_version: nodeInfo.application_version
-    }
-    context.commit('setNodeInfo', nodeData)
   }
 }
 
@@ -55,11 +50,9 @@ const actions = {
 const mutations = {
   clearClient (state) {
     state.client = null
-    state.chainId = 'not connected'
-    state.nodeData = {
-      node_info: {},
-      application_version: {}
-    }
+    state.chainId = null
+    state.nodeInfo = {}
+    state.nodeAppVersion = {}
     state.isConnected = false
   },
 
@@ -71,12 +64,16 @@ const mutations = {
     state.chainId = chainId
   },
 
-  setIsConnected(state, isConnected) {
-    state.isConnected = isConnected
+  setNodeInfo (state, nodeInfo) {
+    state.nodeInfo = nodeInfo
   },
 
-  setNodeInfo(state, nodeData) {
-    state.nodeData = nodeData
+  setNodeAppVersion(state, nodeAppVersion) {
+    state.nodeAppVersion = nodeAppVersion
+  },
+
+  setIsConnected(state, isConnected) {
+    state.isConnected = isConnected
   }
 }
 
