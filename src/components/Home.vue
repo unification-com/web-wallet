@@ -10,20 +10,21 @@
       <b-navbar-nav class="ml-auto">
         <template v-if="mounted">
           <b-navbar-brand>
-            Network: {{ $refs.walletComponent.chainId }}
-            <b-icon-info id="network-info-popover" v-show="$refs.walletComponent.chainId !== 'not connected'"/>
+            Network: {{ chainIdOut }}
+            <b-icon-info id="network-info-popover" v-show="chainId !== null"/>
             <b-popover target="network-info-popover" triggers="hover" placement="bottom">
               <template v-slot:title>Node & Network Info</template>
               <p>
-                REST: {{ $refs.walletComponent.rest }} <br/>
-                Network: {{ nodeData.node_info.network }} <br/>
-                Node Moniker: {{ nodeData.node_info.moniker }}
+                REST: <span class="text-info">{{ $refs.walletComponent.rest }}</span><br/>
+                Chain ID: <span class="text-info">{{ chainId }}</span> <br/>
+                Node Moniker: <span class="text-info">{{ nodeInfo.moniker }}</span>
               </p>
+              <h6>{{ nodeAppVersion.name  }}</h6>
               <p>
-                <b>Application</b><br>
-                {{ nodeData.application_version.name  }}<br/>
-                {{ nodeData.application_version.server_name  }} v{{ nodeData.application_version.version  }}<br>
-                {{ nodeData.application_version.client_name  }} v{{ nodeData.application_version.version  }}
+                <span class="text-info">
+                  {{ nodeAppVersion.server_name  }} v{{ nodeAppVersion.version  }}<br>
+                  {{ nodeAppVersion.client_name  }} v{{ nodeAppVersion.version  }}
+                </span>
               </p>
             </b-popover>
           </b-navbar-brand>
@@ -135,8 +136,18 @@
     },
     computed: {
       ...mapState({
-        nodeData: state => state.client.nodeData,
+        client: state => state.client.client,
+        chainId: state => state.client.chainId,
+        nodeInfo: state => state.client.nodeInfo,
+        nodeAppVersion: state => state.client.nodeAppVersion,
       }),
+      chainIdOut: function() {
+        if(this.chainId !== null) {
+          return this.chainId
+        } else {
+          return 'Not connected'
+        }
+      },
       yearNow: function() {
         let d = new Date()
         return d.getFullYear()
