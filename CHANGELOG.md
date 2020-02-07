@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.14.0 - 07/02/2020
+
+[PR25](https://github.com/unification-com/web-wallet/pull/25)
+
+- Output Validator information when selecting an existing EV for delegation
+- Links to Block Explorer for Tx hashes, addresses, Validators etc.
+- Format large numbers `nnn,nnn,nnn.nnn...`
+
 ## v0.12.1 - 07/02/2020
 
 [PR24](https://github.com/unification-com/web-wallet/pull/24)
