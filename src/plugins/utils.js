@@ -138,6 +138,25 @@ Vue.mixin({
         default:
           return 'http://localhost:3000'
       }
+    },
+    getEventAttr: function(logs, eventType, attrKey) {
+      let val = ''
+      try {
+        for (let i = 0; i < logs.length; i++) {
+          let events = logs[i].events
+          for (let j = 0; j < events.length; j++) {
+            if (events[j].type === eventType) {
+              let attributes = events[j].attributes
+              for (let k = 0; k < attributes.length; k++) {
+                if (attributes[k].key === attrKey) {
+                  val = attributes[k].value
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {}
+      return val
     }
   }
 })
