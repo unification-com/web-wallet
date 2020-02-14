@@ -13,7 +13,7 @@
     <span class="badge badge-info" v-show="fullTx.txData === null" style=" margin-right:5px;">
       <b-icon-info style="width:20px; height:20px" />
     </span>
-    <span>{{txSummary.txhash.substring(0, 12)}}...</span>
+    <span>{{txSummary.txhash.substring(0, 12)}}... {{ formattedMsgs.length }} {{ msgMessage }}</span> on <span class="text-info">{{ txSummary.formattedDate }}</span>
     <span class="badge badge-secondary" style="margin-left:5px;"
           v-b-toggle="'more-tx-' + txSummary.txhash"
           v-show="fullTx.txData !== null"
@@ -23,40 +23,42 @@
 
     <br/>
     <div>
-      <span v-show="txSummary.txSuccess === false">
-      <b-badge variant="danger">FAILED</b-badge> to
-    </span>
-      <span :class="badge">{{ action }}</span>
-      <span v-html="formatted">
-    </span>
+      <b-list-group-item v-for="msg in formattedMsgs" v-bind:key="tx.txSummary.txhash + '-' + msg.key">
+        <span v-show="txSummary.txSuccess === false">
+          <b-badge variant="danger">FAILED</b-badge> to
+        </span>
+        <span :class="msg.badge">{{ msg.action }}</span>
+        <span v-html="msg.formatted"/>
+      </b-list-group-item>
+    </div>
 
-      <b-collapse :id="'more-tx-' + txSummary.txhash" class="mt-2">
-        <b-card>
-          Tx Hash:
-          <a :href="explorerUrlPrefix + '/transactions/' + txSummary.txhash" target="_blank">
-            {{ txSummary.txhash }}
-            <b-icon-box-arrow-up-right/>
-          </a>
-          <br />
-          Block:
-          <a :href="explorerUrlPrefix + '/blocks/' + txSummary.height" target="_blank">
-            {{ txSummary.height }}
-            <b-icon-box-arrow-up-right/>
-          </a>
-          <br />
-          Memo: {{ txSummary.memo }}<br />
-          <span v-show="txSummary.isSent">
+    <b-collapse :id="'more-tx-' + txSummary.txhash" class="mt-2">
+      <b-card>
+        Tx Hash:
+        <a :href="explorerUrlPrefix + '/transactions/' + txSummary.txhash" target="_blank">
+          {{ txSummary.txhash }}
+          <b-icon-box-arrow-up-right/>
+        </a>
+        <br />
+        Block:
+        <a :href="explorerUrlPrefix + '/blocks/' + txSummary.height" target="_blank">
+          {{ txSummary.height }}
+          <b-icon-box-arrow-up-right/>
+        </a>
+        <br />
+        Memo: {{ txSummary.memo }}<br />
+        Number of Messages: {{ formattedMsgs.length }}<br/>
+        <span v-show="txSummary.isSent">
           Gas Wanted: {{ txSummary.gas_wanted }}<br />
           Gas Used: {{ txSummary.gas_used }}<br />
           Fee: {{ txSummary.fee }}<br />
         </span>
 
-          <div v-show="txSummary.txSuccess === false">
-            <span class="text-danger">Fail Reason: {{ failReason }}</span>
-          </div>
-        </b-card>
-      </b-collapse>
-    </div>
+        <div v-show="txSummary.txSuccess === false">
+          <span class="text-danger">Fail Reason: {{ failReason }}</span>
+        </div>
+      </b-card>
+    </b-collapse>
   </div>
 </template>
 
@@ -74,6 +76,13 @@
       }),
       explorerUrlPrefix: function() {
         return this.explorerUrl(this.chainId)
+      },
+      msgMessage: function() {
+          let suffix = ''
+          if(this.formattedMsgs.length > 1) {
+            suffix = 's'
+          }
+          return 'Message' + suffix
       }
     },
     props: {
@@ -83,7 +92,7 @@
       return {
         fullTx: this.tx,
         txSummary: this.tx.txSummary,
-        formatted: '',
+        formattedMsgs: [],
         action: '',
         badge: 'badge badge-info',
         failReason: '',
@@ -99,222 +108,235 @@
       this.formatMsg()
     },
     methods: {
-      legacyParseErrorLog: function() {
-        try {
-          let logMsgObj = JSON.parse(this.fullTx.txData.logs[0].log)
-          this.failReason = logMsgObj.message
-        } catch(e) {
-          this.failReason = ''
-        }
-      },
       // Todo - missing Msgs
       formatMsg: function () {
 
         if (this.fullTx.txData === null) {
-          this.action = "Pending"
-          this.badge = 'badge badge-info'
-          this.formatted = '...'
+          this.formattedMsgs = [
+                  {'formatted': '...',
+                   'action': 'Pending',
+                   'badge': 'badge badge-info',
+                    'key': 0,
+                  } ]
           this.txSummary.height = ''
           this.txSummary.gas_wanted = ''
           this.txSummary.gas_used = ''
           this.txSummary.fee = ''
           this.txSummary.memo = ''
+          this.txSummary.formattedDate = ''
         } else {
           this.txSummary.height = this.fullTx.txData.height
           this.txSummary.gas_wanted = this.fullTx.txData.gas_wanted
           this.txSummary.gas_used = this.fullTx.txData.gas_used
           this.txSummary.fee = this.fullTx.txData.tx.value.fee.amount[0].amount + this.fullTx.txData.tx.value.fee.amount[0].denom
           this.txSummary.memo = this.fullTx.txData.tx.value.memo
+          this.txSummary.formattedDate = this.formatDateTime(this.txSummary.timestamp)
 
           if(this.txSummary.txSuccess === false) {
-            if(!('codespace' in this.fullTx.txData)) {
-              // legacy support
-              this.legacyParseErrorLog()
-            } else {
-              // und v1.2.0
-              this.failReason = this.fullTx.txData['raw_log']
-            }
+            this.failReason = this.fullTx.txData['raw_log']
           }
-          const msg = this.fullTx.txData.tx.value.msg[0]
-          switch (msg.type) {
-            case 'cosmos-sdk/MsgSend':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Send"
-              } else {
-                this.action = "Sent"
-              }
 
-              this.badge = 'badge badge-transfer'
-              this.formatMsgSend(msg.value)
-              break
-            case 'cosmos-sdk/MsgDelegate':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Delegate"
-              } else {
-                this.action = "Delegated"
-              }
+          this.formattedMsgs = []
 
-              this.badge = 'badge badge-staking'
-              this.formatMsgDelegate(msg.value)
-              break
-            case 'cosmos-sdk/MsgUndelegate':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Undelegate"
-              } else {
-                this.action = "Undelegated"
-              }
-
-              this.badge = 'badge badge-staking'
-              this.formatMsgUnDelegate(msg.value)
-              break
-            case 'cosmos-sdk/MsgBeginRedelegate':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Redelegate"
-              } else {
-                this.action = "Redelegated"
-              }
-
-              this.badge = 'badge badge-staking'
-              this.formatMsgBeginRedelegate(msg.value)
-              break
-            case 'cosmos-sdk/MsgWithdrawValidatorCommission':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Withdraw Validator Commision"
-              } else {
-                this.action = "Withdrew Validator Commision"
-              }
-
-              this.badge = 'badge badge-staking'
-
-              this.formatted = '' // Todo
-              break
-            case 'cosmos-sdk/MsgWithdrawDelegationReward':
-              let withdrawAmount = null
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Withdraw Delegation Reward"
-              } else {
-                this.action = "Withdrew Delegation Reward"
-                try {
-                  let withdrawObj = {}
-                  // Todo - don't assume events & logs obj order is always the same
-                  if('events' in this.fullTx.txData) {
-                    //legacy
-                    withdrawObj = this.fullTx.txData.events[1].attributes[1]
-                  } else {
-                    // und v1.2.0
-                    withdrawObj = this.fullTx.txData.logs[0].events[1].attributes[1]
-                  }
-                  if(withdrawObj.key === 'amount') {
-                    withdrawAmount = withdrawObj.value.replace('nund', '')
-                  }
-                } catch(e) {
-
-                }
-              }
-              this.badge = 'badge badge-staking'
-              this.formatMsgWithdrawDelegationReward(msg.value, withdrawAmount)
-              break
-            case 'cosmos-sdk/MsgModifyWithdrawAddress':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Modify Withdraw Address"
-              } else {
-                this.action = "Modified Withdraw Address"
-              }
-
-              this.badge = 'badge badge-staking'
-              this.formatted = '' // Todo
-              break
-            case 'cosmos-sdk/MsgUnjail':
-              this.formatted = '' // Todo
-              break
-            case 'enterprise/PurchaseUnd':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Raise Enterprise Purchase Order"
-              } else {
-                this.action = "Raised Enterprise Purchase Order"
-              }
-
-              this.badge = 'badge badge-enterprise'
-              this.formatPurchaseUnd(msg.value)
-              break
-            case 'enterprise/ProcessUndPurchaseOrder':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Process UND Enterprise Purchase Order"
-              } else {
-                this.action = "Processed UND Enterprise Purchase Order"
-              }
-
-              this.badge = 'badge badge-enterprise'
-
-              this.formatted = '' // Todo
-              break
-            case 'wrkchain/RegisterWrkChain':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Register WRKChain"
-              } else {
-                this.action = "Registered WRKChain"
-              }
-
-              this.badge = 'badge badge-wrkchain'
-              this.formatted = '' // Todo
-              break
-            case 'wrkchain/RecordWrkChainBlock':if(this.txSummary.txSuccess === false) {
-              this.action = "Record WRKChain Hash"
-            } else {
-              this.action = "Recorded WRKChain Hash"
+          for(let i=0; i < this.fullTx.txData.tx.value.msg.length; i++) {
+            const msg = this.fullTx.txData.tx.value.msg[i]
+            let formattedObj = {
+              'formatted': '',
+              'action': '',
+              'badge': '',
+              'key': i,
             }
 
-              this.badge = 'badge badge-wrkchain'
-              this.formatted = '' // Todo
-              break
-            case 'beacon/RegisterBeacon':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Register BEACON"
-              } else {
-                this.action = "Registered BEACON"
-              }
+            switch (msg.type) {
+              case 'cosmos-sdk/MsgSend':
+                if (this.txSummary.isSent) {
+                  if (this.txSummary.txSuccess === false) {
+                    formattedObj.action = "Send"
+                  } else {
+                    formattedObj.action = "Sent"
+                  }
+                } else {
+                  formattedObj.action = "Received"
+                }
 
-              this.badge = 'badge badge-beacon'
-              this.formatted = '' // Todo
-              break
-            case 'beacon/RecordBeaconTimestamp':
-              if(this.txSummary.txSuccess === false) {
-                this.action = "Record BEACON Timestamp"
-              } else {
-                this.action = "Recorded BEACON Timestamp"
-              }
 
-              this.badge = 'badge badge-beacon'
-              this.formatted = '' // Todo
-              break
-            default:
-              this.formatted = '' // Todo
-              break
+                formattedObj.badge = 'badge badge-transfer'
+                formattedObj.formatted = this.formatMsgSend(msg.value)
+                break
+              case 'cosmos-sdk/MsgDelegate':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Delegate"
+                } else {
+                  formattedObj.action = "Delegated"
+                }
+
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = this.formatMsgDelegate(msg.value)
+                break
+              case 'cosmos-sdk/MsgUndelegate':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Undelegate"
+                } else {
+                  formattedObj.action = "Undelegated"
+                }
+
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = this.formatMsgUnDelegate(msg.value)
+                break
+              case 'cosmos-sdk/MsgBeginRedelegate':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Redelegate"
+                } else {
+                  formattedObj.action = "Redelegated"
+                }
+
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = this.formatMsgBeginRedelegate(msg.value)
+                break
+              case 'cosmos-sdk/MsgCreateValidator':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Create Validator"
+                } else {
+                  formattedObj.action = "Created Validator"
+                }
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = this.formatMsgCreateValidator(msg.value)
+                break
+              case 'cosmos-sdk/MsgEditValidator':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Edit Validator"
+                } else {
+                  formattedObj.action = "Edited Validator"
+                }
+                formattedObj.badge = 'badge badge-staking'
+                break;
+              case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+                let withdrawCommAmount = this.getEventAttr(this.fullTx.txData.logs, 'withdraw_commission', 'amount')
+                        .replace('nund', '')
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Withdraw Validator Commision"
+                } else {
+                  formattedObj.action = "Withdrew Validator Commision"
+                }
+
+                formattedObj.badge = 'badge badge-staking'
+
+                formattedObj.formatted = this.formatMsgWithdrawValidatorCommission(msg, withdrawCommAmount)
+                break
+              case 'cosmos-sdk/MsgWithdrawDelegationReward':
+                let withdrawAmount = this.getEventAttr(this.fullTx.txData.logs, 'withdraw_rewards', 'amount')
+                        .replace('nund', '')
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Withdraw Delegation Reward"
+                } else {
+                  formattedObj.action = "Withdrew Delegation Reward"
+                }
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = this.formatMsgWithdrawDelegationReward(msg.value, withdrawAmount)
+                break
+              case 'cosmos-sdk/MsgModifyWithdrawAddress':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Modify Withdraw Address"
+                } else {
+                  formattedObj.action = "Modified Withdraw Address"
+                }
+
+                formattedObj.badge = 'badge badge-staking'
+                formattedObj.formatted = '' // Todo
+                break
+              case 'cosmos-sdk/MsgUnjail':
+                formattedObj.formatted = '' // Todo
+                break
+              case 'enterprise/PurchaseUnd':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Raise Enterprise Purchase Order"
+                } else {
+                  formattedObj.action = "Raised Enterprise Purchase Order"
+                }
+
+                formattedObj.badge = 'badge badge-enterprise'
+                formattedObj.formatted = this.formatPurchaseUnd(msg.value)
+                break
+              case 'enterprise/ProcessUndPurchaseOrder':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Process UND Enterprise Purchase Order"
+                } else {
+                  formattedObj.action = "Processed UND Enterprise Purchase Order"
+                }
+
+                formattedObj.badge = 'badge badge-enterprise'
+
+                formattedObj.formatted = '' // Todo
+                break
+              case 'wrkchain/RegisterWrkChain':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Register WRKChain"
+                } else {
+                  formattedObj.action = "Registered WRKChain"
+                }
+
+                formattedObj.badge = 'badge badge-wrkchain'
+                formattedObj.formatted = '' // Todo
+                break
+              case 'wrkchain/RecordWrkChainBlock':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Record WRKChain Hash"
+                } else {
+                  formattedObj.action = "Recorded WRKChain Hash"
+                }
+
+                formattedObj.badge = 'badge badge-wrkchain'
+                formattedObj.formatted = '' // Todo
+                break
+              case 'beacon/RegisterBeacon':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Register BEACON"
+                } else {
+                  formattedObj.action = "Registered BEACON"
+                }
+
+                formattedObj.badge = 'badge badge-beacon'
+                formattedObj.formatted = '' // Todo
+                break
+              case 'beacon/RecordBeaconTimestamp':
+                if (this.txSummary.txSuccess === false) {
+                  formattedObj.action = "Record BEACON Timestamp"
+                } else {
+                  formattedObj.action = "Recorded BEACON Timestamp"
+                }
+
+                formattedObj.badge = 'badge badge-beacon'
+                formattedObj.formatted = '' // Todo
+                break
+              default:
+                formattedObj.formatted = '' // Todo
+                break
+            }
+            this.formattedMsgs.push(formattedObj)
           }
         }
       },
       formatMsgSend: function (msg) {
         let formattedAmt = this.formatAmount(msg.amount[0].amount)
         if (this.txSummary.isSent) {
-          this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + msg.to_address + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+          return ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + msg.to_address + '</span>'
         } else {
-          this.action = 'Received'
-          this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.from_address + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+          return ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + msg.from_address + '</span>'
         }
       },
       formatPurchaseUnd: function (msg) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
-        this.formatted = ' for <span class="text-info">' + formattedAmt + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+        return ' for <span class="text-info">' + formattedAmt + '</span>'
       },
       formatMsgDelegate: function (msg) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
         let moniker = this.getValidatorMoniker(msg.validator_address)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+        return ' <span class="text-info">' + formattedAmt + '</span> to <span class="text-info">' + moniker + '</span>'
       },
       formatMsgUnDelegate: function (msg) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
         let moniker = this.getValidatorMoniker(msg.validator_address)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+        return ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker + '</span>'
       },
       formatMsgWithdrawDelegationReward: function (msg, withdrawAmount) {
         let moniker = this.getValidatorMoniker(msg.validator_address)
@@ -323,13 +345,26 @@
         if(withdrawAmount !== null) {
           formattedAmt = ' of <span class="text-info">' + this.formatAmount(withdrawAmount) + '</span>'
         }
-        this.formatted = formattedAmt + ' from <span class="text-info">' + moniker + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+        return formattedAmt + ' from <span class="text-info">' + moniker + '</span>'
+      },
+      formatMsgWithdrawValidatorCommission: function (msg, withdrawAmount) {
+        let moniker = this.getValidatorMoniker(msg.value.validator_address)
+
+        let formattedAmt = ''
+        if(withdrawAmount !== null) {
+          formattedAmt = ' of <span class="text-info">' + this.formatAmount(withdrawAmount) + '</span>'
+        }
+        return formattedAmt + ' from <span class="text-info">' + moniker + '</span>'
       },
       formatMsgBeginRedelegate: function (msg) {
         let formattedAmt = this.formatAmount(msg.amount.amount)
         let moniker_src = this.getValidatorMoniker(msg.validator_src_address)
         let moniker_dst = this.getValidatorMoniker(msg.validator_dst_address)
-        this.formatted = ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker_src + '</span> to <span class="text-info">' + moniker_dst + '</span> on <span class="text-info">' + this.formatDateTime(this.txSummary.timestamp) + '</span>'
+        return ' <span class="text-info">' + formattedAmt + '</span> from <span class="text-info">' + moniker_src + '</span> to <span class="text-info">' + moniker_dst + '</span>'
+      },
+      formatMsgCreateValidator: function(msg) {
+        let formattedAmt = this.formatAmount(msg.value.amount)
+        return ' <span class="text-info">' + msg.description.moniker + '</span> with address <span class="text-info">' + msg.validator_address + '</span> self delegated <span class="text-info">' + formattedAmt + '</span>'
       }
     }
   }

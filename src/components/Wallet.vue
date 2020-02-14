@@ -342,6 +342,7 @@
       },
       changeNetwork: async function (network) {
         await this.clearWalletData()
+        network = network.trim()
         if(!this.isValidRestUrl(network)) {
           this.showToast('danger', 'Error', 'enter a valid REST URL: "' + network + '" invalid')
           return false
