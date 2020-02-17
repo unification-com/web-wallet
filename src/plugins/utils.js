@@ -97,7 +97,7 @@ Vue.mixin({
         variant: variant,
         solid: true,
         autoHideDelay: 10000,
-        appendToast: true
+        appendToast: false,
       })
     },
     wait: function(ms) {
