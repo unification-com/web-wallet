@@ -324,6 +324,7 @@
           await this.clearWalletData()
         }
         await this.$store.dispatch('client/setClient', newClient)
+        this.showToast('success', 'Connected', 'Connected to ' + this.client.chainId + ' on ' + this.rest)
       },
       closeWallet: async function() {
         this.clearWalletData()

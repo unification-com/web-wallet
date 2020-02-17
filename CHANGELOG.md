@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.15.1 - 17/02/2020
+
+[PR27](https://github.com/unification-com/web-wallet/pull/27)
+
+- Display toast on network change
+- Add WRKChain/BEACON msg types
+- Prepend toasts
+
+## v0.15.0 - 14/02/2020
+
+[PR26](https://github.com/unification-com/web-wallet/pull/26)
+
+- Add utility function for filtering Tx event attributes
+- Custom RPC input whitespace trim
+- Add support for transactions with multiple messages
+
 ## v0.14.0 - 07/02/2020
 
 [PR25](https://github.com/unification-com/web-wallet/pull/25)
