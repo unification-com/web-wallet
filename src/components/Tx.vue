@@ -108,7 +108,6 @@
       this.formatMsg()
     },
     methods: {
-      // Todo - missing Msgs
       formatMsg: function () {
 
         if (this.fullTx.txData === null) {
@@ -245,6 +244,7 @@
                 formattedObj.formatted = '' // Todo
                 break
               case 'cosmos-sdk/MsgUnjail':
+                formattedObj.action = 'Unjail'
                 formattedObj.formatted = '' // Todo
                 break
               case 'enterprise/PurchaseUnd':
@@ -276,7 +276,7 @@
                 }
 
                 formattedObj.badge = 'badge badge-wrkchain'
-                formattedObj.formatted = '' // Todo
+                formattedObj.formatted = this.formatRegisterWrkchain(msg.value)
                 break
               case 'wrkchain/RecordWrkChainBlock':
                 if (this.txSummary.txSuccess === false) {
@@ -286,7 +286,7 @@
                 }
 
                 formattedObj.badge = 'badge badge-wrkchain'
-                formattedObj.formatted = '' // Todo
+                formattedObj.formatted = this.formatRecordWrkchainHash(msg.value)
                 break
               case 'beacon/RegisterBeacon':
                 if (this.txSummary.txSuccess === false) {
@@ -296,7 +296,7 @@
                 }
 
                 formattedObj.badge = 'badge badge-beacon'
-                formattedObj.formatted = '' // Todo
+                formattedObj.formatted = this.formatRegisterBeacon(msg.value)
                 break
               case 'beacon/RecordBeaconTimestamp':
                 if (this.txSummary.txSuccess === false) {
@@ -306,10 +306,12 @@
                 }
 
                 formattedObj.badge = 'badge badge-beacon'
-                formattedObj.formatted = '' // Todo
+                formattedObj.formatted = this.formatRecordBeaconTimestamp(msg.value)
                 break
               default:
-                formattedObj.formatted = '' // Todo
+                formattedObj.formatted = ''
+                formattedObj.action = msg.type
+                formattedObj.badge = 'badge badge-info'
                 break
             }
             this.formattedMsgs.push(formattedObj)
@@ -365,6 +367,21 @@
       formatMsgCreateValidator: function(msg) {
         let formattedAmt = this.formatAmount(msg.value.amount)
         return ' <span class="text-info">' + msg.description.moniker + '</span> with address <span class="text-info">' + msg.validator_address + '</span> self delegated <span class="text-info">' + formattedAmt + '</span>'
+      },
+      formatRegisterWrkchain: function(msg) {
+        return ' <span class="text-info">"' + msg.name + '"</span> with Moniker <span class="text-info">' + msg.moniker + '</span>'
+      },
+      formatRegisterBeacon: function(msg) {
+        return ' <span class="text-info">"' + msg.name + '"</span> with Moniker <span class="text-info">' + msg.moniker + '</span>'
+      },
+      formatRecordWrkchainHash: function(msg) {
+        // Todo: get WRKChain moniker instead of outputting ID
+        return ' <span class="text-info">' + msg.blockhash + '</span> for height <span class="text-info">' + msg.height + '</span> on WRKChain <span class="text-info">' + msg.wrkchain_id + '</span>'
+      },
+      formatRecordBeaconTimestamp: function(msg) {
+        // Todo: get BEACON moniker instead of outputting ID
+        let formattedTime = this.formatDateTime(msg.submit_time)
+        return ' Hash value <span class="text-info">' + msg.hash + '</span> Timestamped at <span class="text-info">' + formattedTime + '</span> for BEACON <span class="text-info">' + msg.beacon_id + '</span>'
       }
     }
   }
