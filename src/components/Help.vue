@@ -27,6 +27,11 @@
         All transactions are signed <em>locally</em>, and only the final signed transaction is broadcast to the network.
       </p>
 
+      <p>
+        For an additional layer of security, run you own full node and connect to it so that your transactions are broadcast to the
+        network via your own node.
+      </p>
+
       <h3>Create a new wallet</h3>
 
       <p>
