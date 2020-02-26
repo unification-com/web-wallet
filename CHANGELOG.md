@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.2 - 26/02/2020
+
+[PR28](https://github.com/unification-com/web-wallet/pull/28)
+
+- Fix explorer URL for different TestNet versions
+
 ## v0.15.1 - 17/02/2020
 
 [PR27](https://github.com/unification-com/web-wallet/pull/27)

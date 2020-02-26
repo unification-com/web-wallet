@@ -130,6 +130,12 @@ Vue.mixin({
       }
     },
     explorerUrl: function(chainId) {
+      // check for UND-Mainchain-TestNet-v3 etc.
+      let n = chainId.search("UND-Mainchain-TestNet");
+      if(n > -1) {
+        chainId = 'UND-Mainchain-TestNet'
+      }
+
       switch(chainId) {
         case 'UND-Mainchain-DevNet':
           return 'http://localhost:3000'
