@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.3 - 27/02/2020
+
+[PR29](https://github.com/unification-com/web-wallet/pull/29)
+
+- Fix explorer URL - check chain ID is set
+
 ## v0.15.2 - 26/02/2020
 
 [PR28](https://github.com/unification-com/web-wallet/pull/28)
