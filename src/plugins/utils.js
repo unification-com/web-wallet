@@ -131,10 +131,14 @@ Vue.mixin({
     },
     explorerUrl: function(chainId) {
       // check for UND-Mainchain-TestNet-v3 etc.
-      let n = chainId.search("UND-Mainchain-TestNet");
-      if(n > -1) {
-        chainId = 'UND-Mainchain-TestNet'
-      }
+      try {
+        if(chainId) {
+          let n = chainId.search("UND-Mainchain-TestNet");
+          if (n > -1) {
+            chainId = 'UND-Mainchain-TestNet'
+          }
+        }
+      } catch(e) {}
 
       switch(chainId) {
         case 'UND-Mainchain-DevNet':
