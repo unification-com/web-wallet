@@ -7,7 +7,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "5000"
+        amount: "50000"
       }
     ],
     gas: "190000"
@@ -16,7 +16,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "2500"
+        amount: "25000"
       }
     ],
     gas: "90000"
@@ -25,7 +25,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "11000"
+        amount: "110000"
       }
     ],
     gas: "210000"
@@ -34,7 +34,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "11000"
+        amount: "110000"
       }
     ],
     gas: "210000"
@@ -43,7 +43,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "15000"
+        amount: "150000"
       }
     ],
     gas: "250000"
@@ -52,7 +52,7 @@ export const UND_CONFIG = {
     amount: [
       {
         denom: "nund",
-        amount: "6000"
+        amount: "60000"
       }
     ],
     gas: "190000"
