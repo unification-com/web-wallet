@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.4 - 27/02/2020
+
+[PR30](https://github.com/unification-com/web-wallet/pull/30)
+
+- Update default fees to match recommended `min-gas-prices` of 0.25nund
+
 ## v0.15.3 - 27/02/2020
 
 [PR29](https://github.com/unification-com/web-wallet/pull/29)
