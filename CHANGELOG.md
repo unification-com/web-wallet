@@ -5,6 +5,7 @@
 [PR30](https://github.com/unification-com/web-wallet/pull/30)
 
 - Update default fees to match recommended `min-gas-prices` of 0.25nund
+- Update npm packages
 
 ## v0.15.3 - 27/02/2020
 
