@@ -34,97 +34,104 @@
           <b-card-text>
             <h3>Raise a New Enterprise Purchase Order</h3>
 
-            <b-form @submit.prevent="preventSubmit">
-              <b-form-group
-              id="po-und-label"
-              label="Raise Purchase Order for:"
-              label-for="po-und"
-              description="Amount of Enterprise UND to raise purchase order for"
-              >
-                <b-input-group append="UND">
+            <div id="raise-po-form" v-show="wallet.entWhitelisted">
+              <b-form @submit.prevent="preventSubmit">
+                <b-form-group
+                id="po-und-label"
+                label="Raise Purchase Order for:"
+                label-for="po-und"
+                description="Amount of Enterprise UND to raise purchase order for"
+                >
+                  <b-input-group append="UND">
+                    <b-form-input
+                    id="po-und"
+                    v-model="po.und"
+                    type="number"
+                    required
+                    v-on:keydown.enter.prevent="preventSubmit"
+                    :state="amountState"
+                    aria-describedby="input-live-feedback-amount"
+                    />
+                    <b-form-invalid-feedback id="input-live-feedback-amount">
+                      Invalid amount
+                    </b-form-invalid-feedback>
+                  </b-input-group>
+                </b-form-group>
+
+                <b-form-group
+                id="po-memo-label"
+                label="Proof:"
+                label-for="po-memo"
+                description="Proof of Purchase, e.g. Receipt ID"
+                >
                   <b-form-input
-                  id="po-und"
-                  v-model="po.und"
-                  type="number"
+                  id="po-memo"
+                  v-model="po.memo"
+                  type="text"
+                  trim
                   required
                   v-on:keydown.enter.prevent="preventSubmit"
-                  :state="amountState"
-                  aria-describedby="input-live-feedback-amount"
                   />
-                  <b-form-invalid-feedback id="input-live-feedback-amount">
-                    Invalid amount
-                  </b-form-invalid-feedback>
-                </b-input-group>
-              </b-form-group>
+                </b-form-group>
 
-              <b-form-group
-              id="po-memo-label"
-              label="Proof:"
-              label-for="po-memo"
-              description="Proof of Purchase, e.g. Receipt ID"
-              >
-                <b-form-input
-                id="po-memo"
-                v-model="po.memo"
-                type="text"
-                trim
-                required
-                v-on:keydown.enter.prevent="preventSubmit"
-                />
-              </b-form-group>
-
-              <b-form-group
-              id="enterprise-fee-amount-label"
-              label="Fee:"
-              label-for="enterprise-fee-amount"
-              description="Fees in nund"
-              v-show="isShowFee"
-              >
-                <b-input-group append="nund">
+                <b-form-group
+                id="enterprise-fee-amount-label"
+                label="Fee:"
+                label-for="enterprise-fee-amount"
+                description="Fees in nund"
+                v-show="isShowFee"
+                >
+                  <b-input-group append="nund">
+                    <b-form-input
+                    id="enterprise-fee-amount"
+                    v-model="fee.amount[0].amount"
+                    type="number"
+                    trim
+                    v-on:keydown.enter.prevent="preventSubmit"
+                    aria-describedby="input-live-feedback-fees"
+                    :state="feeState"
+                    />
+                    <b-form-invalid-feedback id="input-live-feedback-fees">
+                      Invalid fees
+                    </b-form-invalid-feedback>
+                  </b-input-group>
+                </b-form-group>
+                <b-form-group
+                id="enterprise-fee-gas-label"
+                label="Gas:"
+                label-for="enterprise-fee-gas"
+                description="Gas"
+                v-show="isShowFee"
+                >
                   <b-form-input
-                  id="enterprise-fee-amount"
-                  v-model="fee.amount[0].amount"
+                  id="enterprise-fee-gas"
+                  v-model="fee.gas"
                   type="number"
                   trim
                   v-on:keydown.enter.prevent="preventSubmit"
-                  aria-describedby="input-live-feedback-fees"
-                  :state="feeState"
+                  aria-describedby="input-live-feedback-gas"
+                  :state="gasState"
                   />
-                  <b-form-invalid-feedback id="input-live-feedback-fees">
-                    Invalid fees
+                  <b-form-invalid-feedback id="input-live-feedback-gas">
+                    Invalid gas
                   </b-form-invalid-feedback>
-                </b-input-group>
-              </b-form-group>
-              <b-form-group
-              id="enterprise-fee-gas-label"
-              label="Gas:"
-              label-for="enterprise-fee-gas"
-              description="Gas"
-              v-show="isShowFee"
-              >
-                <b-form-input
-                id="enterprise-fee-gas"
-                v-model="fee.gas"
-                type="number"
-                trim
-                v-on:keydown.enter.prevent="preventSubmit"
-                aria-describedby="input-live-feedback-gas"
-                :state="gasState"
-                />
-                <b-form-invalid-feedback id="input-live-feedback-gas">
-                  Invalid gas
-                </b-form-invalid-feedback>
-              </b-form-group>
+                </b-form-group>
 
-              <b-form-checkbox
-              id="enterprise-show-fee"
-              v-model="isShowFee"
-              name="enterprise-show-fee"
-              >
-                Manually set Fees
-              </b-form-checkbox>
-              <b-button variant="success" @click="showConfirmRaisePo()" :disabled="!formState">Raise Purchase Order</b-button>
-            </b-form>
+                <b-form-checkbox
+                id="enterprise-show-fee"
+                v-model="isShowFee"
+                name="enterprise-show-fee"
+                >
+                  Manually set Fees
+                </b-form-checkbox>
+                <b-button variant="success" @click="showConfirmRaisePo()" :disabled="!formState">Raise Purchase Order</b-button>
+              </b-form>
+            </div>
+            <div id="raise-po-no-whitelist"  v-show="!wallet.entWhitelisted">
+              <p>
+                <b>Sorry!</b> Your wallet address is not currently authorised to raise Enterprise Purchase orders.
+              </p>
+            </div>
           </b-card-text>
         </b-tab>
         <b-tab title="View Purchase Orders" @click.prevent="getPurchaseOrders()">
