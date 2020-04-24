@@ -11,7 +11,7 @@
         <template v-if="mounted">
           <b-navbar-brand>
             Network: {{ chainIdOut }}
-            <b-icon-info id="network-info-popover" v-show="chainId !== null"/>
+            <b-icon-info-circle id="network-info-popover" v-show="chainId !== null"/>
             <b-popover target="network-info-popover" triggers="hover" placement="bottom">
               <template v-slot:title>Node & Network Info</template>
               <p>

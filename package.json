@@ -1,6 +1,6 @@
 {
   "name": "web-wallet",
-  "version": "0.15.4",
+  "version": "0.16.1",
   "private": true,
   "description": "Unification UND Mainchain Web Wallet",
   "scripts": {

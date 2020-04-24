@@ -1,6 +1,14 @@
 # Changelog
 
-## v0.15.4 - 27/02/2020
+## v0.16.1 - 24/04/2020
+
+[PR31](https://github.com/unification-com/web-wallet/pull/31)
+
+- bug fix - bootstrap vue icon name changes
+- Enterprise - query chain for address's Enterprise whitelist status
+- Enterprise - only display Raise PO form in address is whitelisted
+
+## v0.15.4 - 20/04/2020
 
 [PR30](https://github.com/unification-com/web-wallet/pull/30)
 
