@@ -7,7 +7,7 @@
       <b-icon-upload style="width:20px; height:20px"/>
     </span>
     <span class="badge badge-danger" v-show="!txSummary.txSuccess && fullTx.txData !== null" style=" margin-right:5px;">
-      <b-icon-alert-triangle style="width:20px; height:20px" />
+      <b-icon-exclamation-triangle style="width:20px; height:20px" />
     </span>
 
     <span class="badge badge-info" v-show="fullTx.txData === null" style=" margin-right:5px;">
