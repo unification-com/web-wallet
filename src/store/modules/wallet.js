@@ -21,6 +21,7 @@ const state = {
   },
   totalBalance: '0',
   accountExists: false,
+  entWhitelisted: false,
 }
 
 // getters
@@ -80,6 +81,9 @@ const actions = {
   },
   setAccountExists(context, accountExists) {
     context.commit('setAccountExists', accountExists)
+  },
+  setEntWhitelisted(context, entWhitelisted) {
+    context.commit('setEntWhitelisted', entWhitelisted)
   }
 }
 
@@ -104,6 +108,7 @@ const mutations = {
     };
     state.totalBalance = '0';
     state.accountExists = false;
+    state.entWhitelisted = false;
   },
   setPrivateKey(state, privateKey) {
     state.privateKey = privateKey
@@ -152,6 +157,9 @@ const mutations = {
   },
   setAccountExists(state, accountExists) {
     state.accountExists = accountExists
+  },
+  setEntWhitelisted(state, entWhitelisted) {
+    state.entWhitelisted = entWhitelisted
   }
 }
 
