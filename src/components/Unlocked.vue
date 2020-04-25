@@ -140,6 +140,8 @@
       },
       getEnterpriseLocked: async function() {
         let locked = '0'
+        let isWhitelisted = false
+
         try {
           const res = await this.client.getEnterpriseLocked()
           if ('amount' in res) {
@@ -148,7 +150,16 @@
         } catch(e) {
 
         }
+        try {
+          const res = await this.client.getIsAddressEntWhitelisted()
+          if ('result' in res) {
+            isWhitelisted = res.result.result
+          }
+        } catch(e) {
+
+        }
         await this.$store.dispatch('wallet/setEnterpriseLocked', locked)
+        await this.$store.dispatch('wallet/setEntWhitelisted', isWhitelisted)
       },
       getRewards: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {

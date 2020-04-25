@@ -27,7 +27,7 @@
     <b-row>
       <b-col>
         <h4>
-          Available Balance <b-icon-info v-b-popover.hover.right="'Amount of UND available for transfer and staking'" title="Available Balance"/>
+          Available Balance <b-icon-info-circle v-b-popover.hover.right="'Amount of UND available for transfer and staking'" title="Available Balance"/>
         </h4>
       </b-col>
       <b-col cols="9">
@@ -38,7 +38,7 @@
     <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
-          Total Balance <b-icon-info v-b-popover.hover.right="'Total UND in this wallet, including any staked UND, unbonding UND and Enterprise Locked UND'" title="Total Balance"/>
+          Total Balance <b-icon-info-circle v-b-popover.hover.right="'Total UND in this wallet, including any staked UND, unbonding UND and Enterprise Locked UND'" title="Total Balance"/>
         </h4>
       </b-col>
       <b-col cols="9">
@@ -49,7 +49,7 @@
     <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
-          Staking <b-icon-info v-b-popover.hover.right="'Your current staking and delegations'" title="Staking"/>
+          Staking <b-icon-info-circle v-b-popover.hover.right="'Your current staking and delegations'" title="Staking"/>
         </h4>
       </b-col>
       <b-col cols="9">
@@ -79,7 +79,7 @@
     <b-row v-show="wallet.locked > 0">
       <b-col>
         <h4>
-          Enterprise Locked <b-icon-info v-b-popover.hover.right="'Amount of purchased locked Enterprise UND which can be used for WRKChain and BEACON fees'" title="Enterprise Locked"/>
+          Enterprise Locked <b-icon-info-circle v-b-popover.hover.right="'Amount of purchased locked Enterprise UND which can be used for WRKChain and BEACON fees'" title="Enterprise Locked"/>
         </h4>
       </b-col>
       <b-col cols="9">
