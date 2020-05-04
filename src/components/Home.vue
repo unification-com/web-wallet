@@ -62,6 +62,10 @@
             <em>Change Network</em>
           </template>
           <b-dropdown-item href="#"
+                           @click="$refs.walletComponent.changeNetwork('https://rest.unification.io')">
+            MainNet - https://rest.unification.io
+          </b-dropdown-item>
+          <b-dropdown-item href="#"
                            @click="$refs.walletComponent.changeNetwork('https://rest-testnet.unification.io')">
             TestNet - https://rest-testnet.unification.io
           </b-dropdown-item>

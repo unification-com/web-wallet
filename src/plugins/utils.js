@@ -146,7 +146,8 @@ Vue.mixin({
         case 'UND-Mainchain-TestNet':
           return 'https://explorer-testnet.unification.io'
         default:
-          return 'http://localhost:3000'
+          // default to MainNet
+          return 'https://explorer.unification.io'
       }
     },
     getEventAttr: function(logs, eventType, attrKey) {

@@ -28,8 +28,8 @@
       </p>
 
       <p>
-        For an additional layer of security, run you own full node and connect to it so that your transactions are broadcast to the
-        network via your own node.
+        For an additional layer of security, run you own full node and <a href="https://docs.unification.io/software/light-client-rpc.html">REST light client</a>
+        and connect to it so that your transactions are broadcast to the network via a node that you own and trust.
       </p>
 
       <h3>Create a new wallet</h3>
@@ -51,7 +51,19 @@
       <h3>Close Wallet</h3>
 
       <p>To close a loaded wallet, just click "Close Wallet". This will unload all wallet data, and clear your session</p>
+
+      <p class="small"><strong>Disclaimer</strong></p>
+      <p class="small">
+        Please note that this software is still in development. Any use of this open source
+        <a href="https://github.com/unification-com/mainchain/blob/master/LICENSE" target="_blank">
+        Apache 2.0 licensed</a> software is done at your own risk and on a "AS IS"
+        basis, without warranties or conditions of any kind, and any and all liability of the Unification Foundation
+        and/or the Unification dev team for damages arising in connection to the software is excluded.
+        Please exercise caution!
+      </p>
+
     </b-jumbotron>
+
 </template>
 
 <script>

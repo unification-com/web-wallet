@@ -286,7 +286,7 @@
     },
     data: function () {
       return {
-        rest: 'https://rest-testnet.unification.io',
+        rest: 'https://rest.unification.io',
         isMnemonicSaved: false,
         mnemonic: null,
         walletPass: null,
