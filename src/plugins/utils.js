@@ -49,7 +49,7 @@ Vue.mixin({
         if (amountBig.e >= 6) {
           let und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
           let undFormatted = new Intl.NumberFormat('en-GB', { maximumSignificantDigits: 18 }).format(und)
-          formattedAmt = undFormatted + ' UND'
+          formattedAmt = undFormatted + ' FUND'
         }
       } catch(e) {}
 
@@ -130,23 +130,25 @@ Vue.mixin({
       }
     },
     explorerUrl: function(chainId) {
-      // check for UND-Mainchain-TestNet-v3 etc.
+      // check for FUND-Mainchain-TestNet-v3 etc.
       try {
         if(chainId) {
-          let n = chainId.search("UND-Mainchain-TestNet");
+          let n = chainId.search("Mainchain-TestNet");
           if (n > -1) {
-            chainId = 'UND-Mainchain-TestNet'
+            chainId = 'Mainchain-TestNet'
           }
         }
       } catch(e) {}
 
       switch(chainId) {
         case 'UND-Mainchain-DevNet':
+        case 'FUND-Mainchain-DevNet':
           return 'http://localhost:3000'
-        case 'UND-Mainchain-TestNet':
+        case 'Mainchain-TestNet':
           return 'https://explorer-testnet.unification.io'
         default:
-          return 'http://localhost:3000'
+          // default to MainNet
+          return 'https://explorer.unification.io'
       }
     },
     getEventAttr: function(logs, eventType, attrKey) {

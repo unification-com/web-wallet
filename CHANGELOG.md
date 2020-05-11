@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.17.0 - 11/05/2020
+
+[PR32](https://github.com/unification-com/web-wallet/pull/32)
+
+- MainNet configurations
+- Rename UND to FUND
+
 ## v0.16.1 - 24/04/2020
 
 [PR31](https://github.com/unification-com/web-wallet/pull/31)

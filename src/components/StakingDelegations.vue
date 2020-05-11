@@ -3,16 +3,16 @@
     <!-- undelegate modal -->
     <b-modal id="bv-modal-undelegate-und">
       <template v-slot:modal-title>
-        <h3>Undelegate UND</h3>
+        <h3>Undelegate FUND</h3>
       </template>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
         id="undelegate-und-label"
         label="Undelegate:"
         label-for="undelegate-und"
-        description="Amount of UND to undelegate"
+        description="Amount of FUND to undelegate"
         >
-          <b-input-group append="UND">
+          <b-input-group append="FUND">
             <b-form-input
             id="undelegate-und"
             v-model="undelegateData.und"
@@ -28,7 +28,7 @@
           </b-input-group>
         </b-form-group>
         <p>
-          <b>(maximum {{undelegateData.max}}UND)</b><br>
+          <b>(maximum {{undelegateData.max}} FUND)</b><br>
         </p>
         <b-form-group
         id="undelegate-from-label"
@@ -120,9 +120,9 @@
     <!-- confirm undelegate modal -->
     <b-modal id="bv-modal-confirm-undelegate-und">
       <template v-slot:modal-title>
-        <h3>Confirm Undelegate UND</h3>
+        <h3>Confirm Undelegate FUND</h3>
       </template>
-      Undelegate <span class="text-info">{{ undelegateData.und }}UND</span>
+      Undelegate <span class="text-info">{{ undelegateData.und }} FUND</span>
       from {{getValidatorMoniker(undelegateData.address)}}?<br>
       Fee: {{fee.amount[0].amount}}nund<br>
       Gas: {{fee.gas}}
@@ -146,7 +146,7 @@
     <!-- redelegate modal -->
     <b-modal id="bv-modal-redelegate-und">
       <template v-slot:modal-title>
-        <h3>Redelegate UND</h3>
+        <h3>Redelegate FUND</h3>
       </template>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
@@ -155,7 +155,7 @@
         label-for="redelegate-und"
         description="Amount of UND to redelegate"
         >
-          <b-input-group append="UND">
+          <b-input-group append="FUND">
             <b-form-input
             id="redelegate-und"
             v-model="redelegateData.und"
@@ -171,7 +171,7 @@
           </b-input-group>
         </b-form-group>
         <p>
-          <b>(maximum {{redelegateData.max}}UND)</b><br>
+          <b>(maximum {{redelegateData.max}} FUND)</b><br>
         </p>
         <b-form-group
         id="redelegate-from-label"
@@ -290,7 +290,7 @@
       <template v-slot:modal-title>
         <h3>Confirm redelegate UND</h3>
       </template>
-      redelegate <span class="text-info">{{ redelegateData.und }}UND</span>
+      redelegate <span class="text-info">{{ redelegateData.und }} FUND</span>
       from {{getValidatorMoniker(redelegateData.src)}}?<br>
       to {{getValidatorMoniker(redelegateData.dst)}}?<br>
       Fee: {{fee.amount[0].amount}}nund<br>
@@ -318,7 +318,7 @@
       <template v-slot:modal-title>
         <h3>Confirm Withdraw Rewards</h3>
       </template>
-      Withdraw <span class="text-info">{{ withdrawData.und }} UND</span><br>
+      Withdraw <span class="text-info">{{ withdrawData.und }} FUND</span><br>
       from {{getValidatorMoniker(withdrawData.address)}}<br><br>
       Fee: {{fee.amount[0].amount}}nund<br>
       Gas: {{fee.gas}}
@@ -583,7 +583,7 @@
           return false
         }
         if (this.undelegateData.und <= 0 || isNaN(this.undelegateData.und) || this.undelegateData.und > this.undelegateData.max) {
-          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + 'UND')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.undelegateData.max + ' FUND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.undelegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
@@ -615,7 +615,7 @@
           return false
         }
         if (this.redelegateData.und <= 0 || isNaN(this.redelegateData.und) || this.redelegateData.und > this.redelegateData.max) {
-          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + 'UND')
+          this.showToast('danger', 'Error', 'Amount must be greater than zero, and less than ' + this.redelegateData.max + ' FUND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.redelegateData.dst, UND_CONFIG.BECH32_VAL_PREFIX)) {
@@ -752,7 +752,7 @@
             this.undelegateData.address,
             this.undelegateData.und,
             this.fee,
-            "und",
+            "fund",
             this.wallet.address,
             this.undelegateData.memo
             )
@@ -786,7 +786,7 @@
             this.redelegateData.dst,
             this.redelegateData.und,
             this.fee,
-            "und",
+            "fund",
             this.wallet.address,
             this.redelegateData.memo
             )
