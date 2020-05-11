@@ -2,10 +2,10 @@
   <div>
     <b-modal id="bv-modal-transfer-und">
       <template v-slot:modal-title>
-        <h3>Confirm UND Transfer</h3>
+        <h3>Confirm FUND Transfer</h3>
       </template>
       <p>Please confirm:</p>
-      Sending {{transfer.und}} UND<br>
+      Sending {{transfer.und}} FUND<br>
       To {{transfer.to}}<br>
       Fee: {{fee.amount[0].amount}}nund<br>
       Gas: {{fee.gas}}
@@ -26,7 +26,7 @@
       </template>
     </b-modal>
 
-    <h3>Transfer UND</h3>
+    <h3>Transfer FUND</h3>
 
     <b-form @submit.prevent="preventSubmit">
       <b-form-group
@@ -34,9 +34,9 @@
       label="Send:"
       label-for="transfer-send-und"
       description="Amount of UND to send"
-      append="UND"
+      append="FUND"
       >
-        <b-input-group append="UND">
+        <b-input-group append="FUND">
         <b-form-input
         id="transfer-send-und"
         v-model="transfer.und"
@@ -245,7 +245,7 @@
             this.transfer.to,
             this.transfer.und,
             this.fee,
-            "und",
+            "fund",
             this.wallet.address,
             this.transfer.memo
             )

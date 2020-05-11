@@ -259,9 +259,9 @@
                 break
               case 'enterprise/ProcessUndPurchaseOrder':
                 if (this.txSummary.txSuccess === false) {
-                  formattedObj.action = "Process UND Enterprise Purchase Order"
+                  formattedObj.action = "Process Enterprise Purchase Order"
                 } else {
-                  formattedObj.action = "Processed UND Enterprise Purchase Order"
+                  formattedObj.action = "Processed Enterprise Purchase Order"
                 }
 
                 formattedObj.badge = 'badge badge-enterprise'

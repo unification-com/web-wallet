@@ -1,12 +1,12 @@
 <template>
   <div>
-    <!-- delegate UND confirmation modal -->
+    <!-- delegate FUND confirmation modal -->
     <b-modal id="bv-modal-confirm-delegate-und">
       <template v-slot:modal-title>
         <h3>Confirm Delegate UND</h3>
       </template>
       <p>Please confirm delegation:</p>
-      Amount: <span class="text-info">{{delegateData.und}} UND</span><br>
+      Amount: <span class="text-info">{{delegateData.und}} FUND</span><br>
       Validator: {{getValidatorMoniker(delegateData.address)}}<br>
       Fee: {{fee.amount[0].amount}}nund<br>
       Gas: {{fee.gas}}
@@ -28,7 +28,7 @@
     </b-modal>
 
     <!-- delegate form -->
-    <h3>Delegate UND</h3>
+    <h3>Delegate FUND</h3>
 
     <div v-show="isDataLoading">
       <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"/>
@@ -89,9 +89,9 @@
         id="delegate-und-label"
         label="Amount:"
         label-for="delegate-und"
-        description="Amount of UND to delegate"
+        description="Amount of FUND to delegate"
         >
-          <b-input-group append="UND">
+          <b-input-group append="FUND">
             <b-form-input
             id="delegate-und"
             v-model="delegateData.und"
@@ -173,7 +173,7 @@
           Manually set Fees
         </b-form-checkbox>
 
-        <b-button variant="success" @click="showConfirmDelegate()" :disabled="!delegateFormState">Delegate UND</b-button>
+        <b-button variant="success" @click="showConfirmDelegate()" :disabled="!delegateFormState">Delegate FUND</b-button>
       </b-form>
       <br>
       <b>Note:</b> if you are delegating to an EV you already have a stake with, outstanding rewards will be automatically withdrawn
@@ -386,7 +386,7 @@
             this.delegateData.address,
             this.delegateData.und,
             this.fee,
-            "und",
+            "fund",
             this.wallet.address,
             this.delegateData.memo
             )

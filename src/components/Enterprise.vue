@@ -2,11 +2,11 @@
   <div>
     <b-modal id="bv-modal-confirm-raise-po">
       <template v-slot:modal-title>
-        <h3>Confirm UND Transfer</h3>
+        <h3>Confirm FUND Transfer</h3>
       </template>
       <p>
         Please confirm:<br>
-        Raising Purchase Order for {{po.und}} UND<br>
+        Raising Purchase Order for {{po.und}} FUND<br>
         Proof: {{po.memo}}<br>
         Fee: {{fee.amount[0].amount}}nund<br>
         Gas: {{fee.gas}}
@@ -40,9 +40,9 @@
                 id="po-und-label"
                 label="Raise Purchase Order for:"
                 label-for="po-und"
-                description="Amount of Enterprise UND to raise purchase order for"
+                description="Amount of Enterprise FUND to raise purchase order for"
                 >
-                  <b-input-group append="UND">
+                  <b-input-group append="FUND">
                     <b-form-input
                     id="po-und"
                     v-model="po.und"
@@ -277,7 +277,7 @@
             let res = await this.client.raiseEnterprisePO(
             this.po.und,
             this.fee,
-            "und",
+            "fund",
             this.wallet.address,
             this.po.memo
             )

@@ -103,7 +103,7 @@
           await this.getEnterpriseLocked()
           await this.getRewards()
           await this.getUnbonding()
-          this.getTotalUnd()
+          this.getTotalFund()
           this.isUpdating = false
         }
       },
@@ -207,7 +207,7 @@
           await this.$store.dispatch('wallet/setTotalUnbonding', totalUnbonding)
         }
       },
-      getTotalUnd: async function() {
+      getTotalFund: async function() {
         let totalBalance = new Big(this.wallet.balanceNund)
         let totalStaked = new Big(this.wallet.staking.totalStaked)
         let totalUnbonding = new Big(this.wallet.staking.totalUnbonding)
