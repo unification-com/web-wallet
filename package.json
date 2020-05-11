@@ -2,7 +2,7 @@
   "name": "web-wallet",
   "version": "0.16.1",
   "private": true,
-  "description": "Unification UND Mainchain Web Wallet",
+  "description": "Unification Mainchain Web Wallet",
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build --dest dist/chrome-extension",
