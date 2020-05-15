@@ -141,7 +141,6 @@ Vue.mixin({
       } catch(e) {}
 
       switch(chainId) {
-        case 'UND-Mainchain-DevNet':
         case 'FUND-Mainchain-DevNet':
           return 'http://localhost:3000'
         case 'Mainchain-TestNet':
