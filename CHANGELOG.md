@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.17.1 - 15/05/2020
+
+[PR33](https://github.com/unification-com/web-wallet/pull/33)
+
+- Fix missed FUND renames
+- Remove legacy DevNet info
+
 ## v0.17.0 - 11/05/2020
 
 [PR32](https://github.com/unification-com/web-wallet/pull/32)
