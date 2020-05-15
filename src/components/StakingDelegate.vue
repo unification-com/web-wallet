@@ -3,7 +3,7 @@
     <!-- delegate FUND confirmation modal -->
     <b-modal id="bv-modal-confirm-delegate-und">
       <template v-slot:modal-title>
-        <h3>Confirm Delegate UND</h3>
+        <h3>Confirm Delegate FUND</h3>
       </template>
       <p>Please confirm delegation:</p>
       Amount: <span class="text-info">{{delegateData.und}} FUND</span><br>

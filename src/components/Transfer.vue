@@ -33,7 +33,7 @@
       id="transfer-send-und-label"
       label="Send:"
       label-for="transfer-send-und"
-      description="Amount of UND to send"
+      description="Amount of FUND to send"
       append="FUND"
       >
         <b-input-group append="FUND">

@@ -153,7 +153,7 @@
         id="redelegate-und-label"
         label="redelegate:"
         label-for="redelegate-und"
-        description="Amount of UND to redelegate"
+        description="Amount of FUND to redelegate"
         >
           <b-input-group append="FUND">
             <b-form-input
@@ -288,7 +288,7 @@
     <!-- confirm redelegate modal -->
     <b-modal id="bv-modal-confirm-redelegate-und">
       <template v-slot:modal-title>
-        <h3>Confirm redelegate UND</h3>
+        <h3>Confirm redelegate FUND</h3>
       </template>
       redelegate <span class="text-info">{{ redelegateData.und }} FUND</span>
       from {{getValidatorMoniker(redelegateData.src)}}?<br>
