@@ -27,7 +27,7 @@
         id="create-new-wallet-2"
         label="Confirm Password:"
         label-for="wallet-confirm-password"
-        description="Confirm you password"
+        description="Confirm your password"
         >
           <b-form-input
           id="wallet-confirm-password"
