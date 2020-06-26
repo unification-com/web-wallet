@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.17.2 - 26/06/2020
+
+[PR34](https://github.com/unification-com/web-wallet/pull/34)
+
+- Fix typo in Wallet component
+- Update node dependencies
+
 ## v0.17.1 - 15/05/2020
 
 [PR33](https://github.com/unification-com/web-wallet/pull/33)
