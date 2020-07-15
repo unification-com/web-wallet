@@ -69,9 +69,6 @@
                            @click="$refs.walletComponent.changeNetwork('https://rest-testnet.unification.io')">
             TestNet - https://rest-testnet.unification.io
           </b-dropdown-item>
-          <b-dropdown-item href="#" @click="$refs.walletComponent.changeNetwork('http://localhost:1318')">
-            DevNet - http://localhost:1318
-          </b-dropdown-item>
 
           <b-dropdown-divider/>
 

@@ -61,7 +61,7 @@
           Website: <a :href="selectedValidatorWebsite" target="_blank">{{ selectedValidatorWebsite }}</a><br/>
           Identity: {{ selectedValidatorIdentity }}<br/>
           Security Contact: {{ selectedValidatorSecurity }}<br/>
-          Details: {{ selectedValidatorDetails }}<br/>
+          Details: {{ selectedValidatorDetails.replace(/<[^>]*>?/gm, ' ') }}<br/>
           Total Staked: {{ selectedValidatorStakedTokens }}<br/>
           Total Shares: {{ selectedValidatorShares }}<br/>
           Commission Rate: {{ selectedValidatorCommissionRate }}%<br/>
@@ -176,7 +176,7 @@
         <b-button variant="success" @click="showConfirmDelegate()" :disabled="!delegateFormState">Delegate FUND</b-button>
       </b-form>
       <br>
-      <b>Note:</b> if you are delegating to an EV you already have a stake with, outstanding rewards will be automatically withdrawn
+      <b>Note:</b> if you are delegating to a Validator that you already have a stake with, outstanding rewards will be automatically withdrawn
     </div>
   </div>
 </template>

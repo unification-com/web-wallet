@@ -53,6 +53,7 @@ const actions = {
       }
       validatorSelectArray.push(valOption)
     }
+    validatorSelectArray.sort((a, b) => (a.text > b.text) ? 1 : -1)
     if(!_.isEqual(validatorSelectArray, context.state.validatorsSelect.slice())) {
       context.commit('updateValidatorsSelect', validatorSelectArray)
     }

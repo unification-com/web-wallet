@@ -98,6 +98,7 @@ Vue.mixin({
         solid: true,
         autoHideDelay: 10000,
         appendToast: false,
+        toaster: 'b-toaster-top-left'
       })
     },
     wait: function(ms) {

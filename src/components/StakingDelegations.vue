@@ -398,7 +398,7 @@
           <h3>Current Delegations and Rewards</h3>
         </b-col>
         <b-col>
-          <b-button @click="getDelegations()">Refresh</b-button>
+          <b-button @click="getDelegations(), getDelegatorRewards()">Refresh</b-button>
         </b-col>
       </b-row>
     </b-container>
@@ -408,7 +408,7 @@
     </div>
 
     <div v-show="!isDataLoading">
-      <b-table :items="JSON.parse(JSON.stringify(delegations.delegations.slice()))" :fields="delegationsFields" striped responsive="sm">
+      <b-table :items="JSON.parse(JSON.stringify(delegationsObj))" :fields="delegationsFields" striped responsive="sm">
 
         <template v-slot:cell(show_details)="row">
           <b-button size="sm" @click="row.toggleDetails" class="mr-2">
@@ -421,7 +421,7 @@
               <b-col sm="3" class="text-sm-right"><b>Moniker:</b></b-col>
               <b-col>
                 <a :href="explorerUrlPrefix + '/validator/' + row.item.validator_address" target="_blank">
-                  {{ row.item.description.moniker }}
+                  {{ getValidatorDescription(row.item.validator_address).moniker }}
                   <b-icon-box-arrow-up-right/>
                 </a>
               </b-col>
@@ -437,19 +437,19 @@
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Identity:</b></b-col>
-              <b-col>{{ row.item.description.identity }}</b-col>
+              <b-col>{{ getValidatorDescription(row.item.validator_address).identity }}</b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Website:</b></b-col>
-              <b-col>{{ row.item.description.website }}</b-col>
+              <b-col>{{ getValidatorDescription(row.item.validator_address).website }}</b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Security Contact:</b></b-col>
-              <b-col>{{ row.item.description.security_contact }}</b-col>
+              <b-col>{{ getValidatorDescription(row.item.validator_address).security_contact }}</b-col>
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Details:</b></b-col>
-              <b-col>{{ row.item.description.details }}</b-col>
+              <b-col>{{ getValidatorDescription(row.item.validator_address).details.replace(/<[^>]*>?/gm, ' ') }}</b-col>
             </b-row>
             <b-button variant="warning" size="sm" @click="initUndelegate(row.item)" class="mr-2">
               Undelegate
@@ -484,6 +484,7 @@
 <script>
   import {UND_CONFIG} from '@/constants.js'
   import { mapState, mapGetters } from 'vuex'
+  import Big from "big.js";
   const UndClient = require('@unification-com/und-js')
 
   export default {
@@ -498,10 +499,11 @@
         validators: state => state.validators,
         delegations: state => state.delegations
       }),
-      ...mapGetters('validators', [
-        'getValidatorDescription',
-        'getValidatorMoniker',
-      ]),
+      ...mapGetters({
+        getValidatorDescription: 'validators/getValidatorDescription',
+        getValidatorMoniker: 'validators/getValidatorMoniker',
+        getReward: 'delegations/getReward',
+      }),
       explorerUrlPrefix: function() {
         return this.explorerUrl(this.chainId)
       },
@@ -551,12 +553,27 @@
         delegationsFields: ['name', 'shares', 'delegated', 'rewards', 'show_details'],
         isDataLoading: false,
         isShowFee: false,
+        delegationsObj: []
       }
     },
     methods: {
       // Todo - display and modify withdraw address
       preventSubmit: function () {
         return false
+      },
+      generateDisplayObj: function() {
+        this.delegationsObj = []
+        for(let i = 0; i < this.delegations.delegations.length; i++) {
+          let validatorAddress = this.delegations.delegations[i].validator_address
+          let d = {
+            validator_address: validatorAddress,
+            name: this.getValidatorDescription(validatorAddress).moniker,
+            shares: this.delegations.delegations[i].shares,
+            delegated: this.delegations.delegations[i].balance.amount,
+            rewards: this.getReward(validatorAddress)
+          }
+          this.delegationsObj.push(d)
+        }
       },
       checkFeesAndGas: function () {
         if (!this.isValidFee(this.fee)) {
@@ -704,42 +721,46 @@
       getDelegations: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
+          let totalDelegations = 0
+          let totalShares = new Big('0')
+          let totalStaked = new Big('0')
+
           let res = await this.client.getDelegations()
           if (res.status === 200) {
+            totalDelegations = res.result.result.length
             for (let i = 0; i < res.result.result.length; i++) {
-              let validator_address = res.result.result[i].validator_address
-              let description = this.getValidatorDescription(validator_address)
-              let rewards = await this.getDelegatorRewards(validator_address)
-
-              let del = {
-                name: description['moniker'],
-                validator_address: validator_address,
-                shares: res.result.result[i].shares,
-                delegated: res.result.result[i].balance.amount,
-                rewards: rewards,
-                description: description
-              }
-              await this.$store.dispatch('delegations/addEditDelegation', del)
+              totalShares = totalShares.add(res.result.result[i].shares)
+              totalStaked = totalStaked.add(res.result.result[i].balance.amount)
+              await this.$store.dispatch('delegations/addEditDelegation', res.result.result[i])
             }
+            await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
+            await this.$store.dispatch('wallet/setTotalShares', totalShares)
+            await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
           } else {
             this.handleUndJsError(res)
           }
           this.isDataLoading = false
         }
+        this.generateDisplayObj()
       },
-      getDelegatorRewards: async function (valAddress) {
-        let rewards = '0'
+      getDelegatorRewards: async function () {
+        let total = 0.0
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
-          let res = await this.client.getDelegatorRewards(this.wallet.address, valAddress)
-          if (res.status === 200 && res.result.result.length > 0) {
-            rewards = res.result.result[0].amount
+          let res = await this.client.getDelegatorRewards(this.wallet.address)
+          if (res.status === 200 && res.result.result.rewards.length > 0) {
+            if(res.result.result.total.length > 0) {
+              total = res.result.result.total[0].amount
+            }
+            for(let i = 0; i < res.result.result.rewards.length; i++) {
+              await this.$store.dispatch('delegations/updateReward', res.result.result.rewards[i])
+            }
           } else {
             if(res.status !== 200) {
               this.handleUndJsError(res)
             }
           }
+          await this.$store.dispatch('wallet/setTotalRewards', total)
         }
-        return rewards
       },
       confirmUndelegation: function () {
         this.confirmUndelegationAsync()

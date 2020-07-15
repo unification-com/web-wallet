@@ -6,7 +6,7 @@
           <h3>Transactions</h3>
         </b-col>
         <b-col>
-          <b-button @click="loadTransactions()">Refresh</b-button>
+          <b-button @click="loadTransactions(true)">Refresh</b-button>
         </b-col>
       </b-row>
     </b-container>
@@ -87,7 +87,7 @@
         orderedTxs: [],
         perPage: 10,
         currentPage: 1,
-        txFetchLimit: 10,
+        txFetchLimit: 100,
         lastSentPage: 0,
         lastRecPage: 0,
       }
@@ -96,16 +96,20 @@
       forceRerender() {
         this.componentKey += 1;
       },
-      loadTransactions: async function () {
-        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
-          this.isDataLoading = true
+      loadTransactions: async function (manual = false) {
+        this.isDataLoading = true
+        if (this.isClientConnected && this.wallet.isWalletUnlocked > 0 && (Object.keys(this.txs.txs).length === 0 || manual)) {
           await this.getSentTxs()
           await this.getRecTxs()
           await this.processPendingTxs()
           this.orderTxs()
           this.forceRerender()
-          this.isDataLoading = false
+        } else {
+          await this.processPendingTxs()
+          this.orderTxs()
+          this.forceRerender()
         }
+        this.isDataLoading = false
       },
       loadMore: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
