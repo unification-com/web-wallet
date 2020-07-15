@@ -2,7 +2,7 @@
   <div>
     <b-card no-body>
       <b-tabs pills card>
-        <b-tab title="Delegations" active @click.prevent="$refs.stakingdelegationsconponent.getDelegations(), clearAll()">
+        <b-tab title="Delegations" active @click.prevent="$refs.stakingdelegationsconponent.generateDisplayObj(), clearAll()">
           <b-card-text>
             <StakingDelegations ref="stakingdelegationsconponent" />
           </b-card-text>
@@ -67,8 +67,15 @@
         this.$refs.stakingdelegationsconponent.clearReDelegateData()
         this.$refs.stakingdelegationsconponent.clearWithdrawData()
       },
-      loadDelegations: function() {
-        this.$refs.stakingdelegationsconponent.getDelegations()
+      loadDelegations: async function() {
+        await this.$refs.stakingdelegationsconponent.getDelegations()
+      },
+      loadRewards: async function() {
+        await this.$refs.stakingdelegationsconponent.getDelegatorRewards()
+      },
+      loadDataObj: async function() {
+        await this.getValidators()
+        this.$refs.stakingdelegationsconponent.generateDisplayObj()
       },
       getValidators: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {

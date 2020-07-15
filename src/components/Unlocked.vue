@@ -10,19 +10,14 @@
             <Transfer ref="transfercomponent" />
           </b-card-text>
         </b-tab>
-        <b-tab title="Transactions" @click.prevent="updateWallet(), $refs.txcomponent.loadTransactions()">
+        <b-tab title="Transactions" @click.prevent="$refs.txcomponent.loadTransactions()">
           <b-card-text>
             <Transactions ref="txcomponent" />
           </b-card-text>
         </b-tab>
-        <b-tab title="Staking" @click.prevent="updateWallet(), $refs.stakingcomponent.getValidators(), $refs.stakingcomponent.loadDelegations()">
+        <b-tab title="Staking" @click.prevent="$refs.stakingcomponent.loadDataObj()">
           <b-card-text>
             <Staking ref="stakingcomponent"/>
-          </b-card-text>
-        </b-tab>
-        <b-tab title="Enterprise" @click.prevent="updateWallet()">
-          <b-card-text>
-            <Enterprise ref="enterprisecomponent" />
           </b-card-text>
         </b-tab>
       </b-tabs>
@@ -32,7 +27,7 @@
 
 <script>
   import Big from 'big.js'
-  import { mapState } from 'vuex'
+  import {mapGetters, mapState} from 'vuex'
 
   import Enterprise from '@/components/Enterprise.vue'
   import Staking from '@/components/Staking.vue'
@@ -54,7 +49,12 @@
         client: state => state.client.client,
         chainId: state => state.client.chainId,
         isClientConnected: state => state.client.isConnected,
-        wallet: state => state.wallet
+        wallet: state => state.wallet,
+        validators: state => state.validators,
+        delegations: state => state.delegations
+      }),
+      ...mapGetters({
+        getReward: 'delegations/getReward'
       }),
     },
     data: function () {
@@ -73,7 +73,6 @@
     methods: {
       clearFormData: function() {
         this.$refs.transfercomponent.clearTransfer()
-        this.$refs.enterprisecomponent.clearPo()
         this.$refs.stakingcomponent.clearAll()
       },
       refreshBalance: function() {
@@ -82,9 +81,8 @@
       },
       runOnUnlocked: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked > 0) {
+          await this.$refs.stakingcomponent.loadDelegations()
           await this.updateWallet()
-          await this.$refs.txcomponent.loadTransactions()
-          await this.$refs.stakingcomponent.getValidators()
         }
       },
       manualRefresh: async function() {
@@ -100,7 +98,6 @@
             }
           }
           await this.getBalance()
-          await this.getEnterpriseLocked()
           await this.getRewards()
           await this.getUnbonding()
           this.getTotalFund()
@@ -138,57 +135,9 @@
         }
         await this.$store.dispatch('wallet/setBalance', balance)
       },
-      getEnterpriseLocked: async function() {
-        let locked = '0'
-        let isWhitelisted = false
-
-        try {
-          const res = await this.client.getEnterpriseLocked()
-          if ('amount' in res) {
-            locked = res.amount
-          }
-        } catch(e) {
-
-        }
-        try {
-          const res = await this.client.getIsAddressEntWhitelisted()
-          if ('result' in res) {
-            isWhitelisted = res.result.result
-          }
-        } catch(e) {
-
-        }
-        await this.$store.dispatch('wallet/setEnterpriseLocked', locked)
-        await this.$store.dispatch('wallet/setEntWhitelisted', isWhitelisted)
-      },
       getRewards: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
-          const delRes = await this.client.getDelegations()
-
-          let totalDelegations = 0
-          let totalShares = new Big('0')
-          let totalStaked = new Big('0')
-          let totalRewards = new Big('0')
-
-          if (delRes.status === 200) {
-            for (let i = 0; i < delRes.result.result.length; i++) {
-              totalDelegations++
-              let validatorAddress = delRes.result.result[i].validator_address
-              totalShares = totalShares.add(delRes.result.result[i].shares)
-              totalStaked = totalStaked.add(delRes.result.result[i].balance.amount)
-              let res = await this.client.getDelegatorRewards(this.wallet.address, validatorAddress)
-              if (res.status === 200 && res.result.result.length > 0) {
-                totalRewards = totalRewards.add(res.result.result[0].amount)
-              }
-            }
-          } else {
-            this.handleUndJsError(delRes)
-          }
-
-          await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
-          await this.$store.dispatch('wallet/setTotalShares', totalShares)
-          await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
-          await this.$store.dispatch('wallet/setTotalRewards', totalRewards)
+          await this.$refs.stakingcomponent.loadRewards()
         }
       },
       getUnbonding: async function() {
@@ -211,10 +160,10 @@
         let totalBalance = new Big(this.wallet.balanceNund)
         let totalStaked = new Big(this.wallet.staking.totalStaked)
         let totalUnbonding = new Big(this.wallet.staking.totalUnbonding)
-        let totalLocked = new Big(this.wallet.lockedNund)
+        let totalRewards = new Big(this.wallet.staking.totalRewards)
         totalBalance = totalBalance.add(totalStaked)
         totalBalance = totalBalance.add(totalUnbonding)
-        totalBalance = totalBalance.add(totalLocked)
+        totalBalance = totalBalance.add(totalRewards)
         await this.$store.dispatch('wallet/setTotalBalance', totalBalance)
       }
     }

@@ -38,7 +38,7 @@
     <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
-          Total Balance <b-icon-info-circle v-b-popover.hover.right="'Total FUND in this wallet, including any staked FUND, unbonding FUND and Enterprise Locked FUND'" title="Total Balance"/>
+          Total Balance <b-icon-info-circle v-b-popover.hover.right="'Total FUND in this wallet, including any staked FUND, unbonding FUND and rewards'" title="Total Balance"/>
         </h4>
       </b-col>
       <b-col cols="9">
@@ -49,17 +49,13 @@
     <b-row v-show="wallet.staking.totalDelegations > 0">
       <b-col>
         <h4>
-          Staking <b-icon-info-circle v-b-popover.hover.right="'Your current staking and delegations'" title="Staking"/>
+          Staking <b-icon-info-circle v-b-popover.hover.right="'Your current staking, delegations and rewards'" title="Staking"/>
         </h4>
       </b-col>
       <b-col cols="9">
         <b-row>
           <b-col>Delegations</b-col>
           <b-col>{{ wallet.staking.totalDelegations }}</b-col>
-        </b-row>
-        <b-row>
-          <b-col>Shares</b-col>
-          <b-col>{{ wallet.staking.totalShares }}</b-col>
         </b-row>
         <b-row>
           <b-col>Delegated</b-col>
@@ -73,17 +69,6 @@
           <b-col>Rewards</b-col>
           <b-col><span class="text-info">{{ formatAmount(wallet.staking.totalRewards) }}</span></b-col>
         </b-row>
-      </b-col>
-    </b-row>
-
-    <b-row v-show="wallet.locked > 0">
-      <b-col>
-        <h4>
-          Enterprise Locked <b-icon-info-circle v-b-popover.hover.right="'Amount of purchased locked Enterprise FUND which can be used for WRKChain and BEACON fees'" title="Enterprise Locked"/>
-        </h4>
-      </b-col>
-      <b-col cols="9">
-        <span class="text-info">{{ wallet.locked }} FUND</span>
       </b-col>
     </b-row>
   </b-container>

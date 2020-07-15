@@ -5,12 +5,19 @@ const _ = require('lodash/core');
 const state = {
   delegations: [],
   unbondingDelegations: [],
-  redelegations: []
+  redelegations: [],
+  rewards: {}
 }
 
 // getters
 const getters = {
-
+  getReward: (state) => (validator_address) => {
+    let reward = 0.0
+    if(validator_address in state.rewards) {
+      reward = state.rewards[validator_address]
+    }
+    return reward
+  },
 }
 
 // actions
@@ -19,6 +26,7 @@ const actions = {
     context.commit('clearDelegations')
     context.commit('clearUnbondingDelegations')
     context.commit('clearReDelegations')
+    context.commit('clearRewards')
   },
 
   clearDelegations(context) {
@@ -31,6 +39,10 @@ const actions = {
 
   clearReDelegations(context) {
     context.commit('clearReDelegations')
+  },
+
+  clearRewards(context) {
+    context.commit('clearRewards')
   },
 
   addEditDelegation(context, delegation) {
@@ -65,6 +77,10 @@ const actions = {
     currentReDelegations.push(redeleg)
     context.commit('addEditReDelegation', currentReDelegations)
   },
+
+  updateReward(context, reward) {
+    context.commit('updateReward', reward)
+  },
 }
 
 // mutations
@@ -81,6 +97,10 @@ const mutations = {
     state.redelegations = []
   },
 
+  clearRewards (state) {
+    state.rewards = {}
+  },
+
   addEditDelegation(state, delegations) {
     state.delegations = delegations
   },
@@ -91,7 +111,15 @@ const mutations = {
 
   addEditReDelegation(state, redelegations) {
     state.redelegations = redelegations
-  }
+  },
+
+  updateReward(state, reward) {
+    let amount = 0.0;
+    if(reward.reward.length > 0) {
+      amount = parseFloat(reward.reward[0].amount)
+    }
+    state.rewards[reward.validator_address] = amount
+  },
 }
 
 export default {
