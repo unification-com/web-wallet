@@ -449,7 +449,7 @@
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right"><b>Details:</b></b-col>
-              <b-col>{{ getValidatorDescription(row.item.validator_address).details }}</b-col>
+              <b-col>{{ getValidatorDescription(row.item.validator_address).details.replace(/<[^>]*>?/gm, ' ') }}</b-col>
             </b-row>
             <b-button variant="warning" size="sm" @click="initUndelegate(row.item)" class="mr-2">
               Undelegate
