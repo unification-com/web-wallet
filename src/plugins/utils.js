@@ -95,17 +95,21 @@ Vue.mixin({
       let amountBig = new Big(amount);
       let balanceBig = new Big(balance);
       let feesBig = new Big(fees);
+      let recommendMinBalance = new Big(UND_CONFIG.RECOMMENDED_MIN_BALANCE);
 
       let amountNund = amountBig.mul(UND_CONFIG.BASENUMBER)
       let balanceNund = balanceBig.mul(UND_CONFIG.BASENUMBER)
       let amtAndFees = amountNund.add(feesBig)
+      let diff = balanceNund.sub(amtAndFees)
 
       let result = {
         isValid: amtAndFees.lte(balanceNund),
         gotUnd: Number(balanceNund.div(UND_CONFIG.BASENUMBER)),
         gotNund: balanceNund.toString(),
         requiredUnd: Number(amtAndFees.div(UND_CONFIG.BASENUMBER)),
-        requiredNund: amtAndFees.toString()
+        requiredNund: amtAndFees.toString(),
+        warn: diff.lt(recommendMinBalance),
+        diff: diff.toString()
       }
       return result
     },

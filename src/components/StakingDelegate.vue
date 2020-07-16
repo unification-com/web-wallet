@@ -9,7 +9,17 @@
       Amount: <span class="text-info">{{delegateData.und}} FUND</span><br>
       Validator: {{getValidatorMoniker(delegateData.address)}}<br>
       Fee: {{fee.amount[0].amount}}nund<br>
-      Gas: {{fee.gas}}
+      Gas: {{fee.gas}}<br>
+
+      <span v-show="showWarning">
+        <p>
+          <strong>
+            Warning: this will leave you with a balance of {{balanceDiff}}nund. It is recommended you leave
+            at least {{recommendedBalance}}nund to pay for future Tx fees.
+          </strong>
+        </p>
+      </span>
+
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -19,7 +29,7 @@
           Confirm
         </b-button>
         <b-button
-        @click="$bvModal.hide('bv-modal-confirm-delegate-und')"
+        @click="clearDelegateData, $bvModal.hide('bv-modal-confirm-delegate-und')"
         aria-label="Cancel"
         >
           Cancel
@@ -307,6 +317,9 @@
         isDataLoading: false,
         isShowFee: false,
         selectedValidatorMetadata: null,
+        showWarning: false,
+        balanceDiff: '0',
+        recommendedBalance: UND_CONFIG.RECOMMENDED_MIN_BALANCE
       }
     },
     methods: {
@@ -363,6 +376,9 @@
                   'not enough balance to pay for stake + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
           return false
         }
+        this.showWarning = isValidAmtFees.warn
+        this.balanceDiff = isValidAmtFees.diff
+
         if (!UndClient.crypto.checkAddress(this.delegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
           this.showToast('danger', 'Error', '"' + this.delegateData.address + '" is not a valid operator address')
           return false
@@ -387,8 +403,19 @@
         this.fee = UND_CONFIG.DEFULT_DELEGATE_FEE
         this.isShowFee = false
         this.selectedValidatorMetadata = null
+        this.isShowFee = false
+        this.showWarning = false
+        this.balanceDiff = '0'
       },
       confirmDelegation: function () {
+        let isValidAmtFees = this.isValidAmountPlusFees(this.wallet.balance, this.delegateData.und, this.fee.amount[0].amount)
+        if(!isValidAmtFees.isValid) {
+          this.showToast(
+                  'danger',
+                  'Error',
+                  'not enough balance to pay for stake + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
+          return false
+        }
         this.confirmDelegationAsync()
       },
       confirmDelegationAsync: async function () {

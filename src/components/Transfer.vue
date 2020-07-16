@@ -8,7 +8,17 @@
       Sending {{transfer.und}} FUND<br>
       To {{transfer.to}}<br>
       Fee: {{fee.amount[0].amount}}nund<br>
-      Gas: {{fee.gas}}
+      Gas: {{fee.gas}}<br>
+
+      <span v-show="showWarning">
+        <p>
+          <strong>
+            Warning: this will leave you with a balance of {{balanceDiff}}nund. It is recommended you leave
+            at least {{recommendedBalance}}nund to pay for future Tx fees.
+          </strong>
+        </p>
+      </span>
+
       <template v-slot:modal-footer>
         <b-button
         variant="success"
@@ -18,7 +28,7 @@
           Confirm
         </b-button>
         <b-button
-        @click="$bvModal.hide('bv-modal-transfer-und')"
+        @click="clearTransfer, $bvModal.hide('bv-modal-transfer-und')"
         aria-label="Cancel"
         >
           Cancel
@@ -178,6 +188,9 @@
         },
         fee: UND_CONFIG.DEFAULT_TRANSFER_FEES,
         isShowFee: false,
+        showWarning: false,
+        balanceDiff: '0',
+        recommendedBalance: UND_CONFIG.RECOMMENDED_MIN_BALANCE
       }
     },
     methods: {
@@ -194,6 +207,8 @@
         }
         this.fee = UND_CONFIG.DEFAULT_TRANSFER_FEES
         this.isShowFee = false
+        this.showWarning = false
+        this.balanceDiff = '0'
       },
       showConfirmTransferUnd: function() {
 
@@ -231,6 +246,8 @@
                   'not enough balance to pay for transfer + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
           return false
         }
+        this.showWarning = isValidAmtFees.warn
+        this.balanceDiff = isValidAmtFees.diff
 
         if(!this.wallet.accountExists) {
           this.showToast('danger', 'Error', 'account does not exists on chain yet')
@@ -251,6 +268,14 @@
         this.$bvModal.show('bv-modal-transfer-und')
       },
       transferUnd: function() {
+        let isValidAmtFees = this.isValidAmountPlusFees(this.wallet.balance, this.transfer.und, this.fee.amount[0].amount)
+        if(!isValidAmtFees.isValid) {
+          this.showToast(
+                  'danger',
+                  'Error',
+                  'not enough balance to pay for transfer + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
+          return false
+        }
         this.transferUndAsync()
       },
       transferUndAsync: async function() {
