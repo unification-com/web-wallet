@@ -214,9 +214,24 @@
           return false
         }
         if(this.transfer.und > this.wallet.balance) {
-          this.showToast('danger', 'Error', 'cannot transfer more than balance')
+          this.showToast('danger', 'Error', 'cannot transfer more than wallet balance')
           return false
         }
+
+        if(this.transfer.und >= this.wallet.balance) {
+          this.showToast('danger', 'Error', 'cannot transfer full balance - there will not be enough to pay for Tx fees.')
+          return false
+        }
+
+        let isValidAmtFees = this.isValidAmountPlusFees(this.wallet.balance, this.transfer.und, this.fee.amount[0].amount)
+        if(!isValidAmtFees.isValid) {
+          this.showToast(
+                  'danger',
+                  'Error',
+                  'not enough balance to pay for transfer + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
+          return false
+        }
+
         if(!this.wallet.accountExists) {
           this.showToast('danger', 'Error', 'account does not exists on chain yet')
           return false

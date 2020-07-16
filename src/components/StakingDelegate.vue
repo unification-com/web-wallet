@@ -347,8 +347,20 @@
           this.showToast('danger', 'Error', 'account does not exists on chain yet')
           return false
         }
-        if (this.delegateData.und >= this.wallet.balance) {
+        if (this.delegateData.und > this.wallet.balance) {
           this.showToast('danger', 'Error', 'cannot delegate more than your balance')
+          return false
+        }
+        if(this.delegateData.und >= this.wallet.balance) {
+          this.showToast('danger', 'Error', 'cannot delegate full balance - there will not be enough to pay for Tx fees.')
+          return false
+        }
+        let isValidAmtFees = this.isValidAmountPlusFees(this.wallet.balance, this.delegateData.und, this.fee.amount[0].amount)
+        if(!isValidAmtFees.isValid) {
+          this.showToast(
+                  'danger',
+                  'Error',
+                  'not enough balance to pay for stake + tx fees. Got ' + isValidAmtFees.gotUnd + ' FUND, need ' + isValidAmtFees.requiredUnd + ' FUND')
           return false
         }
         if (!UndClient.crypto.checkAddress(this.delegateData.address, UND_CONFIG.BECH32_VAL_PREFIX)) {
