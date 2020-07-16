@@ -91,6 +91,24 @@ Vue.mixin({
       let nund = Number(amountBig.mul(UND_CONFIG.BASENUMBER))
       return nund
     },
+    isValidAmountPlusFees(balance, amount, fees) {
+      let amountBig = new Big(amount);
+      let balanceBig = new Big(balance);
+      let feesBig = new Big(fees);
+
+      let amountNund = amountBig.mul(UND_CONFIG.BASENUMBER)
+      let balanceNund = balanceBig.mul(UND_CONFIG.BASENUMBER)
+      let amtAndFees = amountNund.add(feesBig)
+
+      let result = {
+        isValid: amtAndFees.lte(balanceNund),
+        gotUnd: Number(balanceNund.div(UND_CONFIG.BASENUMBER)),
+        gotNund: balanceNund.toString(),
+        requiredUnd: Number(amtAndFees.div(UND_CONFIG.BASENUMBER)),
+        requiredNund: amtAndFees.toString()
+      }
+      return result
+    },
     showToast: function(variant, title, msg) {
       this.$bvToast.toast(msg, {
         title: title,
