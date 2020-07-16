@@ -720,6 +720,7 @@
       },
       getDelegations: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          await this.$store.dispatch('delegations/clearDelegations')
           this.isDataLoading = true
           let totalDelegations = 0
           let totalShares = new Big('0')

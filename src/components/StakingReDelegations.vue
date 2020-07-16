@@ -67,6 +67,7 @@
       getRedelegations: async function() {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           this.isDataLoading = true
+          await this.$store.dispatch('delegations/clearReDelegations')
           let res = await this.client.getRedelegations(this.wallet.address)
           if (res.status === 200) {
             for (let i = 0; i < res.result.result.length; i++) {
