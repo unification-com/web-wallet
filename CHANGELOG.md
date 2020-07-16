@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.18.1 - 16/07/2020
+## v0.18.2 - 16/07/2020
 
 [PR35](https://github.com/unification-com/web-wallet/pull/35)
 [PR36](https://github.com/unification-com/web-wallet/pull/36)
@@ -16,6 +16,8 @@ if detected
 amount + fees (both transfer and staking)
 - Display warning if, after sending a Tx, the wallet balance will 
 be < a recommended amount required for any potential future Tx fees
+- Clear delegations/unbonding/redelegation from vuex before refreshing
+- Allow 9 decimal places in Txs
 
 ## v0.17.2 - 26/06/2020
 
