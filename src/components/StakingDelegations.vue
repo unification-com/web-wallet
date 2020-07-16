@@ -734,12 +734,12 @@
               totalStaked = totalStaked.add(res.result.result[i].balance.amount)
               await this.$store.dispatch('delegations/addEditDelegation', res.result.result[i])
             }
-            await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
-            await this.$store.dispatch('wallet/setTotalShares', totalShares)
-            await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
           } else {
             this.handleUndJsError(res)
           }
+          await this.$store.dispatch('wallet/setTotalShares', totalShares)
+          await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
+          await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
           this.isDataLoading = false
         }
         this.generateDisplayObj()
