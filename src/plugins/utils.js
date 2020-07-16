@@ -4,7 +4,7 @@ import {UND_CONFIG} from '@/constants.js'
 
 Vue.mixin({
   methods: {
-    isValidAmount: function(value, maxExp = 7, maxDp = 8) {
+    isValidAmount: function(value, maxExp = 7, maxDp = 9) {
       if(value === '' || value == null) {
         return false
       }
@@ -14,7 +14,7 @@ Vue.mixin({
         return false
       }
 
-      // max amount = 999999999.99999999
+      // max amount = 999999999.999999999
       if(amount.e > maxExp) {
         return false
       }
