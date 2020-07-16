@@ -18,6 +18,7 @@ amount + fees (both transfer and staking)
 be < a recommended amount required for any potential future Tx fees
 - Clear delegations/unbonding/redelegation from vuex before refreshing
 - Allow 9 decimal places in Txs
+- Remove Enterprise tab - vast majority of users do not need it
 
 ## v0.17.2 - 26/06/2020
 
