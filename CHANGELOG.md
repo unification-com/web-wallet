@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.18.1 - 16/07/2020
+
+[PR35](https://github.com/unification-com/web-wallet/pull/35)
+[PR36](https://github.com/unification-com/web-wallet/pull/36)
+
+- Optimise REST queries to reduce the amount of requests sent
+- Store more data in Veux, instead of continuously querying REST
+- UI improvements - reposition Toast notifications, so they don't 
+cover the buttons
+- Strip HTML tags from Validator descriptions
+- Checks to see if full balance is being sent, and prevents it 
+if detected
+- Checks to see if the wallet has enough balance to send Tx 
+amount + fees (both transfer and staking)
+- Display warning if, after sending a Tx, the wallet balance will 
+be < a recommended amount required for any potential future Tx fees
+
 ## v0.17.2 - 26/06/2020
 
 [PR34](https://github.com/unification-com/web-wallet/pull/34)
