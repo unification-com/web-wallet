@@ -3,6 +3,7 @@ export const UND_CONFIG = {
   BECH32_PREFIX: 'und',
   BECH32_VAL_PREFIX: 'undvaloper',
   DEFAULT_MEMO: 'sent from Unification Web Wallet',
+  RECOMMENDED_MIN_BALANCE: 150000,
   DEFAULT_TRANSFER_FEES: {
     amount: [
       {

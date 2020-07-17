@@ -115,7 +115,7 @@ const mutations = {
 
   updateReward(state, reward) {
     let amount = 0.0;
-    if(reward.reward.length > 0) {
+    if(reward.reward) {
       amount = parseFloat(reward.reward[0].amount)
     }
     state.rewards[reward.validator_address] = amount

@@ -720,6 +720,7 @@
       },
       getDelegations: async function () {
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+          await this.$store.dispatch('delegations/clearDelegations')
           this.isDataLoading = true
           let totalDelegations = 0
           let totalShares = new Big('0')
@@ -733,12 +734,12 @@
               totalStaked = totalStaked.add(res.result.result[i].balance.amount)
               await this.$store.dispatch('delegations/addEditDelegation', res.result.result[i])
             }
-            await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
-            await this.$store.dispatch('wallet/setTotalShares', totalShares)
-            await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
           } else {
             this.handleUndJsError(res)
           }
+          await this.$store.dispatch('wallet/setTotalShares', totalShares)
+          await this.$store.dispatch('wallet/setTotalStaked', totalStaked)
+          await this.$store.dispatch('wallet/setTotalDelegations', totalDelegations)
           this.isDataLoading = false
         }
         this.generateDisplayObj()
@@ -747,8 +748,8 @@
         let total = 0.0
         if (this.isClientConnected && this.wallet.isWalletUnlocked) {
           let res = await this.client.getDelegatorRewards(this.wallet.address)
-          if (res.status === 200 && res.result.result.rewards.length > 0) {
-            if(res.result.result.total.length > 0) {
+          if (res.status === 200 && res.result.result.rewards) {
+            if(res.result.result.total) {
               total = res.result.result.total[0].amount
             }
             for(let i = 0; i < res.result.result.rewards.length; i++) {
