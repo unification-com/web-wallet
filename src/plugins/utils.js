@@ -1,187 +1,191 @@
-import Vue from 'vue'
-import Big from "big.js";
-import {UND_CONFIG} from '@/constants.js'
+import Vue from "vue"
+import Big from "big.js"
+import { UND_CONFIG } from "../constants"
 
 Vue.mixin({
   methods: {
-    isValidAmount: function(value, maxExp = 7, maxDp = 9) {
-      if(value === '' || value == null) {
+    isValidAmount(value, maxExp = 7, maxDp = 9) {
+      if (value === "" || value == null) {
         return false
       }
-      let amount = new Big(value)
+      const amount = new Big(value)
 
-      if(amount.s < 0) {
+      if (amount.s < 0) {
         return false
       }
 
       // max amount = 999999999.999999999
-      if(amount.e > maxExp) {
+      if (amount.e > maxExp) {
         return false
       }
-      let dps = amount.c.slice(amount.e+1).length
+      const dps = amount.c.slice(amount.e + 1).length
 
-      if(dps > maxDp) {
+      if (dps > maxDp) {
         return false
       }
 
       return true
     },
-    isValidFee: function(fee) {
-      if(!this.isValidAmount(fee.amount[0].amount, 7, 0)) {
+    isValidFee(fee) {
+      if (!this.isValidAmount(fee.amount[0].amount, 7, 0)) {
         return false
       }
-      if(fee.amount[0].denom !== 'nund') {
-        return false
-      }
-      return true
-    },
-    isValidGas: function(gas) {
-      if(!this.isValidAmount(gas, 7, 0)) {
+      if (fee.amount[0].denom !== "nund") {
         return false
       }
       return true
     },
-    formatAmount: function (amount) {
-      let formattedAmt = Number(amount) + ' nund'
+    isValidGas(gas) {
+      if (!this.isValidAmount(gas, 7, 0)) {
+        return false
+      }
+      return true
+    },
+    formatAmount(amount) {
+      let formattedAmt = `${Number(amount)} nund`
 
       try {
-        let amountBig = new Big(amount)
+        const amountBig = new Big(amount)
         if (amountBig.e >= 6) {
-          let und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
-          let undFormatted = new Intl.NumberFormat('en-GB', { maximumSignificantDigits: 18 }).format(und)
-          formattedAmt = undFormatted + ' FUND'
+          const und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
+          const undFormatted = new Intl.NumberFormat("en-GB", { maximumSignificantDigits: 18 }).format(und)
+          formattedAmt = `${undFormatted} FUND`
         }
-      } catch(e) {}
+      } catch (e) {
+        // empty
+      }
 
       return formattedAmt
     },
     formatDateTime(timestamp) {
-      if(!isNaN(timestamp)) {
-        timestamp = timestamp*1000
+      let tsMs = 0
+      if (!Number.isNaN(timestamp)) {
+        tsMs = timestamp * 1000
       }
-      let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      let d = new Date(timestamp)
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      const d = new Date(tsMs)
 
-      let min = d.getMinutes();
+      let min = d.getMinutes()
       if (min < 10) {
-        min = "0" + min;
+        min = `0${min}`
       }
-      let sec = d.getSeconds();
+      let sec = d.getSeconds()
       if (sec < 10) {
-        sec = "0" + sec;
+        sec = `0${sec}`
       }
 
-      let formatted = d.getDate() + ' '
-      + months[d.getMonth()] + ' '
-      + d.getFullYear() + ' '
-      + d.getHours() + ':'
-      + min + ':'
-      + sec
-      + ' UTC'
+      const formatted = `${d.getDate()} ${
+        months[d.getMonth()]
+      } ${d.getFullYear()} ${d.getHours()}:${min}:${sec} UTC`
 
       return formatted
     },
-    nundToUnd: function(amount) {
-      let amountBig = new Big(amount)
-      let und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
+    nundToUnd(amount) {
+      const amountBig = new Big(amount)
+      const und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
       return und
     },
-    UndToNund: function(amount) {
-      let amountBig = new Big(amount)
-      let nund = Number(amountBig.mul(UND_CONFIG.BASENUMBER))
+    UndToNund(amount) {
+      const amountBig = new Big(amount)
+      const nund = Number(amountBig.mul(UND_CONFIG.BASENUMBER))
       return nund
     },
     isValidAmountPlusFees(balance, amount, fees) {
-      let amountBig = new Big(amount);
-      let balanceBig = new Big(balance);
-      let feesBig = new Big(fees);
-      let recommendMinBalance = new Big(UND_CONFIG.RECOMMENDED_MIN_BALANCE);
+      const amountBig = new Big(amount)
+      const balanceBig = new Big(balance)
+      const feesBig = new Big(fees)
+      const recommendMinBalance = new Big(UND_CONFIG.RECOMMENDED_MIN_BALANCE)
 
-      let amountNund = amountBig.mul(UND_CONFIG.BASENUMBER)
-      let balanceNund = balanceBig.mul(UND_CONFIG.BASENUMBER)
-      let amtAndFees = amountNund.add(feesBig)
-      let diff = balanceNund.sub(amtAndFees)
+      const amountNund = amountBig.mul(UND_CONFIG.BASENUMBER)
+      const balanceNund = balanceBig.mul(UND_CONFIG.BASENUMBER)
+      const amtAndFees = amountNund.add(feesBig)
+      const diff = balanceNund.sub(amtAndFees)
 
-      let result = {
+      const result = {
         isValid: amtAndFees.lte(balanceNund),
         gotUnd: Number(balanceNund.div(UND_CONFIG.BASENUMBER)),
         gotNund: balanceNund.toString(),
         requiredUnd: Number(amtAndFees.div(UND_CONFIG.BASENUMBER)),
         requiredNund: amtAndFees.toString(),
         warn: diff.lt(recommendMinBalance),
-        diff: diff.toString()
+        diff: diff.toString(),
       }
       return result
     },
-    showToast: function(variant, title, msg) {
-      this.$bvToast.toast(msg, {
-        title: title,
-        variant: variant,
-        solid: true,
-        autoHideDelay: 10000,
-        appendToast: false,
-        toaster: 'b-toaster-top-left'
+    showToast(variant, title, msg) {
+      // this.$bvToast.toast(msg, {
+      //   title,
+      //   variant,
+      //   solid: true,
+      //   autoHideDelay: 10000,
+      //   appendToast: false,
+      //   toaster: "b-toaster-top-left",
+      // })
+
+      this.$notify({
+        group: "walletNotifications",
+        title,
+        text: msg,
+        type: variant,
       })
     },
-    wait: function(ms) {
+    wait(ms) {
       return new Promise(function(resolve) {
         setTimeout(function() {
           resolve()
         }, ms)
       })
     },
-    clientError: function () {
-      this.showToast('danger', 'Error', 'Client not connected or wallet not unlocked. Please reload')
+    clientError() {
+      this.showToast("danger", "Error", "Client not connected or wallet not unlocked. Please reload")
     },
-    handleUndJsError: function (resObj) {
-      if('error' in resObj.result) {
-        console.log('UND-JS returned an error.', 'status:', resObj.status, 'message:', resObj.result.error)
+    handleUndJsError(resObj) {
+      if ("error" in resObj.result) {
+        console.log("UND-JS returned an error.", "status:", resObj.status, "message:", resObj.result.error)
       } else {
-        console.log('UND-JS returned an error:', resObj.toString())
+        console.log("UND-JS returned an error:", resObj.toString())
       }
     },
-    isValidRestUrl: function (str)
-    {
-      let regexp =  /^(?:(?:https?):\/\/)/;
-      if (regexp.test(str))
-      {
-        return true;
+    isValidRestUrl(str) {
+      const regexp = /^(?:(?:https?):\/\/)/
+      if (regexp.test(str)) {
+        return true
       }
-      else
-      {
-        return false;
-      }
+      return false
     },
-    explorerUrl: function(chainId) {
+    explorerUrl(chainId) {
       // check for FUND-Mainchain-TestNet-v3 etc.
+      let cId = chainId
       try {
-        if(chainId) {
-          let n = chainId.search("Mainchain-TestNet");
+        if (cId) {
+          const n = cId.search("Mainchain-TestNet")
           if (n > -1) {
-            chainId = 'Mainchain-TestNet'
+            cId = "Mainchain-TestNet"
           }
         }
-      } catch(e) {}
+      } catch (e) {
+        // empty
+      }
 
-      switch(chainId) {
-        case 'FUND-Mainchain-DevNet':
-          return 'http://localhost:3000'
-        case 'Mainchain-TestNet':
-          return 'https://explorer-testnet.unification.io'
+      switch (cId) {
+        case "FUND-Mainchain-DevNet":
+          return "http://localhost:3000"
+        case "Mainchain-TestNet":
+          return "https://explorer-testnet.unification.io"
         default:
           // default to MainNet
-          return 'https://explorer.unification.io'
+          return "https://explorer.unification.io"
       }
     },
-    getEventAttr: function(logs, eventType, attrKey) {
-      let val = ''
+    getEventAttr(logs, eventType, attrKey) {
+      let val = ""
       try {
-        for (let i = 0; i < logs.length; i++) {
-          let events = logs[i].events
-          for (let j = 0; j < events.length; j++) {
+        for (let i = 0; i < logs.length; i += 1) {
+          const { events } = logs[i]
+          for (let j = 0; j < events.length; j += 1) {
             if (events[j].type === eventType) {
-              let attributes = events[j].attributes
-              for (let k = 0; k < attributes.length; k++) {
+              const { attributes } = events[j]
+              for (let k = 0; k < attributes.length; k += 1) {
                 if (attributes[k].key === attrKey) {
                   val = attributes[k].value
                 }
@@ -189,19 +193,22 @@ Vue.mixin({
             }
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        // empty
+      }
       return val
-    }
-  }
+    },
+  },
 })
 
-export function deepCopy (obj, cache = []) {
+export function deepCopy(obj, cache = []) {
   // just return if obj is immutable value
-  if (obj === null || typeof obj !== 'object') {
+  if (obj === null || typeof obj !== "object") {
     return obj
   }
 
   // if obj is hit, it is in circular structure
+  // eslint-disable-next-line no-restricted-globals
   const hit = find(cache, c => c.original === obj)
   if (hit) {
     return hit.copy
@@ -212,7 +219,7 @@ export function deepCopy (obj, cache = []) {
   // because we want to refer it in recursive deepCopy
   cache.push({
     original: obj,
-    copy
+    copy,
   })
 
   Object.keys(obj).forEach(key => {

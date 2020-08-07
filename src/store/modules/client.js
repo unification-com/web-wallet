@@ -1,6 +1,4 @@
 // initial state
-import {is} from "bootstrap-vue/esm/utils/object";
-
 const state = {
   client: null,
   chainId: null,
@@ -25,30 +23,46 @@ const getters = {
 // actions
 const actions = {
   clearClient(context) {
-    context.commit('clearClient')
-    context.commit('setIsConnected', false)
+    context.commit("clearClient")
+  },
+
+  setIsConnected(context) {
+    context.commit("setIsConnected", true)
+  },
+
+  setIsNotConnected(context) {
+    context.commit("setIsConnected", false)
+  },
+
+  setChainId(context, chainId) {
+    context.commit("setChainId", chainId)
+  },
+
+  setNodeInfo(context, nodeInfo) {
+    context.commit("setNodeInfo", nodeInfo)
+  },
+
+  setNodeAppVersion(context, nodeAppVersion) {
+    context.commit("setNodeAppVersion", nodeAppVersion)
   },
 
   setClient(context, client) {
-    context.commit('setClient', client)
-    if (client !== null
-    && 'chainId' in client
-    && 'node_info' in client
-    && 'node_app_version' in client) {
-      context.commit('setChainId', client.chainId)
-      context.commit('setNodeInfo', client.node_info)
-      context.commit('setNodeAppVersion', client.node_app_version)
-      context.commit('setIsConnected', true)
+    context.commit("setClient", client)
+    if (client !== null && "chainId" in client && "node_info" in client && "node_app_version" in client) {
+      context.commit("setChainId", client.chainId)
+      context.commit("setNodeInfo", client.node_info)
+      context.commit("setNodeAppVersion", client.node_app_version)
+      context.commit("setIsConnected", true)
     } else {
-      context.commit('clearClient')
-      context.commit('setIsConnected', false)
+      context.commit("clearClient")
+      context.commit("setIsConnected", false)
     }
-  }
+  },
 }
 
 // mutations
 const mutations = {
-  clearClient (state) {
+  clearClient(state) {
     state.client = null
     state.chainId = null
     state.nodeInfo = {}
@@ -56,15 +70,15 @@ const mutations = {
     state.isConnected = false
   },
 
-  setClient (state, client) {
+  setClient(state, client) {
     state.client = client
   },
 
-  setChainId (state, chainId) {
+  setChainId(state, chainId) {
     state.chainId = chainId
   },
 
-  setNodeInfo (state, nodeInfo) {
+  setNodeInfo(state, nodeInfo) {
     state.nodeInfo = nodeInfo
   },
 
@@ -74,7 +88,7 @@ const mutations = {
 
   setIsConnected(state, isConnected) {
     state.isConnected = isConnected
-  }
+  },
 }
 
 export default {
@@ -82,5 +96,5 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
 }

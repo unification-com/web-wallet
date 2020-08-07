@@ -1,15 +1,15 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import client from './modules/client'
-import delegations from "./modules/delegations";
-import txs from './modules/txs'
-import validators from './modules/validators'
-import wallet from './modules/wallet'
-import createLogger from '../plugins/logger'
+import Vue from "vue"
+import Vuex from "vuex"
+import client from "./modules/client"
+import delegations from "./modules/delegations"
+import txs from "./modules/txs"
+import validators from "./modules/validators"
+import wallet from "./modules/wallet"
+import createLogger from "../plugins/logger"
 
 Vue.use(Vuex)
 
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== "production"
 
 export default new Vuex.Store({
   modules: {
@@ -17,8 +17,8 @@ export default new Vuex.Store({
     delegations,
     txs,
     validators,
-    wallet
+    wallet,
   },
   strict: debug,
-  plugins: debug ? [createLogger()] : []
+  plugins: debug ? [createLogger()] : [],
 })
