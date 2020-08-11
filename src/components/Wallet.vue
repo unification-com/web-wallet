@@ -265,12 +265,19 @@
       </div>
 
       <template v-slot:modal-footer>
-        <b-button v-show="!confirmOnLedger" variant="success" aria-label="Ledger" @click="useLedgerDevice">
+        <b-button
+          v-show="!confirmOnLedger"
+          variant="success"
+          aria-label="Ledger"
+          :disabled="disableHdPathSelect"
+          @click="useLedgerDevice"
+        >
           Use Ledger
         </b-button>
         <b-button
           v-show="!confirmOnLedger"
           aria-label="Cancel"
+          :disabled="disableHdPathSelect"
           @click="$bvModal.hide('bv-modal-connect-ledger')"
         >
           Cancel
