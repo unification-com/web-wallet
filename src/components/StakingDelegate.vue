@@ -11,7 +11,8 @@
         Chain ID: {{ chainId }}<br />
         Amount: <span class="text-info">{{ delegateData.und }} FUND</span><br />
         From: {{ wallet.address }}<br />
-        Validator: {{ getValidatorMoniker(delegateData.address) }}<br />
+        Validator Name: {{ getValidatorMoniker(delegateData.address) }}<br />
+        Validator Address: {{ delegateData.address }}<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="delegateData.memo">Memo: {{ delegateData.memo }}</span>
