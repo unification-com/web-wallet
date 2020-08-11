@@ -41,7 +41,14 @@
       <b-list-group-item v-for="msg in formattedMsgs" :key="tx.txSummary.txhash + '-' + msg.key">
         <span v-show="txSummary.txSuccess === false"> <b-badge variant="danger">FAILED</b-badge> to </span>
         <span :class="msg.badge">{{ msg.action }}</span>
-        <span v-html="msg.formatted" />
+        <span v-for="msgItem in msg.formatted" :key="msgItem.content">
+          <template v-if="msgItem.wrap">
+            <span class="text-info">{{ msgItem.content }}</span>
+          </template>
+          <template v-else>
+            {{ msgItem.content }}
+          </template>
+        </span>
       </b-list-group-item>
     </div>
 
@@ -59,7 +66,7 @@
           <b-icon-box-arrow-up-right />
         </a>
         <br />
-        Memo: {{ txSummary.memo }}<br />
+        <span v-show="txSummary.memo">Memo: {{ txSummary.memo }}<br /></span>
         Number of Messages: {{ formattedMsgs.length }}<br />
         <span v-show="txSummary.isSent">
           Gas Wanted: {{ txSummary.gas_wanted }}<br />
@@ -347,68 +354,302 @@ export default {
       }
     },
     formatMsgSend(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.amount[0].amount)
       if (this.txSummary.isSent) {
-        return ` <span class="text-info">${formattedAmt}</span> to <span class="text-info">${msg.to_address}</span>`
+        msgContent.push({
+          content: " ",
+          wrap: false,
+        })
+        msgContent.push({
+          content: formattedAmt,
+          wrap: true,
+        })
+        msgContent.push({
+          content: " to ",
+          wrap: false,
+        })
+        msgContent.push({
+          content: msg.to_address,
+          wrap: true,
+        })
+      } else {
+        msgContent.push({
+          content: formattedAmt,
+          wrap: true,
+        })
+        msgContent.push({
+          content: " from ",
+          wrap: false,
+        })
+        msgContent.push({
+          content: msg.from_address,
+          wrap: true,
+        })
       }
-      return ` <span class="text-info">${formattedAmt}</span> from <span class="text-info">${msg.from_address}</span>`
+      return msgContent
     },
     formatPurchaseUnd(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.amount.amount)
-      return ` for <span class="text-info">${formattedAmt}</span>`
+      msgContent.push({
+        content: " for ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedAmt,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgDelegate(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.amount.amount)
       const moniker = this.getValidatorMoniker(msg.validator_address)
-      return ` <span class="text-info">${formattedAmt}</span> to <span class="text-info">${moniker}</span>`
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedAmt,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " to ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgUnDelegate(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.amount.amount)
       const moniker = this.getValidatorMoniker(msg.validator_address)
-      return ` <span class="text-info">${formattedAmt}</span> from <span class="text-info">${moniker}</span>`
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedAmt,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " from ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgWithdrawDelegationReward(msg, withdrawAmount) {
+      const msgContent = []
       const moniker = this.getValidatorMoniker(msg.validator_address)
-
-      let formattedAmt = ""
       if (withdrawAmount !== null) {
-        formattedAmt = ` of <span class="text-info">${this.formatAmount(withdrawAmount)}</span>`
+        msgContent.push({
+          content: " of ",
+          wrap: false,
+        })
+        msgContent.push({
+          content: this.formatAmount(withdrawAmount),
+          wrap: true,
+        })
       }
-      return `${formattedAmt} from <span class="text-info">${moniker}</span>`
+      msgContent.push({
+        content: " from ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgWithdrawValidatorCommission(msg, withdrawAmount) {
+      const msgContent = []
       const moniker = this.getValidatorMoniker(msg.value.validator_address)
-
-      let formattedAmt = ""
       if (withdrawAmount !== null) {
-        formattedAmt = ` of <span class="text-info">${this.formatAmount(withdrawAmount)}</span>`
+        msgContent.push({
+          content: " of ",
+          wrap: false,
+        })
+        msgContent.push({
+          content: this.formatAmount(withdrawAmount),
+          wrap: true,
+        })
       }
-      return `${formattedAmt} from <span class="text-info">${moniker}</span>`
+      msgContent.push({
+        content: " from ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgBeginRedelegate(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.amount.amount)
       const monikerSrc = this.getValidatorMoniker(msg.validator_src_address)
       const monikerDst = this.getValidatorMoniker(msg.validator_dst_address)
-      return ` <span class="text-info">${formattedAmt}</span> from <span class="text-info">${monikerSrc}</span> to <span class="text-info">${monikerDst}</span>`
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedAmt,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " from ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: monikerSrc,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " to ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: monikerDst,
+        wrap: true,
+      })
+      return msgContent
     },
     formatMsgCreateValidator(msg) {
+      const msgContent = []
       const formattedAmt = this.formatAmount(msg.value.amount)
-      return ` <span class="text-info">${msg.description.moniker}</span> with address <span class="text-info">${msg.validator_address}</span> self delegated <span class="text-info">${formattedAmt}</span>`
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.description.moniker,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " with address ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.validator_address,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " self delegated ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedAmt,
+        wrap: true,
+      })
+      return msgContent
     },
     formatRegisterWrkchain(msg) {
-      return ` <span class="text-info">"${msg.name}"</span> with Moniker <span class="text-info">${msg.moniker}</span>`
+      const msgContent = []
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.name,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " with Moniker ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatRegisterBeacon(msg) {
-      return ` <span class="text-info">"${msg.name}"</span> with Moniker <span class="text-info">${msg.moniker}</span>`
+      const msgContent = []
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.name,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " with Moniker ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.moniker,
+        wrap: true,
+      })
+      return msgContent
     },
     formatRecordWrkchainHash(msg) {
       // Todo: get WRKChain moniker instead of outputting ID
-      return ` <span class="text-info">${msg.blockhash}</span> for height <span class="text-info">${msg.height}</span> on WRKChain <span class="text-info">${msg.wrkchain_id}</span>`
+      const msgContent = []
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.blockhash,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " for height ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.height,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " on WRKChain ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.wrkchain_id,
+        wrap: true,
+      })
+      return msgContent
     },
     formatRecordBeaconTimestamp(msg) {
       // Todo: get BEACON moniker instead of outputting ID
+      const msgContent = []
       const formattedTime = this.formatDateTime(msg.submit_time)
-      return ` Hash value <span class="text-info">${msg.hash}</span> Timestamped at <span class="text-info">${formattedTime}</span> for BEACON <span class="text-info">${msg.beacon_id}</span>`
+      msgContent.push({
+        content: " Hash value ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.hash,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " Timestamped at ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: formattedTime,
+        wrap: true,
+      })
+      msgContent.push({
+        content: " for BEACON ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: msg.beacon_id,
+        wrap: true,
+      })
+      return msgContent
     },
   },
 }
