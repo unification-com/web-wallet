@@ -6,9 +6,11 @@
       </b-col>
       <b-col cols="6">
         <b>
-          <span class="text-primary">
-            <a :href="explorerUrlPrefix + '/account/' + wallet.address" target="_blank">
-              {{ wallet.address }}
+          <span>
+            <a :href="explorerUrlPrefix + '/account/' + wallet.address" target="_blank" class="text-primary">
+              <span class="wallet_address">
+                {{ wallet.address }}
+              </span>
               <b-icon-box-arrow-up-right />
             </a>
           </span>

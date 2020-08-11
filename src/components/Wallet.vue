@@ -232,6 +232,7 @@
       <p>
         Open Unification Ledger app
       </p>
+      <p><img class="img-centre" src="@/assets/images/ledger/unification_app.png" /></p>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
           id="ledger-hd-path-1"
@@ -251,16 +252,23 @@
         </b-form-group>
       </b-form>
 
-      <p>
-        <span>Address: {{ wallet.address || `Loading address for 44'/5555'/0'/0/${hdPath}` }}</span>
-      </p>
+      <div class="ledger-notification-wrapper">
+        <div class="ledger-notification green">
+          <p>
+            <span :class="{ wallet_address: wallet.address }">{{
+              wallet.address || `Loading address for 44'/5555'/0'/0/${hdPath}`
+            }}</span>
+          </p>
+        </div>
+      </div>
 
       <div v-show="confirmOnLedger" class="ledger-notification-wrapper">
         <div class="ledger-notification">
           <p>
             Please confirm the address above matches the address displayed on your Ledger device.
           </p>
-          <p>Click OK on the on the device to continue</p>
+          <p><em>On the Ledger device</em>: scroll right and click OK to continue</p>
+          <p><img class="img-centre" src="@/assets/images/ledger/ledger_ok.png" /></p>
         </div>
       </div>
 

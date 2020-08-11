@@ -85,7 +85,7 @@
             <b-dropdown-item>
               <b-button
                 v-show="$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="warning"
+                variant="primary"
                 @click="$refs.walletComponent.closeWallet()"
               >
                 Close Wallet

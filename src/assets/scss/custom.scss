@@ -130,6 +130,7 @@ body {
   margin: 20px 0px 0px 0px;
   padding: 0;
 }
+
 .ledger-notification {
   display: block;
   box-sizing: border-box;
@@ -140,4 +141,18 @@ body {
   color: white;
   background: #2d6ba6;
   border-left: 10px solid #163552;
+}
+
+.ledger-notification.green {
+  background: #42a85f;
+  border-left-color: #20522e;
+}
+
+.wallet_address {
+  font-family: "Lucida Console", Monaco, monospace
+}
+
+.img-centre {
+  margin: 5px auto 5px;
+  display: block;
 }
