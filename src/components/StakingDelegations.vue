@@ -113,11 +113,15 @@
       <template v-slot:modal-title>
         <h3>Confirm Undelegate FUND</h3>
       </template>
-      <div v-show="!confirmOnLedger">
-        Undelegate <span class="text-info">{{ undelegateData.und }} FUND</span> from
-        {{ getValidatorMoniker(undelegateData.address) }}?<br />
+      <div>
+        Chain ID: {{ chainId }}<br />
+        Undelegate <span class="text-info">{{ undelegateData.und }} FUND</span><br />
+        From: {{ wallet.address }}<br />
+        Validator Name: {{ getValidatorMoniker(undelegateData.address) }}?<br />
+        Validator Address: {{ undelegateData.address }}?<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
-        Gas: {{ fee.gas }}
+        Gas: {{ fee.gas }}<br />
+        <span v-show="undelegateData.memo">Memo: {{ undelegateData.memo }}</span>
       </div>
       <LedgerConfirm v-show="confirmOnLedger" />
       <template v-slot:modal-footer>
@@ -129,7 +133,11 @@
         >
           Confirm
         </b-button>
-        <b-button aria-label="Cancel" @click="$bvModal.hide('bv-modal-confirm-undelegate-und')">
+        <b-button
+          v-show="!confirmOnLedger"
+          aria-label="Cancel"
+          @click="$bvModal.hide('bv-modal-confirm-undelegate-und')"
+        >
           Cancel
         </b-button>
       </template>
@@ -277,12 +285,15 @@
       <template v-slot:modal-title>
         <h3>Confirm redelegate FUND</h3>
       </template>
-      <div v-show="!confirmOnLedger">
-        redelegate <span class="text-info">{{ redelegateData.und }} FUND</span> from
-        {{ getValidatorMoniker(redelegateData.src) }}?<br />
-        to {{ getValidatorMoniker(redelegateData.dst) }}?<br />
+      <div>
+        Chain ID: {{ chainId }}<br />
+        Redelegate <span class="text-info">{{ redelegateData.und }} FUND</span><br />
+        From: {{ wallet.address }}<br />
+        Validator From: {{ getValidatorMoniker(redelegateData.src) }} ({{ redelegateData.src }})<br />
+        Validator To {{ getValidatorMoniker(redelegateData.dst) }} ({{ redelegateData.dst }})<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
-        Gas: {{ fee.gas }}
+        Gas: {{ fee.gas }}<br />
+        <span v-show="redelegateData.memo">Memo: {{ redelegateData.memo }}</span>
       </div>
       <LedgerConfirm v-show="confirmOnLedger" />
       <template v-slot:modal-footer>
@@ -294,7 +305,11 @@
         >
           Confirm
         </b-button>
-        <b-button aria-label="Cancel" @click="$bvModal.hide('bv-modal-confirm-redelegate-und')">
+        <b-button
+          v-show="!confirmOnLedger"
+          aria-label="Cancel"
+          @click="$bvModal.hide('bv-modal-confirm-redelegate-und')"
+        >
           Cancel
         </b-button>
       </template>
@@ -305,11 +320,16 @@
       <template v-slot:modal-title>
         <h3>Confirm Withdraw Rewards</h3>
       </template>
-      <div v-show="!confirmOnLedger">
+      <div>
+        Chain ID: {{ chainId }}<br />
         Withdraw <span class="text-info">{{ withdrawData.und }} FUND</span><br />
-        from {{ getValidatorMoniker(withdrawData.address) }}<br /><br />
+        For: {{ wallet.address }}<br />
+        From Validator {{ getValidatorMoniker(withdrawData.address) }}<br />
+        Validator Address: {{ withdrawData.address }}<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
-        Gas: {{ fee.gas }}
+        Gas: {{ fee.gas }}<br />
+        <span v-show="withdrawData.memo">Memo: {{ withdrawData.memo }}</span>
+
         <b-form @submit.prevent="preventSubmit">
           <b-form-group
             v-show="isShowFee"
@@ -370,7 +390,11 @@
         >
           Confirm
         </b-button>
-        <b-button aria-label="Cancel" @click="$bvModal.hide('bv-modal-confirm-withdraw-rewards')">
+        <b-button
+          v-show="!confirmOnLedger"
+          aria-label="Cancel"
+          @click="$bvModal.hide('bv-modal-confirm-withdraw-rewards')"
+        >
           Cancel
         </b-button>
       </template>

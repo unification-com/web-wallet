@@ -6,12 +6,15 @@
         <h3>Confirm Delegate FUND</h3>
       </template>
 
-      <div v-show="!confirmOnLedger">
+      <div>
         <p>Please confirm delegation:</p>
+        Chain ID: {{ chainId }}<br />
         Amount: <span class="text-info">{{ delegateData.und }} FUND</span><br />
+        From: {{ wallet.address }}<br />
         Validator: {{ getValidatorMoniker(delegateData.address) }}<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
         Gas: {{ fee.gas }}<br />
+        <span v-show="delegateData.memo">Memo: {{ delegateData.memo }}</span>
 
         <span v-show="showWarning">
           <p>
@@ -30,6 +33,7 @@
           Confirm
         </b-button>
         <b-button
+          v-show="!confirmOnLedger"
           aria-label="Cancel"
           @click="clearDelegateData, $bvModal.hide('bv-modal-confirm-delegate-und')"
         >
@@ -77,7 +81,7 @@
             {{ selectedValidatorOperatorAddress }}
           </a>
           <b-icon-box-arrow-up-right /><br />
-          Website: <a :href="selectedValidatorWebsite" target="_blank">{{ selectedValidatorWebsite }}</a
+          Website: <a :href="selectedValidatorWebsite" target="_blank"> {{ selectedValidatorWebsite }} </a
           ><br />
           Identity: {{ selectedValidatorIdentity }}<br />
           Security Contact: {{ selectedValidatorSecurity }}<br />

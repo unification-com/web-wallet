@@ -5,12 +5,15 @@
         <h3>Confirm FUND Transfer</h3>
       </template>
 
-      <div v-show="!confirmOnLedger">
+      <div>
         <p>Please confirm:</p>
+        Chain ID: {{ chainId }}<br />
         Sending {{ transfer.und }} FUND<br />
+        From: {{ wallet.address }}<br />
         To {{ transfer.to }}<br />
         Fee: {{ fee.amount[0].amount }}nund<br />
         Gas: {{ fee.gas }}<br />
+        <span v-show="transfer.memo">Memo: {{ transfer.memo }}</span>
 
         <span v-show="showWarning">
           <p>
@@ -21,13 +24,18 @@
           </p>
         </span>
       </div>
+
       <LedgerConfirm v-show="confirmOnLedger" />
 
       <template v-slot:modal-footer>
         <b-button v-show="!confirmOnLedger" variant="success" aria-label="Create" @click="transferUnd">
           Confirm
         </b-button>
-        <b-button aria-label="Cancel" @click="clearTransfer, $bvModal.hide('bv-modal-transfer-und')">
+        <b-button
+          v-show="!confirmOnLedger"
+          aria-label="Cancel"
+          @click="clearTransfer, $bvModal.hide('bv-modal-transfer-und')"
+        >
           Cancel
         </b-button>
       </template>
