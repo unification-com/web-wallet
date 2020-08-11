@@ -317,18 +317,6 @@ export default {
       walletPass: null,
       walletPassCheck: null,
       hdPath: 0,
-      hdPathOptions: [
-        { value: 0, text: "44'/5555'/0'/0/0" },
-        { value: 1, text: "44'/5555'/0'/0/1" },
-        { value: 2, text: "44'/5555'/0'/0/2" },
-        { value: 3, text: "44'/5555'/0'/0/3" },
-        { value: 4, text: "44'/5555'/0'/0/4" },
-        { value: 5, text: "44'/5555'/0'/0/5" },
-        { value: 6, text: "44'/5555'/0'/0/6" },
-        { value: 7, text: "44'/5555'/0'/0/7" },
-        { value: 8, text: "44'/5555'/0'/0/8" },
-        { value: 9, text: "44'/5555'/0'/0/9" },
-      ],
       disableHdPathSelect: false,
       undClient: null,
       confirmOnLedger: false,
@@ -344,6 +332,13 @@ export default {
       validators: state => state.validators,
       delegations: state => state.delegations,
     }),
+    hdPathOptions() {
+      const hdPathOptions = []
+      for (let i = 0; i < 100; i += 1) {
+        hdPathOptions.push({ value: i, text: `44'/5555'/0'/0/${i}` })
+      }
+      return hdPathOptions
+    },
   },
   mounted() {
     this.initChain()
