@@ -113,15 +113,6 @@ Vue.mixin({
       return result
     },
     showToast(variant, title, msg) {
-      // this.$bvToast.toast(msg, {
-      //   title,
-      //   variant,
-      //   solid: true,
-      //   autoHideDelay: 10000,
-      //   appendToast: false,
-      //   toaster: "b-toaster-top-left",
-      // })
-
       this.$notify({
         group: "walletNotifications",
         title,
@@ -130,7 +121,9 @@ Vue.mixin({
       })
     },
     wait(ms) {
+      // eslint-disable-next-line
       return new Promise(function(resolve) {
+        // eslint-disable-next-line
         setTimeout(function() {
           resolve()
         }, ms)
@@ -141,8 +134,10 @@ Vue.mixin({
     },
     handleUndJsError(resObj) {
       if ("error" in resObj.result) {
+        // eslint-disable-next-line
         console.log("UND-JS returned an error.", "status:", resObj.status, "message:", resObj.result.error)
       } else {
+        // eslint-disable-next-line
         console.log("UND-JS returned an error:", resObj.toString())
       }
     },

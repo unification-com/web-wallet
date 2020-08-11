@@ -80,6 +80,9 @@ import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "Tx",
+  props: {
+    tx: Object,
+  },
   data() {
     return {
       fullTx: this.tx,
@@ -105,9 +108,6 @@ export default {
       }
       return `Message${suffix}`
     },
-  },
-  props: {
-    tx: Object,
   },
   watch: {
     tx(val) {

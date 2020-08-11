@@ -3,7 +3,7 @@
     <Summary />
 
     <b-card no-body>
-      <b-tabs pills card v-model="tabIndex">
+      <b-tabs v-model="tabIndex" pills card>
         <b-tab title="Transfer" active @click.prevent="updateWallet()">
           <b-card-text>
             <Transfer ref="transfercomponent" />
@@ -41,6 +41,14 @@ export default {
     Transactions,
     Transfer,
   },
+  data() {
+    return {
+      timer: null,
+      activeItem: "transfer",
+      isUpdating: false,
+      tabIndex: 0,
+    }
+  },
   computed: {
     ...mapState({
       client: state => state.client.client,
@@ -53,14 +61,6 @@ export default {
     ...mapGetters({
       getReward: "delegations/getReward",
     }),
-  },
-  data() {
-    return {
-      timer: null,
-      activeItem: "transfer",
-      isUpdating: false,
-      tabIndex: 0,
-    }
   },
   mounted() {
     this.refreshBalance()
@@ -121,7 +121,6 @@ export default {
             }
           }
         } catch (e) {
-          console.warn(e)
           return false
         }
       }

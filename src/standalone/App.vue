@@ -1,5 +1,5 @@
 <template>
-  <Home v-bind:is-web="false" />
+  <Home :is-web="false" />
 </template>
 <script>
 import Home from "../components/Home.vue"
