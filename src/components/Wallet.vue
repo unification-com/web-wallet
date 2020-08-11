@@ -252,14 +252,27 @@
       </b-form>
 
       <p>
-        <span>{{ wallet.address || `Loading wallet address for 44'/5555'/0'/0/${hdPath}` }}</span>
+        <span>Address: {{ wallet.address || `Loading address for 44'/5555'/0'/0/${hdPath}` }}</span>
       </p>
 
+      <div v-show="confirmOnLedger" class="ledger-notification-wrapper">
+        <div class="ledger-notification">
+          <p>
+            Please confirm the address above matches the address displayed on your Ledger device.
+          </p>
+          <p>Click OK on the on the device to continue</p>
+        </div>
+      </div>
+
       <template v-slot:modal-footer>
-        <b-button variant="success" aria-label="Ledger" @click="useLedgerDevice">
+        <b-button v-show="!confirmOnLedger" variant="success" aria-label="Ledger" @click="useLedgerDevice">
           Use Ledger
         </b-button>
-        <b-button aria-label="Cancel" @click="$bvModal.hide('bv-modal-connect-ledger')">
+        <b-button
+          v-show="!confirmOnLedger"
+          aria-label="Cancel"
+          @click="$bvModal.hide('bv-modal-connect-ledger')"
+        >
           Cancel
         </b-button>
       </template>
@@ -311,6 +324,7 @@ export default {
       ],
       disableHdPathSelect: false,
       undClient: null,
+      confirmOnLedger: false,
     }
   },
   computed: {
@@ -534,20 +548,35 @@ export default {
       }
     },
     async useLedgerDevice() {
-      this.$bvModal.hide("bv-modal-connect-ledger")
-      this.$bvModal.show("bv-modal-please-wait")
       if (this.isClientConnected) {
+        this.confirmOnLedger = true
         try {
+          const confirmedAddress = await this.undClient.confirmLedgerAddress()
+          if (confirmedAddress !== this.wallet.address) {
+            this.showToast(
+              "error",
+              "Error",
+              `address mismatch: Confirmed on Ledger "${confirmedAddress}" != ${this.wallet.address}`,
+            )
+            this.confirmOnLedger = false
+            await this.clearWalletData()
+            this.$bvModal.hide("bv-modal-please-wait")
+          }
+          this.confirmOnLedger = false
+          this.$bvModal.hide("bv-modal-connect-ledger")
+          this.$bvModal.show("bv-modal-please-wait")
           await this.$store.dispatch("client/setClient", this.undClient)
           await this.$store.dispatch("wallet/setIsWalletUnlocked", true)
           await this.$refs.unlockedcomponent.runOnUnlocked()
           this.$bvModal.hide("bv-modal-please-wait")
         } catch (e) {
+          this.confirmOnLedger = false
           this.showToast("error", "Error", e.toString())
           await this.clearWalletData()
           this.$bvModal.hide("bv-modal-please-wait")
         }
       } else {
+        this.confirmOnLedger = false
         this.showToast("error", "Error", "Not connected to network")
         await this.clearWalletData()
         this.$bvModal.hide("bv-modal-please-wait")
