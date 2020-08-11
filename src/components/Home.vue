@@ -78,7 +78,7 @@
                   $refs.walletComponent.showConnectLedgerModal(), $refs.walletComponent.selectLedgerWallet()
                 "
               >
-                Connect Ledger (Alpha)
+                Connect Ledger Device
               </b-button>
             </b-dropdown-item>
 
