@@ -13,7 +13,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.0",
     "@ledgerhq/hw-transport": "^5.21.0",
-    "@unification-com/und-js": "^1.8.3",
+    "@unification-com/und-js": "^1.8.4",
     "axios": "^0.19.2",
     "big.js": "^5.2.2",
     "bootstrap": "^4.5.0",
