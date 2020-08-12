@@ -119,7 +119,7 @@
         From: {{ wallet.address }}<br />
         Validator Name: {{ getValidatorMoniker(undelegateData.address) }}?<br />
         Validator Address: {{ undelegateData.address }}?<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="undelegateData.memo">Memo: {{ undelegateData.memo }}</span>
       </div>
@@ -290,8 +290,8 @@
         Redelegate <span class="text-info">{{ redelegateData.und }} FUND</span><br />
         From: {{ wallet.address }}<br />
         Validator From: {{ getValidatorMoniker(redelegateData.src) }} ({{ redelegateData.src }})<br />
-        Validator To {{ getValidatorMoniker(redelegateData.dst) }} ({{ redelegateData.dst }})<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        Validator To: {{ getValidatorMoniker(redelegateData.dst) }} ({{ redelegateData.dst }})<br />
+        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="redelegateData.memo">Memo: {{ redelegateData.memo }}</span>
       </div>
@@ -324,9 +324,9 @@
         Chain ID: {{ chainId }}<br />
         Withdraw <span class="text-info">{{ withdrawData.und }} FUND</span><br />
         For: {{ wallet.address }}<br />
-        From Validator {{ getValidatorMoniker(withdrawData.address) }}<br />
+        From Validator: {{ getValidatorMoniker(withdrawData.address) }}<br />
         Validator Address: {{ withdrawData.address }}<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="withdrawData.memo">Memo: {{ withdrawData.memo }}</span>
 

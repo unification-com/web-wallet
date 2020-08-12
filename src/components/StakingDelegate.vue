@@ -13,7 +13,7 @@
         From: {{ wallet.address }}<br />
         Validator Name: {{ getValidatorMoniker(delegateData.address) }}<br />
         Validator Address: {{ delegateData.address }}<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="delegateData.memo">Memo: {{ delegateData.memo }}</span>
 

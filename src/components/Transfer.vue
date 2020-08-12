@@ -10,8 +10,8 @@
         Chain ID: {{ chainId }}<br />
         Sending {{ transfer.und }} FUND<br />
         From: {{ wallet.address }}<br />
-        To {{ transfer.to }}<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        To: {{ transfer.to }}<br />
+        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="transfer.memo">Memo: {{ transfer.memo }}</span>
 
