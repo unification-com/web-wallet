@@ -12,7 +12,7 @@
         Amount: <span class="text-info">{{ delegateData.und }} FUND</span><br />
         From: {{ wallet.address }}<br />
         Validator Name: {{ getValidatorMoniker(delegateData.address) }}<br />
-        Validator Address: {{ delegateData.address }}<br />
+        Validator Address: <span class="wallet_address"> {{ delegateData.address }} </span><br />
         Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="delegateData.memo">Memo: {{ delegateData.memo }}</span>
@@ -72,15 +72,17 @@
         >
           <h5>
             "<a :href="explorerUrlPrefix + '/validators/' + selectedValidatorOperatorAddress" target="_blank">
-              {{ selectedValidatorMoniker }} </a
+              {{ selectedValidatorMoniker }}</a
             >"
             <span v-show="selectedValidatorJailed" class="badge badge-danger">Jailed</span>
             Validator Info
           </h5>
           Operator Address:
-          <a :href="explorerUrlPrefix + '/validators/' + selectedValidatorOperatorAddress" target="_blank">
-            {{ selectedValidatorOperatorAddress }}
-          </a>
+          <span class="wallet_address">
+            <a :href="explorerUrlPrefix + '/validators/' + selectedValidatorOperatorAddress" target="_blank">
+              {{ selectedValidatorOperatorAddress }}
+            </a>
+          </span>
           <b-icon-box-arrow-up-right /><br />
           Website: <a :href="selectedValidatorWebsite" target="_blank"> {{ selectedValidatorWebsite }} </a
           ><br />
@@ -363,7 +365,8 @@ export default {
       return true
     },
     showConfirmDelegate() {
-      if (this.delegateData.und <= 0 || Number.isNaN(this.delegateData.und)) {
+      // eslint-disable-next-line no-restricted-globals
+      if (this.delegateData.und <= 0 || isNaN(this.delegateData.und)) {
         this.showToast("danger", "Error", "Amount must be greater than zero")
         return false
       }
