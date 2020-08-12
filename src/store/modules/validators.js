@@ -1,7 +1,6 @@
-// initial state
-import {is} from "bootstrap-vue/esm/utils/object";
-const _ = require('lodash/core');
+const _ = require("lodash/core")
 
+// initial state
 const state = {
   validators: {},
   validatorsSelect: [],
@@ -9,60 +8,60 @@ const state = {
 
 // getters
 const getters = {
-
-  getValidatorDescription: (state) => (operator_address) => {
+  getValidatorDescription: state => operatorAddress => {
     let description = {
-      moniker: operator_address,
-      identity: '',
-      website: '',
-      security_contact: '',
-      details: '',
+      moniker: operatorAddress,
+      identity: "",
+      website: "",
+      security_contact: "",
+      details: "",
     }
-    if(operator_address in state.validators) {
-      description = state.validators[operator_address].description
+    if (operatorAddress in state.validators) {
+      description = state.validators[operatorAddress].description
     }
     return description
   },
 
-  getValidatorMoniker: (state, getters) => (operator_address) => {
-    return getters.getValidatorDescription(operator_address)['moniker']
-  }
+  getValidatorMoniker: (state, getters) => operatorAddress => {
+    return getters.getValidatorDescription(operatorAddress).moniker
+  },
 }
 
 // actions
 const actions = {
   clearValidators(context) {
-    context.commit('clearValidators')
+    context.commit("clearValidators")
   },
 
   addValidator(context, validator) {
     if (!(validator.operator_address in context.state.validators)) {
-      context.commit('addValidator', validator)
+      context.commit("addValidator", validator)
     }
   },
 
   updateValidatorsSelect(context) {
-    let validatorSelectArray = []
+    const validatorSelectArray = []
 
-    for (let key in context.state.validators) {
-      // skip loop if the property is from prototype
-      if (!context.state.validators.hasOwnProperty(key)) continue;
-      let valOption = {
-        value: key,
-        text: context.state.validators[key].description.moniker
+    const keys = Object.keys(context.state.validators)
+    for (let i = 0; i < keys.length; i += 1) {
+      if (Object.prototype.hasOwnProperty.call(context.state.validators, keys[i])) {
+        const valOption = {
+          value: keys[i],
+          text: context.state.validators[keys[i]].description.moniker,
+        }
+        validatorSelectArray.push(valOption)
       }
-      validatorSelectArray.push(valOption)
     }
-    validatorSelectArray.sort((a, b) => (a.text > b.text) ? 1 : -1)
-    if(!_.isEqual(validatorSelectArray, context.state.validatorsSelect.slice())) {
-      context.commit('updateValidatorsSelect', validatorSelectArray)
+    validatorSelectArray.sort((a, b) => (a.text > b.text ? 1 : -1))
+    if (!_.isEqual(validatorSelectArray, context.state.validatorsSelect.slice())) {
+      context.commit("updateValidatorsSelect", validatorSelectArray)
     }
-  }
+  },
 }
 
 // mutations
 const mutations = {
-  clearValidators (state) {
+  clearValidators(state) {
     state.validators = {}
     state.validatorsSelect = []
   },
@@ -73,7 +72,7 @@ const mutations = {
 
   updateValidatorsSelect(state, validatorsSelectArray) {
     state.validatorsSelect = validatorsSelectArray
-  }
+  },
 }
 
 export default {
@@ -81,5 +80,5 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
 }

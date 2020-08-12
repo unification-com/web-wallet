@@ -2,13 +2,20 @@
   <div>
     <b-card no-body>
       <b-tabs pills card>
-        <b-tab title="Delegations" active @click.prevent="$refs.stakingdelegationsconponent.generateDisplayObj(), clearAll()">
+        <b-tab
+          title="Delegations"
+          active
+          @click.prevent="$refs.stakingdelegationsconponent.generateDisplayObj(), clearAll()"
+        >
           <b-card-text>
             <StakingDelegations ref="stakingdelegationsconponent" />
           </b-card-text>
         </b-tab>
 
-        <b-tab title="Unbonding Delegations" @click.prevent="$refs.stakingunbondingcomponent.getUnbondingDelegations()">
+        <b-tab
+          title="Unbonding Delegations"
+          @click.prevent="$refs.stakingunbondingcomponent.getUnbondingDelegations()"
+        >
           <b-card-text>
             <StakingUnbondingDelegations ref="stakingunbondingcomponent" />
           </b-card-text>
@@ -22,7 +29,10 @@
 
         <b-tab title="Delegate">
           <b-card-text>
-            <StakingDelegate ref="stakingdelegatecomponent" @click.prevent="getValidators(), $refs.stakingdelegatecomponent.clearDelegateData()" />
+            <StakingDelegate
+              ref="stakingdelegatecomponent"
+              @click.prevent="getValidators(), $refs.stakingdelegatecomponent.clearDelegateData()"
+            />
           </b-card-text>
         </b-tab>
       </b-tabs>
@@ -31,65 +41,67 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+import { mapState } from "vuex"
 
-  import StakingDelegate from '@/components/StakingDelegate.vue'
-  import StakingDelegations from '@/components/StakingDelegations.vue'
-  import StakingReDelegations from '@/components/StakingReDelegations.vue'
-  import StakingUnbondingDelegations from "@/components/StakingUnbondingDelegations.vue";
+import StakingDelegate from "./StakingDelegate.vue"
+import StakingDelegations from "./StakingDelegations.vue"
+import StakingReDelegations from "./StakingReDelegations.vue"
+import StakingUnbondingDelegations from "./StakingUnbondingDelegations.vue"
 
-  export default {
-    name: "Staking",
-    components: {
-      StakingDelegate,
-      StakingDelegations,
-      StakingReDelegations,
-      StakingUnbondingDelegations,
+export default {
+  name: "Staking",
+  components: {
+    StakingDelegate,
+    StakingDelegations,
+    StakingReDelegations,
+    StakingUnbondingDelegations,
+  },
+  data() {
+    return {
+      activeItem: "delegations",
+    }
+  },
+  computed: {
+    ...mapState({
+      client: state => state.client.client,
+      chainId: state => state.client.chainId,
+      isClientConnected: state => state.client.isConnected,
+      wallet: state => state.wallet,
+    }),
+  },
+  methods: {
+    // Todo - display and modify withdraw address
+    clearAll() {
+      this.$refs.stakingdelegatecomponent.clearDelegateData()
+      this.$refs.stakingdelegationsconponent.clearUnDelegateData()
+      this.$refs.stakingdelegationsconponent.clearReDelegateData()
+      this.$refs.stakingdelegationsconponent.clearWithdrawData()
     },
-    computed: {
-      ...mapState({
-        client: state => state.client.client,
-        chainId: state => state.client.chainId,
-        isClientConnected: state => state.client.isConnected,
-        wallet: state => state.wallet,
-      }),
+    async loadDelegations() {
+      await this.$refs.stakingdelegationsconponent.getDelegations()
     },
-    data: function () {
-      return {
-        activeItem: 'delegations',
+    async loadRewards() {
+      await this.$refs.stakingdelegationsconponent.getDelegatorRewards()
+    },
+    async loadDataObj() {
+      await this.getValidators()
+      this.$refs.stakingdelegationsconponent.generateDisplayObj()
+    },
+    async getValidators() {
+      if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+        const res = await this.client.getValidators()
+        const addValidatorRes = []
+        if (res.status === 200) {
+          for (let i = 0; i < res.result.result.length; i += 1) {
+            addValidatorRes.push(this.$store.dispatch("validators/addValidator", res.result.result[i]))
+          }
+          await Promise.all(addValidatorRes)
+        } else {
+          this.handleUndJsError(res)
+        }
+        await this.$store.dispatch("validators/updateValidatorsSelect")
       }
     },
-    methods: {
-      // Todo - display and modify withdraw address
-      clearAll: function() {
-        this.$refs.stakingdelegatecomponent.clearDelegateData()
-        this.$refs.stakingdelegationsconponent.clearUnDelegateData()
-        this.$refs.stakingdelegationsconponent.clearReDelegateData()
-        this.$refs.stakingdelegationsconponent.clearWithdrawData()
-      },
-      loadDelegations: async function() {
-        await this.$refs.stakingdelegationsconponent.getDelegations()
-      },
-      loadRewards: async function() {
-        await this.$refs.stakingdelegationsconponent.getDelegatorRewards()
-      },
-      loadDataObj: async function() {
-        await this.getValidators()
-        this.$refs.stakingdelegationsconponent.generateDisplayObj()
-      },
-      getValidators: async function () {
-        if (this.isClientConnected && this.wallet.isWalletUnlocked) {
-          let res = await this.client.getValidators()
-          if (res.status === 200) {
-            for (let i = 0; i < res.result.result.length; i++) {
-              await this.$store.dispatch('validators/addValidator', res.result.result[i])
-            }
-          } else {
-            this.handleUndJsError(res)
-          }
-          await this.$store.dispatch('validators/updateValidatorsSelect')
-        }
-      },
-    }
-  }
+  },
+}
 </script>

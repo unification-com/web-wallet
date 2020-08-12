@@ -1,16 +1,13 @@
 // initial state
-import {is} from "bootstrap-vue/esm/utils/object";
-const _ = require('lodash');
-
 const state = {
   txs: {},
   lastPage: 0,
-  totalPages: 1
+  totalPages: 1,
 }
 
 // getters
 const getters = {
-  getAllTxs: (state) => {
+  getAllTxs: state => {
     return state.txs
   },
 }
@@ -18,61 +15,60 @@ const getters = {
 // actions
 const actions = {
   clearTxs(context) {
-    context.commit('clearTxs')
+    context.commit("clearTxs")
   },
 
   addTx(context, payload) {
     let d = new Date()
-    if(payload.timestamp !== null) {
+    if (payload.timestamp !== null) {
       d = new Date(payload.timestamp)
     }
 
-    let unixtime = Math.floor(d.getTime() / 1000)
+    const unixtime = Math.floor(d.getTime() / 1000)
 
     if (!(payload.txhash in context.state.txs)) {
-      let txSummary = {
+      const txSummary = {
         txhash: payload.txhash,
         timestamp: unixtime,
         txSuccess: null,
-        isSent: payload.isSent
+        isSent: payload.isSent,
       }
 
-      let txData = null;
-      if(payload.data !== null && payload.data !== undefined) {
+      let txData = null
+      if (payload.data !== null && payload.data !== undefined) {
         txData = payload.data
-        if('codespace' in txData || 'code' in txData) {
+        if ("codespace" in txData || "code" in txData) {
           txSummary.txSuccess = false
         } else {
           txSummary.txSuccess = true
         }
       }
 
-      let txObj = {
-        txSummary: txSummary,
-        txData: txData
+      const txObj = {
+        txSummary,
+        txData,
       }
-      context.commit('addTx', txObj)
+      context.commit("addTx", txObj)
     }
   },
 
   addTxData(context, txData) {
-    if ((txData.txhash in context.state.txs) && txData.hasOwnProperty('tx')) {
-      let newTx = JSON.parse(JSON.stringify(context.state.txs[txData.txhash]))
+    if (txData.txhash in context.state.txs && Object.prototype.hasOwnProperty.call(txData, "tx")) {
+      const newTx = JSON.parse(JSON.stringify(context.state.txs[txData.txhash]))
       newTx.txData = txData
-      if('codespace' in txData || 'code' in txData) {
+      if ("codespace" in txData || "code" in txData) {
         newTx.txSummary.txSuccess = false
       } else {
         newTx.txSummary.txSuccess = true
       }
-      context.commit('addTxData', newTx)
+      context.commit("addTxData", newTx)
     }
-  }
-
+  },
 }
 
 // mutations
 const mutations = {
-  clearTxs (state) {
+  clearTxs(state) {
     state.txs = {}
   },
 
@@ -82,7 +78,7 @@ const mutations = {
 
   addTxData(state, newTx) {
     state.txs[newTx.txSummary.txhash] = newTx
-  }
+  },
 }
 
 export default {
@@ -90,5 +86,5 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
 }

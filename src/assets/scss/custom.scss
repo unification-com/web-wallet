@@ -9,7 +9,7 @@ body {
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Open Sans",Helvetica,Arial,Verdana,sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
@@ -121,4 +121,38 @@ body {
 .badge-beacon {
   background-color: #43a047;
   color: white;
+}
+
+.ledger-notification-wrapper {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  margin: 20px 0px 0px 0px;
+  padding: 0;
+}
+
+.ledger-notification {
+  display: block;
+  box-sizing: border-box;
+  text-align: left;
+  font-size: 16px;
+  padding: 10px;
+  margin: 0 5px 5px;
+  color: white;
+  background: #2d6ba6;
+  border-left: 10px solid #163552;
+}
+
+.ledger-notification.green {
+  background: #42a85f;
+  border-left-color: #20522e;
+}
+
+.wallet_address {
+  font-family: "Lucida Console", Monaco, monospace
+}
+
+.img-centre {
+  margin: 5px auto 5px;
+  display: block;
 }

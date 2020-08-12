@@ -6,25 +6,25 @@ module.exports = {
     //   title: 'UND Web Wallet'
     // },
     standalone: {
-      template: 'public/browser-extension.html',
-      entry: './src/standalone/main.js',
-      title: 'UND Web Wallet',
-      filename: 'standalone.html'
+      template: "public/browser-extension.html",
+      entry: "./src/standalone/main.js",
+      title: "UND Web Wallet",
+      filename: "standalone.html",
     },
     index: {
-      template: 'public/index.html',
-      entry: './src/web/main.js',
-      title: 'UND Web Wallet',
-      filename: 'index.html'
-    }
+      template: "public/index.html",
+      entry: "./src/web/main.js",
+      title: "UND Web Wallet",
+      filename: "index.html",
+    },
   },
   pluginOptions: {
     browserExtension: {
       componentOptions: {
         background: {
-          entry: 'src/background.js'
-        }
-      }
-    }
-  }
+          entry: "src/background.js",
+        },
+      },
+    },
+  },
 }
