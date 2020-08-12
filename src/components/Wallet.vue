@@ -232,7 +232,7 @@
       <p>
         Open Unification Ledger app
       </p>
-      <p><img class="img-centre" src="@/assets/images/ledger/unification_app.png" /></p>
+      <p><img class="img-centre" src="@/assets/images/ledger/FUND_app.png" /></p>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
           id="ledger-hd-path-1"
