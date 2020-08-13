@@ -32,17 +32,19 @@
         </p>
         <b-form-group
           id="undelegate-from-label"
-          label="From:"
+          :label="'From Validator ' + getValidatorMoniker(undelegateData.address)"
           label-for="undelegate-from"
           description="Address to undelegate from"
         >
-          <b-form-input
-            id="undelegate-from"
-            v-model="undelegateData.address"
-            type="text"
-            required
-            plaintext
-          />
+          <span class="wallet_address">
+            <b-form-input
+              id="undelegate-from"
+              v-model="undelegateData.address"
+              type="text"
+              required
+              plaintext
+            />
+          </span>
         </b-form-group>
 
         <b-form-group
@@ -116,9 +118,9 @@
       <div>
         Chain ID: {{ chainId }}<br />
         Undelegate <span class="text-info">{{ undelegateData.und }} FUND</span><br />
-        From: {{ wallet.address }}<br />
-        Validator Name: {{ getValidatorMoniker(undelegateData.address) }}?<br />
-        Validator Address: {{ undelegateData.address }}?<br />
+        From: <span class="wallet_address"> {{ wallet.address }} </span><br />
+        Validator Name: {{ getValidatorMoniker(undelegateData.address) }}<br />
+        Validator Address: <span class="wallet_address"> {{ undelegateData.address }} </span><br />
         Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="undelegateData.memo">Memo: {{ undelegateData.memo }}</span>
@@ -175,23 +177,25 @@
         </p>
         <b-form-group
           id="redelegate-from-label"
-          label="From:"
+          :label="'From Validator: ' + getValidatorMoniker(redelegateData.src)"
           label-for="redelegate-from"
           description="Address to redelegate from"
         >
-          <b-form-input
-            id="redelegate-from"
-            v-model="redelegateData.src"
-            type="text"
-            required
-            plaintext
-            @keydown.enter.prevent="preventSubmit"
-          />
+          <span class="wallet_address">
+            <b-form-input
+              id="redelegate-from"
+              v-model="redelegateData.src"
+              type="text"
+              required
+              plaintext
+              @keydown.enter.prevent="preventSubmit"
+            />
+          </span>
         </b-form-group>
 
         <b-form-group
           id="redelegate-node-label"
-          label="To:"
+          label="To Validator:"
           label-for="redelegate-node"
           description="Select an existing validator"
         >
@@ -207,13 +211,15 @@
           label-for="redelegate-manual-node"
           description="Alternatively, enter a validator address manually (note - this starts with undvaloper)"
         >
-          <b-form-input
-            id="redelegate-manual-node"
-            v-model="redelegateData.dst"
-            type="text"
-            required
-            @keydown.enter.prevent="preventSubmit"
-          />
+          <span class="wallet_address">
+            <b-form-input
+              id="redelegate-manual-node"
+              v-model="redelegateData.dst"
+              type="text"
+              required
+              @keydown.enter.prevent="preventSubmit"
+            />
+          </span>
         </b-form-group>
 
         <b-form-group
@@ -288,9 +294,11 @@
       <div>
         Chain ID: {{ chainId }}<br />
         Redelegate <span class="text-info">{{ redelegateData.und }} FUND</span><br />
-        From: {{ wallet.address }}<br />
-        Validator From: {{ getValidatorMoniker(redelegateData.src) }} ({{ redelegateData.src }})<br />
-        Validator To: {{ getValidatorMoniker(redelegateData.dst) }} ({{ redelegateData.dst }})<br />
+        From: <span class="wallet_address"> {{ wallet.address }} </span><br />
+        Validator From: {{ getValidatorMoniker(redelegateData.src) }}
+        <span class="wallet_address"> {{ redelegateData.src }} </span><br />
+        Validator To: {{ getValidatorMoniker(redelegateData.dst) }}
+        <span class="wallet_address"> {{ redelegateData.dst }} </span><br />
         Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="redelegateData.memo">Memo: {{ redelegateData.memo }}</span>
@@ -323,9 +331,9 @@
       <div>
         Chain ID: {{ chainId }}<br />
         Withdraw <span class="text-info">{{ withdrawData.und }} FUND</span><br />
-        For: {{ wallet.address }}<br />
+        For: <span class="wallet_address"> {{ wallet.address }} </span><br />
         From Validator: {{ getValidatorMoniker(withdrawData.address) }}<br />
-        Validator Address: {{ withdrawData.address }}<br />
+        Validator Address: <span class="wallet_address"> {{ withdrawData.address }} </span><br />
         Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="withdrawData.memo">Memo: {{ withdrawData.memo }}</span>
@@ -447,10 +455,12 @@
                 <b>Operator Address:</b>
               </b-col>
               <b-col>
-                <a :href="explorerUrlPrefix + '/validator/' + row.item.validator_address" target="_blank">
-                  {{ row.item.validator_address }}
-                  <b-icon-box-arrow-up-right />
-                </a>
+                <span class="wallet_address">
+                  <a :href="explorerUrlPrefix + '/validator/' + row.item.validator_address" target="_blank">
+                    {{ row.item.validator_address }}
+                    <b-icon-box-arrow-up-right />
+                  </a>
+                </span>
               </b-col>
             </b-row>
             <b-row class="mb-2">
@@ -640,7 +650,8 @@ export default {
       }
       if (
         this.undelegateData.und <= 0 ||
-        Number.isNaN(this.undelegateData.und) ||
+        // eslint-disable-next-line no-restricted-globals
+        isNaN(this.undelegateData.und) ||
         this.undelegateData.und > this.undelegateData.max
       ) {
         this.showToast(

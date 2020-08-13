@@ -230,9 +230,9 @@
         <h3>Connect Ledger</h3>
       </template>
       <p>
-        Open Unification Ledger app
+        Open the FUND Ledger app on your Nano S or Nano X.
       </p>
-      <p><img class="img-centre" src="@/assets/images/ledger/FUND_app.png" /></p>
+      <p><img class="img-centre" src="@/assets/images/ledger/ledger_FUND_app.png" /></p>
       <b-form @submit.prevent="preventSubmit">
         <b-form-group
           id="ledger-hd-path-1"

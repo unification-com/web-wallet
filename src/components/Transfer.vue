@@ -9,8 +9,8 @@
         <p>Please confirm:</p>
         Chain ID: {{ chainId }}<br />
         Sending {{ transfer.und }} FUND<br />
-        From: {{ wallet.address }}<br />
-        To: {{ transfer.to }}<br />
+        From: <span class="wallet_address"> {{ wallet.address }} </span><br />
+        To: <span class="wallet_address"> {{ transfer.to }} </span><br />
         Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="transfer.memo">Memo: {{ transfer.memo }}</span>
@@ -224,7 +224,8 @@ export default {
         this.showToast("error", "Error", `"${this.transfer.to}" is not a valid address`)
         return false
       }
-      if (this.transfer.und <= 0 || Number.isNaN(this.transfer.und)) {
+      // eslint-disable-next-line no-restricted-globals
+      if (this.transfer.und <= 0 || isNaN(this.transfer.und)) {
         this.showToast("error", "Error", "Amount must be greater than zero")
         return false
       }

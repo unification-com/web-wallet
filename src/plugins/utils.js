@@ -58,12 +58,15 @@ Vue.mixin({
       return formattedAmt
     },
     formatDateTime(timestamp) {
-      let tsMs = 0
-      if (!Number.isNaN(timestamp)) {
-        tsMs = timestamp * 1000
+      let ts = null
+      // eslint-disable-next-line no-restricted-globals
+      if (!isNaN(timestamp)) {
+        ts = timestamp * 1000
+      } else {
+        ts = timestamp
       }
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-      const d = new Date(tsMs)
+      const d = new Date(ts)
 
       let min = d.getMinutes()
       if (min < 10) {
