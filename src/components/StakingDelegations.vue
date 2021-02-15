@@ -223,6 +223,21 @@
         </b-form-group>
 
         <b-form-group
+          id="redelegate-memo-label"
+          label="Memo:"
+          label-for="redelegate-memo"
+          description="Optional Memo"
+        >
+          <b-form-input
+            id="redelegate-memo"
+            v-model="redelegateData.memo"
+            type="text"
+            trim
+            @keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-group
           v-show="isShowFee"
           id="redelegate-fee-amount-label"
           label="Fee:"
