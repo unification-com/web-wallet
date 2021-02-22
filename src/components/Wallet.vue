@@ -373,6 +373,7 @@ export default {
       this.undClient = null
       try {
         this.undClient = new UndClient(this.rest)
+        this.undClient.setClientNameHeader("wallet")
         await this.undClient.initChain()
         await this.$store.dispatch("client/setIsConnected")
         await this.$store.dispatch("client/setChainId", this.undClient.chainId)

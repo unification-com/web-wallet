@@ -226,7 +226,7 @@ export default {
         und: "0",
         memo: UND_CONFIG.DEFAULT_MEMO,
       },
-      fee: UND_CONFIG.DEFULT_DELEGATE_FEE,
+      fee: { ...UND_CONFIG.DEFULT_DELEGATE_FEE },
       isDataLoading: false,
       isShowFee: false,
       selectedValidatorMetadata: null,
@@ -432,7 +432,7 @@ export default {
         und: "0",
         memo: UND_CONFIG.DEFAULT_MEMO,
       }
-      this.fee = UND_CONFIG.DEFULT_DELEGATE_FEE
+      this.fee = { ...UND_CONFIG.DEFULT_DELEGATE_FEE }
       this.isShowFee = false
       this.selectedValidatorMetadata = null
       this.isShowFee = false
