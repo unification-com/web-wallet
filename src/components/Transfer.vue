@@ -172,7 +172,7 @@ export default {
         und: "0",
         memo: UND_CONFIG.DEFAULT_MEMO,
       },
-      fee: UND_CONFIG.DEFAULT_TRANSFER_FEES,
+      fee: { ...UND_CONFIG.DEFAULT_TRANSFER_FEES },
       isShowFee: false,
       showWarning: false,
       balanceDiff: "0",
@@ -213,7 +213,7 @@ export default {
         und: "0",
         memo: UND_CONFIG.DEFAULT_MEMO,
       }
-      this.fee = UND_CONFIG.DEFAULT_TRANSFER_FEES
+      this.fee = { ...UND_CONFIG.DEFAULT_TRANSFER_FEES }
       this.isShowFee = false
       this.showWarning = false
       this.balanceDiff = "0"

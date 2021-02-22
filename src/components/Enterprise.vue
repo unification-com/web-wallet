@@ -177,7 +177,7 @@ export default {
         memo: "",
       },
       pos: [],
-      fee: UND_CONFIG.DEFAULT_RAISE_PO_FEE,
+      fee: { ...UND_CONFIG.DEFAULT_RAISE_PO_FEE },
       isDataLoading: false,
       isShowFee: false,
     }
@@ -214,7 +214,7 @@ export default {
         und: "0",
         memo: "",
       }
-      this.fee = UND_CONFIG.DEFAULT_RAISE_PO_FEE
+      this.fee = { ...UND_CONFIG.DEFAULT_RAISE_PO_FEE }
       this.isShowFee = false
     },
     async getPurchaseOrders() {

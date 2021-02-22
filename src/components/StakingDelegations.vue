@@ -572,7 +572,7 @@ export default {
         address: "",
         und: "0",
       },
-      fee: UND_CONFIG.DEFULT_DELEGATE_FEE,
+      fee: { ...UND_CONFIG.DEFULT_DELEGATE_FEE },
       delegationsFields: ["name", "shares", "delegated", "rewards", "show_details"],
       isDataLoading: false,
       isShowFee: false,
@@ -763,7 +763,7 @@ export default {
         max: "",
         memo: UND_CONFIG.DEFAULT_MEMO,
       }
-      this.fee = UND_CONFIG.DEFAULT_UNDELEGATE_FEE
+      this.fee = { ...UND_CONFIG.DEFAULT_UNDELEGATE_FEE }
       this.isShowFee = false
       this.confirmOnLedger = false
     },
@@ -777,7 +777,7 @@ export default {
         max: "",
         memo: UND_CONFIG.DEFAULT_MEMO,
       }
-      this.fee = UND_CONFIG.DEFAULT_REDELEGATE_FEE
+      this.fee = { ...UND_CONFIG.DEFAULT_REDELEGATE_FEE }
       this.isShowFee = false
       this.confirmOnLedger = false
     },
@@ -788,7 +788,7 @@ export default {
         address: "",
         und: "0",
       }
-      this.fee = UND_CONFIG.DEFAULT_WITHDRAW_REWARDS_FEE
+      this.fee = { ...UND_CONFIG.DEFAULT_WITHDRAW_REWARDS_FEE }
       this.isShowFee = false
       this.confirmOnLedger = false
     },
