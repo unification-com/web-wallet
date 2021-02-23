@@ -237,8 +237,8 @@ export default {
       let forMe = false
       for (let i = 0; i < tx.tx.value.msg.length; i += 1) {
         const msg = tx.tx.value.msg[i]
-        if(msg.type === "cosmos-sdk/MsgSend") {
-          if(msg.value.to_address === this.wallet.address) {
+        if (msg.type === "cosmos-sdk/MsgSend") {
+          if (msg.value.to_address === this.wallet.address) {
             forMe = true
           }
         }

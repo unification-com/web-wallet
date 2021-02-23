@@ -1,5 +1,3 @@
-const _ = require("lodash/core")
-
 // initial state
 const state = {
   validators: {},
