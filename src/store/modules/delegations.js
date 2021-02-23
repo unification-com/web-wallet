@@ -58,7 +58,7 @@ const actions = {
   addEditUnbondingDelegation(context, unbond) {
     const currentUnbondingDelegations = context.state.unbondingDelegations.slice()
     for (let i = 0; i < currentUnbondingDelegations.length; i += 1) {
-      if (_.isEqual(currentUnbondingDelegations[i], unbond)) {
+      if (_.isEqual(currentUnbondingDelegations[i].value, unbond)) {
         currentUnbondingDelegations.splice(i, 1)
       }
     }
@@ -69,7 +69,7 @@ const actions = {
   addEditReDelegation(context, redeleg) {
     const currentReDelegations = context.state.redelegations.slice()
     for (let i = 0; i < currentReDelegations.length; i += 1) {
-      if (_.isEqual(currentReDelegations[i], redeleg)) {
+      if (_.isEqual(currentReDelegations[i].value, redeleg)) {
         currentReDelegations.splice(i, 1)
       }
     }
