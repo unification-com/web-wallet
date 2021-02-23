@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.18.3 - 23/02/2021
+## v0.19.1 - 23/02/2021
 
 [PR39](https://github.com/unification-com/web-wallet/pull/39)
 [PR40](https://github.com/unification-com/web-wallet/pull/40)
