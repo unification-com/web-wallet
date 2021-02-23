@@ -47,6 +47,8 @@
 
 <script>
 import { mapGetters, mapState } from "vuex"
+import { base64ToBytes } from "@tendermint/belt"
+import { bech32 } from "bech32"
 import Tx from "./Tx.vue"
 
 const _ = require("lodash")
@@ -185,7 +187,7 @@ export default {
           }
           await Promise.all(paginatedTxsRes)
           for (let j = 0; j < paginatedTxsRes.length; j += 1) {
-            addNewTxsRes.push(this.addNewTxs(paginatedTxsRes[j], true))
+            addNewTxsRes.push(this.addNewTxs(paginatedTxsRes[j], false))
           }
           await Promise.all(addNewTxsRes)
         } else {
@@ -212,17 +214,63 @@ export default {
       }
       await Promise.all(addTxDataRes)
     },
+    // fix for Comsmos SDK < 0.39 stacking events in Txs to filter out false Txs
+    // note - does not take into account multisigs
+    isFromMe(tx) {
+      let fromMe = true
+      for (let i = 0; i < tx.tx.value.signatures.length; i += 1) {
+        const pubKey = tx.tx.value.signatures[i].pub_key
+        const pubKeyDecoded = base64ToBytes(pubKey.value)
+        const hash1 = this.sha256(pubKeyDecoded)
+        const hash2 = this.ripemd160(hash1)
+        const words = bech32.toWords(hash2)
+
+        const addr = bech32.encode("und", words)
+        if (this.wallet.address !== addr) {
+          fromMe = false
+        }
+      }
+      return fromMe
+    },
+    // fix for Comsmos SDK < 0.39 stacking events in Txs to filter out false Txs
+    isForMe(tx) {
+      let forMe = false
+      for (let i = 0; i < tx.tx.value.msg.length; i += 1) {
+        const msg = tx.tx.value.msg[i]
+        if(msg.type === "cosmos-sdk/MsgSend") {
+          if(msg.value.to_address === this.wallet.address) {
+            forMe = true
+          }
+        }
+      }
+      return forMe
+    },
     async addNewTxs(txRes, isSent) {
       const addTxRes = []
       for (let i = 0; i < txRes.result.txs.length; i += 1) {
-        addTxRes.push(
-          this.$store.dispatch("txs/addTx", {
-            txhash: txRes.result.txs[i].txhash,
-            timestamp: txRes.result.txs[i].timestamp,
-            isSent,
-            data: txRes.result.txs[i],
-          }),
-        )
+        const t = txRes.result.txs[i]
+        this.isFromMe(t)
+        if (isSent) {
+          if (this.isFromMe(t)) {
+            addTxRes.push(
+              this.$store.dispatch("txs/addTx", {
+                txhash: txRes.result.txs[i].txhash,
+                timestamp: txRes.result.txs[i].timestamp,
+                isSent,
+                data: txRes.result.txs[i],
+              }),
+            )
+          }
+        } else if (this.isForMe(t)) {
+          addTxRes.push(
+            this.$store.dispatch("txs/addTx", {
+              txhash: txRes.result.txs[i].txhash,
+              timestamp: txRes.result.txs[i].timestamp,
+              isSent,
+              data: txRes.result.txs[i],
+            }),
+          )
+        }
       }
       await Promise.all(addTxRes)
     },
