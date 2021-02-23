@@ -48,6 +48,21 @@
         </b-form-group>
 
         <b-form-group
+          id="undelegate-memo-label"
+          label="Memo:"
+          label-for="undelegate-memo"
+          description="Optional Memo"
+        >
+          <b-form-input
+            id="undelegate-memo"
+            v-model="undelegateData.memo"
+            type="text"
+            trim
+            @keydown.enter.prevent="preventSubmit"
+          />
+        </b-form-group>
+
+        <b-form-group
           v-show="isShowFee"
           id="undelegate-fee-amount-label"
           label="Fee:"
@@ -467,6 +482,14 @@
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right">
+                <b>Status:</b>
+              </b-col>
+              <b-col>
+                <b :class="row.item.statusFormatted.statusClass">{{ row.item.statusFormatted.tooltip }}</b>
+              </b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right">
                 <b>Operator Address:</b>
               </b-col>
               <b-col>
@@ -525,6 +548,29 @@
             </b-button>
           </b-card>
         </template>
+        <template v-slot:cell(statusFormatted)="data">
+          <template v-if="data.value.status === 0">
+            <b-icon-stop-circle
+              v-b-popover.hover.right="data.value.tooltip"
+              :class="data.value.statusClass"
+              class="h4 mb-2"
+            ></b-icon-stop-circle>
+          </template>
+          <template v-if="data.value.status === 1">
+            <b-icon-pause-circle
+              v-b-popover.hover.right="data.value.tooltip"
+              :class="data.value.statusClass"
+              class="h4 mb-2"
+            ></b-icon-pause-circle>
+          </template>
+          <template v-if="data.value.status === 2">
+            <b-icon-play-circle
+              v-b-popover.hover.right="data.value.tooltip"
+              :class="data.value.statusClass"
+              class="h4 mb-2"
+            ></b-icon-play-circle>
+          </template>
+        </template>
         <template v-slot:cell(shares)="data">
           <b class="text-info">{{ Number(data.value) }}</b>
         </template>
@@ -573,7 +619,14 @@ export default {
         und: "0",
       },
       fee: { ...UND_CONFIG.DEFULT_DELEGATE_FEE },
-      delegationsFields: ["name", "shares", "delegated", "rewards", "show_details"],
+      delegationsFields: [
+        { key: "name" },
+        { key: "statusFormatted", label: "Status" },
+        { key: "shares" },
+        { key: "delegated" },
+        { key: "rewards" },
+        { key: "show_details" },
+      ],
       isDataLoading: false,
       isShowFee: false,
       delegationsObj: [],
@@ -593,6 +646,7 @@ export default {
     ...mapGetters({
       getValidatorDescription: "validators/getValidatorDescription",
       getValidatorMoniker: "validators/getValidatorMoniker",
+      getValidatorStatus: "validators/getValidatorStatus",
       getReward: "delegations/getReward",
     }),
     explorerUrlPrefix() {
@@ -629,12 +683,15 @@ export default {
       this.delegationsObj = []
       for (let i = 0; i < this.delegations.delegations.length; i += 1) {
         const validatorAddress = this.delegations.delegations[i].validator_address
+        const status = this.getValidatorStatus(validatorAddress)
         const d = {
           validator_address: validatorAddress,
           name: this.getValidatorDescription(validatorAddress).moniker,
           shares: this.delegations.delegations[i].shares,
           delegated: this.delegations.delegations[i].balance.amount,
           rewards: this.getReward(validatorAddress),
+          statusFormatted: this.formatStatus(status),
+          status,
         }
         this.delegationsObj.push(d)
       }

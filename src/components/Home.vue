@@ -70,6 +70,9 @@
               </b-button>
             </b-dropdown-item>
 
+            <!--
+            Todo - enable when Ledger app released
+            {{
             <b-dropdown-item>
               <b-button
                 v-show="!$refs.walletComponent.wallet.isWalletUnlocked"
@@ -81,6 +84,8 @@
                 Connect Ledger Device
               </b-button>
             </b-dropdown-item>
+            }}
+            -->
 
             <b-dropdown-item>
               <b-button

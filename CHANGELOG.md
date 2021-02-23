@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.18.3 - 23/02/2021
+
+[PR39](https://github.com/unification-com/web-wallet/pull/39)
+[PR40](https://github.com/unification-com/web-wallet/pull/40)
+[PR41](https://github.com/unification-com/web-wallet/pull/41)
+[PR42](https://github.com/unification-com/web-wallet/pull/42)
+[PR44](https://github.com/unification-com/web-wallet/pull/44)
+[PR45](https://github.com/unification-com/web-wallet/pull/45)
+[PR46](https://github.com/unification-com/web-wallet/pull/46)
+
+- Update images based on latest app name and icon
+- Convert fees to FUND in confirmation dialogs
+- Style tweaks & minor fixes
+- Bump gas estimates
+- Add Memo-Field for Redelegations & Undelegations
+- Bump `und-js` version
+- Filter Txs not for the user's address (caused by Cosmos SDK v0.38 event stacking bug)
+- Only display active validators in Staking list
+- Add node status icon and details to Delegations tab for quick reference
+- Load validator set when wallet initialises
+- Load bonded, unbonded and unbonding validators into set
+- NPM package updates
+- Fixed lodash object comparison when adding delegations to local storage
+
 ## v0.18.2 - 16/07/2020
 
 [PR35](https://github.com/unification-com/web-wallet/pull/35)

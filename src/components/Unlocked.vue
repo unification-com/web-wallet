@@ -98,6 +98,7 @@ export default {
         }
         await this.getBalance()
         await this.getRewards()
+        await this.getValidators()
         await this.getDelegations()
         await this.getUnbonding()
         await this.getTotalFund()
@@ -137,6 +138,11 @@ export default {
     async getRewards() {
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
         await this.$refs.stakingcomponent.loadRewards()
+      }
+    },
+    async getValidators() {
+      if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+        await this.$refs.stakingcomponent.getValidators()
       }
     },
     async getDelegations() {

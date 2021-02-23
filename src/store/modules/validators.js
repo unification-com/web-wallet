@@ -22,6 +22,18 @@ const getters = {
     return description
   },
 
+  getValidatorStatus: state => operatorAddress => {
+    const status = {
+      status: 0,
+      jailed: false,
+    }
+    if (operatorAddress in state.validators) {
+      status.status = state.validators[operatorAddress].status
+      status.jailed = state.validators[operatorAddress].jailed
+    }
+    return status
+  },
+
   getValidatorMoniker: (state, getters) => operatorAddress => {
     return getters.getValidatorDescription(operatorAddress).moniker
   },
@@ -45,17 +57,17 @@ const actions = {
     const keys = Object.keys(context.state.validators)
     for (let i = 0; i < keys.length; i += 1) {
       if (Object.prototype.hasOwnProperty.call(context.state.validators, keys[i])) {
-        const valOption = {
-          value: keys[i],
-          text: context.state.validators[keys[i]].description.moniker,
+        if (context.state.validators[keys[i]].status !== 0) {
+          const valOption = {
+            value: keys[i],
+            text: context.state.validators[keys[i]].description.moniker,
+          }
+          validatorSelectArray.push(valOption)
         }
-        validatorSelectArray.push(valOption)
       }
     }
     validatorSelectArray.sort((a, b) => (a.text > b.text ? 1 : -1))
-    if (!_.isEqual(validatorSelectArray, context.state.validatorsSelect.slice())) {
-      context.commit("updateValidatorsSelect", validatorSelectArray)
-    }
+    context.commit("updateValidatorsSelect", validatorSelectArray)
   },
 }
 

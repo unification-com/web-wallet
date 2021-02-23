@@ -1,9 +1,20 @@
 import Vue from "vue"
 import Big from "big.js"
+import createHash from "create-hash"
 import { UND_CONFIG } from "../constants"
 
 Vue.mixin({
   methods: {
+    sha256(bytes) {
+      return createHash("sha256")
+        .update(bytes)
+        .digest()
+    },
+    ripemd160(bytes) {
+      return createHash("ripemd160")
+        .update(bytes)
+        .digest()
+    },
     isValidAmount(value, maxExp = 7, maxDp = 9) {
       if (value === "" || value == null) {
         return false
@@ -82,6 +93,44 @@ Vue.mixin({
       } ${d.getFullYear()} ${d.getHours()}:${min}:${sec} UTC`
 
       return formatted
+    },
+    formatStatus(status) {
+      const statusFormatted = {
+        statusName: "Unknown",
+        statusClass: "text-info",
+        jailedReason: "",
+        jailedReasonClass: "text-info",
+        tooltip: "",
+        status: status.status,
+        jailed: status.jailed,
+      }
+
+      switch (status.status) {
+        case 0:
+          statusFormatted.statusName = "Inactive"
+          statusFormatted.statusClass = "text-danger"
+          statusFormatted.jailedReason = " (Inactive)" // unbonded
+          statusFormatted.jailedReasonClass = "text-danger"
+          statusFormatted.tooltip = "Node has been offline for some time and is possibly inactive"
+          break
+        case 1:
+          statusFormatted.statusName = "Jailed"
+          statusFormatted.statusClass = "text-warning"
+          statusFormatted.jailedReason = " (Unbonding)" // unbonding
+          statusFormatted.jailedReasonClass = "text-warning"
+          statusFormatted.tooltip =
+            "Node has been down a short time, and probably only temporarily. May soon be active again."
+          break
+        case 2:
+          statusFormatted.statusName = "Active"
+          statusFormatted.statusClass = "text-success"
+          statusFormatted.tooltip = "Node is active and running"
+          break
+        default:
+          break
+      }
+
+      return statusFormatted
     },
     nundToUnd(amount) {
       const amountBig = new Big(amount)

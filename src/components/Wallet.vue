@@ -225,6 +225,9 @@
     </b-modal>
 
     <!-- connect a Ledger device -->
+    <!--
+    Todo - enable when Ledger app released
+    {{
     <b-modal id="bv-modal-connect-ledger">
       <template v-slot:modal-title>
         <h3>Connect Ledger</h3>
@@ -292,6 +295,8 @@
         </b-button>
       </template>
     </b-modal>
+    }}
+    -->
 
     <div class="main-container">
       <Unlocked v-show="wallet.isWalletUnlocked" ref="unlockedcomponent" lazy />
@@ -363,17 +368,17 @@ export default {
       this.clearWalletData()
       this.$bvModal.show("bv-modal-recover-wallet")
     },
-    showConnectLedgerModal() {
-      this.clearWalletData()
-      this.$bvModal.show("bv-modal-connect-ledger")
-    },
+    // Todo - enable when Ledger app released
+    // showConnectLedgerModal() {
+    //   this.clearWalletData()
+    //   this.$bvModal.show("bv-modal-connect-ledger")
+    // },
     async initChain() {
       await this.clearWalletData()
       await this.$store.dispatch("client/clearClient")
       this.undClient = null
       try {
         this.undClient = new UndClient(this.rest)
-        this.undClient.setClientNameHeader("wallet")
         await this.undClient.initChain()
         await this.$store.dispatch("client/setIsConnected")
         await this.$store.dispatch("client/setChainId", this.undClient.chainId)
@@ -537,62 +542,63 @@ export default {
 
       this.$bvModal.hide("bv-modal-please-wait")
     },
-    async selectLedgerWallet() {
-      await this.$store.dispatch("wallet/setAddress", null)
-      this.disableHdPathSelect = true
-      if (this.isClientConnected) {
-        try {
-          await this.undClient.useLedgerSigningDelegate(this.hdPath)
-          await this.$store.dispatch("wallet/setAddress", this.undClient.address)
-          this.disableHdPathSelect = false
-        } catch (e) {
-          this.showToast("error", "Error", e.toString())
-          await this.clearWalletData()
-          this.disableHdPathSelect = false
-          this.$bvModal.hide("bv-modal-connect-ledger")
-        }
-      } else {
-        this.showToast("error", "Error", "Not connected to network")
-        await this.clearWalletData()
-        this.disableHdPathSelect = false
-        this.$bvModal.hide("bv-modal-connect-ledger")
-      }
-    },
-    async useLedgerDevice() {
-      if (this.isClientConnected) {
-        this.confirmOnLedger = true
-        try {
-          const confirmedAddress = await this.undClient.confirmLedgerAddress()
-          if (confirmedAddress !== this.wallet.address) {
-            this.showToast(
-              "error",
-              "Error",
-              `address mismatch: Confirmed on Ledger "${confirmedAddress}" != ${this.wallet.address}`,
-            )
-            this.confirmOnLedger = false
-            await this.clearWalletData()
-            this.$bvModal.hide("bv-modal-please-wait")
-          }
-          this.confirmOnLedger = false
-          this.$bvModal.hide("bv-modal-connect-ledger")
-          this.$bvModal.show("bv-modal-please-wait")
-          await this.$store.dispatch("client/setClient", this.undClient)
-          await this.$store.dispatch("wallet/setIsWalletUnlocked", true)
-          await this.$refs.unlockedcomponent.runOnUnlocked()
-          this.$bvModal.hide("bv-modal-please-wait")
-        } catch (e) {
-          this.confirmOnLedger = false
-          this.showToast("error", "Error", e.toString())
-          await this.clearWalletData()
-          this.$bvModal.hide("bv-modal-please-wait")
-        }
-      } else {
-        this.confirmOnLedger = false
-        this.showToast("error", "Error", "Not connected to network")
-        await this.clearWalletData()
-        this.$bvModal.hide("bv-modal-please-wait")
-      }
-    },
+    // Todo - enable when Ledger app released
+    // async selectLedgerWallet() {
+    //   await this.$store.dispatch("wallet/setAddress", null)
+    //   this.disableHdPathSelect = true
+    //   if (this.isClientConnected) {
+    //     try {
+    //       await this.undClient.useLedgerSigningDelegate(this.hdPath)
+    //       await this.$store.dispatch("wallet/setAddress", this.undClient.address)
+    //       this.disableHdPathSelect = false
+    //     } catch (e) {
+    //       this.showToast("error", "Error", e.toString())
+    //       await this.clearWalletData()
+    //       this.disableHdPathSelect = false
+    //       this.$bvModal.hide("bv-modal-connect-ledger")
+    //     }
+    //   } else {
+    //     this.showToast("error", "Error", "Not connected to network")
+    //     await this.clearWalletData()
+    //     this.disableHdPathSelect = false
+    //     this.$bvModal.hide("bv-modal-connect-ledger")
+    //   }
+    // },
+    // async useLedgerDevice() {
+    //   if (this.isClientConnected) {
+    //     this.confirmOnLedger = true
+    //     try {
+    //       const confirmedAddress = await this.undClient.confirmLedgerAddress()
+    //       if (confirmedAddress !== this.wallet.address) {
+    //         this.showToast(
+    //           "error",
+    //           "Error",
+    //           `address mismatch: Confirmed on Ledger "${confirmedAddress}" != ${this.wallet.address}`,
+    //         )
+    //         this.confirmOnLedger = false
+    //         await this.clearWalletData()
+    //         this.$bvModal.hide("bv-modal-please-wait")
+    //       }
+    //       this.confirmOnLedger = false
+    //       this.$bvModal.hide("bv-modal-connect-ledger")
+    //       this.$bvModal.show("bv-modal-please-wait")
+    //       await this.$store.dispatch("client/setClient", this.undClient)
+    //       await this.$store.dispatch("wallet/setIsWalletUnlocked", true)
+    //       await this.$refs.unlockedcomponent.runOnUnlocked()
+    //       this.$bvModal.hide("bv-modal-please-wait")
+    //     } catch (e) {
+    //       this.confirmOnLedger = false
+    //       this.showToast("error", "Error", e.toString())
+    //       await this.clearWalletData()
+    //       this.$bvModal.hide("bv-modal-please-wait")
+    //     }
+    //   } else {
+    //     this.confirmOnLedger = false
+    //     this.showToast("error", "Error", "Not connected to network")
+    //     await this.clearWalletData()
+    //     this.$bvModal.hide("bv-modal-please-wait")
+    //   }
+    // },
   },
 }
 </script>
