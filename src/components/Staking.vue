@@ -67,6 +67,7 @@ export default {
       chainId: state => state.client.chainId,
       isClientConnected: state => state.client.isConnected,
       wallet: state => state.wallet,
+      validators: state => state.validators,
     }),
   },
   methods: {
@@ -84,12 +85,11 @@ export default {
       await this.$refs.stakingdelegationsconponent.getDelegatorRewards()
     },
     async loadDataObj() {
-      await this.getValidators()
       this.$refs.stakingdelegationsconponent.generateDisplayObj()
     },
-    async getValidators() {
+    async getValidatorsByStatus(status) {
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
-        const res = await this.client.getValidators()
+        const res = await this.client.getValidators(status)
         const addValidatorRes = []
         if (res.status === 200) {
           for (let i = 0; i < res.result.result.length; i += 1) {
@@ -100,6 +100,13 @@ export default {
           this.handleUndJsError(res)
         }
         await this.$store.dispatch("validators/updateValidatorsSelect")
+      }
+    },
+    async getValidators() {
+      if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+        await this.getValidatorsByStatus("bonded")
+        await this.getValidatorsByStatus("unbonded")
+        await this.getValidatorsByStatus("unbonding")
       }
     },
   },
