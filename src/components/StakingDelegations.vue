@@ -440,8 +440,18 @@
 
     <b-container class="bv-example-row">
       <b-row>
-        <b-col>
+        <b-col cols="6">
           <h3>Current Delegations and Rewards</h3>
+        </b-col>
+        <b-col>
+          <b-form-checkbox
+            v-model="hideZeroNundDelegations"
+            name="hide-zero-nund"
+            switch
+            @input="hideZeroNundRows()"
+          >
+            Hide 0 nund Delegations
+          </b-form-checkbox>
         </b-col>
         <b-col>
           <b-button @click="getDelegations(), getDelegatorRewards()">
@@ -459,6 +469,7 @@
       <b-table
         :items="JSON.parse(JSON.stringify(delegationsObj))"
         :fields="delegationsFields"
+        :tbody-tr-class="zeroNundRowClass"
         striped
         responsive="sm"
       >
@@ -631,6 +642,7 @@ export default {
       isShowFee: false,
       delegationsObj: [],
       confirmOnLedger: false,
+      hideZeroNundDelegations: false,
     }
   },
   computed: {
@@ -678,6 +690,25 @@ export default {
     // Todo - display and modify withdraw address
     preventSubmit() {
       return false
+    },
+    zeroNundRowClass(item, type) {
+      if (item && type === "row") {
+        if (item.delegated === "0") {
+          return "hide-zero-nund-delegations"
+        }
+      }
+      return null
+    },
+    hideZeroNundRows() {
+      const rows = document.getElementsByClassName("hide-zero-nund-delegations")
+      for (let i = 0; i < rows.length; i += 1) {
+        const r = rows[i]
+        if (this.hideZeroNundDelegations) {
+          r.style.display = "none"
+        } else {
+          r.style.display = "table-row"
+        }
+      }
     },
     generateDisplayObj() {
       this.delegationsObj = []
