@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.19.2 - 01/03/2021
+## v0.19.3 - 05/03/2021
 
 [PR39](https://github.com/unification-com/web-wallet/pull/39)
 [PR40](https://github.com/unification-com/web-wallet/pull/40)
@@ -10,6 +10,7 @@
 [PR45](https://github.com/unification-com/web-wallet/pull/45)
 [PR46](https://github.com/unification-com/web-wallet/pull/46)
 [PR49](https://github.com/unification-com/web-wallet/pull/49)
+[PR50](https://github.com/unification-com/web-wallet/pull/50)
 
 - Update images based on latest app name and icon
 - Convert fees to FUND in confirmation dialogs
@@ -25,6 +26,7 @@
 - NPM package updates
 - Fixed lodash object comparison when adding delegations to local storage
 - Add toggle to hide "0 nund" delegations
+- Fix paginated transactions Promise not correctly resolving
 
 ## v0.18.2 - 16/07/2020
 
