@@ -145,9 +145,11 @@ export default {
       const txsRes = await this.client.getTransactions(this.wallet.address, 1, this.txFetchLimit)
       const paginatedTxsRes = []
       const addNewTxsRes = []
+      const self = this
       if (txsRes.status === 200) {
-        if (txsRes.result.page_total > 1) {
-          const start = txsRes.result.page_total
+        const totalPages = parseInt(txsRes.result.page_total, 10)
+        if (totalPages > 1) {
+          const start = totalPages
           const end = start - 1
           // get the last couple of pages
           for (let i = start; i >= end && i > 0; i -= 1) {
@@ -157,9 +159,14 @@ export default {
             }
           }
           await Promise.all(paginatedTxsRes)
-          for (let j = 0; j < paginatedTxsRes.length; j += 1) {
-            addNewTxsRes.push(this.addNewTxs(paginatedTxsRes[j], true))
-          }
+            .then(function(paginatedTxs) {
+              paginatedTxs.forEach(function(txs) {
+                addNewTxsRes.push(self.addNewTxs(txs, true))
+              })
+            })
+            .catch(function(err) {
+              console.error(err)
+            })
           await Promise.all(addNewTxsRes)
         } else {
           await this.addNewTxs(txsRes, true)
@@ -172,9 +179,11 @@ export default {
       const txsRes = await this.client.getTransactionsReceived(this.wallet.address, 1, this.txFetchLimit)
       const paginatedTxsRes = []
       const addNewTxsRes = []
+      const self = this
       if (txsRes.status === 200) {
-        if (txsRes.result.page_total > 1) {
-          const start = txsRes.result.page_total
+        const totalPages = parseInt(txsRes.result.page_total, 10)
+        if (totalPages > 1) {
+          const start = totalPages
           const end = start - 1
           // get the last couple of pages
           for (let i = start; i >= end && i > 0; i -= 1) {
@@ -186,9 +195,14 @@ export default {
             }
           }
           await Promise.all(paginatedTxsRes)
-          for (let j = 0; j < paginatedTxsRes.length; j += 1) {
-            addNewTxsRes.push(this.addNewTxs(paginatedTxsRes[j], false))
-          }
+            .then(function(paginatedTxs) {
+              paginatedTxs.forEach(function(txs) {
+                addNewTxsRes.push(self.addNewTxs(txs, true))
+              })
+            })
+            .catch(function(err) {
+              console.error(err)
+            })
           await Promise.all(addNewTxsRes)
         } else {
           await this.addNewTxs(txsRes, false)
@@ -247,6 +261,7 @@ export default {
     },
     async addNewTxs(txRes, isSent) {
       const addTxRes = []
+      await txRes
       for (let i = 0; i < txRes.result.txs.length; i += 1) {
         const t = txRes.result.txs[i]
         this.isFromMe(t)
