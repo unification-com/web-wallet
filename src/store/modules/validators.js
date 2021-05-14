@@ -55,7 +55,7 @@ const actions = {
     const keys = Object.keys(context.state.validators)
     for (let i = 0; i < keys.length; i += 1) {
       if (Object.prototype.hasOwnProperty.call(context.state.validators, keys[i])) {
-        if (context.state.validators[keys[i]].status !== 0) {
+        if (context.state.validators[keys[i]].status === 2) {
           const valOption = {
             value: keys[i],
             text: context.state.validators[keys[i]].description.moniker,
