@@ -93,6 +93,12 @@
             <span class="text-info">{{ formatAmount(wallet.staking.totalRewards) }}</span>
           </b-col>
         </b-row>
+        <b-row v-show="wallet.myNode !== ''">
+          <b-col>Commission</b-col>
+          <b-col>
+            <span class="text-info">{{ formatAmount(wallet.staking.totalCommissions) }}</span>
+          </b-col>
+        </b-row>
       </b-col>
     </b-row>
   </b-container>

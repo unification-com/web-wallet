@@ -72,7 +72,7 @@
           <b-input-group append="nund">
             <b-form-input
               id="undelegate-fee-amount"
-              v-model="fee.amount[0].amount"
+              v-model="fee.amount"
               type="number"
               trim
               aria-describedby="input-live-feedback-undelegate-fees"
@@ -136,7 +136,7 @@
         From: <span class="wallet_address"> {{ wallet.address }} </span><br />
         Validator Name: {{ getValidatorMoniker(undelegateData.address) }}<br />
         Validator Address: <span class="wallet_address"> {{ undelegateData.address }} </span><br />
-        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
+        Fee: {{ fee.amount }}nund ({{ nundToUnd(fee.amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="undelegateData.memo">Memo: {{ undelegateData.memo }}</span>
       </div>
@@ -262,7 +262,7 @@
           <b-input-group append="nund">
             <b-form-input
               id="redelegate-fee-amount"
-              v-model="fee.amount[0].amount"
+              v-model="fee.amount"
               type="number"
               trim
               aria-describedby="input-live-feedback-redelegate-fees"
@@ -329,7 +329,7 @@
         <span class="wallet_address"> {{ redelegateData.src }} </span><br />
         Validator To: {{ getValidatorMoniker(redelegateData.dst) }}
         <span class="wallet_address"> {{ redelegateData.dst }} </span><br />
-        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
+        Fee: {{ fee.amount }}nund ({{ nundToUnd(fee.amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="redelegateData.memo">Memo: {{ redelegateData.memo }}</span>
       </div>
@@ -364,8 +364,16 @@
         For: <span class="wallet_address"> {{ wallet.address }} </span><br />
         From Validator: {{ getValidatorMoniker(withdrawData.address) }}<br />
         Validator Address: <span class="wallet_address"> {{ withdrawData.address }} </span><br />
-        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
+        Fee: {{ fee.amount }}nund ({{ nundToUnd(fee.amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
+        <b-form-checkbox
+          v-show="withdrawData.isSelfDel"
+          id="withdraw-commission"
+          v-model="withdrawData.withdrawCommission"
+          name="withdraw-commission"
+        >
+          Withdraw <span class="text-info">{{ nundToUnd(withdrawData.commission) }} FUND</span> Commmission
+        </b-form-checkbox>
         <span v-show="withdrawData.memo">Memo: {{ withdrawData.memo }}</span>
 
         <b-form @submit.prevent="preventSubmit">
@@ -379,7 +387,7 @@
             <b-input-group append="nund">
               <b-form-input
                 id="withdraw-fee-amount"
-                v-model="fee.amount[0].amount"
+                v-model="fee.amount"
                 type="text"
                 trim
                 aria-describedby="input-live-feedback-withdraw-fees"
@@ -514,6 +522,12 @@
             </b-row>
             <b-row class="mb-2">
               <b-col sm="3" class="text-sm-right">
+                <b>Self Delegate Address:</b>
+              </b-col>
+              <b-col>{{ getDelegatorAddressFromOpAddr(row.item.validator_address, "und") }}</b-col>
+            </b-row>
+            <b-row class="mb-2">
+              <b-col sm="3" class="text-sm-right">
                 <b>Identity:</b>
               </b-col>
               <b-col>{{ getValidatorDescription(row.item.validator_address).identity }}</b-col>
@@ -560,21 +574,21 @@
           </b-card>
         </template>
         <template v-slot:cell(statusFormatted)="data">
-          <template v-if="data.value.status === 0">
+          <template v-if="data.value.status === 'BOND_STATUS_UNBONDED'">
             <b-icon-stop-circle
               v-b-popover.hover.right="data.value.tooltip"
               :class="data.value.statusClass"
               class="h4 mb-2"
             ></b-icon-stop-circle>
           </template>
-          <template v-if="data.value.status === 1">
+          <template v-if="data.value.status === 'BOND_STATUS_UNBONDING'">
             <b-icon-pause-circle
               v-b-popover.hover.right="data.value.tooltip"
               :class="data.value.statusClass"
               class="h4 mb-2"
             ></b-icon-pause-circle>
           </template>
-          <template v-if="data.value.status === 2">
+          <template v-if="data.value.status === 'BOND_STATUS_BONDED'">
             <b-icon-play-circle
               v-b-popover.hover.right="data.value.tooltip"
               :class="data.value.statusClass"
@@ -599,10 +613,10 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import Big from "big.js"
-import { UND_CONFIG } from "../constants"
-import LedgerConfirm from "./LedgerConfirm.vue"
+import { UND_CONFIG } from "../../constants"
+import LedgerConfirm from "../LedgerConfirm.vue"
 
-const UndClient = require("@unification-com/und-js")
+const { UndClient } = require("@unification-com/und-js-v2")
 
 export default {
   name: "StakingDelegations",
@@ -628,6 +642,9 @@ export default {
       withdrawData: {
         address: "",
         und: "0",
+        commission: "0",
+        isSelfDel: false,
+        withdrawCommission: false,
       },
       fee: { ...UND_CONFIG.DEFULT_DELEGATE_FEE },
       delegationsFields: [
@@ -713,12 +730,12 @@ export default {
     generateDisplayObj() {
       this.delegationsObj = []
       for (let i = 0; i < this.delegations.delegations.length; i += 1) {
-        const validatorAddress = this.delegations.delegations[i].validator_address
+        const validatorAddress = this.delegations.delegations[i].delegation.validator_address
         const status = this.getValidatorStatus(validatorAddress)
         const d = {
           validator_address: validatorAddress,
           name: this.getValidatorDescription(validatorAddress).moniker,
-          shares: this.delegations.delegations[i].shares,
+          shares: this.delegations.delegations[i].delegation.shares,
           delegated: this.delegations.delegations[i].balance.amount,
           rewards: this.getReward(validatorAddress),
           statusFormatted: this.formatStatus(status),
@@ -827,16 +844,22 @@ export default {
       this.$bvModal.show("bv-modal-confirm-redelegate-und")
       return true
     },
-    showConfirmWithdraw(item) {
+    async showConfirmWithdraw(item) {
       this.clearWithdrawData()
       this.withdrawData.address = item.validator_address
       this.withdrawData.und = this.nundToUnd(item.rewards)
+
+      if (item.validator_address === this.wallet.myNode && this.wallet.staking.totalCommissions > 0) {
+        this.withdrawData.isSelfDel = true
+        this.withdrawData.commission = this.wallet.staking.totalCommissions
+      }
+
       if (this.wallet.balance === 0) {
         this.showToast("error", "Error", "cannot send a transaction with zero available balance")
         return false
       }
       if (!this.wallet.accountExists) {
-        this.showToast("error", "Error", "account does not exists on chain yet")
+        this.showToast("error", "Error", "account does not exist on chain yet")
         return false
       }
       this.$bvModal.show("bv-modal-confirm-withdraw-rewards")
@@ -899,19 +922,28 @@ export default {
         let totalDelegations = 0
         let totalShares = new Big("0")
         let totalStaked = new Big("0")
+        let myVal
 
         const res = await this.client.getDelegations()
-        if (res.status === 200) {
-          totalDelegations = res.result.result.length
+        if (res?.delegation_responses) {
+          totalDelegations = res.delegation_responses.length
           const addEditDelegationRes = []
-          for (let i = 0; i < res.result.result.length; i += 1) {
-            totalShares = totalShares.add(res.result.result[i].shares)
-            totalStaked = totalStaked.add(res.result.result[i].balance.amount)
+          for (let i = 0; i < res.delegation_responses.length; i += 1) {
+            totalShares = totalShares.add(res.delegation_responses[i].delegation.shares)
+            totalStaked = totalStaked.add(res.delegation_responses[i].balance.amount)
+            const validator = res.delegation_responses[i].delegation.validator_address
+
+            if (
+              this.getDelegatorAddressFromOpAddr(validator, UND_CONFIG.BECH32_PREFIX) === this.wallet.address
+            ) {
+              myVal = validator
+            }
             addEditDelegationRes.push(
-              this.$store.dispatch("delegations/addEditDelegation", res.result.result[i]),
+              this.$store.dispatch("delegations/addEditDelegation", res.delegation_responses[i]),
             )
           }
           await Promise.all(addEditDelegationRes)
+          await this.$store.dispatch("wallet/setMyNode", myVal)
         } else {
           this.handleUndJsError(res)
         }
@@ -926,21 +958,26 @@ export default {
       let total = 0.0
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
         const res = await this.client.getDelegatorRewards(this.wallet.address)
-        if (res.status === 200 && res.result.result.rewards) {
+        if (res?.rewards) {
           const updateRewardRes = []
-          if (res.result.result.total) {
-            total = res.result.result.total[0].amount
+          if (res?.total.length > 0) {
+            total = res.total[0].amount
           }
-          for (let i = 0; i < res.result.result.rewards.length; i += 1) {
-            updateRewardRes.push(
-              this.$store.dispatch("delegations/updateReward", res.result.result.rewards[i]),
-            )
+          for (let i = 0; i < res.rewards.length; i += 1) {
+            updateRewardRes.push(this.$store.dispatch("delegations/updateReward", res.rewards[i]))
           }
           await Promise.all(updateRewardRes)
-        } else if (res.status !== 200) {
+        } else {
           this.handleUndJsError(res)
         }
         await this.$store.dispatch("wallet/setTotalRewards", total)
+
+        if (this.wallet.myNode) {
+          const commRes = await this.client.getValidatorCommission(this.wallet.myNode)
+          if (commRes?.commission) {
+            await this.$store.dispatch("wallet/setTotalCommissions", commRes.commission.commission[0].amount)
+          }
+        }
       }
     },
     confirmUndelegation() {
@@ -961,16 +998,16 @@ export default {
             this.undelegateData.memo,
           )
 
-          if (res.status === 200) {
+          if (res?.tx_response) {
             this.showToast(
               "success",
               "FUND Undelegated Successfully",
               `Transaction hash: <a href="${this.explorerUrl(this.chainId)}/transactions/${
-                res.result.txhash
-              }" target="_blank">${res.result.txhash}</a>`,
+                res.tx_response.txhash
+              }" target="_blank">${res.tx_response.txhash}</a>`,
             )
             await this.$store.dispatch("txs/addTx", {
-              txhash: res.result.txhash,
+              txhash: res.tx_response.txhash,
               timestamp: null,
               isSent: true,
             })
@@ -1004,16 +1041,16 @@ export default {
             this.redelegateData.memo,
           )
 
-          if (res.status === 200) {
+          if (res?.tx_response) {
             this.showToast(
               "success",
               "FUND Redelegated Successfully",
               `Transaction hash: <a href="${this.explorerUrl(this.chainId)}/transactions/${
-                res.result.txhash
-              }" target="_blank">${res.result.txhash}</a>`,
+                res.tx_response.txhash
+              }" target="_blank">${res.tx_response.txhash}</a>`,
             )
             await this.$store.dispatch("txs/addTx", {
-              txhash: res.result.txhash,
+              txhash: res.tx_response.txhash,
               timestamp: null,
               isSent: true,
             })
@@ -1036,24 +1073,26 @@ export default {
         if (this.client.isLedgerMode) {
           this.confirmOnLedger = true
         }
+
         try {
           const res = await this.client.withdrawDelegationReward(
             this.withdrawData.address,
             this.fee,
+            this.withdrawData.commission,
             this.wallet.address,
             this.undelegateData.memo,
           )
 
-          if (res.status === 200) {
+          if (res?.tx_response) {
             this.showToast(
               "success",
               "Rewards Withdrawn Successfully",
               `Transaction hash: <a href="${this.explorerUrl(this.chainId)}/transactions/${
-                res.result.txhash
-              }" target="_blank">${res.result.txhash}</a>`,
+                res.tx_response.txhash
+              }" target="_blank">${res.tx_response.txhash}</a>`,
             )
             await this.$store.dispatch("txs/addTx", {
-              txhash: res.result.txhash,
+              txhash: res.tx_response.txhash,
               timestamp: null,
               isSent: true,
             })

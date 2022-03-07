@@ -1,8 +1,11 @@
 {
   "name": "web-wallet",
-  "version": "0.19.3",
+  "version": "0.20.0",
   "private": true,
   "description": "Unification Mainchain Web Wallet",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build --dest dist/chrome-extension",
@@ -13,9 +16,7 @@
   "dependencies": {
     "@babel/runtime": "^7.12.18",
     "@ledgerhq/hw-transport": "^5.43.0",
-    "@tendermint/belt": "^0.3.0",
-    "@unification-com/und-js": "^1.8.6",
-    "axios": "^0.21.1",
+    "@unification-com/und-js-v2": "^0.1.1",
     "bech32": "^2.0.0",
     "big.js": "^5.2.2",
     "bootstrap": "^4.6.0",
@@ -25,7 +26,6 @@
     "lodash": "^4.17.21",
     "vue": "^2.6.12",
     "vue-notification": "^1.3.20",
-    "vue-router": "^3.5.1",
     "vuex": "^3.6.2"
   },
   "devDependencies": {

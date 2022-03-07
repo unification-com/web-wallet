@@ -11,7 +11,7 @@
         Sending {{ transfer.und }} FUND<br />
         From: <span class="wallet_address"> {{ wallet.address }} </span><br />
         To: <span class="wallet_address"> {{ transfer.to }} </span><br />
-        Fee: {{ fee.amount[0].amount }}nund ({{ nundToUnd(fee.amount[0].amount) }} FUND)<br />
+        Fee: {{ fee.amount }}nund ({{ nundToUnd(fee.amount) }} FUND)<br />
         Gas: {{ fee.gas }}<br />
         <span v-show="transfer.memo">Memo: {{ transfer.memo }}</span>
 
@@ -109,7 +109,7 @@
         <b-input-group append="nund">
           <b-form-input
             id="transfer-fee-amount"
-            v-model="fee.amount[0].amount"
+            v-model="fee.amount"
             type="number"
             trim
             aria-describedby="input-live-feedback-fees"
@@ -158,7 +158,7 @@ import { mapState } from "vuex"
 import { UND_CONFIG } from "../constants"
 import LedgerConfirm from "./LedgerConfirm.vue"
 
-const UndClient = require("@unification-com/und-js")
+const { UndClient } = require("@unification-com/und-js-v2")
 
 export default {
   name: "Transfer",
@@ -254,7 +254,7 @@ export default {
       const isValidAmtFees = this.isValidAmountPlusFees(
         this.wallet.balance,
         this.transfer.und,
-        this.fee.amount[0].amount,
+        this.fee.amount,
       )
       if (!isValidAmtFees.isValid) {
         this.showToast(
@@ -290,7 +290,7 @@ export default {
       const isValidAmtFees = this.isValidAmountPlusFees(
         this.wallet.balance,
         this.transfer.und,
-        this.fee.amount[0].amount,
+        this.fee.amount,
       )
       if (!isValidAmtFees.isValid) {
         this.showToast(
@@ -318,19 +318,27 @@ export default {
             this.transfer.memo,
           )
 
-          if (res.status === 200) {
-            this.showToast(
-              "success",
-              "FUND Transferred Successfully",
-              `Transaction hash: <a href="${this.explorerUrl(this.chainId)}/transactions/${
-                res.result.txhash
-              }" target="_blank">${res.result.txhash}</a>`,
-            )
-            await this.$store.dispatch("txs/addTx", {
-              txhash: res.result.txhash,
-              timestamp: null,
-              isSent: true,
-            })
+          if (res?.tx_response) {
+            if (parseInt(res.tx_response?.code, 10) === 0) {
+              this.showToast(
+                "success",
+                "FUND Transferred Successfully",
+                `Transaction hash: <a href="${this.explorerUrl(this.chainId)}/transactions/${
+                  res.tx_response.txhash
+                }" target="_blank">${res.tx_response.txhash}</a>`,
+              )
+              await this.$store.dispatch("txs/addTx", {
+                txhash: res.tx_response.txhash,
+                timestamp: null,
+                isSent: true,
+              })
+            } else {
+              this.showToast(
+                "error",
+                "FUND Transfer Error",
+                `Error (${res.tx_response.code}) - "${res.tx_response.raw_log}"`,
+              )
+            }
           }
 
           this.$bvModal.hide("bv-modal-transfer-und")

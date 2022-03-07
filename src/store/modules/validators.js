@@ -1,7 +1,10 @@
 // initial state
+import Big from "big.js"
+
 const state = {
   validators: {},
   validatorsSelect: [],
+  totalVotingPower: Big("0"),
 }
 
 // getters
@@ -43,10 +46,8 @@ const actions = {
     context.commit("clearValidators")
   },
 
-  addValidator(context, validator) {
-    if (!(validator.operator_address in context.state.validators)) {
-      context.commit("addValidator", validator)
-    }
+  addOrEditValidator(context, validator) {
+    context.commit("addOrEditValidator", validator)
   },
 
   updateValidatorsSelect(context) {
@@ -55,7 +56,7 @@ const actions = {
     const keys = Object.keys(context.state.validators)
     for (let i = 0; i < keys.length; i += 1) {
       if (Object.prototype.hasOwnProperty.call(context.state.validators, keys[i])) {
-        if (context.state.validators[keys[i]].status !== 0) {
+        if (context.state.validators[keys[i]].status === "BOND_STATUS_BONDED") {
           const valOption = {
             value: keys[i],
             text: context.state.validators[keys[i]].description.moniker,
@@ -67,6 +68,9 @@ const actions = {
     validatorSelectArray.sort((a, b) => (a.text > b.text ? 1 : -1))
     context.commit("updateValidatorsSelect", validatorSelectArray)
   },
+  updateTotalVotingPower(context, totalVotingPower) {
+    context.commit("updateTotalVotingPower", totalVotingPower)
+  },
 }
 
 // mutations
@@ -76,12 +80,16 @@ const mutations = {
     state.validatorsSelect = []
   },
 
-  addValidator(state, validator) {
+  addOrEditValidator(state, validator) {
     state.validators[validator.operator_address] = validator
   },
 
   updateValidatorsSelect(state, validatorsSelectArray) {
     state.validatorsSelect = validatorsSelectArray
+  },
+
+  updateTotalVotingPower(state, totalVotingPower) {
+    state.totalVotingPower = totalVotingPower
   },
 }
 

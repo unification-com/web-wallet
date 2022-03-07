@@ -310,7 +310,7 @@ import { mapState } from "vuex"
 import Unlocked from "./Unlocked.vue"
 import Help from "./Help.vue"
 
-const UndClient = require("@unification-com/und-js")
+const { UndClient } = require("@unification-com/und-js-v2")
 
 export default {
   name: "Wallet",
@@ -333,6 +333,7 @@ export default {
       disableHdPathSelect: false,
       undClient: null,
       confirmOnLedger: false,
+      publicKey: null,
     }
   },
   computed: {
@@ -400,6 +401,7 @@ export default {
       this.$refs.unlockedcomponent.tabIndex = 0
     },
     async clearWalletData() {
+      // this.undClient.clean()
       await this.$store.dispatch("wallet/clearWallet")
       await this.$store.dispatch("txs/clearTxs")
       await this.$store.dispatch("validators/clearValidators")
@@ -441,7 +443,8 @@ export default {
 
       this.mnemonic = UndClient.crypto.generateMnemonic()
 
-      this.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
+      const pk = UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
+      this.privateKey = pk.toString("hex")
       const address = UndClient.crypto.getAddressFromPrivateKey(this.privateKey, "und")
       await this.$store.dispatch("wallet/setAddress", address)
 
@@ -480,7 +483,8 @@ export default {
       }
 
       try {
-        this.privateKey = UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
+        const pk = UndClient.crypto.getPrivateKeyFromMnemonic(this.mnemonic)
+        this.privateKey = pk.toString("hex")
       } catch (e) {
         this.showToast("error", "Error", e.toString())
         return false
@@ -522,11 +526,9 @@ export default {
       if (this.isClientConnected) {
         try {
           const res = this.undClient.recoverAccountFromKeystore(e.target.result, this.walletPass)
-
-          await this.$store.dispatch("wallet/setAddress", res.address)
           await this.undClient.setPrivateKey(res.privateKey, true)
+          await this.$store.dispatch("wallet/setAddress", res.address)
           await this.$store.dispatch("client/setClient", this.undClient)
-
           this.walletPass = null
           await this.$store.dispatch("wallet/setIsWalletUnlocked", true)
 

@@ -1,6 +1,7 @@
 import Vue from "vue"
 import Big from "big.js"
 import createHash from "create-hash"
+import { bech32 } from "bech32"
 import { UND_CONFIG } from "../constants"
 
 Vue.mixin({
@@ -38,10 +39,10 @@ Vue.mixin({
       return true
     },
     isValidFee(fee) {
-      if (!this.isValidAmount(fee.amount[0].amount, 7, 0)) {
+      if (!this.isValidAmount(fee.amount, 7, 0)) {
         return false
       }
-      if (fee.amount[0].denom !== "nund") {
+      if (fee.denom !== "nund") {
         return false
       }
       return true
@@ -94,6 +95,18 @@ Vue.mixin({
 
       return formatted
     },
+    getBondingStatusText(status) {
+      switch (status) {
+        case "BOND_STATUS_UNBONDED":
+          return "Unbonded"
+        case "BOND_STATUS_UNBONDING":
+          return "Unbonding"
+        case "BOND_STATUS_BONDED":
+          return "Bonded"
+        default:
+          return "Unknown"
+      }
+    },
     formatStatus(status) {
       const statusFormatted = {
         statusName: "Unknown",
@@ -102,18 +115,19 @@ Vue.mixin({
         jailedReasonClass: "text-info",
         tooltip: "",
         status: status.status,
+        statusText: this.getBondingStatusText(status.status),
         jailed: status.jailed,
       }
 
       switch (status.status) {
-        case 0:
+        case "BOND_STATUS_UNBONDED":
           statusFormatted.statusName = "Inactive"
           statusFormatted.statusClass = "text-danger"
           statusFormatted.jailedReason = " (Inactive)" // unbonded
           statusFormatted.jailedReasonClass = "text-danger"
           statusFormatted.tooltip = "Node has been offline for some time and is possibly inactive"
           break
-        case 1:
+        case "BOND_STATUS_UNBONDING":
           statusFormatted.statusName = "Jailed"
           statusFormatted.statusClass = "text-warning"
           statusFormatted.jailedReason = " (Unbonding)" // unbonding
@@ -121,7 +135,7 @@ Vue.mixin({
           statusFormatted.tooltip =
             "Node has been down a short time, and probably only temporarily. May soon be active again."
           break
-        case 2:
+        case "BOND_STATUS_BONDED":
           statusFormatted.statusName = "Active"
           statusFormatted.statusClass = "text-success"
           statusFormatted.tooltip = "Node is active and running"
@@ -133,9 +147,12 @@ Vue.mixin({
       return statusFormatted
     },
     nundToUnd(amount) {
-      const amountBig = new Big(amount)
-      const und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
-      return und
+      if (amount) {
+        const amountBig = new Big(amount)
+        const und = Number(amountBig.div(UND_CONFIG.BASENUMBER))
+        return und
+      }
+      return 0
     },
     UndToNund(amount) {
       const amountBig = new Big(amount)
@@ -185,9 +202,9 @@ Vue.mixin({
       this.showToast("danger", "Error", "Client not connected or wallet not unlocked. Please reload")
     },
     handleUndJsError(resObj) {
-      if ("error" in resObj.result) {
+      if (parseInt(resObj?.code, 10) > 0) {
         // eslint-disable-next-line
-        console.log("UND-JS returned an error.", "status:", resObj.status, "message:", resObj.result.error)
+        console.log("UND-JS returned an error.", "code:", resObj.code, "message:", resObj.message)
       } else {
         // eslint-disable-next-line
         console.log("UND-JS returned an error:", resObj.toString())
@@ -244,6 +261,18 @@ Vue.mixin({
         // empty
       }
       return val
+    },
+    getDelegatorAddressFromOpAddr(operatorAddr, prefix) {
+      const address = bech32.decode(operatorAddr)
+      return bech32.encode(prefix, address.words)
+    },
+    bigPercentage(val, total) {
+      const bigVal = new Big(val)
+      const bigTotal = new Big(total)
+      if (bigVal.gt(new Big("0")) && bigTotal.gt(new Big("0"))) {
+        return bigVal.div(bigTotal).mul(new Big("100"))
+      }
+      return new Big("0")
     },
   },
 })

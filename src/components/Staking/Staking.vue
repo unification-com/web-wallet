@@ -43,6 +43,7 @@
 <script>
 import { mapState } from "vuex"
 
+import Big from "big.js"
 import StakingDelegate from "./StakingDelegate.vue"
 import StakingDelegations from "./StakingDelegations.vue"
 import StakingReDelegations from "./StakingReDelegations.vue"
@@ -89,24 +90,33 @@ export default {
     },
     async getValidatorsByStatus(status) {
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
+        let totalVotingPower = new Big("0")
         const res = await this.client.getValidators(status)
         const addValidatorRes = []
-        if (res.status === 200) {
-          for (let i = 0; i < res.result.result.length; i += 1) {
-            addValidatorRes.push(this.$store.dispatch("validators/addValidator", res.result.result[i]))
+        if (res?.validators) {
+          for (let i = 0; i < res.validators.length; i += 1) {
+            const val = res.validators[i]
+            val.commission = "0"
+            addValidatorRes.push(this.$store.dispatch("validators/addOrEditValidator", val))
+            if (status === "BOND_STATUS_BONDED") {
+              totalVotingPower = totalVotingPower.add(new Big(val.tokens))
+            }
           }
           await Promise.all(addValidatorRes)
         } else {
           this.handleUndJsError(res)
         }
         await this.$store.dispatch("validators/updateValidatorsSelect")
+        if (status === "BOND_STATUS_BONDED") {
+          await this.$store.dispatch("validators/updateTotalVotingPower", totalVotingPower)
+        }
       }
     },
     async getValidators() {
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
-        await this.getValidatorsByStatus("bonded")
-        await this.getValidatorsByStatus("unbonded")
-        await this.getValidatorsByStatus("unbonding")
+        await this.getValidatorsByStatus("BOND_STATUS_BONDED")
+        await this.getValidatorsByStatus("BOND_STATUS_UNBONDED")
+        await this.getValidatorsByStatus("BOND_STATUS_UNBONDING")
       }
     },
   },

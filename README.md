@@ -32,14 +32,16 @@ The Web Wallet will be available on http://localhost:8080
 
 ## Development and Testing
 
-To develop, test, or run the Web Wallet locally, follow the guide below
+To develop, test, or run the Web Wallet locally, follow the guide below.
+
+Note: requires Node JS >=v14.17.6
 
 ### Project setup
 
 To set up the environment, first install the node dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 ### Compiles and hot-reloads for development
@@ -58,7 +60,7 @@ For development and testing, the Web Wallet can be run and hot-reloaded locally
 by running:
 
 ```bash
-npm run serve:web
+yarn run serve:web
 ```
 
 By default, this will open the application in your browser at http://localhost:8080
@@ -70,7 +72,7 @@ Any changes to the code will automatically be relaoded, and the browser refreshe
 For development and testing of the Chrome Extension, run the following:
 
 ```bash
-npm run serve
+yarn run serve
 ```
 
 The process is similar, with some additional steps:
@@ -97,7 +99,7 @@ The following command will build and optimise web application the code for
 production deployment:
 
 ```bash
-npm run build:web
+yarn run build:web
 ```
 
 The final code will be output to `dist/web`
@@ -108,7 +110,7 @@ The following command will build and optimise the chrome extension code for
 production deployment:
 
 ```bash
-npm run build
+yarn run build
 ```
 
 The final code will be output to `dist/chrome-extension`
@@ -116,5 +118,5 @@ The final code will be output to `dist/chrome-extension`
 ### Run unit tests
 
 ```bash
-npm run test:unit
+yarn run test:unit
 ```
