@@ -10,6 +10,12 @@
         </tr>
         <tr>
           <td class="gov-proposal-th">
+            Status
+          </td>
+          <td><ProposalStatus :status="proposalData.status" /></td>
+        </tr>
+        <tr>
+          <td class="gov-proposal-th">
             Title
           </td>
           <td>
@@ -70,26 +76,28 @@
             </VueCountdown>
           </td>
         </tr>
+        <tr>
+          <td class="gov-proposal-th">
+            Results
+          </td>
+          <td>
+            Total Votes: {{ proposalData.totalVotes.toString() }} ({{
+              bigPercentage(proposalData.totalVotes, validators.totalVotingPower).toFixed(2)
+            }}% of Total Voting Power {{ validators.totalVotingPower.toString() }})<br />
+            <div v-show="proposalData.totalVotes > 0">
+              <VotesChart
+                :id="`proposal-chart-${proposalData.id}`"
+                :yes="getBigPercentageYes"
+                :no="getBigPercentageNo"
+                :abstain="getBigPercentageAbstain"
+                :veto="getBigPercentageVeto"
+                :proposal_id="proposalData.id"
+              />
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
-    <div>
-      <p>Results</p>
-      Total Votes: {{ proposalData.totalVotes.toString() }} ({{
-        bigPercentage(proposalData.totalVotes, validators.totalVotingPower).toFixed(2)
-      }}% of Total Voting Power {{ validators.totalVotingPower.toString() }})<br />
-      Yes: {{ proposalData.tally.yes.toString() }} ({{
-        bigPercentage(proposalData.tally.yes, proposalData.totalVotes).toFixed(2)
-      }}%)<br />
-      No: {{ proposalData.tally.no.toString() }} ({{
-        bigPercentage(proposalData.tally.no, proposalData.totalVotes).toFixed(2)
-      }}%)<br />
-      Abstain: {{ proposalData.tally.abstain.toString() }} ({{
-        bigPercentage(proposalData.tally.abstain, proposalData.totalVotes).toFixed(2)
-      }}%)<br />
-      No With Veto: {{ proposalData.tally.no_with_veto.toString() }} ({{
-        bigPercentage(proposalData.tally.no_with_veto, proposalData.totalVotes).toFixed(2)
-      }}%)
-    </div>
   </div>
 </template>
 
@@ -97,11 +105,15 @@
 import { mapState } from "vuex"
 import VueCountdown from "@chenfengyuan/vue-countdown"
 import ProposalContent from "./ProposalContent.vue"
+import ProposalStatus from "./ProposalStatus.vue"
+import VotesChart from "./VotesChart.vue"
 
 export default {
   name: "ProposalDetails",
   components: {
     ProposalContent,
+    ProposalStatus,
+    VotesChart,
     VueCountdown,
   },
   props: {
@@ -110,6 +122,7 @@ export default {
   data() {
     return {
       proposalData: this.proposal,
+      results: {},
     }
   },
   computed: {
@@ -148,6 +161,32 @@ export default {
         default:
           return this.proposal.content["@type"]
       }
+    },
+    getBigPercentageYes() {
+      if (this.proposalData.totalVotes > 0) {
+        return this.bigPercentage(this.proposalData.tally.yes, this.proposalData.totalVotes).toFixed(2)
+      }
+      return "0.0"
+    },
+    getBigPercentageNo() {
+      if (this.proposalData.totalVotes > 0) {
+        return this.bigPercentage(this.proposalData.tally.no, this.proposalData.totalVotes).toFixed(2)
+      }
+      return "0.0"
+    },
+    getBigPercentageAbstain() {
+      if (this.proposalData.totalVotes > 0) {
+        return this.bigPercentage(this.proposalData.tally.abstain, this.proposalData.totalVotes).toFixed(2)
+      }
+      return "0.0"
+    },
+    getBigPercentageVeto() {
+      if (this.proposalData.totalVotes > 0) {
+        return this.bigPercentage(this.proposalData.tally.no_with_veto, this.proposalData.totalVotes).toFixed(
+          2,
+        )
+      }
+      return "0.0"
     },
   },
   watch: {

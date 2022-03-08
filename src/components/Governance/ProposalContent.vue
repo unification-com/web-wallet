@@ -80,7 +80,6 @@ export default {
   },
   methods: {
     setContentType() {
-      console.log(this.content)
       switch (this.content["@type"]) {
         case "/cosmos.gov.v1beta1.TextProposal":
           this.contentType = "text"
