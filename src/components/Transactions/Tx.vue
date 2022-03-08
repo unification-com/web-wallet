@@ -357,6 +357,15 @@ export default {
               formattedObj.badge = "badge badge-info"
               formattedObj.formatted = this.formatVote(msg)
               break
+            case "/cosmos.gov.v1beta1.MsgSubmitProposal":
+              if (this.txSummary.txSuccess === false) {
+                formattedObj.action = "Submit Proposal"
+              } else {
+                formattedObj.action = "Submitted Proposal"
+              }
+              formattedObj.badge = "badge badge-info"
+              formattedObj.formatted = this.formatSubmitProposal(msg)
+              break
             default: {
               formattedObj.formatted = ""
               formattedObj.action = msg["@type"]
@@ -674,6 +683,22 @@ export default {
       })
       msgContent.push({
         content: msg.proposal_id,
+        wrap: false,
+      })
+      return msgContent
+    },
+    formatSubmitProposal(msg) {
+      const msgContent = []
+      msgContent.push({
+        content: " ",
+        wrap: false,
+      })
+      msgContent.push({
+        content: " Submitted proposal",
+        wrap: false,
+      })
+      msgContent.push({
+        content: ` "${msg.content.title}"`,
         wrap: false,
       })
       return msgContent

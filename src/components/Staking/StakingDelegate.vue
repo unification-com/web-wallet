@@ -91,9 +91,7 @@
           Details: {{ selectedValidatorDetails.replace(/<[^>]*>?/gm, " ") }}<br />
           Total Staked: {{ selectedValidatorStakedTokens }}<br />
           Total Shares: {{ selectedValidatorShares }}<br />
-          Commission Rate: {{ selectedValidatorCommissionRate }}%<br />
-          Max Commission Rate: {{ selectedValidatorCommissionMaxRate }}%<br />
-          Commission Change Rate: {{ selectedValidatorCommissionMaxChangeRate }}%
+          Commission Rate: {{ selectedValidatorCommissionRate }}%
         </div>
 
         <br />
@@ -311,19 +309,7 @@ export default {
     },
     selectedValidatorCommissionRate() {
       if (this.selectedValidatorMetadata !== null && "commission" in this.selectedValidatorMetadata) {
-        return parseFloat(this.selectedValidatorMetadata.commission.commission_rates.rate) * 100
-      }
-      return ""
-    },
-    selectedValidatorCommissionMaxRate() {
-      if (this.selectedValidatorMetadata !== null && "commission" in this.selectedValidatorMetadata) {
-        return parseFloat(this.selectedValidatorMetadata.commission.commission_rates.max_rate) * 100
-      }
-      return ""
-    },
-    selectedValidatorCommissionMaxChangeRate() {
-      if (this.selectedValidatorMetadata !== null && "commission" in this.selectedValidatorMetadata) {
-        return parseFloat(this.selectedValidatorMetadata.commission.commission_rates.max_change_rate) * 100
+        return parseFloat(this.selectedValidatorMetadata?.commission || "0.0") * 100
       }
       return ""
     },

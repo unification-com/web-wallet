@@ -112,65 +112,67 @@
           </b-button>
         </template>
         <template v-slot:row-details="row">
-          <p>
-            Title:
-            <a :href="explorerUrlPrefix + '/proposals/' + row.item.id" target="_blank">
-              {{ row.item.name }} <b-icon-box-arrow-up-right /> </a
-            ><br />
-            Submit time: {{ row.item.submit_time }}<br />
-            Deposit End time: {{ row.item.deposit_end_time }}<br />
-            Total Deposit: {{ nundToUnd(row.item.total_deposit) }} FUND<br />
-            Vote Start time: {{ row.item.voting_start_time }}<br />
-            Vote End time: {{ row.item.voting_end_time }}
-          </p>
-          <div>
-            <p>Results</p>
-            Total Votes: {{ row.item.totalVotes.toString() }} ({{
-              bigPercentage(row.item.totalVotes, validators.totalVotingPower).toFixed(2)
-            }}% of Total Voting Power {{ validators.totalVotingPower.toString() }})<br />
-            Yes: {{ row.item.tally.yes.toString() }} ({{
-              bigPercentage(row.item.tally.yes, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            No: {{ row.item.tally.no.toString() }} ({{
-              bigPercentage(row.item.tally.no, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            Abstain: {{ row.item.tally.abstain.toString() }} ({{
-              bigPercentage(row.item.tally.abstain, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            No With Veto: {{ row.item.tally.no_with_veto.toString() }} ({{
-              bigPercentage(row.item.tally.no_with_veto, row.item.totalVotes).toFixed(2)
-            }}%)
-          </div>
+          <ProposalDetails :id="`proposal-${row.item.id}-details`" :proposal="row.item" />
 
-          <div v-show="row.item.canVote">
-            <h4>Vote</h4>
-            <b-button
-              variant="info"
-              size="sm"
-              class="mr-2"
-              @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_YES')"
-            >
-              Yes
-            </b-button>
+          <table>
+            <tbody>
+              <tr>
+                <td class="gov-proposal-th">
+                  Vote
+                </td>
+                <td>
+                  <div v-show="row.item.canVote">
+                    <h4>Vote</h4>
+                    <b-button
+                      variant="info"
+                      size="sm"
+                      class="mr-2"
+                      @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_YES')"
+                    >
+                      Yes
+                    </b-button>
 
-            <b-button
-              variant="info"
-              size="sm"
-              class="mr-2"
-              @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_NO')"
-            >
-              No
-            </b-button>
+                    <b-button
+                      variant="info"
+                      size="sm"
+                      class="mr-2"
+                      @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_NO')"
+                    >
+                      No
+                    </b-button>
 
-            <b-button
-              variant="info"
-              size="sm"
-              class="mr-2"
-              @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_ABSTAIN')"
-            >
-              Abstain
-            </b-button>
-          </div>
+                    <b-button
+                      variant="info"
+                      size="sm"
+                      class="mr-2"
+                      @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_ABSTAIN')"
+                    >
+                      Abstain
+                    </b-button>
+
+                    <b-button
+                      variant="info"
+                      size="sm"
+                      class="mr-2"
+                      @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_NO_WITH_VETO')"
+                    >
+                      No With Veto
+                    </b-button>
+                  </div>
+                  <div v-show="!row.item.canVote">
+                    <span v-if="row.item.myStake === 0">You do not have any FUND staked</span>
+                    <span v-else-if="row.item.status !== 'PROPOSAL_STATUS_VOTING_PERIOD'">Voting ended</span>
+                    <span
+                      v-else-if="
+                        row.item.myVote !== 'NOT_VOTED' && row.item.status === 'PROPOSAL_STATUS_VOTING_PERIOD'
+                      "
+                      >You have already voted</span
+                    >
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </template>
         <template v-slot:cell(id)="data">
           <b class="text-info">{{ Number(data.value) }}</b>
@@ -189,7 +191,9 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import Big from "big.js"
+import _ from "lodash"
 import LedgerConfirm from "../LedgerConfirm.vue"
+import ProposalDetails from "./ProposalDetails.vue"
 import ProposalStatus from "./ProposalStatus.vue"
 import { UND_CONFIG } from "../../constants"
 
@@ -197,6 +201,7 @@ export default {
   name: "Governance",
   components: {
     LedgerConfirm,
+    ProposalDetails,
     ProposalStatus,
   },
   data() {
@@ -291,7 +296,7 @@ export default {
       }
     },
     generateProposalsDisplay() {
-      this.proposalsDisplayObj = []
+      const proposalsDisplayObj = []
       const keys = Object.keys(this.governance.proposals)
       for (let i = 0; i < keys.length; i += 1) {
         const p = this.governance.proposals[keys[i]]
@@ -309,9 +314,17 @@ export default {
           .add(new Big(t.abstain))
           .add(new Big(t.no_with_veto))
 
+        let voteEndsIn = 0
+        const now = new Date()
+        const voteEnd = new Date(p.proposal.voting_end_time)
+        if (voteEnd > now) {
+          voteEndsIn = voteEnd - now
+        }
+
         const proposalObj = {
-          id: p.proposal.proposal_id,
+          id: Number(p.proposal.proposal_id),
           name: p.proposal.content.title,
+          content: p.proposal.content,
           status: p.proposal.status,
           submit_time: this.formatDateTime(p.proposal.submit_time),
           deposit_end_time: this.formatDateTime(p.proposal.deposit_end_time),
@@ -319,12 +332,19 @@ export default {
           voting_start_time: this.formatDateTime(p.proposal.voting_start_time),
           voting_end_time: this.formatDateTime(p.proposal.voting_end_time),
           myVote: p.myVote,
-          canVote: p.myVote === "NOT_VOTED" && p.proposal.status === "PROPOSAL_STATUS_VOTING_PERIOD",
+          myStake: this.wallet.staking.totalStaked,
+          voteEndsIn,
+          canVote:
+            p.myVote === "NOT_VOTED" &&
+            p.proposal.status === "PROPOSAL_STATUS_VOTING_PERIOD" &&
+            this.wallet.staking.totalStaked > 0,
           tally: t,
           totalVotes,
         }
-        this.proposalsDisplayObj.push(proposalObj)
+        proposalsDisplayObj.push(proposalObj)
       }
+
+      this.proposalsDisplayObj = _.orderBy(proposalsDisplayObj, ["id"], ["desc"])
     },
     checkFeesAndGas() {
       if (!this.isValidFee(this.fee)) {
@@ -364,6 +384,9 @@ export default {
         case "VOTE_OPTION_ABSTAIN":
           this.voteData.optionName = "Abstain"
           break
+        case "VOTE_OPTION_NO_WITH_VETO":
+          this.voteData.optionName = "No with Veto"
+          break
         default:
           this.showToast("error", "Error", `invalid option "${option}"`)
           return false
@@ -383,12 +406,8 @@ export default {
         }
 
         try {
-          const res = await this.client.voteOnProposal(
-            this.voteData.proposalId,
-            this.voteData.option,
-            this.fee,
-            this.wallet.address,
-          )
+          const { option, proposalId } = this.voteData
+          const res = await this.client.voteOnProposal(proposalId, option, this.fee, this.wallet.address)
 
           if (res?.tx_response) {
             this.showToast(
@@ -404,8 +423,8 @@ export default {
               isSent: true,
             })
             await this.$store.dispatch("governance/setMyVote", {
-              proposal_id: this.voteData.proposalId,
-              myVote: this.voteData.option,
+              proposal_id: proposalId,
+              myVote: option,
             })
           }
         } catch (err) {
