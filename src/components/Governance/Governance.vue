@@ -112,35 +112,7 @@
           </b-button>
         </template>
         <template v-slot:row-details="row">
-          <p>
-            Title:
-            <a :href="explorerUrlPrefix + '/proposals/' + row.item.id" target="_blank">
-              {{ row.item.name }} <b-icon-box-arrow-up-right /> </a
-            ><br />
-            Submit time: {{ row.item.submit_time }}<br />
-            Deposit End time: {{ row.item.deposit_end_time }}<br />
-            Total Deposit: {{ nundToUnd(row.item.total_deposit) }} FUND<br />
-            Vote Start time: {{ row.item.voting_start_time }}<br />
-            Vote End time: {{ row.item.voting_end_time }}
-          </p>
-          <div>
-            <p>Results</p>
-            Total Votes: {{ row.item.totalVotes.toString() }} ({{
-              bigPercentage(row.item.totalVotes, validators.totalVotingPower).toFixed(2)
-            }}% of Total Voting Power {{ validators.totalVotingPower.toString() }})<br />
-            Yes: {{ row.item.tally.yes.toString() }} ({{
-              bigPercentage(row.item.tally.yes, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            No: {{ row.item.tally.no.toString() }} ({{
-              bigPercentage(row.item.tally.no, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            Abstain: {{ row.item.tally.abstain.toString() }} ({{
-              bigPercentage(row.item.tally.abstain, row.item.totalVotes).toFixed(2)
-            }}%)<br />
-            No With Veto: {{ row.item.tally.no_with_veto.toString() }} ({{
-              bigPercentage(row.item.tally.no_with_veto, row.item.totalVotes).toFixed(2)
-            }}%)
-          </div>
+          <ProposalDetails :proposal="row.item" />
 
           <div v-show="row.item.canVote">
             <h4>Vote</h4>
@@ -189,7 +161,9 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import Big from "big.js"
+import _ from "lodash"
 import LedgerConfirm from "../LedgerConfirm.vue"
+import ProposalDetails from "./ProposalDetails.vue"
 import ProposalStatus from "./ProposalStatus.vue"
 import { UND_CONFIG } from "../../constants"
 
@@ -197,6 +171,7 @@ export default {
   name: "Governance",
   components: {
     LedgerConfirm,
+    ProposalDetails,
     ProposalStatus,
   },
   data() {
@@ -291,7 +266,7 @@ export default {
       }
     },
     generateProposalsDisplay() {
-      this.proposalsDisplayObj = []
+      const proposalsDisplayObj = []
       const keys = Object.keys(this.governance.proposals)
       for (let i = 0; i < keys.length; i += 1) {
         const p = this.governance.proposals[keys[i]]
@@ -310,8 +285,9 @@ export default {
           .add(new Big(t.no_with_veto))
 
         const proposalObj = {
-          id: p.proposal.proposal_id,
+          id: Number(p.proposal.proposal_id),
           name: p.proposal.content.title,
+          content: p.proposal.content,
           status: p.proposal.status,
           submit_time: this.formatDateTime(p.proposal.submit_time),
           deposit_end_time: this.formatDateTime(p.proposal.deposit_end_time),
@@ -323,8 +299,10 @@ export default {
           tally: t,
           totalVotes,
         }
-        this.proposalsDisplayObj.push(proposalObj)
+        proposalsDisplayObj.push(proposalObj)
       }
+
+      this.proposalsDisplayObj = _.orderBy(proposalsDisplayObj, ["id"], ["desc"])
     },
     checkFeesAndGas() {
       if (!this.isValidFee(this.fee)) {
@@ -383,12 +361,8 @@ export default {
         }
 
         try {
-          const res = await this.client.voteOnProposal(
-            this.voteData.proposalId,
-            this.voteData.option,
-            this.fee,
-            this.wallet.address,
-          )
+          const { option, proposalId } = this.voteData
+          const res = await this.client.voteOnProposal(proposalId, option, this.fee, this.wallet.address)
 
           if (res?.tx_response) {
             this.showToast(
@@ -404,8 +378,8 @@ export default {
               isSent: true,
             })
             await this.$store.dispatch("governance/setMyVote", {
-              proposal_id: this.voteData.proposalId,
-              myVote: this.voteData.option,
+              proposal_id: proposalId,
+              myVote: option,
             })
           }
         } catch (err) {
