@@ -311,6 +311,7 @@ import Unlocked from "./Unlocked.vue"
 import Help from "./Help.vue"
 
 const { UndClient } = require("@unification-com/und-js-v2")
+const semver = require("semver")
 
 export default {
   name: "Wallet",
@@ -381,6 +382,17 @@ export default {
       try {
         this.undClient = new UndClient(this.rest)
         await this.undClient.initChain()
+        const cosmosSemVer = semver.coerce(this.undClient?.node_app_version?.cosmos_sdk_version)
+        const satisfies = semver.satisfies(cosmosSemVer, ">=0.42.11")
+
+        if (!satisfies) {
+          this.showToast(
+            "error",
+            "Error",
+            `${this.rest} (${this.undClient.chainId}) is not running Cosmos SDK >= v0.42.11`,
+          )
+          return
+        }
         await this.$store.dispatch("client/setIsConnected")
         await this.$store.dispatch("client/setChainId", this.undClient.chainId)
         await this.$store.dispatch("client/setNodeInfo", this.undClient.node_info)
