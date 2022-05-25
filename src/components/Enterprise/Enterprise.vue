@@ -8,7 +8,7 @@
         Please confirm:<br />
         Raising Purchase Order for {{ po.und }} FUND<br />
         Proof: {{ po.memo }}<br />
-        Fee: {{ fee.amount[0].amount }}nund<br />
+        Fee: {{ fee.amount }}nund<br />
         Gas: {{ fee.gas }}
       </p>
       <template v-slot:modal-footer>
@@ -77,7 +77,7 @@
                   <b-input-group append="nund">
                     <b-form-input
                       id="enterprise-fee-amount"
-                      v-model="fee.amount[0].amount"
+                      v-model="fee.amount"
                       type="number"
                       trim
                       aria-describedby="input-live-feedback-fees"
@@ -162,7 +162,7 @@
 <script>
 import { mapState } from "vuex"
 import PurchaseOrder from "./PurchaseOrder.vue"
-import { UND_CONFIG } from "../constants"
+import { UND_CONFIG } from "../../constants"
 
 export default {
   name: "Enterprise",

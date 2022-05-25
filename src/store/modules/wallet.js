@@ -7,17 +7,20 @@ const state = {
   json: null,
   walletFile: null,
   privateKey: null,
+  publicKey: null,
   balance: "0",
   balanceNund: "0",
   locked: "0",
   lockedNund: "0",
   address: null,
+  myNode: null,
   staking: {
     totalRewards: "0",
     totalShares: "0",
     totalStaked: "0",
     totalUnbonding: "0",
     totalDelegations: 0,
+    totalCommissions: "0",
   },
   totalBalance: "0",
   accountExists: false,
@@ -35,8 +38,14 @@ const actions = {
   setPrivateKey(context, privateKey) {
     context.commit("setPrivateKey", privateKey)
   },
+  setPublicKey(context, publicKey) {
+    context.commit("setPublicKey", publicKey)
+  },
   setAddress(context, address) {
     context.commit("setAddress", address)
+  },
+  setMyNode(context, myNode) {
+    context.commit("setMyNode", myNode)
   },
   setWalletFile(context, walletFile) {
     context.commit("setWalletFile", walletFile)
@@ -71,6 +80,9 @@ const actions = {
   setTotalRewards(context, totalRewards) {
     context.commit("setTotalRewards", Number(totalRewards))
   },
+  setTotalCommissions(context, totalCommissions) {
+    context.commit("setTotalCommissions", Number(totalCommissions))
+  },
   setTotalUnbonding(context, totalUnbonding) {
     context.commit("setTotalUnbonding", Number(totalUnbonding))
   },
@@ -92,17 +104,20 @@ const mutations = {
     state.json = null
     state.walletFile = null
     state.privateKey = null
+    state.publicKey = null
     state.balance = "0"
     state.balanceNund = "0"
     state.locked = "0"
     state.lockedNund = "0"
     state.address = null
+    state.myNode = null
     state.staking = {
       totalRewards: "0",
       totalShares: "0",
       totalStaked: "0",
       totalUnbonding: "0",
       totalDelegations: 0,
+      totalCommissions: "0",
     }
     state.totalBalance = "0"
     state.accountExists = false
@@ -111,8 +126,14 @@ const mutations = {
   setPrivateKey(state, privateKey) {
     state.privateKey = privateKey
   },
+  setPublicKey(context, publicKey) {
+    state.publicKey = publicKey
+  },
   setAddress(state, address) {
     state.address = address
+  },
+  setMyNode(state, myNode) {
+    state.myNode = myNode
   },
   setWalletFile(state, walletFile) {
     state.walletFile = walletFile
@@ -146,6 +167,9 @@ const mutations = {
   },
   setTotalRewards(state, totalRewards) {
     state.staking.totalRewards = totalRewards
+  },
+  setTotalCommissions(state, totalCommissions) {
+    state.staking.totalCommissions = totalCommissions
   },
   setTotalUnbonding(state, totalUnbonding) {
     state.staking.totalUnbonding = totalUnbonding

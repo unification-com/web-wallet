@@ -5,6 +5,7 @@ import delegations from "./modules/delegations"
 import txs from "./modules/txs"
 import validators from "./modules/validators"
 import wallet from "./modules/wallet"
+import governance from "./modules/governance"
 import createLogger from "../plugins/logger"
 
 Vue.use(Vuex)
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     txs,
     validators,
     wallet,
+    governance,
   },
   strict: debug,
   plugins: debug ? [createLogger()] : [],

@@ -19,6 +19,11 @@
             <Staking ref="stakingcomponent" />
           </b-card-text>
         </b-tab>
+        <b-tab title="Governance" @click.prevent="$refs.govcomponent.getProposals()">
+          <b-card-text>
+            <Governance ref="govcomponent" />
+          </b-card-text>
+        </b-tab>
       </b-tabs>
     </b-card>
   </div>
@@ -28,14 +33,16 @@
 import Big from "big.js"
 import { mapGetters, mapState } from "vuex"
 
-import Staking from "./Staking.vue"
+import Governance from "./Governance/Governance.vue"
+import Staking from "./Staking/Staking.vue"
 import Summary from "./Summary.vue"
-import Transactions from "./Transactions.vue"
+import Transactions from "./Transactions/Transactions.vue"
 import Transfer from "./Transfer.vue"
 
 export default {
   name: "Unlocked",
   components: {
+    Governance,
     Staking,
     Summary,
     Transactions,
@@ -112,12 +119,8 @@ export default {
           if (accountData === null) {
             return false
           }
-          if (Object.prototype.hasOwnProperty.call(accountData.result.result, "value")) {
-            if (accountData.result.result.value.address === this.wallet.address) {
-              return true
-            }
-          } else if (Object.prototype.hasOwnProperty.call(accountData.result.result, "account")) {
-            if (accountData.result.result.account.value.address === this.wallet.address) {
+          if (Object.prototype.hasOwnProperty.call(accountData?.account, "address")) {
+            if (accountData.account.address === this.wallet.address) {
               return true
             }
           }
@@ -154,10 +157,10 @@ export default {
       if (this.isClientConnected && this.wallet.isWalletUnlocked) {
         const res = await this.client.getUnbondingDelegations()
         let totalUnbonding = new Big("0")
-        if (res.status === 200) {
-          for (let i = 0; i < res.result.result.length; i += 1) {
-            for (let j = 0; j < res.result.result[i].entries.length; j += 1) {
-              totalUnbonding = totalUnbonding.add(res.result.result[i].entries[j].balance)
+        if (res?.unbonding_responses) {
+          for (let i = 0; i < res.unbonding_responses.length; i += 1) {
+            for (let j = 0; j < res.unbonding_responses[i].entries.length; j += 1) {
+              totalUnbonding = totalUnbonding.add(res.unbonding_responses[i].entries[j].balance)
             }
           }
         } else {
@@ -171,9 +174,11 @@ export default {
       const totalStaked = new Big(this.wallet.staking.totalStaked)
       const totalUnbonding = new Big(this.wallet.staking.totalUnbonding)
       const totalRewards = new Big(this.wallet.staking.totalRewards)
+      const totalCommissions = new Big(this.wallet.staking.totalCommissions)
       totalBalance = totalBalance.add(totalStaked)
       totalBalance = totalBalance.add(totalUnbonding)
       totalBalance = totalBalance.add(totalRewards)
+      totalBalance = totalBalance.add(totalCommissions)
       await this.$store.dispatch("wallet/setTotalBalance", totalBalance)
     },
   },

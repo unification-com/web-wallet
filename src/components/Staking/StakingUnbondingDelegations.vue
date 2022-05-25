@@ -74,19 +74,19 @@ export default {
         const addEditUnbondingDelegationRes = []
         await this.$store.dispatch("delegations/clearUnbondingDelegations")
         const res = await this.client.getUnbondingDelegations()
-        if (res.status === 200) {
-          for (let i = 0; i < res.result.result.length; i += 1) {
+        if (res?.unbonding_responses) {
+          for (let i = 0; i < res.unbonding_responses.length; i += 1) {
             // eslint-disable-next-line camelcase
-            const { validator_address } = res.result.result[i]
+            const { validator_address } = res.unbonding_responses[i]
             const moniker = this.getValidatorMoniker(validator_address)
-            for (let j = 0; j < res.result.result[i].entries.length; j += 1) {
+            for (let j = 0; j < res.unbonding_responses[i].entries.length; j += 1) {
               const unbond = {
                 name: moniker,
                 validator_address,
-                creation_height: res.result.result[i].entries[j].creation_height,
-                completion_time: res.result.result[i].entries[j].completion_time,
-                initial_balance: res.result.result[i].entries[j].initial_balance,
-                balance: res.result.result[i].entries[j].balance,
+                creation_height: res.unbonding_responses[i].entries[j].creation_height,
+                completion_time: res.unbonding_responses[i].entries[j].completion_time,
+                initial_balance: res.unbonding_responses[i].entries[j].initial_balance,
+                balance: res.unbonding_responses[i].entries[j].balance,
               }
               addEditUnbondingDelegationRes.push(
                 this.$store.dispatch("delegations/addEditUnbondingDelegation", unbond),

@@ -35,9 +35,9 @@ const actions = {
       }
 
       let txData = null
-      if (payload.data !== null && payload.data !== undefined) {
-        txData = payload.data
-        if ("codespace" in txData || "code" in txData) {
+      if (payload.tx_response !== null && payload.tx_response !== undefined) {
+        txData = payload.tx_response
+        if (parseInt(txData?.code, 10) > 0) {
           txSummary.txSuccess = false
         } else {
           txSummary.txSuccess = true
@@ -46,17 +46,19 @@ const actions = {
 
       const txObj = {
         txSummary,
-        txData,
+        txData: payload.tx,
+        txResponse: payload.tx_response,
       }
       context.commit("addTx", txObj)
     }
   },
 
-  addTxData(context, txData) {
-    if (txData.txhash in context.state.txs && Object.prototype.hasOwnProperty.call(txData, "tx")) {
-      const newTx = JSON.parse(JSON.stringify(context.state.txs[txData.txhash]))
-      newTx.txData = txData
-      if ("codespace" in txData || "code" in txData) {
+  addTxData(context, payload) {
+    if (payload.txhash in context.state.txs && Object.prototype.hasOwnProperty.call(payload, "tx")) {
+      const newTx = JSON.parse(JSON.stringify(context.state.txs[payload.txhash]))
+      newTx.txData = payload.tx
+      newTx.txResponse = payload.tx_response
+      if (parseInt(payload.tx_response?.code, 10) > 0) {
         newTx.txSummary.txSuccess = false
       } else {
         newTx.txSummary.txSuccess = true

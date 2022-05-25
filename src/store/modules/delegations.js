@@ -47,7 +47,7 @@ const actions = {
   addEditDelegation(context, delegation) {
     const currentDelegations = context.state.delegations.slice()
     for (let i = 0; i < currentDelegations.length; i += 1) {
-      if (currentDelegations[i].validator_address === delegation.validator_address) {
+      if (currentDelegations[i].validator_address === delegation.delegation.validator_address) {
         currentDelegations.splice(i, 1)
       }
     }
@@ -114,8 +114,10 @@ const mutations = {
 
   updateReward(state, reward) {
     let amount = 0.0
-    if (reward.reward) {
-      amount = parseFloat(reward.reward[0].amount)
+    if (reward?.reward) {
+      if (reward.reward.length > 0) {
+        amount = parseFloat(reward.reward[0].amount)
+      }
     }
     state.rewards[reward.validator_address] = amount
   },

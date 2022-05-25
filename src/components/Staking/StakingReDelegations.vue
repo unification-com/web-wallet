@@ -74,13 +74,13 @@ export default {
         this.isDataLoading = true
         await this.$store.dispatch("delegations/clearReDelegations")
         const res = await this.client.getRedelegations(this.wallet.address)
-        if (res.status === 200) {
-          for (let i = 0; i < res.result.result.length; i += 1) {
-            const redelegRes = res.result.result[i]
+        if (res?.redelegation_responses) {
+          for (let i = 0; i < res.redelegation_responses.length; i += 1) {
+            const redelegRes = res.redelegation_responses[i]
             // eslint-disable-next-line camelcase
-            const { validator_src_address } = redelegRes
+            const { validator_src_address } = redelegRes.redelegation
             // eslint-disable-next-line camelcase
-            const { validator_dst_address } = redelegRes
+            const { validator_dst_address } = redelegRes.redelegation
 
             const monikerSrc = this.getValidatorMoniker(validator_src_address)
             const monikerDst = this.getValidatorMoniker(validator_dst_address)
@@ -91,11 +91,11 @@ export default {
                 from: monikerSrc,
                 to: monikerDst,
                 validator_src_address,
-                creation_height: entry.creation_height,
-                completion_time: entry.completion_time,
-                initial_balance: entry.initial_balance,
+                creation_height: entry.redelegation_entry.creation_height,
+                completion_time: entry.redelegation_entry.completion_time,
+                initial_balance: entry.redelegation_entry.initial_balance,
                 balance: entry.balance,
-                shares: entry.shares_dst,
+                shares: entry.redelegation_entry.shares_dst,
               }
               addEditReDelegationRes.push(this.$store.dispatch("delegations/addEditReDelegation", redeleg))
             }

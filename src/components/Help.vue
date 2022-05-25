@@ -14,10 +14,10 @@
     <h3>Security</h3>
 
     <p v-show="isShowHostedWarning" class="text-warning">
-      <b
-        >This hosted version of Web Wallet should only be used for testing, and only on either TestNet or
-        DevNet using test wallets. <em>Use on MainNet at your own risk!</em></b
-      >
+      <b>
+        This hosted version of Web Wallet should only be used for testing, and only on either TestNet or
+        DevNet using test wallets. <em>Use on MainNet at your own risk!</em>
+      </b>
     </p>
 
     <p v-show="isWeb">
@@ -29,8 +29,8 @@
               href="https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk"
               target="_blank"
             >
-              Chrome Browser extension </a
-            >.
+              Chrome Browser extension
+            </a>
           </span>
         </em>
       </b>
