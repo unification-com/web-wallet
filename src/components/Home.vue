@@ -40,32 +40,20 @@
             />
           </b-navbar-brand>
           <b-dropdown variant="primary" class="mx-1" right text="My Wallet">
-            <b-dropdown-item>
-              <b-button
-                v-show="!$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="success"
-                @click="$refs.walletComponent.newWallet()"
-              >
+            <b-dropdown-item v-show="!$refs.walletComponent.wallet.isWalletUnlocked">
+              <b-button variant="success" @click="$refs.walletComponent.newWallet()">
                 Create New Wallet
               </b-button>
             </b-dropdown-item>
 
-            <b-dropdown-item>
-              <b-button
-                v-show="!$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="primary"
-                @click="$refs.walletComponent.showRecoverWalletModal()"
-              >
+            <b-dropdown-item v-show="!$refs.walletComponent.wallet.isWalletUnlocked">
+              <b-button variant="primary" @click="$refs.walletComponent.showRecoverWalletModal()">
                 Recover Wallet
               </b-button>
             </b-dropdown-item>
 
-            <b-dropdown-item>
-              <b-button
-                v-show="!$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="primary"
-                @click="$refs.walletComponent.showUnlockWalletModal()"
-              >
+            <b-dropdown-item v-show="!$refs.walletComponent.wallet.isWalletUnlocked">
+              <b-button variant="primary" @click="$refs.walletComponent.showUnlockWalletModal()">
                 Unlock Wallet
               </b-button>
             </b-dropdown-item>
@@ -73,26 +61,16 @@
             <!--
             Todo - enable when Ledger app released
             {{
-            <b-dropdown-item>
-              <b-button
-                v-show="!$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="primary"
-                @click="
-                  $refs.walletComponent.showConnectLedgerModal(), $refs.walletComponent.selectLedgerWallet()
-                "
-              >
+            <b-dropdown-item v-show="!$refs.walletComponent.wallet.isWalletUnlocked">
+              <b-button variant="primary" @click="$refs.walletComponent.showConnectLedgerModal(), $refs.walletComponent.selectLedgerWallet()">
                 Connect Ledger Device
               </b-button>
             </b-dropdown-item>
             }}
             -->
 
-            <b-dropdown-item>
-              <b-button
-                v-show="$refs.walletComponent.wallet.isWalletUnlocked"
-                variant="primary"
-                @click="$refs.walletComponent.closeWallet()"
-              >
+            <b-dropdown-item v-show="$refs.walletComponent.wallet.isWalletUnlocked">
+              <b-button variant="primary" @click="$refs.walletComponent.closeWallet()">
                 Close Wallet
               </b-button>
             </b-dropdown-item>
