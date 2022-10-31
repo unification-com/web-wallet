@@ -122,9 +122,9 @@
                 </td>
                 <td>
                   <div v-show="row.item.canVote">
-                    <h4>Vote</h4>
                     <b-button
-                      variant="info"
+                      :variant="row.item.myVote === 'VOTE_OPTION_YES' ? 'success' : 'outline-success'"
+                      style="width: 7rem"
                       size="sm"
                       class="mr-2"
                       @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_YES')"
@@ -133,7 +133,8 @@
                     </b-button>
 
                     <b-button
-                      variant="info"
+                      :variant="row.item.myVote === 'VOTE_OPTION_NO' ? 'danger' : 'outline-danger'"
+                      style="width: 7rem"
                       size="sm"
                       class="mr-2"
                       @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_NO')"
@@ -142,7 +143,8 @@
                     </b-button>
 
                     <b-button
-                      variant="info"
+                      :variant="row.item.myVote === 'VOTE_OPTION_ABSTAIN' ? 'info' : 'outline-info'"
+                      style="width: 7rem"
                       size="sm"
                       class="mr-2"
                       @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_ABSTAIN')"
@@ -151,7 +153,10 @@
                     </b-button>
 
                     <b-button
-                      variant="info"
+                      :variant="
+                        row.item.myVote === 'VOTE_OPTION_NO_WITH_VETO' ? 'warning' : 'outline-warning'
+                      "
+                      style="width: 7rem"
                       size="sm"
                       class="mr-2"
                       @click="initVote(row.item.id, row.item.name, 'VOTE_OPTION_NO_WITH_VETO')"
@@ -159,15 +164,16 @@
                       No With Veto
                     </b-button>
                   </div>
-                  <div v-show="!row.item.canVote">
+                  <div>
                     <span v-if="row.item.myStake === 0">You do not have any FUND staked</span>
                     <span v-else-if="row.item.status !== 'PROPOSAL_STATUS_VOTING_PERIOD'">Voting ended</span>
                     <span
                       v-else-if="
                         row.item.myVote !== 'NOT_VOTED' && row.item.status === 'PROPOSAL_STATUS_VOTING_PERIOD'
                       "
-                      >You have already voted</span
                     >
+                      You voted {{ getVoteOptionText(row.item.myVote) }}
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -247,6 +253,20 @@ export default {
   methods: {
     preventSubmit() {
       return false
+    },
+    getVoteOptionText(voteOption) {
+      switch (voteOption) {
+        case "VOTE_OPTION_YES":
+          return "Yes"
+        case "VOTE_OPTION_NO":
+          return "No"
+        case "VOTE_OPTION_ABSTAIN":
+          return "Abstain"
+        case "VOTE_OPTION_NO_WITH_VETO":
+          return "No with Veto"
+        default:
+          return "Something went wrong"
+      }
     },
     async getProposals() {
       this.isDataLoading = true
@@ -335,9 +355,7 @@ export default {
           myStake: this.wallet.staking.totalStaked,
           voteEndsIn,
           canVote:
-            p.myVote === "NOT_VOTED" &&
-            p.proposal.status === "PROPOSAL_STATUS_VOTING_PERIOD" &&
-            this.wallet.staking.totalStaked > 0,
+            p.proposal.status === "PROPOSAL_STATUS_VOTING_PERIOD" && this.wallet.staking.totalStaked > 0,
           tally: t,
           totalVotes,
         }
