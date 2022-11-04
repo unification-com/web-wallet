@@ -17,6 +17,10 @@ const getters = {
 
 // actions
 const actions = {
+  clearProposals(context) {
+    context.commit("clearProposals")
+  },
+
   addEditProposal(context, proposal) {
     if (Object.prototype.hasOwnProperty.call(context.state.proposals, proposal.proposal_id)) {
       context.commit("editProposal", proposal)
@@ -60,6 +64,10 @@ const mutations = {
   },
   setMyVote(state, payload) {
     state.proposals[payload.proposal_id].myVote = payload.myVote
+  },
+
+  clearProposals(state) {
+    state.proposals = {}
   },
 }
 
