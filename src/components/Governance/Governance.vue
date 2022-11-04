@@ -118,6 +118,14 @@
             <tbody>
               <tr>
                 <td class="gov-proposal-th">
+                  Your Vote
+                </td>
+                <td>
+                  {{ getVoteOptionText(row.item.myVote) }}
+                </td>
+              </tr>
+              <tr>
+                <td class="gov-proposal-th">
                   Vote
                 </td>
                 <td>
@@ -172,7 +180,6 @@
                         row.item.myVote !== 'NOT_VOTED' && row.item.status === 'PROPOSAL_STATUS_VOTING_PERIOD'
                       "
                     >
-                      You voted {{ getVoteOptionText(row.item.myVote) }}
                     </span>
                   </div>
                 </td>
@@ -264,8 +271,10 @@ export default {
           return "Abstain"
         case "VOTE_OPTION_NO_WITH_VETO":
           return "No with Veto"
+        case "NOT_VOTED":
+          return "Not Voted"
         default:
-          return "Something went wrong"
+          return voteOption
       }
     },
     async getProposals() {
