@@ -346,6 +346,7 @@ export default {
       txs: state => state.txs,
       validators: state => state.validators,
       delegations: state => state.delegations,
+      governance: state => state.governance,
     }),
     hdPathOptions() {
       const hdPathOptions = []
@@ -418,6 +419,7 @@ export default {
       await this.$store.dispatch("txs/clearTxs")
       await this.$store.dispatch("validators/clearValidators")
       await this.$store.dispatch("delegations/clearAll")
+      await this.$store.dispatch("governance/clearProposals")
       this.isMnemonicSaved = false
       this.walletPass = null
       this.privateKey = null

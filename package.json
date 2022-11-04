@@ -1,6 +1,6 @@
 {
   "name": "web-wallet",
-  "version": "0.20.3",
+  "version": "0.20.4",
   "private": true,
   "description": "Unification Mainchain Web Wallet",
   "engines": {
@@ -17,7 +17,7 @@
     "@babel/runtime": "^7.12.18",
     "@chenfengyuan/vue-countdown": "^1.1.5",
     "@ledgerhq/hw-transport": "^5.43.0",
-    "@unification-com/und-js-v2": "^0.1.1",
+    "@unification-com/und-js-v2": "^0.1.6",
     "bech32": "^2.0.0",
     "big.js": "^5.2.2",
     "bootstrap": "^4.6.0",
