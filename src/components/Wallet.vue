@@ -540,6 +540,7 @@ export default {
       if (this.isClientConnected) {
         try {
           const res = this.undClient.recoverAccountFromKeystore(e.target.result, this.walletPass)
+
           await this.undClient.setPrivateKey(res.privateKey, true)
           await this.$store.dispatch("wallet/setAddress", res.address)
           await this.$store.dispatch("client/setClient", this.undClient)

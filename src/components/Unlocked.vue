@@ -24,6 +24,11 @@
             <Governance ref="govcomponent" />
           </b-card-text>
         </b-tab>
+        <b-tab title="Recovery">
+          <b-card-text>
+            <Recovery />
+          </b-card-text>
+        </b-tab>
       </b-tabs>
     </b-card>
   </div>
@@ -38,10 +43,12 @@ import Staking from "./Staking/Staking.vue"
 import Summary from "./Summary.vue"
 import Transactions from "./Transactions/Transactions.vue"
 import Transfer from "./Transfer.vue"
+import Recovery from "./Recovery.vue"
 
 export default {
   name: "Unlocked",
   components: {
+    Recovery,
     Governance,
     Staking,
     Summary,
