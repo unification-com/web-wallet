@@ -115,6 +115,13 @@ yarn run build
 
 The final code will be output to `dist/chrome-extension`
 
+#### Dev Notes - post build actions
+
+Manifest has been updated from v2 to v3. However, a couple of post-build actions are required:
+
+1. Copy `src/background.js` to `dist/chrome-extension/js/background.js`, as the webpack version won't work.
+2. Replace the same file in the `artifacts/web-wallet-VERSION-production.zip`
+
 ### Run unit tests
 
 ```bash
