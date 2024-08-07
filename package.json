@@ -1,6 +1,6 @@
 {
   "name": "web-wallet",
-  "version": "0.20.4",
+  "version": "0.21.0",
   "private": true,
   "description": "Unification Mainchain Web Wallet",
   "engines": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
+    "serve-prod": "vue-cli-service build --mode production --watch",
     "build": "vue-cli-service build --dest dist/chrome-extension",
     "test:unit": "vue-cli-service test:unit",
     "build:web": "vue-cli-service build --dest dist/web --inline-vue",
@@ -17,7 +18,7 @@
     "@babel/runtime": "^7.12.18",
     "@chenfengyuan/vue-countdown": "^1.1.5",
     "@ledgerhq/hw-transport": "^5.43.0",
-    "@unification-com/und-js-v2": "^0.1.6",
+    "@unification-com/und-js-v2": "^0.1.7",
     "bech32": "^2.0.0",
     "big.js": "^5.2.2",
     "bootstrap": "^4.6.0",
@@ -74,8 +75,9 @@
     "stylus": "^0.54.8",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-bootstrap-vue": "^0.6.0",
-    "vue-cli-plugin-browser-extension": "^0.25.1",
-    "vue-template-compiler": "^2.6.12"
+    "vue-cli-plugin-browser-extension": "0.26.1",
+    "vue-template-compiler": "^2.6.12",
+    "vue-mv3-hot-reload": "github:awardx/vue-extension-mv3-hot-reload"
   },
   "bugs": {
     "url": "https://github.com/unification-com/web-wallet/issues"
