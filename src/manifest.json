@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Unification Web Wallet",
   "homepage_url": "https://unification.com",
   "description": "Unification Web Wallet Browser Extension",
@@ -11,12 +11,10 @@
     "128": "icons/128.png"
   },
   "background": {
-    "scripts": [
-      "js/background.js"
-    ],
-    "persistent": false
+    "service_worker": "js/background.js",
+    "type": "module"
   },
-  "browser_action": {
+  "action": {
     "default_title": "Unification Web Wallet",
     "default_icon": {
       "19": "icons/19.png",
