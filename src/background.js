@@ -1,8 +1,8 @@
 /* eslint-disable */
-chrome.browserAction.onClicked.addListener(function(tab) {
+chrome.action.onClicked.addListener(function(tab) {
   chrome.tabs.create(
     {
-      url: chrome.extension.getURL("standalone.html"),
+      url: chrome.runtime.getURL("standalone.html"),
     },
     function(tab) {},
   );
