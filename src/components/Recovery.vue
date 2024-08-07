@@ -35,7 +35,7 @@
               :type="inputType"
               readonly
               required
-              placeholder="Wallet password"
+              placeholder="Your private key will be displayed here..."
               @keydown.enter.prevent="preventSubmit"
             />
             <b-input-group-append>
@@ -49,7 +49,7 @@
 
       <template v-slot:modal-footer>
         <b-button variant="success" aria-label="Unlock" @click="unlockWallet">
-          Recover private key
+          Show private key
         </b-button>
         <b-button variant="primary" @click="$bvModal.hide('bv-modal-show-recovery')">
           Close
@@ -58,7 +58,7 @@
     </b-modal>
 
     <b-button variant="primary" @click="$bvModal.show('bv-modal-show-recovery')">
-      Recover private key
+      Show private key
     </b-button>
   </div>
 </template>
