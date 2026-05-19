@@ -11,7 +11,7 @@
 
 import { rawSecp256k1PubkeyToRawAddress } from '@cosmjs/amino'
 import { Secp256k1, Slip10, Slip10Curve, stringToPath } from '@cosmjs/crypto'
-import { toBech32, toHex } from '@cosmjs/encoding'
+import { fromHex, toBech32, toHex } from '@cosmjs/encoding'
 import * as bip39 from 'bip39'
 
 /** Unification BIP44 coin type (registered SLIP-44 entry). */
@@ -24,6 +24,32 @@ export interface DerivedAccount {
   privateKey: string // hex (32 bytes / 64 chars)
   publicKey: string // hex (compressed secp256k1, 33 bytes / 66 chars)
   address: string // bech32 with `und` prefix
+}
+
+/**
+ * Compute compressed public key + bech32 address from a 32-byte private key.
+ *
+ * Shared by seed-derived accounts (`deriveAccount`) and v1-keystore-imported
+ * accounts (`decryptV1Keystore`) — keeps the "private key → address" chain
+ * in one place per the DRY rule.
+ */
+export async function addressFromPrivateKey(
+  privateKeyHex: string,
+): Promise<{ publicKey: string; address: string }> {
+  // typescript-eslint's projectService doesn't resolve `@cosmjs/encoding`'s
+  // `fromHex` return type, poisoning the Secp256k1 chain downstream. Variable
+  // annotations don't defeat `no-unsafe-assignment` (it inspects RHS, not LHS).
+  // tsc + tests verify correctness — local disable is the right escape hatch.
+  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/await-thenable */
+  const privkey: Uint8Array = fromHex(privateKeyHex)
+  const keypair = await Secp256k1.makeKeypair(privkey)
+  const compressedPubkey = Secp256k1.compressPubkey(keypair.pubkey)
+  const rawAddress = rawSecp256k1PubkeyToRawAddress(compressedPubkey)
+  return {
+    publicKey: toHex(compressedPubkey),
+    address: toBech32(UNIFICATION_BECH32_PREFIX, rawAddress),
+  }
+  /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/await-thenable */
 }
 
 /**
@@ -59,26 +85,14 @@ export async function deriveAccount(
   if (!Number.isInteger(accountIndex) || accountIndex < 0) {
     throw new Error('accountIndex must be a non-negative integer')
   }
-  // bip39's return type isn't resolved by typescript-eslint's projectService
-  // (tsc itself sees `Promise<Buffer>` correctly; lint sees `any` and the chain
-  // poisons every downstream call — privkey + pubkey + the hex/bech32 outputs).
-  // Casts at the bip39 boundary didn't satisfy the rule because the input is
-  // `any`. Suppress for the whole derivation block — tests + tsc verify the
-  // types are correct, and the inputs are all locally-scoped (no `any` leaks
-  // out of this function past `address` / `privateKey` / `publicKey` strings).
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/await-thenable */
+  // `const seed: Uint8Array` annotation pins the type at the bip39 boundary —
+  // tsc + typescript-eslint then both agree the chain through SLIP-10 is sound.
   const seed: Uint8Array = await bip39.mnemonicToSeed(mnemonic)
   const path = stringToPath(
     `m/44'/${UNIFICATION_COIN_TYPE.toString()}'/0'/0/${accountIndex.toString()}`,
   )
   const { privkey } = Slip10.derivePath(Slip10Curve.Secp256k1, seed, path)
-  const keypair = await Secp256k1.makeKeypair(privkey)
-  const compressedPubkey = Secp256k1.compressPubkey(keypair.pubkey)
-  const rawAddress = rawSecp256k1PubkeyToRawAddress(compressedPubkey)
-  return {
-    privateKey: toHex(privkey),
-    publicKey: toHex(compressedPubkey),
-    address: toBech32(UNIFICATION_BECH32_PREFIX, rawAddress),
-  }
-  /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/await-thenable */
+  const privateKey = toHex(privkey)
+  const { publicKey, address } = await addressFromPrivateKey(privateKey)
+  return { privateKey, publicKey, address }
 }
