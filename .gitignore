@@ -1,27 +1,41 @@
-.DS_Store
-node_modules
-/dist
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
+# Node
+node_modules/
+.npm
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Editor directories and files
-.idea
-.vscode
+# Build outputs (v2 / Vite / crxjs)
+dist/
+dist-ssr/
+build/
+.vite/
+
+# Parked v1 build artefacts — preserved locally, never committed
+OLD_DIST/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Browser extension signing artefacts
+*.pem
+*.pub
+*.zip
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Vue Browser Extension Output
-*.pem
-*.pub
-*.zip
-/artifacts
+# TypeScript
+*.tsbuildinfo
+
+OLD_DIST/
