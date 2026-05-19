@@ -26,6 +26,8 @@ Planning docs live under `../project_docs/planning/web-wallet/`.
 
 ## Development
 
+**Requires Node ≥ 22** (active LTS; see `.nvmrc`). If you use `nvm`, `nvm use` in this directory selects the right version automatically.
+
 ```bash
 yarn install
 yarn dev       # Vite dev server with HMR; extension auto-reloads via crxjs
