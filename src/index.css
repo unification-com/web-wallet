@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  /* Unification palette — ported from OLD_VUE/src/assets/scss/custom-vars.scss.
+     Names follow shadcn/ui v4 conventions; refined as components are built. */
+  --color-brand-primary: #1d6dab;
+  --color-brand-accent: #f5a623;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+}

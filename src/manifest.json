@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Unification Web Wallet",
+  "version": "0.22.0",
+  "description": "Unification Web Wallet Browser Extension",
+  "homepage_url": "https://unification.com",
+  "default_locale": "en",
+  "permissions": ["storage"],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "action": {
+    "default_title": "Unification Web Wallet",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "19": "icons/19.png",
+      "38": "icons/38.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  }
+}

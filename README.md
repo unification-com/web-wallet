@@ -2,128 +2,67 @@
 
 # Unification Mainchain Web wallet
 
-Official Unification Mainchain Web-based wallet.
+The Unification Mainchain web wallet. Distributed primarily as a Chrome Extension; also buildable as a standalone web bundle.
 
-**Please Note** this is currently heavily under development.
+## Status
 
-Two options are currently available - running as a [Google Chrome browser
-extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk),
- or running as a local (Dockerised) web application.
+**Mid-rebuild — v2 (React + Vite + TypeScript) on the `vaxildan` branch.** The Vue 2 source from v0.21.0 is parked under `OLD_VUE/` for the duration of the rebuild and will be removed once v2 reaches feature parity. Built artefacts from v0.21.0 are parked under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
 
-**The best method is to install the 
-[Google Chrome browser extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk)**
+Planning docs live under `../project_docs/planning/web-wallet/`.
 
-## Running the Dockerised web application locally
+## Stack
 
-If you don't use Chrome, the production version of the web application
-can be run in a Docker environment:
+| Layer | Choice |
+|---|---|
+| Framework | React 18 |
+| Build | Vite 6 + `@crxjs/vite-plugin` (MV3) |
+| Language | TypeScript 5.6 |
+| State (server) | TanStack Query 5 |
+| State (client) | Zustand 5 (planned, M1) |
+| UI | Tailwind v4 + shadcn/ui (Radix primitives) |
+| Chain SDK | `@unification-com/fundjs ^0.2.0` (added at M1 once Stage 10 publishes) + `@cosmjs/*` |
+| Hardware wallet | `@ledgerhq/hw-app-cosmos` + WebHID (M8) |
+| Testing | Vitest + Playwright |
 
-```bash
-docker-compose -f Docker/docker-compose.yml up --build
-```
-
-Alternativey, using the `make` target:
-
-```bash
-make docker-wallet
-```
-
-The Web Wallet will be available on http://localhost:8080
-
-## Development and Testing
-
-To develop, test, or run the Web Wallet locally, follow the guide below.
-
-Note: requires Node JS >=v14.17.6
-
-### Project setup
-
-To set up the environment, first install the node dependencies:
+## Development
 
 ```bash
 yarn install
+yarn dev       # Vite dev server with HMR; extension auto-reloads via crxjs
+yarn build     # production extension build → dist/
+yarn build:web # standalone web bundle → dist-web/
+yarn lint
+yarn test
 ```
 
-### Compiles and hot-reloads for development
+To load the extension in Chrome:
 
-Both the web application and the Chrome extension use the same code-base.
-However, there are two different methods for running the code, depending
-on what is being developed/tested.
+1. `yarn build`
+2. Open `chrome://extensions`
+3. Enable Developer mode
+4. Click "Load unpacked" → select `dist/`
 
-Thess methods should only be used during development, since the code is not
-optimised, and features such as creating or unlocking a wallet will be much
-slower than a production environment
+## Directory layout
 
-#### Web Application
-
-For development and testing, the Web Wallet can be run and hot-reloaded locally
-by running:
-
-```bash
-yarn run serve:web
+```
+.
+├── popup.html          Vite entry — extension popup (≤ 500×600 UI)
+├── standalone.html     Vite entry — full-tab extension page
+├── web.html            Vite entry — non-extension browser bundle
+├── public/             Static assets (icons, _locales, favicon)
+├── src/
+│   ├── manifest.json   MV3 manifest (v1 identity preserved + storage permission)
+│   ├── popup/          Popup entry + components
+│   ├── standalone/     Standalone entry + components
+│   ├── web/            Web entry
+│   ├── background/     MV3 service worker
+│   ├── components/     Shared UI
+│   ├── lib/            Shared infrastructure (chain client, query, vault, utils)
+│   └── App.tsx         Shared root component (per-surface variants)
+├── OLD_VUE/            v0.21.0 Vue 2 source, parked for the rebuild duration
+└── OLD_DIST/           v0.21.0 build outputs + historic release zips (local only)
 ```
 
-By default, this will open the application in your browser at http://localhost:8080
+## License
 
-Any changes to the code will automatically be relaoded, and the browser refreshed.
-
-#### Chrome Extension
-
-For development and testing of the Chrome Extension, run the following:
-
-```bash
-yarn run serve
-```
-
-The process is similar, with some additional steps:
-
-1. Open Google Chrome, and naviagte to chrome://extensions
-2. Enable Developer Mode by clicking on the toggle in the top right
-3. Click on the "Load Unpacked" button in the top left
-4. Select the `dist` directory
-
-This will load the extension, and you should see the Extension button for Web wallet
-in your browser.
-
-Any code changes made are hot-reloaded, but the tab with the extension loaded
-must be manually refreshed.
-
-### Compiles and minifies for production
-
-As with the development process above, two options are available for building
-the production bundles.
-
-#### Web Application
-
-The following command will build and optimise web application the code for 
-production deployment:
-
-```bash
-yarn run build:web
-```
-
-The final code will be output to `dist/web`
-
-#### Chrome Extension
-
-The following command will build and optimise the chrome extension code for
-production deployment:
-
-```bash
-yarn run build
-```
-
-The final code will be output to `dist/chrome-extension`
-
-#### Dev Notes - post build actions
-
-Manifest has been updated from v2 to v3. However, a couple of post-build actions are required:
-
-1. Copy `src/background.js` to `dist/chrome-extension/js/background.js`, as the webpack version won't work.
-2. Replace the same file in the `artifacts/web-wallet-VERSION-production.zip`
-
-### Run unit tests
-
-```bash
-yarn run test:unit
-```
+MIT — see `LICENSE`.

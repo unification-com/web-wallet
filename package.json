@@ -1,0 +1,59 @@
+{
+  "name": "web-wallet",
+  "version": "0.22.0-alpha.0",
+  "private": true,
+  "description": "Unification Mainchain Web Wallet",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:web": "tsc --noEmit && vite build --mode web",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@cosmjs/encoding": "^0.38.0",
+    "@cosmjs/stargate": "^0.38.0",
+    "@tanstack/react-query": "^5.62.7",
+    "clsx": "^2.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.5",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.32",
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.1",
+    "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/chrome": "^0.0.287",
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "jsdom": "^25.0.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  },
+  "comments": {
+    "fundjs": "@unification-com/fundjs ^0.2.0 added in M1 once Stage 10 publishes to npm",
+    "router": "@tanstack/react-router added in M1 when multiple routes appear",
+    "ledger": "@ledgerhq/{hw-app-cosmos,hw-transport-webhid} added in M8",
+    "forms": "react-hook-form + zod added in M1 for the first real form (send / unlock)",
+    "vault": "bip39 + @noble/hashes added in M1 for seed gen + v1-keystore-import decryption"
+  }
+}
