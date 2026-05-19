@@ -27,14 +27,22 @@
     "*.{json,md,yml,yaml}": []
   },
   "dependencies": {
+    "@cosmjs/amino": "^0.38.0",
+    "@cosmjs/crypto": "^0.38.0",
     "@cosmjs/encoding": "^0.38.0",
+    "@cosmjs/proto-signing": "^0.38.0",
     "@cosmjs/stargate": "^0.38.0",
+    "@hookform/resolvers": "^3.9.1",
+    "@noble/hashes": "^1.5.0",
     "@tanstack/react-query": "^5.62.7",
     "@unification-com/fundjs-react": "link:../fundjs/packages/fundjs-react/dist",
+    "bip39": "^3.1.0",
     "clsx": "^2.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
     "tailwind-merge": "^2.5.5",
+    "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
@@ -68,10 +76,9 @@
     "vitest": "^2.1.8"
   },
   "comments": {
-    "fundjs-react": "Linked to local ../fundjs/packages/fundjs-react/dist for now; swap to npm registry once Stage 10 publishes @unification-com/fundjs-react@^0.2.0. Run 'yarn build' inside ../fundjs/packages/fundjs-react when fundjs source changes — symlink picks it up automatically. Note: fundjs-react implicitly requires react + @tanstack/react-query (currently not declared as peerDeps); we satisfy both already.",
-    "router": "@tanstack/react-router added in M1 when multiple routes appear",
-    "ledger": "@ledgerhq/{hw-app-cosmos,hw-transport-webhid} added in M8",
-    "forms": "react-hook-form + zod added in M1 for the first real form (send / unlock)",
-    "vault": "bip39 + @noble/hashes added in M1 for seed gen + v1-keystore-import decryption"
+    "fundjs-react": "Linked to local ../fundjs/packages/fundjs-react/dist for now; swap to npm registry once Stage 10 publishes @unification-com/fundjs-react@^0.2.0. Run 'yarn build' inside ../fundjs/packages/fundjs-react when fundjs source changes — symlink picks it up automatically.",
+    "router": "@tanstack/react-router added when multiple routes appear (likely mid-M1 or M2)",
+    "ledger": "@ledgerhq/{hw-app-cosmos,hw-transport-webhid} added in M8 (conditional — review at M7 close)",
+    "cosmjs-amino": "@cosmjs/amino kept alongside proto-signing for amino-mode (Ledger paths in M8 + v1-keystore single-key signers in M1.5)"
   }
 }
