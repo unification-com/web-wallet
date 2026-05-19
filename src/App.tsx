@@ -1,8 +1,13 @@
 import { useState } from 'react'
+import { GlobalDecoderRegistry } from '@unification-com/fundjs-react'
 import { ENDPOINTS, useChainInfo, type ChainEndpoint } from '@/lib/chain'
 import { cn } from '@/lib/utils'
 
 type Surface = 'popup' | 'standalone' | 'web'
+
+// Smoke indicator: number of Msg / query / event types fundjs-react has registered.
+// Useful as a "the bindings are loaded" canary; replaced with real chain-aware UI in M1+.
+const REGISTERED_TYPE_COUNT = GlobalDecoderRegistry.existingTypeUrls.length
 
 export function App({ surface }: { surface: Surface }) {
   const [endpointId, setEndpointId] = useState<ChainEndpoint['id']>('mainnet')
@@ -55,7 +60,7 @@ export function App({ surface }: { surface: Surface }) {
       </section>
 
       <p className="text-xs text-gray-400">
-        v2 scaffold — M0. Vault, signing, and Tx flows arrive in M1+.
+        v2 scaffold — M0. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault, signing, and Tx flows arrive in M1+.
       </p>
     </main>
   )

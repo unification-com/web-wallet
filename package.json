@@ -20,6 +20,7 @@
     "@cosmjs/encoding": "^0.38.0",
     "@cosmjs/stargate": "^0.38.0",
     "@tanstack/react-query": "^5.62.7",
+    "@unification-com/fundjs-react": "link:../fundjs/packages/fundjs-react/dist",
     "clsx": "^2.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -50,7 +51,7 @@
     "vitest": "^2.1.8"
   },
   "comments": {
-    "fundjs": "@unification-com/fundjs ^0.2.0 added in M1 once Stage 10 publishes to npm",
+    "fundjs-react": "Linked to local ../fundjs/packages/fundjs-react/dist for now; swap to npm registry once Stage 10 publishes @unification-com/fundjs-react@^0.2.0. Run 'yarn build' inside ../fundjs/packages/fundjs-react when fundjs source changes — symlink picks it up automatically. Note: fundjs-react implicitly requires react + @tanstack/react-query (currently not declared as peerDeps); we satisfy both already.",
     "router": "@tanstack/react-router added in M1 when multiple routes appear",
     "ledger": "@ledgerhq/{hw-app-cosmos,hw-transport-webhid} added in M8",
     "forms": "react-hook-form + zod added in M1 for the first real form (send / unlock)",
