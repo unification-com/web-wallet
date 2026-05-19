@@ -1,7 +1,7 @@
 import { StargateClient } from '@cosmjs/stargate'
 import { useQuery } from '@tanstack/react-query'
 
-export type ChainEndpoint = {
+export interface ChainEndpoint {
   id: 'mainnet' | 'testnet' | 'devnet'
   label: string
   rpc: string
@@ -29,7 +29,7 @@ export const ENDPOINTS: Record<ChainEndpoint['id'], ChainEndpoint> = {
   },
 }
 
-export type ChainInfo = {
+export interface ChainInfo {
   chainId: string
   height: number
   rpc: string

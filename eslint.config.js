@@ -1,17 +1,60 @@
 import js from '@eslint/js'
 import globals from 'globals'
+import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import importX from 'eslint-plugin-import-x'
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'dist-web', 'OLD_VUE', 'OLD_DIST'] },
+  // Global ignores (must be in its own object with no other keys).
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    ignores: [
+      'dist/**',
+      'dist-web/**',
+      'OLD_VUE/**',
+      'OLD_DIST/**',
+      'node_modules/**',
+      '**/*.tsbuildinfo',
+    ],
+  },
+
+  // --- TypeScript source under src/ + the *.tsx Vite entries: type-checked rules ---
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+      react.configs.flat.recommended,
+      react.configs.flat['jsx-runtime'],
+      jsxA11y.flatConfigs.recommended,
+      importX.flatConfigs.recommended,
+      importX.flatConfigs.typescript,
+    ],
     languageOptions: {
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...globals.webextensions },
+      sourceType: 'module',
+      parserOptions: {
+        // Required for the *TypeChecked rule sets — wires eslint to the tsc program.
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.webextensions,
+      },
+    },
+    settings: {
+      react: { version: 'detect' },
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+          project: ['tsconfig.app.json', 'tsconfig.node.json'],
+        }),
+      ],
     },
     plugins: {
       'react-hooks': reactHooks,
@@ -19,9 +62,55 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+
+      // Async/Promise correctness — high value for crypto + broadcast paths.
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+
+      // Allow leading underscore to opt out of unused-vars (idiomatic TS).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+
+      // Import hygiene.
+      'import-x/order': [
         'warn',
-        { allowConstantExport: true },
+        {
+          'newlines-between': 'always',
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          pathGroups: [{ pattern: '@/**', group: 'internal', position: 'before' }],
+          pathGroupsExcludedImportTypes: ['builtin'],
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+      'import-x/no-duplicates': 'error',
+      'import-x/no-cycle': ['error', { maxDepth: 8 }],
+      'import-x/no-self-import': 'error',
+      'import-x/no-useless-path-segments': 'warn',
+
+      // React.
+      'react/prop-types': 'off', // we use TS prop types
+      'react/no-unescaped-entities': 'warn',
+    },
+  },
+
+  // --- Config / build / non-src JS+TS: lighter rules (no type-checking, no React) ---
+  {
+    files: ['*.{js,mjs,cjs,ts}', 'vite.config.ts', 'eslint.config.js'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
     },
   },

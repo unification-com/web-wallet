@@ -1,4 +1,4 @@
-import { mount } from '@/lib/bootstrap'
 import { App } from '@/App'
+import { mount } from '@/lib/bootstrap'
 
 mount(<App surface="web" />)

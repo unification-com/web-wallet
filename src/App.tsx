@@ -1,5 +1,6 @@
-import { useState } from 'react'
 import { GlobalDecoderRegistry } from '@unification-com/fundjs-react'
+import { useState } from 'react'
+
 import { ENDPOINTS, useChainInfo, type ChainEndpoint } from '@/lib/chain'
 import { cn } from '@/lib/utils'
 
