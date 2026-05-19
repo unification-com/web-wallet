@@ -1,7 +1,6 @@
 import { GlobalDecoderRegistry } from '@unification-com/fundjs-react'
-import { useState } from 'react'
 
-import { ENDPOINTS, useChainInfo, type ChainEndpoint } from '@/lib/chain'
+import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
 import { cn } from '@/lib/utils'
 
 type Surface = 'popup' | 'standalone' | 'web'
@@ -11,9 +10,8 @@ type Surface = 'popup' | 'standalone' | 'web'
 const REGISTERED_TYPE_COUNT = GlobalDecoderRegistry.existingTypeUrls.length
 
 export function App({ surface }: { surface: Surface }) {
-  const [endpointId, setEndpointId] = useState<ChainEndpoint['id']>('mainnet')
-  const endpoint = ENDPOINTS[endpointId]
-  const { data, isLoading, isError, error } = useChainInfo(endpoint)
+  const endpoint = useActiveEndpoint()
+  const { data, isLoading, isError, error } = useChainInfo()
 
   return (
     <main
@@ -29,17 +27,9 @@ export function App({ surface }: { surface: Surface }) {
 
       <section className="border rounded p-3 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm">
-          <label htmlFor="endpoint">Network:</label>
-          <select
-            id="endpoint"
-            value={endpointId}
-            onChange={(e) => setEndpointId(e.target.value as ChainEndpoint['id'])}
-            className="border rounded px-2 py-1"
-          >
-            {Object.values(ENDPOINTS).map((e) => (
-              <option key={e.id} value={e.id}>{e.label}</option>
-            ))}
-          </select>
+          <span className="text-gray-500">Network:</span>
+          <span className="font-medium">{endpoint.label}</span>
+          <span className="text-xs text-gray-400">({endpoint.source})</span>
         </div>
 
         {isLoading && <p className="text-sm text-gray-500">Connecting to {endpoint.label}…</p>}
@@ -61,7 +51,7 @@ export function App({ surface }: { surface: Surface }) {
       </section>
 
       <p className="text-xs text-gray-400">
-        v2 scaffold — M0. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault, signing, and Tx flows arrive in M1+.
+        v2 scaffold — M1.7. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault unlock, network selector, and Tx flows arrive in M1.10+.
       </p>
     </main>
   )
