@@ -7,8 +7,14 @@ import path from 'node:path'
 
 // The default mode produces the Chrome Extension via @crxjs/vite-plugin.
 // `vite build --mode web` produces the Docker-served browser bundle (no MV3, no service worker).
-export default defineConfig(({ mode }) => {
+//
+// Dev vs. prod outDir split (added 2026-05-19 after a Status-code-3 SW load on dist/ from a
+// stale `yarn dev` build): `yarn dev` writes to `dist-dev/` (with localhost HMR loader),
+// `yarn build` writes to `dist/` (standalone, no localhost). Load `dist/` as unpacked
+// production extension; load `dist-dev/` while `yarn dev` is running.
+export default defineConfig(({ command, mode }) => {
   const isWebBundle = mode === 'web'
+  const isDev = command === 'serve'
 
   const input: Record<string, string> = isWebBundle
     ? { web: path.resolve(__dirname, 'web.html') }
@@ -37,7 +43,7 @@ export default defineConfig(({ mode }) => {
       include: ['@unification-com/fundjs-react'],
     },
     build: {
-      outDir: isWebBundle ? 'dist-web' : 'dist',
+      outDir: isWebBundle ? 'dist-web' : isDev ? 'dist-dev' : 'dist',
       emptyOutDir: true,
       // crxjs bundles popup.html (via manifest action.default_popup) automatically.
       // standalone.html is an extension page (not manifest-referenced), so we add it

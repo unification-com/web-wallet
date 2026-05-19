@@ -51,10 +51,16 @@ If you change `web-wallet/package.json` and re-run `yarn install`, the link is p
 
 To load the extension in Chrome:
 
-1. `yarn build`
-2. Open `chrome://extensions`
-3. Enable Developer mode
-4. Click "Load unpacked" → select `dist/`
+- **Production-mode** (standalone, no dev server needed):
+  1. `yarn build` → produces `dist/`
+  2. `chrome://extensions` → Developer mode → "Load unpacked" → select `dist/`
+
+- **Dev-mode** (HMR; requires `yarn dev` running):
+  1. `yarn dev` → starts Vite dev server, writes `dist-dev/` with HMR loader (localhost URLs)
+  2. `chrome://extensions` → "Load unpacked" → select `dist-dev/`
+  3. Keep `yarn dev` running; the extension auto-reloads on file changes.
+
+`dist/` and `dist-dev/` are kept separate so a stale dev build can't accidentally be loaded as a production extension (which would fail with `Service worker registration failed. Status code: 3` because the dev SW loader references `localhost:5173`).
 
 ## Directory layout
 
