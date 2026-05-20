@@ -12,12 +12,27 @@ type Surface = 'popup' | 'standalone' | 'web'
 
 export function App({ surface }: { surface: Surface }) {
   const status = useVaultStore((s) => s.status)
+  const hasActiveSigner = useVaultStore(
+    (s) => s.vault?.preferences.activeSignerRef !== undefined,
+  )
   const hydrate = useVaultStore((s) => s.hydrate)
 
   // Detect existing vault on mount → set status to 'locked' or 'no-vault'.
   useEffect(() => {
     void hydrate()
   }, [hydrate])
+
+  // An unlocked vault with no active signer is mid-setup (just-created or
+  // re-opened after a partial setup) — route back to VaultSetup until the
+  // user picks a path and the first signer becomes active.
+  const view: 'setup' | 'unlock' | 'unlocked' =
+    status === 'no-vault'
+      ? 'setup'
+      : status === 'locked'
+        ? 'unlock'
+        : hasActiveSigner
+          ? 'unlocked'
+          : 'setup'
 
   return (
     <div
@@ -26,9 +41,9 @@ export function App({ surface }: { surface: Surface }) {
         surface === 'popup' ? 'w-[360px]' : 'w-full max-w-2xl mx-auto',
       )}
     >
-      {status === 'no-vault' && <VaultSetup />}
-      {status === 'locked' && <UnlockScreen />}
-      {status === 'unlocked' && <UnlockedShell surface={surface} />}
+      {view === 'setup' && <VaultSetup />}
+      {view === 'unlock' && <UnlockScreen />}
+      {view === 'unlocked' && <UnlockedShell surface={surface} />}
     </div>
   )
 }

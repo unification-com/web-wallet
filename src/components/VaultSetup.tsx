@@ -8,12 +8,15 @@ type Mode = 'generate' | 'import-seed' | 'import-v1'
 type Step = 'password' | 'choose' | 'generate-show' | 'import-seed-paste' | 'import-v1-pick'
 
 export function VaultSetup() {
+  const status = useVaultStore((s) => s.status)
   const createVault = useVaultStore((s) => s.createVault)
   const addSeed = useVaultStore((s) => s.addSeed)
   const importV1Keystore = useVaultStore((s) => s.importV1Keystore)
   const setActiveSigner = useVaultStore((s) => s.setActiveSigner)
 
-  const [step, setStep] = useState<Step>('password')
+  // If the vault is already unlocked we've come back to setup mid-flow
+  // (just-created, or reloaded after partial setup) — skip the password step.
+  const [step, setStep] = useState<Step>(status === 'no-vault' ? 'password' : 'choose')
   const [, setMode] = useState<Mode | null>(null)
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -179,59 +182,70 @@ export function VaultSetup() {
       )}
 
       {step === 'choose' && (
-        <div className="flex flex-col gap-2 text-sm">
-          <p className="text-gray-500">How would you like to start?</p>
+        <div className="flex flex-col gap-3 text-sm">
+          <p className="text-gray-500">How would you like to start? Pick one to continue.</p>
 
-          <button
-            type="button"
-            onClick={pickGenerate}
-            className="border rounded px-3 py-2 text-left hover:bg-gray-50"
-          >
-            <div className="font-medium">Generate a new seed</div>
-            <div className="text-xs text-gray-500">Create a fresh BIP39 mnemonic.</div>
-          </button>
-
-          <fieldset className="flex flex-col gap-1 pl-2 mt-1 mb-2 text-xs">
-            <legend className="sr-only">Seed phrase length</legend>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="seedSize"
-                checked={seedSize === 128}
-                onChange={() => setSeedSize(128)}
-              />
-              <span>12 words (standard)</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="seedSize"
-                checked={seedSize === 256}
-                onChange={() => setSeedSize(256)}
-              />
-              <span>24 words (stronger)</span>
-            </label>
-          </fieldset>
+          <div className="border rounded p-3 flex flex-col gap-2 bg-gray-50">
+            <fieldset className="flex flex-col gap-1 text-xs">
+              <legend className="font-medium text-sm text-gray-900 mb-1">
+                Generate a new seed
+              </legend>
+              <p className="text-gray-500">Create a fresh BIP39 mnemonic.</p>
+              <label className="flex items-center gap-2 mt-1">
+                <input
+                  type="radio"
+                  name="seedSize"
+                  checked={seedSize === 128}
+                  onChange={() => setSeedSize(128)}
+                />
+                <span>12 words (standard)</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="seedSize"
+                  checked={seedSize === 256}
+                  onChange={() => setSeedSize(256)}
+                />
+                <span>24 words (stronger)</span>
+              </label>
+            </fieldset>
+            <button
+              type="button"
+              onClick={pickGenerate}
+              className="bg-blue-600 text-white rounded py-1 px-3 text-sm hover:bg-blue-700"
+            >
+              Generate {seedSize === 128 ? '12' : '24'}-word seed →
+            </button>
+          </div>
 
           <button
             type="button"
             onClick={pickImportSeed}
-            className="border rounded px-3 py-2 text-left hover:bg-gray-50"
+            className="border rounded p-3 text-left hover:bg-gray-50 flex items-center justify-between gap-2"
           >
-            <div className="font-medium">Import an existing seed</div>
-            <div className="text-xs text-gray-500">Paste a 12 or 24 word BIP39 phrase.</div>
+            <span>
+              <span className="block font-medium">Import an existing seed</span>
+              <span className="block text-xs text-gray-500">
+                Paste a 12 or 24 word BIP39 phrase.
+              </span>
+            </span>
+            <span aria-hidden className="text-gray-400">→</span>
           </button>
 
           <button
             type="button"
             onClick={pickImportV1}
-            className="border rounded px-3 py-2 text-left hover:bg-gray-50"
+            className="border rounded p-3 text-left hover:bg-gray-50 flex items-center justify-between gap-2"
           >
-            <div className="font-medium">Import a v1 wallet file</div>
-            <div className="text-xs text-gray-500">
-              Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key only —
-              v1 didn&apos;t store a mnemonic.
-            </div>
+            <span>
+              <span className="block font-medium">Import a v1 wallet file</span>
+              <span className="block text-xs text-gray-500">
+                Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key
+                only — v1 didn&apos;t store a mnemonic.
+              </span>
+            </span>
+            <span aria-hidden className="text-gray-400">→</span>
           </button>
         </div>
       )}
