@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Header } from '@/components/Header'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
+import { Settings } from '@/components/Settings'
 import { UnlockScreen } from '@/components/UnlockScreen'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
@@ -53,15 +54,20 @@ export function App({ surface }: { surface: Surface }) {
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
+  const [view, setView] = useState<'wallet' | 'settings'>('wallet')
 
   // Resets the vault's idle-lock timer on user activity. Active only while
   // the unlocked shell is mounted (listeners added on unlock, removed on
   // lock).
   useIdleActivity(true)
 
+  if (view === 'settings') {
+    return <Settings onBack={() => setView('wallet')} />
+  }
+
   return (
     <main className="p-4 flex flex-col gap-4">
-      <Header surface={surface} />
+      <Header surface={surface} onOpenSettings={() => setView('settings')} />
 
       <section className="border rounded p-3 flex flex-col gap-2 text-sm">
         <div className="flex items-center gap-2">

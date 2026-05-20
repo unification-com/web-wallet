@@ -1,8 +1,17 @@
+import { Settings as SettingsIcon } from 'lucide-react'
+
 import { AccountSwitcher } from '@/components/AccountSwitcher'
 import { EndpointSwitcher } from '@/components/EndpointSwitcher'
+import { Button } from '@/components/ui/button'
 import { useVaultStore } from '@/lib/vault'
 
-export function Header({ surface }: { surface: 'popup' | 'standalone' | 'web' }) {
+export function Header({
+  surface,
+  onOpenSettings,
+}: {
+  surface: 'popup' | 'standalone' | 'web'
+  onOpenSettings: () => void
+}) {
   const lock = useVaultStore((s) => s.lock)
 
   return (
@@ -15,6 +24,15 @@ export function Header({ surface }: { surface: 'popup' | 'standalone' | 'web' })
       <div className="flex items-center gap-2 text-xs">
         <EndpointSwitcher />
         <AccountSwitcher />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onOpenSettings}
+          className="h-7 w-7"
+          title="Settings"
+        >
+          <SettingsIcon className="h-3.5 w-3.5" />
+        </Button>
         <button
           type="button"
           onClick={lock}
