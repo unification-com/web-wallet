@@ -4,11 +4,15 @@
  * v1 used the "web3 secret storage" format:
  *   - KDF: PBKDF2-HMAC-SHA256, c=262144, dklen=32
  *   - Cipher: AES-256-CTR
- *   - MAC: SHA3-256(hex(derivedKey[16..32] || ciphertext)), with SHA-256 legacy
+ *   - MAC: Keccak-512(derivedKey[16..32] || ciphertext), with SHA-256 legacy
  *     fallback for pre-testnet keystores
  *
- * Reference impl: `und-js-v2/src/crypto/index.js:121-199` (the abandoned
- * predecessor). We re-implement here via WebCrypto + @noble/hashes (for SHA3).
+ * Reference impl: `und-js-v2/src/crypto/index.js:121-199`. und-js-v2 calls
+ * `sha3(bufferValue.toString("hex"))` which under the hood is CryptoJS 4.1.1
+ * `SHA3(hexEncoded)` — that decodes the hex string BACK to the raw bytes and
+ * hashes them, so the hex round-trip is a no-op. CryptoJS 4.1.1's `SHA3` is
+ * Keccak-512 (default `outputLength: 512`, pre-NIST `0x01` padding), NOT
+ * NIST SHA3-256. Legacy path is `SHA256(hexEncoded)` — same raw-bytes input.
  *
  * v1 keystores ONLY contain a single private key — never a mnemonic. So they
  * map to v2's ImportedKeyEntry, not a SeedEntry.
@@ -16,7 +20,7 @@
 
 import { fromHex, toHex } from '@cosmjs/encoding'
 import { sha256 } from '@noble/hashes/sha2'
-import { sha3_256 } from '@noble/hashes/sha3'
+import { keccak_512 } from '@noble/hashes/sha3'
 
 import { addressFromPrivateKey } from './seeds'
 
@@ -119,22 +123,19 @@ export async function decryptV1Keystore(
     c.kdfparams.dklen,
   )
 
-  // MAC input is the hex string of `derivedKey[16..32] || ciphertext` — this
-  // matches und-js-v2's `sha3(bufferValue.toString("hex"))` exactly. The hash
-  // is taken over the HEX-ENCODED STRING (not the raw bytes); unusual but
-  // load-bearing for v1 compat.
+  // MAC input is the raw byte concatenation `derivedKey[16..32] || ciphertext`.
+  // und-js-v2's `sha3(bufferValue.toString("hex"))` decodes the hex string back
+  // to the original bytes via CryptoJS `hexEncoding.parse`, so we hash the raw
+  // bytes directly. Primary hash = Keccak-512 (CryptoJS 4.1.1 SHA3 default).
   const macInputBytes = new Uint8Array(16 + ciphertext.length)
   macInputBytes.set(derivedKey.slice(16, 32), 0)
   macInputBytes.set(ciphertext, 16)
-  const macInputHex = toHex(macInputBytes)
-  const macInputAsBytes = new TextEncoder().encode(macInputHex)
 
   const expectedMac = c.mac.toLowerCase()
-  let macOk = toHex(sha3_256(macInputAsBytes)) === expectedMac
+  let macOk = toHex(keccak_512(macInputBytes)) === expectedMac
   if (!macOk) {
-    // Pre-testnet keystores used SHA-256 instead of SHA3-256 for the MAC.
-    // Try that as a fallback before declaring failure.
-    macOk = toHex(sha256(macInputAsBytes)) === expectedMac
+    // Pre-testnet keystores used SHA-256 of the same raw bytes for the MAC.
+    macOk = toHex(sha256(macInputBytes)) === expectedMac
   }
   if (!macOk) {
     throw new Error('v1 keystore MAC check failed — wrong password or corrupted file')
