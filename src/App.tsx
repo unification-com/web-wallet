@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { Header } from '@/components/Header'
+import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
 import { UnlockScreen } from '@/components/UnlockScreen'
 import { VaultSetup } from '@/components/VaultSetup'
@@ -77,6 +78,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         )}
       </section>
 
+      <Receive />
       <Send />
     </main>
   )
