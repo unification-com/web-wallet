@@ -2,6 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { useBalance } from '@/lib/balance'
 import {
   buildMsgSend,
@@ -78,6 +87,12 @@ export function Send() {
     }
   }
 
+  const cancelConfirm = () => {
+    if (submitting) return
+    setPendingValues(null)
+    reset()
+  }
+
   return (
     <section className="border rounded p-3 flex flex-col gap-3">
       <header className="flex items-center justify-between">
@@ -90,100 +105,110 @@ export function Send() {
         )}
       </header>
 
-      {!pendingValues && (
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2 text-sm">
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-500">Recipient</span>
-            <input
-              {...form.register('recipient')}
-              placeholder="und1…"
-              className="border rounded px-2 py-1 font-mono text-xs"
-            />
-            {form.formState.errors.recipient && (
-              <span className="text-xs text-red-600">{form.formState.errors.recipient.message}</span>
-            )}
-          </label>
+      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2 text-sm">
+        <label className="flex flex-col gap-1">
+          <span className="text-gray-500">Recipient</span>
+          <input
+            {...form.register('recipient')}
+            placeholder="und1…"
+            className="border rounded px-2 py-1 font-mono text-xs"
+          />
+          {form.formState.errors.recipient && (
+            <span className="text-xs text-red-600">{form.formState.errors.recipient.message}</span>
+          )}
+        </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-500">Amount (FUND)</span>
-            <input
-              {...form.register('amountFund')}
-              placeholder="0.001"
-              className="border rounded px-2 py-1 font-mono"
-            />
-            {form.formState.errors.amountFund && (
-              <span className="text-xs text-red-600">
-                {form.formState.errors.amountFund.message}
-              </span>
-            )}
-          </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-gray-500">Amount (FUND)</span>
+          <input
+            {...form.register('amountFund')}
+            placeholder="0.001"
+            className="border rounded px-2 py-1 font-mono"
+          />
+          {form.formState.errors.amountFund && (
+            <span className="text-xs text-red-600">
+              {form.formState.errors.amountFund.message}
+            </span>
+          )}
+        </label>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-500">Memo (optional)</span>
-            <input
-              {...form.register('memo')}
-              maxLength={256}
-              className="border rounded px-2 py-1"
-            />
-          </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-gray-500">Memo (optional)</span>
+          <input
+            {...form.register('memo')}
+            maxLength={256}
+            className="border rounded px-2 py-1"
+          />
+        </label>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white rounded py-1 text-sm hover:bg-blue-700"
-          >
-            Continue
-          </button>
-        </form>
-      )}
+        <button
+          type="submit"
+          className="bg-blue-600 text-white rounded py-1 text-sm hover:bg-blue-700"
+        >
+          Continue
+        </button>
+      </form>
 
-      {pendingValues && (
-        <div className="flex flex-col gap-2 text-sm">
-          <p className="text-gray-500">Confirm send:</p>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-            <dt className="text-gray-500">To</dt>
-            <dd className="font-mono truncate" title={pendingValues.recipient}>
-              {pendingValues.recipient}
-            </dd>
-            <dt className="text-gray-500">Amount</dt>
-            <dd className="font-mono">
-              {pendingValues.amountFund} FUND ({fundToNund(pendingValues.amountFund)} nund)
-            </dd>
-            {pendingValues.memo && (
-              <>
-                <dt className="text-gray-500">Memo</dt>
-                <dd>{pendingValues.memo}</dd>
-              </>
-            )}
-            <dt className="text-gray-500">Fee</dt>
-            <dd className="font-mono">20,000,000 nund</dd>
-          </dl>
-          <div className="flex gap-2">
-            <button
+      <Dialog
+        open={pendingValues !== null}
+        onOpenChange={(next) => {
+          if (!next) cancelConfirm()
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm send</DialogTitle>
+            <DialogDescription>
+              Review the details below. Once confirmed the Tx broadcasts immediately and
+              cannot be cancelled.
+            </DialogDescription>
+          </DialogHeader>
+          {pendingValues && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+              <dt className="text-muted-foreground">To</dt>
+              <dd className="font-mono break-all">{pendingValues.recipient}</dd>
+              <dt className="text-muted-foreground">Amount</dt>
+              <dd className="font-mono">
+                {pendingValues.amountFund} FUND ({fundToNund(pendingValues.amountFund)} nund)
+              </dd>
+              {pendingValues.memo && (
+                <>
+                  <dt className="text-muted-foreground">Memo</dt>
+                  <dd className="break-words">{pendingValues.memo}</dd>
+                </>
+              )}
+              <dt className="text-muted-foreground">Fee</dt>
+              <dd className="font-mono">20,000,000 nund</dd>
+            </dl>
+          )}
+          {error && (
+            <p className="text-xs text-destructive break-words">{error.message}</p>
+          )}
+          <DialogFooter className="gap-2">
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               disabled={submitting}
-              onClick={() => {
-                setPendingValues(null)
-                reset()
-              }}
-              className="border rounded py-1 px-3 text-sm hover:bg-gray-50"
+              onClick={cancelConfirm}
             >
               Back
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
               disabled={submitting}
               // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={onConfirm}
-              className="bg-green-600 text-white rounded py-1 px-3 text-sm hover:bg-green-700 disabled:opacity-50"
             >
               {submitting ? 'Broadcasting…' : 'Confirm + send'}
-            </button>
-          </div>
-        </div>
-      )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {error && (
+      {error && !pendingValues && (
         <p className="text-xs text-red-600 break-words">{error.message}</p>
       )}
       {txHash && (
