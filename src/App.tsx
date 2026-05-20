@@ -4,6 +4,7 @@ import { Header } from '@/components/Header'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
 import { Settings } from '@/components/Settings'
+import { Card, CardContent } from '@/components/ui/card'
 import { UnlockScreen } from '@/components/UnlockScreen'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
@@ -69,26 +70,28 @@ function UnlockedShell({ surface }: { surface: Surface }) {
     <main className="p-4 flex flex-col gap-4">
       <Header surface={surface} onOpenSettings={() => setView('settings')} />
 
-      <section className="border rounded p-3 flex flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-gray-500">Network:</span>
-          <span className="font-medium">{endpoint.label}</span>
-        </div>
-        {isLoading && <p className="text-gray-500">Connecting…</p>}
-        {isError && (
-          <p className="text-red-600">
-            Failed to connect: {error instanceof Error ? error.message : String(error)}
-          </p>
-        )}
-        {data && (
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-            <dt className="text-gray-500">Chain ID</dt>
-            <dd className="font-mono">{data.chainId}</dd>
-            <dt className="text-gray-500">Height</dt>
-            <dd className="font-mono">{data.height.toLocaleString()}</dd>
-          </dl>
-        )}
-      </section>
+      <Card>
+        <CardContent className="p-4 flex flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Network:</span>
+            <span className="font-medium">{endpoint.label}</span>
+          </div>
+          {isLoading && <p className="text-muted-foreground">Connecting…</p>}
+          {isError && (
+            <p className="text-destructive">
+              Failed to connect: {error instanceof Error ? error.message : String(error)}
+            </p>
+          )}
+          {data && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+              <dt className="text-muted-foreground">Chain ID</dt>
+              <dd className="font-mono">{data.chainId}</dd>
+              <dt className="text-muted-foreground">Height</dt>
+              <dd className="font-mono">{data.height.toLocaleString()}</dd>
+            </dl>
+          )}
+        </CardContent>
+      </Card>
 
       <Receive />
       <Send />

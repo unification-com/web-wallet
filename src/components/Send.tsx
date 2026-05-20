@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useBalance } from '@/lib/balance'
 import {
   buildMsgSend,
@@ -55,9 +58,11 @@ export function Send() {
 
   if (!address) {
     return (
-      <section className="border rounded p-3 text-sm text-gray-500">
-        Unlock the vault and select an account to send.
-      </section>
+      <Card>
+        <CardContent className="p-4 text-sm text-muted-foreground">
+          Unlock the vault and select an account to send.
+        </CardContent>
+      </Card>
     )
   }
 
@@ -94,61 +99,62 @@ export function Send() {
   }
 
   return (
-    <section className="border rounded p-3 flex flex-col gap-3">
-      <header className="flex items-center justify-between">
-        <h2 className="text-sm font-medium">Send</h2>
+    <Card>
+      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-sm">Send</CardTitle>
         {balance.data && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted-foreground">
             Balance: <span className="font-mono">{formatNund(balance.data.amount)}</span>{' '}
             FUND
           </span>
         )}
-      </header>
+      </CardHeader>
+      <CardContent className="p-4 pt-2 flex flex-col gap-3">
+        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3 text-sm">
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="send-recipient">Recipient</Label>
+            <Input
+              id="send-recipient"
+              {...form.register('recipient')}
+              placeholder="und1…"
+              className="font-mono text-xs"
+            />
+            {form.formState.errors.recipient && (
+              <span className="text-xs text-destructive">
+                {form.formState.errors.recipient.message}
+              </span>
+            )}
+          </div>
 
-      {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2 text-sm">
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-500">Recipient</span>
-          <input
-            {...form.register('recipient')}
-            placeholder="und1…"
-            className="border rounded px-2 py-1 font-mono text-xs"
-          />
-          {form.formState.errors.recipient && (
-            <span className="text-xs text-red-600">{form.formState.errors.recipient.message}</span>
-          )}
-        </label>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="send-amount">Amount (FUND)</Label>
+            <Input
+              id="send-amount"
+              {...form.register('amountFund')}
+              placeholder="0.001"
+              className="font-mono"
+            />
+            {form.formState.errors.amountFund && (
+              <span className="text-xs text-destructive">
+                {form.formState.errors.amountFund.message}
+              </span>
+            )}
+          </div>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-500">Amount (FUND)</span>
-          <input
-            {...form.register('amountFund')}
-            placeholder="0.001"
-            className="border rounded px-2 py-1 font-mono"
-          />
-          {form.formState.errors.amountFund && (
-            <span className="text-xs text-red-600">
-              {form.formState.errors.amountFund.message}
-            </span>
-          )}
-        </label>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="send-memo">Memo (optional)</Label>
+            <Input
+              id="send-memo"
+              {...form.register('memo')}
+              maxLength={256}
+            />
+          </div>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-500">Memo (optional)</span>
-          <input
-            {...form.register('memo')}
-            maxLength={256}
-            className="border rounded px-2 py-1"
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white rounded py-1 text-sm hover:bg-blue-700"
-        >
-          Continue
-        </button>
-      </form>
+          <Button type="submit" size="sm">
+            Continue
+          </Button>
+        </form>
 
       <Dialog
         open={pendingValues !== null}
@@ -208,14 +214,15 @@ export function Send() {
         </DialogContent>
       </Dialog>
 
-      {error && !pendingValues && (
-        <p className="text-xs text-red-600 break-words">{error.message}</p>
-      )}
-      {txHash && (
-        <p className="text-xs text-green-700 break-all">
-          Sent! Tx: <span className="font-mono">{txHash}</span>
-        </p>
-      )}
-    </section>
+        {error && !pendingValues && (
+          <p className="text-xs text-destructive break-words">{error.message}</p>
+        )}
+        {txHash && (
+          <p className="text-xs text-green-700 break-all">
+            Sent! Tx: <span className="font-mono">{txHash}</span>
+          </p>
+        )}
+      </CardContent>
+    </Card>
   )
 }
