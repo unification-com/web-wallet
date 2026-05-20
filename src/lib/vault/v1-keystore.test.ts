@@ -55,9 +55,9 @@ async function pbkdf2DeriveBits(
 async function generateV1Keystore(
   privateKeyHex: string,
   password: string,
-  options: { macMode?: 'sha3' | 'sha256' } = {},
+  options: { macMode?: 'keccak' | 'sha256' } = {},
 ): Promise<V1KeystoreJson> {
-  const macMode = options.macMode ?? 'sha3'
+  const macMode = options.macMode ?? 'keccak'
   const salt = crypto.getRandomValues(new Uint8Array(32))
   const iv = crypto.getRandomValues(new Uint8Array(16))
   const dklen = 32
@@ -69,7 +69,7 @@ async function generateV1Keystore(
   macInputBytes.set(derivedKey.slice(16, 32), 0)
   macInputBytes.set(ciphertext, 16)
   const mac =
-    macMode === 'sha3' ? toHex(keccak_512(macInputBytes)) : toHex(sha256(macInputBytes))
+    macMode === 'keccak' ? toHex(keccak_512(macInputBytes)) : toHex(sha256(macInputBytes))
   return {
     version: 1,
     id: 'test-uuid-00000000-0000-0000-0000-000000000000',
@@ -102,8 +102,8 @@ const PASSWORD = 'correct-horse-battery-staple'
 const WRONG_PASSWORD = 'tr0ub4dor&3'
 
 describe('vault.v1-keystore.decryptV1Keystore', () => {
-  it('round-trips a sha3 (modern) MAC keystore', async () => {
-    const json = await generateV1Keystore(TEST_PRIVATE_KEY, PASSWORD, { macMode: 'sha3' })
+  it('round-trips a Keccak-512 (modern) MAC keystore', async () => {
+    const json = await generateV1Keystore(TEST_PRIVATE_KEY, PASSWORD, { macMode: 'keccak' })
     const result = await decryptV1Keystore(json, PASSWORD)
     expect(result.privateKey).toBe(TEST_PRIVATE_KEY)
     expect(result.address).toMatch(/^und1[a-z0-9]{38,58}$/)

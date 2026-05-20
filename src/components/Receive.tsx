@@ -1,4 +1,5 @@
 import { Check, Copy } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -30,11 +31,14 @@ export function Receive() {
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-base">Receive</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pt-2 flex flex-col gap-2">
+      <CardContent className="p-4 pt-2 flex flex-col gap-2 items-stretch">
         <p className="text-xs text-muted-foreground">
-          Share this address to receive FUND. Anyone with the address can send to it; the
-          private key never leaves your vault.
+          Share this address or scan the QR code to receive FUND. Anyone with the address can
+          send to it; the private key never leaves your vault.
         </p>
+        <div className="self-center rounded border bg-white p-2">
+          <QRCodeSVG value={address} size={128} level="M" />
+        </div>
         <div className="font-mono text-xs break-all rounded border bg-muted p-2">
           {address}
         </div>
