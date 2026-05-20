@@ -1,6 +1,8 @@
 import { GlobalDecoderRegistry } from '@unification-com/fundjs-react'
 
+import { Send } from '@/components/Send'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
+import { useActiveSigner } from '@/lib/signer'
 import { cn } from '@/lib/utils'
 
 type Surface = 'popup' | 'standalone' | 'web'
@@ -12,6 +14,7 @@ const REGISTERED_TYPE_COUNT = GlobalDecoderRegistry.existingTypeUrls.length
 export function App({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
+  const { address } = useActiveSigner()
 
   return (
     <main
@@ -50,8 +53,10 @@ export function App({ surface }: { surface: Surface }) {
         )}
       </section>
 
+      {address && <Send />}
+
       <p className="text-xs text-gray-400">
-        v2 scaffold — M1.7. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault unlock, network selector, and Tx flows arrive in M1.10+.
+        v2 scaffold — M1.9. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault unlock UI + network selector arrive in M1.10.
       </p>
     </main>
   )
