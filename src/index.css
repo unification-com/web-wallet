@@ -1,10 +1,49 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+/*
+ * shadcn/ui v4 + Tailwind v4 theme tokens. Light-only for now; dark variant
+ * lands during the M1.10c palette polish pass.
+ *
+ * Unification brand colours (`--color-brand-*`) preserved alongside shadcn's
+ * semantic tokens so existing components can keep using them while new
+ * shadcn primitives consume `--color-primary` etc.
+ */
 @theme {
-  /* Unification palette — ported from OLD_VUE/src/assets/scss/custom-vars.scss.
-     Names follow shadcn/ui v4 conventions; refined as components are built. */
+  /* Unification brand — ported from OLD_VUE/src/assets/scss/custom-vars.scss */
   --color-brand-primary: #1d6dab;
   --color-brand-accent: #f5a623;
+
+  /* shadcn semantic tokens (neutral base + Unification blue primary) */
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0a0a0a;
+
+  --color-primary: #1d6dab;
+  --color-primary-foreground: #fafafa;
+
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #171717;
+
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #737373;
+
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #171717;
+
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #fafafa;
+
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #1d6dab;
+
+  --radius: 0.5rem;
 }
 
 html, body, #root {
@@ -14,4 +53,6 @@ html, body, #root {
 body {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
