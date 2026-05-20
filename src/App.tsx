@@ -1,63 +1,68 @@
-import { GlobalDecoderRegistry } from '@unification-com/fundjs-react'
+import { useEffect } from 'react'
 
+import { Header } from '@/components/Header'
 import { Send } from '@/components/Send'
+import { UnlockScreen } from '@/components/UnlockScreen'
+import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
-import { useActiveSigner } from '@/lib/signer'
 import { cn } from '@/lib/utils'
+import { useVaultStore } from '@/lib/vault'
 
 type Surface = 'popup' | 'standalone' | 'web'
 
-// Smoke indicator: number of Msg / query / event types fundjs-react has registered.
-// Useful as a "the bindings are loaded" canary; replaced with real chain-aware UI in M1+.
-const REGISTERED_TYPE_COUNT = GlobalDecoderRegistry.existingTypeUrls.length
-
 export function App({ surface }: { surface: Surface }) {
-  const endpoint = useActiveEndpoint()
-  const { data, isLoading, isError, error } = useChainInfo()
-  const { address } = useActiveSigner()
+  const status = useVaultStore((s) => s.status)
+  const hydrate = useVaultStore((s) => s.hydrate)
+
+  // Detect existing vault on mount → set status to 'locked' or 'no-vault'.
+  useEffect(() => {
+    void hydrate()
+  }, [hydrate])
 
   return (
-    <main
+    <div
       className={cn(
-        'p-4 flex flex-col gap-4',
+        'min-h-screen',
         surface === 'popup' ? 'w-[360px]' : 'w-full max-w-2xl mx-auto',
       )}
     >
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Unification Web Wallet</h1>
-        <span className="text-xs text-gray-500">{surface}</span>
-      </header>
+      {status === 'no-vault' && <VaultSetup />}
+      {status === 'locked' && <UnlockScreen />}
+      {status === 'unlocked' && <UnlockedShell surface={surface} />}
+    </div>
+  )
+}
 
-      <section className="border rounded p-3 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-sm">
+function UnlockedShell({ surface }: { surface: Surface }) {
+  const endpoint = useActiveEndpoint()
+  const { data, isLoading, isError, error } = useChainInfo()
+
+  return (
+    <main className="p-4 flex flex-col gap-4">
+      <Header surface={surface} />
+
+      <section className="border rounded p-3 flex flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2">
           <span className="text-gray-500">Network:</span>
           <span className="font-medium">{endpoint.label}</span>
-          <span className="text-xs text-gray-400">({endpoint.source})</span>
         </div>
-
-        {isLoading && <p className="text-sm text-gray-500">Connecting to {endpoint.label}…</p>}
+        {isLoading && <p className="text-gray-500">Connecting…</p>}
         {isError && (
-          <p className="text-sm text-red-600">
+          <p className="text-red-600">
             Failed to connect: {error instanceof Error ? error.message : String(error)}
           </p>
         )}
         {data && (
-          <dl className="text-sm grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
             <dt className="text-gray-500">Chain ID</dt>
             <dd className="font-mono">{data.chainId}</dd>
             <dt className="text-gray-500">Height</dt>
             <dd className="font-mono">{data.height.toLocaleString()}</dd>
-            <dt className="text-gray-500">RPC</dt>
-            <dd className="font-mono truncate" title={data.rpc}>{data.rpc}</dd>
           </dl>
         )}
       </section>
 
-      {address && <Send />}
-
-      <p className="text-xs text-gray-400">
-        v2 scaffold — M1.9. fundjs-react registry: {REGISTERED_TYPE_COUNT} types. Vault unlock UI + network selector arrive in M1.10.
-      </p>
+      <Send />
     </main>
   )
 }
