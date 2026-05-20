@@ -1,9 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { crx } from '@crxjs/vite-plugin'
-import manifest from './src/manifest.json' with { type: 'json' }
 import path from 'node:path'
+
+import { crx } from '@crxjs/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
+import { defineConfig } from 'vite'
+
+import manifest from './src/manifest.json' with { type: 'json' }
 
 // The default mode produces the Chrome Extension via @crxjs/vite-plugin.
 // `vite build --mode web` produces the Docker-served browser bundle (no MV3, no service worker).
@@ -25,6 +28,18 @@ export default defineConfig(({ command, mode }) => {
       react(),
       tailwindcss(),
       ...(isWebBundle ? [] : [crx({ manifest })]),
+      // Set ANALYSE=1 to write dist/bundle-report.html showing the byte
+      // breakdown by package. Off by default so normal builds stay fast.
+      ...(process.env.ANALYSE
+        ? [
+            visualizer({
+              filename: 'dist/bundle-report.html',
+              open: false,
+              gzipSize: true,
+              brotliSize: true,
+            }),
+          ]
+        : []),
     ],
     resolve: {
       alias: {
@@ -49,13 +64,50 @@ export default defineConfig(({ command, mode }) => {
       // standalone.html is an extension page (not manifest-referenced), so we add it
       // to rollupOptions.input so Vite emits it alongside the popup. Web bundle mode
       // builds web.html as a standalone non-extension page.
-      rollupOptions: { input },
-      // popup chunk currently lands around 7 MB because the fundjs-react bundle
-      // entry pulls in every Msg/query codec. M1+ will switch to targeted sub-path
-      // imports (e.g. @unification-com/fundjs-react/mainchain/stream/v1/tx.registry),
-      // shrinking the popup bundle by an order of magnitude. Until then, raise the
-      // warning ceiling to avoid noisy CI output.
-      chunkSizeWarningLimit: 8000,
+      //
+      // Manual vendor chunking splits the bundle into stable groups so a typical
+      // app-code release only invalidates the small `app` chunk; cosmjs / react /
+      // radix vendors stay cached across releases. Also makes the bundle-size
+      // composition immediately visible in build output.
+      rollupOptions: {
+        input,
+        output: {
+          manualChunks(id: string) {
+            // Only chunk node_modules — app code stays in the main bootstrap
+            // chunk so a typical app-code release only invalidates ~15 kB.
+            if (!id.includes('node_modules')) return undefined
+            // cosmjs + protobuf — the broadcast/query stack. ~169 kB gzipped.
+            if (id.includes('@cosmjs') || id.includes('protobufjs') || id.includes('cosmjs-types')) {
+              return 'vendor-cosmjs'
+            }
+            // Pure crypto primitives — bip39, @noble/*, @scure/*, hash-wasm,
+            // buffer polyfill. ~222 kB gzipped (dominant since cosmjs delegates
+            // to these).
+            if (
+              id.includes('bip39') ||
+              id.includes('@noble/') ||
+              id.includes('@scure/') ||
+              id.includes('/buffer/') ||
+              id.includes('hash-wasm')
+            ) {
+              return 'vendor-crypto'
+            }
+            // UI primitives — Radix + lucide + qrcode. ~15 kB gzipped.
+            if (
+              id.includes('@radix-ui') ||
+              id.includes('lucide-react') ||
+              id.includes('qrcode.react')
+            ) {
+              return 'vendor-ui'
+            }
+            // Everything else (react, react-dom, @tanstack, zod, zustand,
+            // react-hook-form, hookform/resolvers, transitive deps). Bundled
+            // together to avoid circular-chunk warnings; ~110 kB gzipped.
+            return 'vendor-app'
+          },
+        },
+      },
+      chunkSizeWarningLimit: 2000,
     },
     server: {
       port: 5173,
