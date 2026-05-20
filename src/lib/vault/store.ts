@@ -98,6 +98,14 @@ interface VaultState {
 
   // Idle timer (called on user activity)
   resetIdleTimer: () => void
+
+  /**
+   * Compare a user-supplied password against the in-memory cached one.
+   * Used to gate sensitive operations like revealing a seed phrase, where
+   * we want a fresh password re-entry rather than implicit access via the
+   * already-unlocked session. Returns false if the vault is locked.
+   */
+  verifyPassword: (input: string) => boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -378,6 +386,10 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     resetIdleTimer() {
       if (get().status === 'unlocked') startOrResetIdleTimer()
+    },
+
+    verifyPassword(input) {
+      return cachedPassword !== null && cachedPassword === input
     },
   }
 })

@@ -1,4 +1,4 @@
-import { Check, Pencil, Trash2, X } from 'lucide-react'
+import { Check, Eye, Pencil, Trash2, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useVaultStore } from '@/lib/vault'
 import type { ImportedKeyEntry, SeedAccount, SeedEntry } from '@/lib/vault/types'
 
@@ -196,6 +197,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
   const [renaming, setRenaming] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [revealOpen, setRevealOpen] = useState(false)
 
   const onDelete = async () => {
     setDeleting(true)
@@ -228,6 +230,15 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
               </span>
             </div>
             <div className="flex gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setRevealOpen(true)}
+                title="Reveal seed phrase"
+              >
+                <Eye className="h-3 w-3" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -269,7 +280,147 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={onDelete}
       />
+      <RevealSeedDialog
+        open={revealOpen}
+        onClose={() => setRevealOpen(false)}
+        seedLabel={seed.label}
+        mnemonic={seed.mnemonic}
+      />
     </section>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Reveal seed phrase Dialog (password re-entry → mnemonic display + copy)
+// ---------------------------------------------------------------------------
+
+function RevealSeedDialog({
+  open,
+  onClose,
+  seedLabel,
+  mnemonic,
+}: {
+  open: boolean
+  onClose: () => void
+  seedLabel: string
+  mnemonic: string
+}) {
+  const verifyPassword = useVaultStore((s) => s.verifyPassword)
+  const [password, setPassword] = useState('')
+  const [verified, setVerified] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  // Reset state when the dialog re-opens or closes — security hygiene so the
+  // mnemonic doesn't linger in React state after the user dismisses.
+  const resetState = () => {
+    setPassword('')
+    setVerified(false)
+    setError(null)
+    setCopied(false)
+  }
+
+  const onVerify = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (verifyPassword(password)) {
+      setVerified(true)
+      setError(null)
+    } else {
+      setError('wrong password')
+    }
+  }
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(mnemonic)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('[RevealSeedDialog] clipboard write failed', err)
+    }
+  }
+
+  const handleClose = () => {
+    resetState()
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{seedLabel} — seed phrase</DialogTitle>
+          <DialogDescription>
+            {verified
+              ? 'Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed.'
+              : 'Re-enter your wallet password to reveal the seed phrase.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        {!verified && (
+          <form onSubmit={onVerify} className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="reveal-password">Password</Label>
+              <Input
+                id="reveal-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus password field on dialog open
+                autoFocus
+              />
+              {error && <p className="text-xs text-destructive">{error}</p>}
+            </div>
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" disabled={password.length === 0}>
+                Reveal
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+
+        {verified && (
+          <div className="flex flex-col gap-2">
+            <div className="rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+              Do not share. Do not screenshot. The seed gives full control of every account
+              derived from it.
+            </div>
+            <ol className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono rounded border bg-muted p-3">
+              {mnemonic.split(' ').map((word, i) => (
+                <li key={`${i.toString()}-${word}`} className="flex gap-2">
+                  <span className="text-muted-foreground w-6 text-right">{i + 1}.</span>
+                  <span>{word}</span>
+                </li>
+              ))}
+            </ol>
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onClick={onCopy}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Copied
+                  </>
+                ) : (
+                  'Copy phrase'
+                )}
+              </Button>
+              <Button type="button" size="sm" onClick={handleClose}>
+                Done
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
 
