@@ -6,6 +6,7 @@ import { Send } from '@/components/Send'
 import { UnlockScreen } from '@/components/UnlockScreen'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
+import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
 
@@ -52,6 +53,11 @@ export function App({ surface }: { surface: Surface }) {
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
+
+  // Resets the vault's idle-lock timer on user activity. Active only while
+  // the unlocked shell is mounted (listeners added on unlock, removed on
+  // lock).
+  useIdleActivity(true)
 
   return (
     <main className="p-4 flex flex-col gap-4">
