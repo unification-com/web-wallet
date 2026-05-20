@@ -42,7 +42,7 @@ export function App({ surface }: { surface: Surface }) {
         surface === 'popup' ? 'w-[360px]' : 'w-full max-w-2xl mx-auto',
       )}
     >
-      {view === 'setup' && <VaultSetup />}
+      {view === 'setup' && <VaultSetup surface={surface} />}
       {view === 'unlock' && <UnlockScreen />}
       {view === 'unlocked' && <UnlockedShell surface={surface} />}
     </div>

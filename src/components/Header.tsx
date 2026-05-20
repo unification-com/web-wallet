@@ -1,14 +1,9 @@
+import { AccountSwitcher } from '@/components/AccountSwitcher'
 import { EndpointSwitcher } from '@/components/EndpointSwitcher'
-import { useActiveSigner } from '@/lib/signer'
 import { useVaultStore } from '@/lib/vault'
-
-function truncate(addr: string, head = 8, tail = 6): string {
-  return addr.length <= head + tail + 3 ? addr : `${addr.slice(0, head)}…${addr.slice(-tail)}`
-}
 
 export function Header({ surface }: { surface: 'popup' | 'standalone' | 'web' }) {
   const lock = useVaultStore((s) => s.lock)
-  const { address } = useActiveSigner()
 
   return (
     <header className="flex items-center justify-between gap-2">
@@ -19,11 +14,7 @@ export function Header({ surface }: { surface: 'popup' | 'standalone' | 'web' })
 
       <div className="flex items-center gap-2 text-xs">
         <EndpointSwitcher />
-        {address && (
-          <span className="px-2 py-0.5 rounded bg-blue-50 font-mono text-blue-800" title={address}>
-            {truncate(address)}
-          </span>
-        )}
+        <AccountSwitcher />
         <button
           type="button"
           onClick={lock}

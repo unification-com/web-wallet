@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useVaultStore } from '@/lib/vault'
 import { generateMnemonic, validateMnemonic } from '@/lib/vault/seeds'
@@ -6,8 +6,11 @@ import { type V1KeystoreJson } from '@/lib/vault/v1-keystore'
 
 type Mode = 'generate' | 'import-seed' | 'import-v1'
 type Step = 'password' | 'choose' | 'generate-show' | 'import-seed-paste' | 'import-v1-pick'
+type Surface = 'popup' | 'standalone' | 'web'
 
-export function VaultSetup() {
+const HASH_IMPORT_V1 = '#import-v1'
+
+export function VaultSetup({ surface }: { surface: Surface }) {
   const status = useVaultStore((s) => s.status)
   const createVault = useVaultStore((s) => s.createVault)
   const addSeed = useVaultStore((s) => s.addSeed)
@@ -17,6 +20,18 @@ export function VaultSetup() {
   // If the vault is already unlocked we've come back to setup mid-flow
   // (just-created, or reloaded after partial setup) — skip the password step.
   const [step, setStep] = useState<Step>(status === 'no-vault' ? 'password' : 'choose')
+
+  // Auto-route to the v1 import step when the standalone tab is opened with
+  // the `#import-v1` hash from the popup's import-v1 button. Avoids the MV3
+  // popup focus-loss closure that kills the file picker mid-flow. Clears the
+  // hash once consumed so a reload doesn't replay the route.
+  useEffect(() => {
+    if (window.location.hash !== HASH_IMPORT_V1) return
+    if (step === 'choose') {
+      setStep('import-v1-pick')
+      history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [step])
   const [, setMode] = useState<Mode | null>(null)
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -70,6 +85,17 @@ export function VaultSetup() {
   }
 
   const pickImportV1 = () => {
+    // MV3 popup workaround — the OS file picker steals focus and closes the
+    // popup mid-flow. Standalone tab has no such restriction. Reopen the
+    // wallet in a tab with a hash hint so VaultSetup auto-advances to the
+    // import step after the user unlocks (or directly if mid-setup).
+    if (surface === 'popup' && typeof chrome !== 'undefined' && chrome.tabs?.create) {
+      void chrome.tabs.create({
+        url: chrome.runtime.getURL(`standalone.html${HASH_IMPORT_V1}`),
+      })
+      window.close()
+      return
+    }
     setMode('import-v1')
     setStep('import-v1-pick')
   }
