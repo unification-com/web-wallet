@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { VaultEntryManager } from '@/components/VaultEntryManager'
 import {
   listBuiltInEndpoints,
   pingNodeInfo,
@@ -224,6 +225,8 @@ export function Settings({ onBack }: { onBack: () => void }) {
           </div>
         </CardContent>
       </Card>
+
+      <VaultEntryManager />
     </main>
   )
 }
