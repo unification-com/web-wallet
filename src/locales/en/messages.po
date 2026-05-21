@@ -38,6 +38,17 @@ msgstr "(opens tab)"
 msgid "(untitled)"
 msgstr "(untitled)"
 
+#. placeholder {0}: account.label
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "{0} — private key"
+msgstr "{0} — private key"
+
+#. placeholder {0}: seed.label
+#: src/components/VaultEntryManager.tsx
+msgid "{0} — seed phrase"
+msgstr "{0} — seed phrase"
+
 #. placeholder {0}: seed.accounts.length
 #. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
 #: src/components/VaultEntryManager.tsx
@@ -67,8 +78,8 @@ msgid "{commissionPct}% fee"
 msgstr "{commissionPct}% fee"
 
 #: src/components/VaultEntryManager.tsx
-msgid "{seedLabel} — seed phrase"
-msgstr "{seedLabel} — seed phrase"
+#~ msgid "{seedLabel} — seed phrase"
+#~ msgstr "{seedLabel} — seed phrase"
 
 #: src/components/InFlightQueues.tsx
 msgid "{srcMoniker} → {dstMoniker}"
@@ -206,6 +217,7 @@ msgid "Built-in"
 msgstr "Built-in"
 
 #: src/components/AddSignerCard.tsx
+#: src/components/RevealSecretDialog.tsx
 #: src/components/TxModal.tsx
 #: src/components/VaultEntryManager.tsx
 msgid "Cancel"
@@ -298,13 +310,21 @@ msgid "Continue"
 msgstr "Continue"
 
 #: src/components/Receive.tsx
-#: src/components/VaultEntryManager.tsx
+#: src/components/RevealSecretDialog.tsx
 msgid "Copied"
 msgstr "Copied"
+
+#: src/components/RevealSecretDialog.tsx
+msgid "Copy"
+msgstr "Copy"
 
 #: src/components/Receive.tsx
 msgid "Copy address"
 msgstr "Copy address"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Copy key"
+msgstr "Copy key"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Copy phrase"
@@ -398,6 +418,10 @@ msgid "Destination validator"
 msgstr "Destination validator"
 
 #: src/components/VaultEntryManager.tsx
+msgid "Do not share. Do not screenshot. Anyone with this private key can spend funds held at this address."
+msgstr "Do not share. Do not screenshot. Anyone with this private key can spend funds held at this address."
+
+#: src/components/VaultEntryManager.tsx
 msgid "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
 msgstr "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
 
@@ -405,7 +429,7 @@ msgstr "Do not share. Do not screenshot. The seed gives full control of every ac
 msgid "Don't count my stake for or against"
 msgstr "Don't count my stake for or against"
 
-#: src/components/VaultEntryManager.tsx
+#: src/components/RevealSecretDialog.tsx
 msgid "Done"
 msgstr "Done"
 
@@ -544,6 +568,12 @@ msgstr "Import keystore"
 msgid "Import seed"
 msgstr "Import seed"
 
+#. placeholder {0}: account.address
+#. placeholder {0}: entry.address
+#: src/components/VaultEntryManager.tsx
+msgid "Import this hex-encoded key into another wallet (Keplr, Leap, …) to access this account elsewhere. The corresponding address is <0>{0}</0>."
+msgstr "Import this hex-encoded key into another wallet (Keplr, Leap, …) to access this account elsewhere. The corresponding address is <0>{0}</0>."
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "Import v1 keystore"
@@ -611,6 +641,10 @@ msgstr "Loading proposals…"
 #: src/components/Validators.tsx
 msgid "Loading validators…"
 msgstr "Loading validators…"
+
+#: src/components/RevealSecretDialog.tsx
+msgid "Loading…"
+msgstr "Loading…"
 
 #: src/components/Header.tsx
 msgid "Lock wallet"
@@ -717,8 +751,8 @@ msgstr "Open in tab"
 msgid "Passed"
 msgstr "Passed"
 
+#: src/components/RevealSecretDialog.tsx
 #: src/components/UnlockScreen.tsx
-#: src/components/VaultEntryManager.tsx
 msgid "Password"
 msgstr "Password"
 
@@ -763,6 +797,15 @@ msgstr "Proposals"
 #: src/components/ProposalDetail.tsx
 msgid "Proposer"
 msgstr "Proposer"
+
+#. placeholder {0}: account.index.toString()
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the private key for this account. It will be derived from the seed at HD index #{0}."
+msgstr "Re-enter your wallet password to reveal the private key for this account. It will be derived from the seed at HD index #{0}."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the private key."
+msgstr "Re-enter your wallet password to reveal the private key."
 
 #: src/components/VaultEntryManager.tsx
 msgid "Re-enter your wallet password to reveal the seed phrase."
@@ -840,9 +883,13 @@ msgstr "REST response missing default_node_info.network — endpoint reachable b
 msgid "REST URL"
 msgstr "REST URL"
 
-#: src/components/VaultEntryManager.tsx
+#: src/components/RevealSecretDialog.tsx
 msgid "Reveal"
 msgstr "Reveal"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal private key"
+msgstr "Reveal private key"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Reveal seed phrase"
@@ -1167,7 +1214,7 @@ msgstr "Write these words down somewhere safe. Anyone with this phrase can spend
 msgid "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
 msgstr "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
 
-#: src/components/VaultEntryManager.tsx
+#: src/components/RevealSecretDialog.tsx
 #: src/lib/vault/store.ts
 msgid "wrong password"
 msgstr "wrong password"

@@ -1,8 +1,9 @@
 import { Trans, useLingui } from '@lingui/react/macro'
-import { Check, Eye, Pencil, Trash2, X } from 'lucide-react'
+import { Check, Eye, KeyRound, Pencil, Trash2, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
 import { AddSignerCard } from '@/components/AddSignerCard'
+import { RevealSecretDialog, type RevealedSecret } from '@/components/RevealSecretDialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -14,8 +15,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useVaultStore } from '@/lib/vault'
+import { deriveAccount } from '@/lib/vault/seeds'
 import type { ImportedKeyEntry, SeedAccount, SeedEntry } from '@/lib/vault/types'
 
 /**
@@ -278,7 +279,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
       </header>
       <ul className="flex flex-col gap-1 pl-2">
         {seed.accounts.map((a) => (
-          <AccountRow key={a.index} seedId={seed.id} account={a} />
+          <AccountRow key={a.index} seedId={seed.id} mnemonic={seed.mnemonic} account={a} />
         ))}
       </ul>
       <ConfirmDelete
@@ -295,166 +296,75 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={onDelete}
       />
-      <RevealSeedDialog
+      <RevealSecretDialog
         open={revealOpen}
         onClose={() => setRevealOpen(false)}
-        seedLabel={seed.label}
-        mnemonic={seed.mnemonic}
+        title={<Trans>{seed.label} — seed phrase</Trans>}
+        preRevealDescription={
+          <Trans>Re-enter your wallet password to reveal the seed phrase.</Trans>
+        }
+        postRevealDescription={
+          <Trans>
+            Write these words down somewhere safe. Anyone with this phrase can spend
+            funds at any account derived from this seed.
+          </Trans>
+        }
+        warningContent={
+          <Trans>
+            Do not share. Do not screenshot. The seed gives full control of every
+            account derived from it.
+          </Trans>
+        }
+        resolveSecret={() =>
+          Promise.resolve({
+            copyText: seed.mnemonic,
+            display: <MnemonicGrid mnemonic={seed.mnemonic} />,
+          })
+        }
+        copyLabel={<Trans>Copy phrase</Trans>}
       />
     </section>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Reveal seed phrase Dialog (password re-entry → mnemonic display + copy)
+// Secret-content display helpers — DRY across mnemonic + private-key reveals
 // ---------------------------------------------------------------------------
 
-function RevealSeedDialog({
-  open,
-  onClose,
-  seedLabel,
-  mnemonic,
-}: {
-  open: boolean
-  onClose: () => void
-  seedLabel: string
-  mnemonic: string
-}) {
-  const verifyPassword = useVaultStore((s) => s.verifyPassword)
-  const { t } = useLingui()
-  const [password, setPassword] = useState('')
-  const [verified, setVerified] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-
-  // Reset state when the dialog re-opens or closes — security hygiene so the
-  // mnemonic doesn't linger in React state after the user dismisses.
-  const resetState = () => {
-    setPassword('')
-    setVerified(false)
-    setError(null)
-    setCopied(false)
-  }
-
-  const onVerify = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (verifyPassword(password)) {
-      setVerified(true)
-      setError(null)
-    } else {
-      setError(t`wrong password`)
-    }
-  }
-
-  const onCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(mnemonic)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('[RevealSeedDialog] clipboard write failed', err)
-    }
-  }
-
-  const handleClose = () => {
-    resetState()
-    onClose()
-  }
-
+function MnemonicGrid({ mnemonic }: { mnemonic: string }) {
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            <Trans>{seedLabel} — seed phrase</Trans>
-          </DialogTitle>
-          <DialogDescription>
-            {verified ? (
-              <Trans>
-                Write these words down somewhere safe. Anyone with this phrase can spend
-                funds at any account derived from this seed.
-              </Trans>
-            ) : (
-              <Trans>Re-enter your wallet password to reveal the seed phrase.</Trans>
-            )}
-          </DialogDescription>
-        </DialogHeader>
-
-        {!verified && (
-          <form onSubmit={onVerify} className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="reveal-password">
-                <Trans>Password</Trans>
-              </Label>
-              <Input
-                id="reveal-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus password field on dialog open
-                autoFocus
-              />
-              {error && <p className="text-xs text-destructive">{error}</p>}
-            </div>
-            <DialogFooter className="gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={handleClose}>
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button type="submit" size="sm" disabled={password.length === 0}>
-                <Trans>Reveal</Trans>
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
-
-        {verified && (
-          <div className="flex flex-col gap-2">
-            <div className="rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
-              <Trans>
-                Do not share. Do not screenshot. The seed gives full control of every
-                account derived from it.
-              </Trans>
-            </div>
-            <ol className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono rounded border bg-muted p-3">
-              {mnemonic.split(' ').map((word, i) => (
-                <li key={`${i.toString()}-${word}`} className="flex gap-2">
-                  <span className="text-muted-foreground w-6 text-right">{i + 1}.</span>
-                  <span>{word}</span>
-                </li>
-              ))}
-            </ol>
-            <DialogFooter className="gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                onClick={onCopy}
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" />
-                    <Trans>Copied</Trans>
-                  </>
-                ) : (
-                  <Trans>Copy phrase</Trans>
-                )}
-              </Button>
-              <Button type="button" size="sm" onClick={handleClose}>
-                <Trans>Done</Trans>
-              </Button>
-            </DialogFooter>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <ol className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono rounded border bg-muted p-3">
+      {mnemonic.split(' ').map((word, i) => (
+        <li key={`${i.toString()}-${word}`} className="flex gap-2">
+          <span className="text-muted-foreground w-6 text-right">{i + 1}.</span>
+          <span>{word}</span>
+        </li>
+      ))}
+    </ol>
   )
 }
 
-function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount }) {
+function PrivateKeyBlock({ hex }: { hex: string }) {
+  return (
+    <pre className="text-xs font-mono rounded border bg-muted p-3 break-all whitespace-pre-wrap">
+      {hex}
+    </pre>
+  )
+}
+
+function AccountRow({
+  seedId,
+  mnemonic,
+  account,
+}: {
+  seedId: string
+  mnemonic: string
+  account: SeedAccount
+}) {
   const renameSeedAccount = useVaultStore((s) => s.renameSeedAccount)
   const { t } = useLingui()
   const [renaming, setRenaming] = useState(false)
+  const [revealKeyOpen, setRevealKeyOpen] = useState(false)
 
   return (
     <li className="flex items-center justify-between gap-1 text-xs">
@@ -479,6 +389,15 @@ function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount 
             variant="ghost"
             size="icon"
             className="h-6 w-6"
+            onClick={() => setRevealKeyOpen(true)}
+            title={t`Reveal private key`}
+          >
+            <KeyRound className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
             onClick={() => setRenaming(true)}
             title={t`Rename account`}
           >
@@ -486,6 +405,38 @@ function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount 
           </Button>
         </>
       )}
+      <RevealSecretDialog
+        open={revealKeyOpen}
+        onClose={() => setRevealKeyOpen(false)}
+        title={<Trans>{account.label} — private key</Trans>}
+        preRevealDescription={
+          <Trans>
+            Re-enter your wallet password to reveal the private key for this account. It
+            will be derived from the seed at HD index #{account.index.toString()}.
+          </Trans>
+        }
+        postRevealDescription={
+          <Trans>
+            Import this hex-encoded key into another wallet (Keplr, Leap, …) to access
+            this account elsewhere. The corresponding address is{' '}
+            <span className="font-mono">{account.address}</span>.
+          </Trans>
+        }
+        warningContent={
+          <Trans>
+            Do not share. Do not screenshot. Anyone with this private key can spend funds
+            held at this address.
+          </Trans>
+        }
+        resolveSecret={async (): Promise<RevealedSecret> => {
+          const derived = await deriveAccount(mnemonic, account.index)
+          return {
+            copyText: derived.privateKey,
+            display: <PrivateKeyBlock hex={derived.privateKey} />,
+          }
+        }}
+        copyLabel={<Trans>Copy key</Trans>}
+      />
     </li>
   )
 }
@@ -502,6 +453,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
   const [renaming, setRenaming] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [revealKeyOpen, setRevealKeyOpen] = useState(false)
 
   const onDelete = async () => {
     setDeleting(true)
@@ -537,6 +489,15 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               variant="ghost"
               size="icon"
               className="h-6 w-6"
+              onClick={() => setRevealKeyOpen(true)}
+              title={t`Reveal private key`}
+            >
+              <KeyRound className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
               onClick={() => setRenaming(true)}
               title={t`Rename key`}
             >
@@ -562,6 +523,34 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
         busy={deleting}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={onDelete}
+      />
+      <RevealSecretDialog
+        open={revealKeyOpen}
+        onClose={() => setRevealKeyOpen(false)}
+        title={<Trans>{entry.label} — private key</Trans>}
+        preRevealDescription={
+          <Trans>Re-enter your wallet password to reveal the private key.</Trans>
+        }
+        postRevealDescription={
+          <Trans>
+            Import this hex-encoded key into another wallet (Keplr, Leap, …) to access
+            this account elsewhere. The corresponding address is{' '}
+            <span className="font-mono">{entry.address}</span>.
+          </Trans>
+        }
+        warningContent={
+          <Trans>
+            Do not share. Do not screenshot. Anyone with this private key can spend funds
+            held at this address.
+          </Trans>
+        }
+        resolveSecret={() =>
+          Promise.resolve({
+            copyText: entry.privateKey,
+            display: <PrivateKeyBlock hex={entry.privateKey} />,
+          })
+        }
+        copyLabel={<Trans>Copy key</Trans>}
       />
     </li>
   )
