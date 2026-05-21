@@ -1,5 +1,6 @@
 import { StargateClient } from '@cosmjs/stargate'
 import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
 import { useVaultStore } from './vault'
 import { BUILT_IN_ENDPOINT_IDS, type CustomEndpoint } from './vault/types'
@@ -69,17 +70,25 @@ export function customToChainEndpoint(c: CustomEndpoint): ChainEndpoint {
  * The endpoint the user is currently connected to. Reads from
  * `vault.preferences.activeEndpointId`. Falls back to mainnet when the vault
  * is locked / not yet hydrated / points at a missing custom endpoint.
+ *
+ * Selector identity hazard (fixed 2026-05-21): a previous one-shot selector
+ * called `customToChainEndpoint(custom)` inline, which returned a fresh
+ * object every render → Zustand's `Object.is` saw "state changed" → React
+ * re-rendered → loop → React error #185 ("Maximum update depth exceeded").
+ * Now we select stable primitive references and derive the ChainEndpoint in
+ * a downstream `useMemo`.
  */
 export function useActiveEndpoint(): ChainEndpoint {
-  return useVaultStore((s) => {
-    const id = s.vault?.preferences.activeEndpointId ?? 'mainnet'
-    if ((BUILT_IN_ENDPOINT_IDS as readonly string[]).includes(id)) {
-      // Safe: id is one of the built-in ids, so BUILT_IN has it.
-      return BUILT_IN[id] ?? BUILT_IN.mainnet
+  const activeId = useVaultStore((s) => s.vault?.preferences.activeEndpointId ?? 'mainnet')
+  const customEndpoints = useVaultStore((s) => s.vault?.customEndpoints)
+
+  return useMemo(() => {
+    if ((BUILT_IN_ENDPOINT_IDS as readonly string[]).includes(activeId)) {
+      return BUILT_IN[activeId] ?? BUILT_IN.mainnet
     }
-    const custom = s.vault?.customEndpoints.find((e) => e.id === id)
+    const custom = customEndpoints?.find((e) => e.id === activeId)
     return custom ? customToChainEndpoint(custom) : BUILT_IN.mainnet
-  })
+  }, [activeId, customEndpoints])
 }
 
 // ---------------------------------------------------------------------------
@@ -108,7 +117,8 @@ export function useChainInfo() {
   return useQuery({
     queryKey: ['chain-info', endpoint.id, endpoint.rpc],
     queryFn: () => fetchChainInfo(endpoint),
-    refetchInterval: 12_000,
+    // 8 s aligns with useBalance — both surfaces refresh roughly per block.
+    refetchInterval: 8_000,
   })
 }
 
