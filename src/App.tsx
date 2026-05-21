@@ -7,6 +7,7 @@ import { Send } from '@/components/Send'
 import { Settings } from '@/components/Settings'
 import { Card, CardContent } from '@/components/ui/card'
 import { UnlockScreen } from '@/components/UnlockScreen'
+import { Validators } from '@/components/Validators'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
 import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
@@ -69,10 +70,12 @@ export function App({ surface }: { surface: Surface }) {
   )
 }
 
+type UnlockedView = 'wallet' | 'staking' | 'settings'
+
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
-  const [view, setView] = useState<'wallet' | 'settings'>('wallet')
+  const [view, setView] = useState<UnlockedView>('wallet')
 
   // Resets the vault's idle-lock timer on user activity. Active only while
   // the unlocked shell is mounted (listeners added on unlock, removed on
@@ -122,8 +125,48 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         </CardContent>
       </Card>
 
-      <Receive />
-      <Send />
+      <nav className="flex gap-1 text-xs border-b">
+        <ViewTab active={view === 'wallet'} onClick={() => setView('wallet')}>
+          <Trans>Wallet</Trans>
+        </ViewTab>
+        <ViewTab active={view === 'staking'} onClick={() => setView('staking')}>
+          <Trans>Staking</Trans>
+        </ViewTab>
+      </nav>
+
+      {view === 'wallet' && (
+        <>
+          <Receive />
+          <Send />
+        </>
+      )}
+
+      {view === 'staking' && <Validators />}
     </main>
+  )
+}
+
+function ViewTab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        '-mb-px px-3 py-1.5 border-b-2 transition-colors ' +
+        (active
+          ? 'border-primary text-primary font-medium'
+          : 'border-transparent text-muted-foreground hover:text-foreground')
+      }
+    >
+      {children}
+    </button>
   )
 }

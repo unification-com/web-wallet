@@ -28,6 +28,16 @@ msgstr "(opens tab)"
 msgid "{0} account{1}"
 msgstr "{0} account{1}"
 
+#. placeholder {0}: filteredSorted.length
+#. placeholder {1}: validators.length
+#: src/components/Validators.tsx
+msgid "{0} of {1}"
+msgstr "{0} of {1}"
+
+#: src/components/Validators.tsx
+msgid "{commissionPct}% fee"
+msgstr "{commissionPct}% fee"
+
 #: src/components/VaultEntryManager.tsx
 msgid "{seedLabel} — seed phrase"
 msgstr "{seedLabel} — seed phrase"
@@ -58,6 +68,7 @@ msgstr "Accounts"
 
 #: src/components/AccountSwitcher.tsx
 #: src/components/Settings.tsx
+#: src/components/Validators.tsx
 msgid "ACTIVE"
 msgstr "ACTIVE"
 
@@ -251,6 +262,11 @@ msgstr "Enter your password"
 msgid "Failed to connect: {0}"
 msgstr "Failed to connect: {0}"
 
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/Validators.tsx
+msgid "Failed to load: {0}"
+msgstr "Failed to load: {0}"
+
 #: src/components/Settings.tsx
 msgid "failed to reach endpoint"
 msgstr "failed to reach endpoint"
@@ -264,6 +280,10 @@ msgstr "failed to read file: {0}"
 #: src/components/Send.tsx
 msgid "Fee"
 msgstr "Fee"
+
+#: src/components/Validators.tsx
+msgid "Filter by moniker…"
+msgstr "Filter by moniker…"
 
 #: src/components/VaultSetup.tsx
 msgid "Finish setup"
@@ -353,6 +373,14 @@ msgstr "Imported keys"
 msgid "Importing…"
 msgstr "Importing…"
 
+#: src/components/Validators.tsx
+msgid "INACTIVE"
+msgstr "INACTIVE"
+
+#: src/components/Validators.tsx
+msgid "JAILED"
+msgstr "JAILED"
+
 #: src/components/Settings.tsx
 msgid "Label"
 msgstr "Label"
@@ -368,6 +396,10 @@ msgstr "Loaded: {fileName}"
 #: src/components/VaultSetup.tsx
 msgid "Loaded: {v1JsonFileName}"
 msgstr "Loaded: {v1JsonFileName}"
+
+#: src/components/Validators.tsx
+msgid "Loading validators…"
+msgstr "Loading validators…"
 
 #: src/components/Header.tsx
 msgid "Lock wallet"
@@ -413,6 +445,10 @@ msgstr "no keystore file selected"
 #: src/components/VaultEntryManager.tsx
 msgid "No seeds or imported keys yet — use Add another above to start."
 msgstr "No seeds or imported keys yet — use Add another above to start."
+
+#: src/components/Validators.tsx
+msgid "No validators match the filter."
+msgstr "No validators match the filter."
 
 #: src/lib/vault/store.ts
 msgid "no vault to unlock"
@@ -590,6 +626,10 @@ msgstr "Settings"
 msgid "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
 msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
 
+#: src/App.tsx
+msgid "Staking"
+msgstr "Staking"
+
 #: src/components/AccountSwitcher.tsx
 msgid "Switch between accounts derived from your seeds or imported keys."
 msgstr "Switch between accounts derived from your seeds or imported keys."
@@ -685,6 +725,10 @@ msgstr "v1 keystore MAC check failed — wrong password or corrupted file"
 msgid "v1 keystore password"
 msgstr "v1 keystore password"
 
+#: src/components/Validators.tsx
+msgid "Validators"
+msgstr "Validators"
+
 #: src/components/VaultEntryManager.tsx
 msgid "Vault entries"
 msgstr "Vault entries"
@@ -705,6 +749,7 @@ msgstr "vault plaintext is not valid JSON (corrupted)"
 msgid "Verifying…"
 msgstr "Verifying…"
 
+#: src/App.tsx
 #: src/components/Header.tsx
 msgid "Wallet"
 msgstr "Wallet"
