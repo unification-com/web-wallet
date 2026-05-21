@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro'
 import { Plus, Wallet } from 'lucide-react'
 import { useState } from 'react'
 
@@ -44,6 +45,7 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
   const setActiveSigner = useVaultStore((s) => s.setActiveSigner)
   const addAccountToSeed = useVaultStore((s) => s.addAccountToSeed)
 
+  const { t } = useLingui()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -82,16 +84,18 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
           variant="outline"
           size="sm"
           className="font-mono text-xs h-7 px-2"
-          title={`${address} — click to switch account`}
+          title={`${address} — ${t`click to switch account`}`}
         >
           {compact ? truncate(address, 5, 4) : truncate(address)}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Accounts</DialogTitle>
+          <DialogTitle>
+            <Trans>Accounts</Trans>
+          </DialogTitle>
           <DialogDescription>
-            Switch between accounts derived from your seeds or imported keys.
+            <Trans>Switch between accounts derived from your seeds or imported keys.</Trans>
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +121,7 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
                   onClick={() => addAccount(seed.id)}
                 >
                   <Plus className="h-3 w-3" />
-                  {busy === seed.id ? 'Adding…' : 'Add account'}
+                  {busy === seed.id ? <Trans>Adding…</Trans> : <Trans>Add account</Trans>}
                 </Button>
               </header>
               <ul className="flex flex-col gap-1">
@@ -145,7 +149,11 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
                             {a.address}
                           </span>
                         </span>
-                        {active && <span className="text-primary text-[10px] font-medium">ACTIVE</span>}
+                        {active && (
+                          <span className="text-primary text-[10px] font-medium">
+                            <Trans>ACTIVE</Trans>
+                          </span>
+                        )}
                       </button>
                     </li>
                   )
@@ -158,7 +166,7 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
             <section className="flex flex-col gap-1">
               <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1">
                 <Wallet className="h-3 w-3" />
-                Imported keys
+                <Trans>Imported keys</Trans>
               </h3>
               <ul className="flex flex-col gap-1">
                 {importedKeys.map((k) => {
@@ -181,7 +189,11 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
                             {k.address}
                           </span>
                         </span>
-                        {active && <span className="text-primary text-[10px] font-medium">ACTIVE</span>}
+                        {active && (
+                          <span className="text-primary text-[10px] font-medium">
+                            <Trans>ACTIVE</Trans>
+                          </span>
+                        )}
                       </button>
                     </li>
                   )

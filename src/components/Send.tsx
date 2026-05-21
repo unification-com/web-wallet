@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -46,6 +47,7 @@ export function Send() {
   const balance = useBalance(address, 'nund')
   const { submit, submitting, error, txHash, reset } = useSubmitTx()
   const queryClient = useQueryClient()
+  const { t } = useLingui()
   const [pendingValues, setPendingValues] = useState<SendFormValues | null>(null)
 
   const form = useForm<SendFormValues>({
@@ -62,7 +64,7 @@ export function Send() {
     return (
       <Card>
         <CardContent className="p-4 text-sm text-muted-foreground">
-          Unlock the vault and select an account to send.
+          <Trans>Unlock the vault and select an account to send.</Trans>
         </CardContent>
       </Card>
     )
@@ -107,11 +109,14 @@ export function Send() {
   return (
     <Card>
       <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm">Send</CardTitle>
+        <CardTitle className="text-sm">
+          <Trans>Send</Trans>
+        </CardTitle>
         {balance.data && (
           <span className="text-xs text-muted-foreground">
-            Balance: <span className="font-mono">{formatNund(balance.data.amount)}</span>{' '}
-            FUND
+            <Trans>
+              Balance: <span className="font-mono">{formatNund(balance.data.amount)}</span> FUND
+            </Trans>
           </span>
         )}
       </CardHeader>
@@ -119,11 +124,13 @@ export function Send() {
         {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3 text-sm">
           <div className="flex flex-col gap-1">
-            <Label htmlFor="send-recipient">Recipient</Label>
+            <Label htmlFor="send-recipient">
+              <Trans>Recipient</Trans>
+            </Label>
             <Input
               id="send-recipient"
               {...form.register('recipient')}
-              placeholder="und1…"
+              placeholder={t`und1…`}
               className="font-mono text-xs"
             />
             {form.formState.errors.recipient && (
@@ -134,7 +141,9 @@ export function Send() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <Label htmlFor="send-amount">Amount (FUND)</Label>
+            <Label htmlFor="send-amount">
+              <Trans>Amount (FUND)</Trans>
+            </Label>
             <Input
               id="send-amount"
               {...form.register('amountFund')}
@@ -149,7 +158,9 @@ export function Send() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <Label htmlFor="send-memo">Memo (optional)</Label>
+            <Label htmlFor="send-memo">
+              <Trans>Memo (optional)</Trans>
+            </Label>
             <Input
               id="send-memo"
               {...form.register('memo')}
@@ -158,7 +169,7 @@ export function Send() {
           </div>
 
           <Button type="submit" size="sm">
-            Continue
+            <Trans>Continue</Trans>
           </Button>
         </form>
 
@@ -170,27 +181,39 @@ export function Send() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirm send</DialogTitle>
+            <DialogTitle>
+              <Trans>Confirm send</Trans>
+            </DialogTitle>
             <DialogDescription>
-              Review the details below. Once confirmed the Tx broadcasts immediately and
-              cannot be cancelled.
+              <Trans>
+                Review the details below. Once confirmed the Tx broadcasts immediately and
+                cannot be cancelled.
+              </Trans>
             </DialogDescription>
           </DialogHeader>
           {pendingValues && (
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-              <dt className="text-muted-foreground">To</dt>
+              <dt className="text-muted-foreground">
+                <Trans>To</Trans>
+              </dt>
               <dd className="font-mono break-all">{pendingValues.recipient}</dd>
-              <dt className="text-muted-foreground">Amount</dt>
+              <dt className="text-muted-foreground">
+                <Trans>Amount</Trans>
+              </dt>
               <dd className="font-mono">
                 {pendingValues.amountFund} FUND ({fundToNund(pendingValues.amountFund)} nund)
               </dd>
               {pendingValues.memo && (
                 <>
-                  <dt className="text-muted-foreground">Memo</dt>
+                  <dt className="text-muted-foreground">
+                    <Trans>Memo</Trans>
+                  </dt>
                   <dd className="break-words">{pendingValues.memo}</dd>
                 </>
               )}
-              <dt className="text-muted-foreground">Fee</dt>
+              <dt className="text-muted-foreground">
+                <Trans>Fee</Trans>
+              </dt>
               <dd className="font-mono">20,000,000 nund</dd>
             </dl>
           )}
@@ -205,7 +228,7 @@ export function Send() {
               disabled={submitting}
               onClick={cancelConfirm}
             >
-              Back
+              <Trans>Back</Trans>
             </Button>
             <Button
               type="button"
@@ -214,7 +237,7 @@ export function Send() {
               // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={onConfirm}
             >
-              {submitting ? 'Broadcasting…' : 'Confirm + send'}
+              {submitting ? <Trans>Broadcasting…</Trans> : <Trans>Confirm + send</Trans>}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -225,7 +248,9 @@ export function Send() {
         )}
         {txHash && (
           <p className="text-xs text-green-700 break-all">
-            Sent! Tx: <span className="font-mono">{txHash}</span>
+            <Trans>
+              Sent! Tx: <span className="font-mono">{txHash}</span>
+            </Trans>
           </p>
         )}
       </CardContent>

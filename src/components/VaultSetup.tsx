@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro'
 import { useEffect, useState } from 'react'
 
 import { useVaultStore } from '@/lib/vault'
@@ -32,6 +33,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
       history.replaceState(null, '', window.location.pathname + window.location.search)
     }
   }, [step])
+  const { t } = useLingui()
   const [, setMode] = useState<Mode | null>(null)
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -55,11 +57,11 @@ export function VaultSetup({ surface }: { surface: Surface }) {
     e.preventDefault()
     setError(null)
     if (password.length < 8) {
-      setError('password must be at least 8 characters')
+      setError(t`password must be at least 8 characters`)
       return
     }
     if (password !== passwordConfirm) {
-      setError('passwords do not match')
+      setError(t`passwords do not match`)
       return
     }
     setSubmitting(true)
@@ -117,7 +119,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
     setError(null)
     const normalised = importedMnemonic.trim().replace(/\s+/g, ' ')
     if (!validateMnemonic(normalised)) {
-      setError('not a valid BIP39 mnemonic (check wordlist + checksum)')
+      setError(t`not a valid BIP39 mnemonic (check wordlist + checksum)`)
       return
     }
     setSubmitting(true)
@@ -138,19 +140,23 @@ export function VaultSetup({ surface }: { surface: Surface }) {
       const parsed = JSON.parse(text) as V1KeystoreJson
       // Minimal sniff — full validation happens in decryptV1Keystore.
       if (parsed.version !== 1 || typeof parsed.crypto !== 'object') {
-        setError('not a v1 keystore file (missing version:1 or crypto block)')
+        setError(t`not a v1 keystore file (missing version:1 or crypto block)`)
         return
       }
       setV1Json(parsed)
       setV1JsonFileName(file.name)
     } catch (err) {
-      setError(err instanceof Error ? `failed to read file: ${err.message}` : String(err))
+      setError(
+        err instanceof Error
+          ? t`failed to read file: ${err.message}`
+          : String(err),
+      )
     }
   }
 
   const finishImportV1 = async () => {
     if (!v1Json) {
-      setError('no keystore file selected')
+      setError(t`no keystore file selected`)
       return
     }
     setSubmitting(true)
@@ -167,17 +173,24 @@ export function VaultSetup({ surface }: { surface: Surface }) {
 
   return (
     <main className="p-4 flex flex-col gap-3 max-w-md mx-auto">
-      <h1 className="text-xl font-semibold">Create wallet</h1>
+      <h1 className="text-xl font-semibold">
+        <Trans>Create wallet</Trans>
+      </h1>
 
       {step === 'password' && (
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         <form onSubmit={onSetPassword} className="flex flex-col gap-2 text-sm">
           <p className="text-gray-500">
-            Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV).
-            There&apos;s no recovery — write it down somewhere safe.
+            <Trans>
+              Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV).
+              There&apos;s no recovery — write it down somewhere safe.
+            </Trans>
           </p>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- nested <input> IS the associated control + accessible text via <Trans>; lint can't see through the macro */}
           <label className="flex flex-col gap-1">
-            <span className="text-gray-500">Password (≥ 8 chars)</span>
+            <span className="text-gray-500">
+              <Trans>Password (≥ 8 chars)</Trans>
+            </span>
             <input
               type="password"
               value={password}
@@ -187,8 +200,11 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               className="border rounded px-2 py-1"
             />
           </label>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- as above; lint can't see <Trans> as accessible text */}
           <label className="flex flex-col gap-1">
-            <span className="text-gray-500">Confirm password</span>
+            <span className="text-gray-500">
+              <Trans>Confirm password</Trans>
+            </span>
             <input
               type="password"
               value={passwordConfirm}
@@ -202,21 +218,25 @@ export function VaultSetup({ surface }: { surface: Surface }) {
             disabled={submitting}
             className="bg-blue-600 text-white rounded py-1 text-sm hover:bg-blue-700 disabled:opacity-50"
           >
-            {submitting ? 'Creating…' : 'Continue'}
+            {submitting ? <Trans>Creating…</Trans> : <Trans>Continue</Trans>}
           </button>
         </form>
       )}
 
       {step === 'choose' && (
         <div className="flex flex-col gap-3 text-sm">
-          <p className="text-gray-500">How would you like to start? Pick one to continue.</p>
+          <p className="text-gray-500">
+            <Trans>How would you like to start? Pick one to continue.</Trans>
+          </p>
 
           <div className="border rounded p-3 flex flex-col gap-2 bg-gray-50">
             <fieldset className="flex flex-col gap-1 text-xs">
               <legend className="font-medium text-sm text-gray-900 mb-1">
-                Generate a new seed
+                <Trans>Generate a new seed</Trans>
               </legend>
-              <p className="text-gray-500">Create a fresh BIP39 mnemonic.</p>
+              <p className="text-gray-500">
+                <Trans>Create a fresh BIP39 mnemonic.</Trans>
+              </p>
               <label className="flex items-center gap-2 mt-1">
                 <input
                   type="radio"
@@ -224,7 +244,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
                   checked={seedSize === 128}
                   onChange={() => setSeedSize(128)}
                 />
-                <span>12 words (standard)</span>
+                <Trans>12 words (standard)</Trans>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -233,7 +253,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
                   checked={seedSize === 256}
                   onChange={() => setSeedSize(256)}
                 />
-                <span>24 words (stronger)</span>
+                <Trans>24 words (stronger)</Trans>
               </label>
             </fieldset>
             <button
@@ -241,7 +261,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={pickGenerate}
               className="bg-blue-600 text-white rounded py-1 px-3 text-sm hover:bg-blue-700"
             >
-              Generate {seedSize === 128 ? '12' : '24'}-word seed →
+              <Trans>Generate {seedSize === 128 ? '12' : '24'}-word seed →</Trans>
             </button>
           </div>
 
@@ -251,9 +271,11 @@ export function VaultSetup({ surface }: { surface: Surface }) {
             className="border rounded p-3 text-left hover:bg-gray-50 flex items-center justify-between gap-2"
           >
             <span>
-              <span className="block font-medium">Import an existing seed</span>
+              <span className="block font-medium">
+                <Trans>Import an existing seed</Trans>
+              </span>
               <span className="block text-xs text-gray-500">
-                Paste a 12 or 24 word BIP39 phrase.
+                <Trans>Paste a 12 or 24 word BIP39 phrase.</Trans>
               </span>
             </span>
             <span aria-hidden className="text-gray-400">→</span>
@@ -265,10 +287,14 @@ export function VaultSetup({ surface }: { surface: Surface }) {
             className="border rounded p-3 text-left hover:bg-gray-50 flex items-center justify-between gap-2"
           >
             <span>
-              <span className="block font-medium">Import a v1 wallet file</span>
+              <span className="block font-medium">
+                <Trans>Import a v1 wallet file</Trans>
+              </span>
               <span className="block text-xs text-gray-500">
-                Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key
-                only — v1 didn&apos;t store a mnemonic.
+                <Trans>
+                  Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key
+                  only — v1 didn&apos;t store a mnemonic.
+                </Trans>
               </span>
             </span>
             <span aria-hidden className="text-gray-400">→</span>
@@ -279,8 +305,11 @@ export function VaultSetup({ surface }: { surface: Surface }) {
       {step === 'generate-show' && (
         <div className="flex flex-col gap-3 text-sm">
           <p className="text-gray-500">
-            Write down these {seedSize === 128 ? '12' : '24'} words in order. They&apos;re the
-            only way to recover your wallet if you lose your password or device.
+            <Trans>
+              Write down these {seedSize === 128 ? '12' : '24'} words in order.
+              They&apos;re the only way to recover your wallet if you lose your password
+              or device.
+            </Trans>
           </p>
           <div className="border rounded p-3 bg-gray-50">
             <ol className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono">
@@ -299,7 +328,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onChange={(e) => setAcknowledged(e.target.checked)}
               className="mt-0.5"
             />
-            <span>I&apos;ve written the seed phrase down somewhere safe.</span>
+            <Trans>I&apos;ve written the seed phrase down somewhere safe.</Trans>
           </label>
           <div className="flex gap-2">
             <button
@@ -307,7 +336,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={() => setStep('choose')}
               className="border rounded py-1 px-3 text-sm hover:bg-gray-50"
             >
-              Back
+              <Trans>Back</Trans>
             </button>
             <button
               type="button"
@@ -316,7 +345,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={finishGenerate}
               className="bg-green-600 text-white rounded py-1 px-3 text-sm hover:bg-green-700 disabled:opacity-50"
             >
-              {submitting ? 'Finishing…' : 'Finish setup'}
+              {submitting ? <Trans>Finishing…</Trans> : <Trans>Finish setup</Trans>}
             </button>
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
@@ -326,15 +355,17 @@ export function VaultSetup({ surface }: { surface: Surface }) {
       {step === 'import-seed-paste' && (
         <div className="flex flex-col gap-3 text-sm">
           <p className="text-gray-500">
-            Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case
-            and extra whitespace are normalised automatically.
+            <Trans>
+              Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated;
+              case and extra whitespace are normalised automatically.
+            </Trans>
           </p>
           <textarea
             value={importedMnemonic}
             onChange={(e) => setImportedMnemonic(e.target.value)}
             rows={3}
             className="border rounded px-2 py-1 font-mono text-xs"
-            placeholder="word1 word2 word3 …"
+            placeholder={t`word1 word2 word3 …`}
           />
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
@@ -343,7 +374,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={() => setStep('choose')}
               className="border rounded py-1 px-3 text-sm hover:bg-gray-50"
             >
-              Back
+              <Trans>Back</Trans>
             </button>
             <button
               type="button"
@@ -352,7 +383,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={finishImportSeed}
               className="bg-green-600 text-white rounded py-1 px-3 text-sm hover:bg-green-700 disabled:opacity-50"
             >
-              {submitting ? 'Importing…' : 'Import seed'}
+              {submitting ? <Trans>Importing…</Trans> : <Trans>Import seed</Trans>}
             </button>
           </div>
         </div>
@@ -361,11 +392,15 @@ export function VaultSetup({ surface }: { surface: Surface }) {
       {step === 'import-v1-pick' && (
         <div className="flex flex-col gap-3 text-sm">
           <p className="text-gray-500">
-            Select your v1 `.json` keystore file and enter its password. The file will be
-            decrypted locally — nothing leaves your browser.
+            <Trans>
+              Select your v1 `.json` keystore file and enter its password. The file will be
+              decrypted locally — nothing leaves your browser.
+            </Trans>
           </p>
           <label className="flex flex-col gap-1">
-            <span className="text-gray-500">v1 keystore file</span>
+            <span className="text-gray-500">
+              <Trans>v1 keystore file</Trans>
+            </span>
             <input
               type="file"
               accept=".json,application/json"
@@ -376,11 +411,16 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               className="text-xs"
             />
             {v1JsonFileName && (
-              <span className="text-xs text-gray-500">Loaded: {v1JsonFileName}</span>
+              <span className="text-xs text-gray-500">
+                <Trans>Loaded: {v1JsonFileName}</Trans>
+              </span>
             )}
           </label>
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- nested <input> IS the associated control + accessible text via <Trans> */}
           <label className="flex flex-col gap-1">
-            <span className="text-gray-500">v1 keystore password</span>
+            <span className="text-gray-500">
+              <Trans>v1 keystore password</Trans>
+            </span>
             <input
               type="password"
               value={v1Password}
@@ -395,7 +435,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={() => setStep('choose')}
               className="border rounded py-1 px-3 text-sm hover:bg-gray-50"
             >
-              Back
+              <Trans>Back</Trans>
             </button>
             <button
               type="button"
@@ -404,7 +444,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               onClick={finishImportV1}
               className="bg-green-600 text-white rounded py-1 px-3 text-sm hover:bg-green-700 disabled:opacity-50"
             >
-              {submitting ? 'Importing…' : 'Import v1 keystore'}
+              {submitting ? <Trans>Importing…</Trans> : <Trans>Import v1 keystore</Trans>}
             </button>
           </div>
         </div>

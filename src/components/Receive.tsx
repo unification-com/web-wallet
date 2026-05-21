@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { Check, Copy } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
@@ -29,12 +30,16 @@ export function Receive() {
   return (
     <Card>
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-base">Receive</CardTitle>
+        <CardTitle className="text-base">
+          <Trans>Receive</Trans>
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-2 flex flex-col gap-2 items-stretch">
         <p className="text-xs text-muted-foreground">
-          Share this address or scan the QR code to receive FUND. Anyone with the address can
-          send to it; the private key never leaves your vault.
+          <Trans>
+            Share this address or scan the QR code to receive FUND. Anyone with the address
+            can send to it; the private key never leaves your vault.
+          </Trans>
         </p>
         <div className="self-center rounded border bg-white p-2">
           <QRCodeSVG value={address} size={128} level="M" />
@@ -52,12 +57,16 @@ export function Receive() {
           {copied ? (
             <>
               <Check className="h-3.5 w-3.5" />
-              <span>Copied</span>
+              <span>
+                <Trans>Copied</Trans>
+              </span>
             </>
           ) : (
             <>
               <Copy className="h-3.5 w-3.5" />
-              <span>Copy address</span>
+              <span>
+                <Trans>Copy address</Trans>
+              </span>
             </>
           )}
         </Button>

@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { crx } from '@crxjs/vite-plugin'
+import { lingui } from '@lingui/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -25,7 +26,16 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins: [
-      react(),
+      // @vitejs/plugin-react uses Babel — lingui needs `babel-plugin-macros`
+      // injected so its `<Trans>` / `t` / `msg` macro imports get transformed
+      // at build time into runtime i18n lookups. Plugin order matters: react()
+      // runs before lingui() since lingui transforms the compiled JSX.
+      react({
+        babel: {
+          plugins: ['macros'],
+        },
+      }),
+      lingui(),
       tailwindcss(),
       ...(isWebBundle ? [] : [crx({ manifest })]),
       // Set ANALYSE=1 to write dist/bundle-report.html showing the byte

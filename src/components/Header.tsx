@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro'
 import { ExternalLink, Lock, Settings as SettingsIcon } from 'lucide-react'
 
 import { AccountSwitcher } from '@/components/AccountSwitcher'
@@ -13,6 +14,7 @@ export function Header({
   onOpenSettings: () => void
 }) {
   const lock = useVaultStore((s) => s.lock)
+  const { t } = useLingui()
   const isPopup = surface === 'popup'
 
   const openInTab = () => {
@@ -26,7 +28,7 @@ export function Header({
     <header className="flex items-center justify-between gap-1">
       <div className="flex flex-col min-w-0">
         <h1 className="text-base font-semibold truncate">
-          {isPopup ? 'Wallet' : 'Unification Wallet'}
+          {isPopup ? t`Wallet` : t`Unification Wallet`}
         </h1>
         {!isPopup && (
           <span className="text-[10px] text-muted-foreground">{surface}</span>
@@ -42,7 +44,7 @@ export function Header({
             size="icon"
             onClick={openInTab}
             className="h-7 w-7"
-            title="Open in tab"
+            title={t`Open in tab`}
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </Button>
@@ -52,7 +54,7 @@ export function Header({
           size="icon"
           onClick={onOpenSettings}
           className="h-7 w-7"
-          title="Settings"
+          title={t`Settings`}
         >
           <SettingsIcon className="h-3.5 w-3.5" />
         </Button>
@@ -61,7 +63,7 @@ export function Header({
           size="icon"
           onClick={lock}
           className="h-7 w-7"
-          title="Lock wallet"
+          title={t`Lock wallet`}
         >
           <Lock className="h-3.5 w-3.5" />
         </Button>

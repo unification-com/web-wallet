@@ -1,0 +1,632 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-05-21 13:17+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: ping.height.toLocaleString()
+#: src/components/Settings.tsx
+msgid "· height {0}"
+msgstr "· height {0}"
+
+#: src/components/AddSignerCard.tsx
+msgid "(opens tab)"
+msgstr "(opens tab)"
+
+#. placeholder {0}: seed.accounts.length
+#. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
+#: src/components/VaultEntryManager.tsx
+msgid "{0} account{1}"
+msgstr "{0} account{1}"
+
+#: src/components/VaultEntryManager.tsx
+msgid "{seedLabel} — seed phrase"
+msgstr "{seedLabel} — seed phrase"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "12 words (standard)"
+msgstr "12 words (standard)"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "24 words (stronger)"
+msgstr "24 words (stronger)"
+
+#: src/components/AddSignerCard.tsx
+msgid "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
+msgstr "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
+
+#: src/components/AccountSwitcher.tsx
+msgid "Accounts"
+msgstr "Accounts"
+
+#: src/components/AccountSwitcher.tsx
+#: src/components/Settings.tsx
+msgid "ACTIVE"
+msgstr "ACTIVE"
+
+#: src/components/AddSignerCard.tsx
+msgid "Add a fresh seed, recover an existing one, or import a v1 `.json` keystore into this vault. All entries share the same password and auto-lock timer."
+msgstr "Add a fresh seed, recover an existing one, or import a v1 `.json` keystore into this vault. All entries share the same password and auto-lock timer."
+
+#: src/components/AccountSwitcher.tsx
+msgid "Add account"
+msgstr "Add account"
+
+#: src/components/AddSignerCard.tsx
+msgid "Add another"
+msgstr "Add another"
+
+#: src/components/Settings.tsx
+msgid "Add custom endpoint"
+msgstr "Add custom endpoint"
+
+#: src/components/AccountSwitcher.tsx
+msgid "Adding…"
+msgstr "Adding…"
+
+#. placeholder {0}: seed.accounts.length
+#. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
+#: src/components/VaultEntryManager.tsx
+msgid "All {0} derived account{1} will be removed from the vault."
+msgstr "All {0} derived account{1} will be removed from the vault."
+
+#: src/components/Send.tsx
+msgid "Amount"
+msgstr "Amount"
+
+#: src/components/Send.tsx
+msgid "Amount (FUND)"
+msgstr "Amount (FUND)"
+
+#: src/components/Send.tsx
+#: src/components/Settings.tsx
+#: src/components/VaultSetup.tsx
+msgid "Back"
+msgstr "Back"
+
+#. placeholder {0}: formatNund(balance.data.amount)
+#: src/components/Send.tsx
+msgid "Balance: <0>{0}</0> FUND"
+msgstr "Balance: <0>{0}</0> FUND"
+
+#: src/components/Settings.tsx
+msgid "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
+msgstr "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
+
+#: src/components/Send.tsx
+msgid "Broadcasting…"
+msgstr "Broadcasting…"
+
+#: src/components/Settings.tsx
+msgid "Built-in"
+msgstr "Built-in"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#. placeholder {0}: ping.chainId ?? ''
+#: src/components/Settings.tsx
+msgid "Chain <0>{0}</0>"
+msgstr "Chain <0>{0}</0>"
+
+#: src/App.tsx
+msgid "Chain ID"
+msgstr "Chain ID"
+
+#. placeholder {0}: add.rpcPing.chainId
+#. placeholder {1}: add.restPing.chainId ?? ''
+#: src/components/Settings.tsx
+msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+
+#: src/components/EndpointSwitcher.tsx
+msgid "click to switch"
+msgstr "click to switch"
+
+#: src/components/AccountSwitcher.tsx
+msgid "click to switch account"
+msgstr "click to switch account"
+
+#: src/components/Send.tsx
+msgid "Confirm + send"
+msgstr "Confirm + send"
+
+#: src/components/VaultSetup.tsx
+msgid "Confirm password"
+msgstr "Confirm password"
+
+#: src/components/Send.tsx
+msgid "Confirm send"
+msgstr "Confirm send"
+
+#: src/App.tsx
+msgid "Connecting…"
+msgstr "Connecting…"
+
+#: src/components/Send.tsx
+#: src/components/VaultSetup.tsx
+msgid "Continue"
+msgstr "Continue"
+
+#: src/components/Receive.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Copied"
+msgstr "Copied"
+
+#: src/components/Receive.tsx
+msgid "Copy address"
+msgstr "Copy address"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Copy phrase"
+msgstr "Copy phrase"
+
+#: src/components/VaultSetup.tsx
+msgid "Create a fresh BIP39 mnemonic."
+msgstr "Create a fresh BIP39 mnemonic."
+
+#: src/components/VaultSetup.tsx
+msgid "Create wallet"
+msgstr "Create wallet"
+
+#: src/components/VaultSetup.tsx
+msgid "Creating…"
+msgstr "Creating…"
+
+#: src/components/Settings.tsx
+msgid "Custom"
+msgstr "Custom"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete"
+msgstr "Delete"
+
+#. placeholder {0}: entry.label
+#. placeholder {0}: seed.label
+#: src/components/VaultEntryManager.tsx
+msgid "Delete \"{0}\"?"
+msgstr "Delete \"{0}\"?"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete key"
+msgstr "Delete key"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete seed"
+msgstr "Delete seed"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Deleting…"
+msgstr "Deleting…"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
+msgstr "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Done"
+msgstr "Done"
+
+#: src/components/UnlockScreen.tsx
+msgid "Enter your password"
+msgstr "Enter your password"
+
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/App.tsx
+msgid "Failed to connect: {0}"
+msgstr "Failed to connect: {0}"
+
+#: src/components/Settings.tsx
+msgid "failed to reach endpoint"
+msgstr "failed to reach endpoint"
+
+#. placeholder {0}: err.message
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "failed to read file: {0}"
+msgstr "failed to read file: {0}"
+
+#: src/components/Send.tsx
+msgid "Fee"
+msgstr "Fee"
+
+#: src/components/VaultSetup.tsx
+msgid "Finish setup"
+msgstr "Finish setup"
+
+#: src/components/VaultSetup.tsx
+msgid "Finishing…"
+msgstr "Finishing…"
+
+#: src/components/UnlockScreen.tsx
+msgid "Forgot your password?"
+msgstr "Forgot your password?"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/AddSignerCard.tsx
+msgid "Generate {0} words"
+msgstr "Generate {0} words"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/VaultSetup.tsx
+msgid "Generate {0}-word seed →"
+msgstr "Generate {0}-word seed →"
+
+#: src/components/VaultSetup.tsx
+msgid "Generate a new seed"
+msgstr "Generate a new seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Generate new seed"
+msgstr "Generate new seed"
+
+#: src/App.tsx
+msgid "Height"
+msgstr "Height"
+
+#: src/components/VaultSetup.tsx
+msgid "How would you like to start? Pick one to continue."
+msgstr "How would you like to start? Pick one to continue."
+
+#: src/components/Settings.tsx
+msgid "https://… or http://localhost:26657"
+msgstr "https://… or http://localhost:26657"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "I've written the seed phrase down somewhere safe."
+msgstr "I've written the seed phrase down somewhere safe."
+
+#: src/components/VaultSetup.tsx
+msgid "Import a v1 wallet file"
+msgstr "Import a v1 wallet file"
+
+#: src/components/VaultSetup.tsx
+msgid "Import an existing seed"
+msgstr "Import an existing seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import existing seed"
+msgstr "Import existing seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import keystore"
+msgstr "Import keystore"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Import seed"
+msgstr "Import seed"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Import v1 keystore"
+msgstr "Import v1 keystore"
+
+#: src/components/AccountSwitcher.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Imported keys"
+msgstr "Imported keys"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Importing…"
+msgstr "Importing…"
+
+#: src/components/Settings.tsx
+msgid "Label"
+msgstr "Label"
+
+#: src/components/VaultEntryManager.tsx
+msgid "label is required"
+msgstr "label is required"
+
+#: src/components/AddSignerCard.tsx
+msgid "Loaded: {fileName}"
+msgstr "Loaded: {fileName}"
+
+#: src/components/VaultSetup.tsx
+msgid "Loaded: {v1JsonFileName}"
+msgstr "Loaded: {v1JsonFileName}"
+
+#: src/components/Header.tsx
+msgid "Lock wallet"
+msgstr "Lock wallet"
+
+#: src/components/Send.tsx
+msgid "Memo"
+msgstr "Memo"
+
+#: src/components/Send.tsx
+msgid "Memo (optional)"
+msgstr "Memo (optional)"
+
+#: src/components/VaultSetup.tsx
+msgid "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key only — v1 didn't store a mnemonic."
+msgstr "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key only — v1 didn't store a mnemonic."
+
+#: src/components/AddSignerCard.tsx
+msgid "Mnemonic"
+msgstr "Mnemonic"
+
+#: src/components/Settings.tsx
+msgid "My DevNet"
+msgstr "My DevNet"
+
+#: src/components/Settings.tsx
+msgid "Network endpoints"
+msgstr "Network endpoints"
+
+#: src/App.tsx
+msgid "Network:"
+msgstr "Network:"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "no keystore file selected"
+msgstr "no keystore file selected"
+
+#: src/components/VaultEntryManager.tsx
+msgid "No seeds or imported keys yet — use Add another above to start."
+msgstr "No seeds or imported keys yet — use Add another above to start."
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "not a v1 keystore file (missing version:1 or crypto block)"
+msgstr "not a v1 keystore file (missing version:1 or crypto block)"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "not a valid BIP39 mnemonic (check wordlist + checksum)"
+msgstr "not a valid BIP39 mnemonic (check wordlist + checksum)"
+
+#: src/components/Header.tsx
+msgid "Open in tab"
+msgstr "Open in tab"
+
+#: src/components/UnlockScreen.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Password"
+msgstr "Password"
+
+#: src/components/VaultSetup.tsx
+msgid "Password (≥ 8 chars)"
+msgstr "Password (≥ 8 chars)"
+
+#: src/components/VaultSetup.tsx
+msgid "password must be at least 8 characters"
+msgstr "password must be at least 8 characters"
+
+#: src/components/VaultSetup.tsx
+msgid "passwords do not match"
+msgstr "passwords do not match"
+
+#: src/components/VaultSetup.tsx
+msgid "Paste a 12 or 24 word BIP39 phrase."
+msgstr "Paste a 12 or 24 word BIP39 phrase."
+
+#: src/components/AddSignerCard.tsx
+msgid "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
+msgstr "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
+
+#: src/components/VaultSetup.tsx
+msgid "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
+msgstr "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the seed phrase."
+msgstr "Re-enter your wallet password to reveal the seed phrase."
+
+#: src/components/Receive.tsx
+msgid "Receive"
+msgstr "Receive"
+
+#: src/components/Send.tsx
+msgid "Recipient"
+msgstr "Recipient"
+
+#: src/components/Settings.tsx
+msgid "Remove endpoint"
+msgstr "Remove endpoint"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename account"
+msgstr "Rename account"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename key"
+msgstr "Rename key"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename seed"
+msgstr "Rename seed"
+
+#: src/components/UnlockScreen.tsx
+msgid "Reset the wallet? This wipes the encrypted vault permanently."
+msgstr "Reset the wallet? This wipes the encrypted vault permanently."
+
+#: src/components/UnlockScreen.tsx
+msgid "Reset wallet"
+msgstr "Reset wallet"
+
+#: src/components/Settings.tsx
+msgid "REST URL"
+msgstr "REST URL"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal"
+msgstr "Reveal"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal seed phrase"
+msgstr "Reveal seed phrase"
+
+#: src/components/Send.tsx
+msgid "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
+msgstr "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
+
+#: src/components/Settings.tsx
+msgid "RPC URL"
+msgstr "RPC URL"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Save"
+msgstr "Save"
+
+#: src/components/Settings.tsx
+msgid "Save endpoint"
+msgstr "Save endpoint"
+
+#: src/components/AddSignerCard.tsx
+msgid "Save seed"
+msgstr "Save seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Saving…"
+msgstr "Saving…"
+
+#: src/components/AddSignerCard.tsx
+msgid "Seed phrase length"
+msgstr "Seed phrase length"
+
+#: src/components/AddSignerCard.tsx
+msgid "Select a v1 `.json` keystore file and enter its password. Decryption happens locally; nothing leaves your browser."
+msgstr "Select a v1 `.json` keystore file and enter its password. Decryption happens locally; nothing leaves your browser."
+
+#: src/components/VaultSetup.tsx
+msgid "Select your v1 `.json` keystore file and enter its password. The file will be decrypted locally — nothing leaves your browser."
+msgstr "Select your v1 `.json` keystore file and enter its password. The file will be decrypted locally — nothing leaves your browser."
+
+#: src/components/Send.tsx
+msgid "Send"
+msgstr "Send"
+
+#: src/components/Send.tsx
+msgid "Sent! Tx: <0>{txHash}</0>"
+msgstr "Sent! Tx: <0>{txHash}</0>"
+
+#: src/components/VaultSetup.tsx
+msgid "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
+msgstr "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
+
+#: src/components/Header.tsx
+#: src/components/Settings.tsx
+msgid "Settings"
+msgstr "Settings"
+
+#: src/components/Receive.tsx
+msgid "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+
+#: src/components/AccountSwitcher.tsx
+msgid "Switch between accounts derived from your seeds or imported keys."
+msgstr "Switch between accounts derived from your seeds or imported keys."
+
+#: src/components/Settings.tsx
+msgid "Test connection"
+msgstr "Test connection"
+
+#: src/components/Settings.tsx
+msgid "Testing…"
+msgstr "Testing…"
+
+#: src/components/VaultEntryManager.tsx
+msgid "The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable."
+msgstr "The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable."
+
+#: src/components/VaultEntryManager.tsx
+msgid "The private key will be removed from the vault."
+msgstr "The private key will be removed from the vault."
+
+#: src/components/VaultEntryManager.tsx
+msgid "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
+msgstr "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
+
+#: src/components/UnlockScreen.tsx
+msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
+msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
+
+#: src/components/Send.tsx
+msgid "To"
+msgstr "To"
+
+#: src/components/Send.tsx
+msgid "und1…"
+msgstr "und1…"
+
+#: src/components/Header.tsx
+msgid "Unification Wallet"
+msgstr "Unification Wallet"
+
+#: src/components/UnlockScreen.tsx
+msgid "Unlock"
+msgstr "Unlock"
+
+#: src/components/Send.tsx
+msgid "Unlock the vault and select an account to send."
+msgstr "Unlock the vault and select an account to send."
+
+#: src/components/UnlockScreen.tsx
+msgid "Unlock wallet"
+msgstr "Unlock wallet"
+
+#: src/components/UnlockScreen.tsx
+msgid "Unlocking…"
+msgstr "Unlocking…"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "v1 keystore file"
+msgstr "v1 keystore file"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "v1 keystore password"
+msgstr "v1 keystore password"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Vault entries"
+msgstr "Vault entries"
+
+#: src/components/Settings.tsx
+msgid "Verifying…"
+msgstr "Verifying…"
+
+#: src/components/Header.tsx
+msgid "Wallet"
+msgstr "Wallet"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "word1 word2 word3 …"
+msgstr "word1 word2 word3 …"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/VaultSetup.tsx
+msgid "Write down these {0} words in order. They're the only way to recover your wallet if you lose your password or device."
+msgstr "Write down these {0} words in order. They're the only way to recover your wallet if you lose your password or device."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed."
+msgstr "Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed."
+
+#: src/components/AddSignerCard.tsx
+msgid "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
+msgstr "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
+
+#: src/components/VaultEntryManager.tsx
+msgid "wrong password"
+msgstr "wrong password"

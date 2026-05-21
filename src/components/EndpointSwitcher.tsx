@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro'
 import { useEffect, useRef, useState } from 'react'
 
 import {
@@ -17,6 +18,7 @@ export function EndpointSwitcher() {
   const active = useActiveEndpoint()
   const customEndpoints = useVaultStore((s) => s.vault?.customEndpoints ?? [])
   const setActiveEndpoint = useVaultStore((s) => s.setActiveEndpoint)
+  const { t } = useLingui()
 
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -63,7 +65,7 @@ export function EndpointSwitcher() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        title={`${active.label} (${active.source}) — click to switch`}
+        title={`${active.label} (${active.source}) — ${t`click to switch`}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs"

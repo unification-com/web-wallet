@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro'
 import { Check, Eye, Pencil, Trash2, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -39,12 +40,14 @@ export function VaultEntryManager({
       <AddSignerCard surface={surface} />
       <Card>
         <CardHeader className="p-4 pb-2">
-          <CardTitle className="text-sm">Vault entries</CardTitle>
+          <CardTitle className="text-sm">
+            <Trans>Vault entries</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex flex-col gap-4 text-xs">
           {seeds.length === 0 && importedKeys.length === 0 && (
             <p className="text-muted-foreground italic">
-              No seeds or imported keys yet — use Add another above to start.
+              <Trans>No seeds or imported keys yet — use Add another above to start.</Trans>
             </p>
           )}
 
@@ -55,7 +58,7 @@ export function VaultEntryManager({
           {importedKeys.length > 0 && (
             <section className="flex flex-col gap-2 border-t pt-3">
               <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Imported keys
+                <Trans>Imported keys</Trans>
               </h3>
               <ul className="flex flex-col gap-1">
                 {importedKeys.map((k) => (
@@ -83,13 +86,14 @@ function InlineRename({
   onSave: (next: string) => Promise<void>
   onCancel: () => void
 }) {
+  const { t } = useLingui()
   const [value, setValue] = useState(current)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const save = async () => {
     if (!value.trim()) {
-      setError('label is required')
+      setError(t`label is required`)
       return
     }
     setBusy(true)
@@ -124,7 +128,7 @@ function InlineRename({
         disabled={busy}
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={save}
-        title="Save"
+        title={t`Save`}
       >
         <Check className="h-3.5 w-3.5" />
       </Button>
@@ -135,7 +139,7 @@ function InlineRename({
         className="h-7 w-7"
         disabled={busy}
         onClick={onCancel}
-        title="Cancel"
+        title={t`Cancel`}
       >
         <X className="h-3.5 w-3.5" />
       </Button>
@@ -177,7 +181,7 @@ function ConfirmDelete({
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" size="sm" disabled={busy} onClick={onCancel}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button
             variant="destructive"
@@ -186,7 +190,7 @@ function ConfirmDelete({
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onClick={onConfirm}
           >
-            {busy ? 'Deleting…' : 'Delete'}
+            {busy ? <Trans>Deleting…</Trans> : <Trans>Delete</Trans>}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -201,6 +205,7 @@ function ConfirmDelete({
 function SeedRow({ seed }: { seed: SeedEntry }) {
   const renameSeed = useVaultStore((s) => s.renameSeed)
   const removeSeed = useVaultStore((s) => s.removeSeed)
+  const { t } = useLingui()
 
   const [renaming, setRenaming] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -234,7 +239,9 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
             <div className="flex flex-col">
               <span className="text-xs font-medium">{seed.label}</span>
               <span className="text-[10px] text-muted-foreground">
-                {seed.accounts.length} account{seed.accounts.length === 1 ? '' : 's'}
+                <Trans>
+                  {seed.accounts.length} account{seed.accounts.length === 1 ? '' : 's'}
+                </Trans>
               </span>
             </div>
             <div className="flex gap-0.5">
@@ -243,7 +250,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => setRevealOpen(true)}
-                title="Reveal seed phrase"
+                title={t`Reveal seed phrase`}
               >
                 <Eye className="h-3 w-3" />
               </Button>
@@ -252,7 +259,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => setRenaming(true)}
-                title="Rename seed"
+                title={t`Rename seed`}
               >
                 <Pencil className="h-3 w-3" />
               </Button>
@@ -261,7 +268,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 size="icon"
                 className="h-6 w-6 text-muted-foreground hover:text-destructive"
                 onClick={() => setConfirmDelete(true)}
-                title="Delete seed"
+                title={t`Delete seed`}
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -276,14 +283,14 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
       </ul>
       <ConfirmDelete
         open={confirmDelete}
-        title={`Delete "${seed.label}"?`}
+        title={t`Delete "${seed.label}"?`}
         description={
-          <>
+          <Trans>
             All {seed.accounts.length} derived account
             {seed.accounts.length === 1 ? '' : 's'} will be removed from the vault.
-          </>
+          </Trans>
         }
-        warning="The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
+        warning={t`The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable.`}
         busy={deleting}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={onDelete}
@@ -314,6 +321,7 @@ function RevealSeedDialog({
   mnemonic: string
 }) {
   const verifyPassword = useVaultStore((s) => s.verifyPassword)
+  const { t } = useLingui()
   const [password, setPassword] = useState('')
   const [verified, setVerified] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -334,7 +342,7 @@ function RevealSeedDialog({
       setVerified(true)
       setError(null)
     } else {
-      setError('wrong password')
+      setError(t`wrong password`)
     }
   }
 
@@ -357,18 +365,27 @@ function RevealSeedDialog({
     <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{seedLabel} — seed phrase</DialogTitle>
+          <DialogTitle>
+            <Trans>{seedLabel} — seed phrase</Trans>
+          </DialogTitle>
           <DialogDescription>
-            {verified
-              ? 'Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed.'
-              : 'Re-enter your wallet password to reveal the seed phrase.'}
+            {verified ? (
+              <Trans>
+                Write these words down somewhere safe. Anyone with this phrase can spend
+                funds at any account derived from this seed.
+              </Trans>
+            ) : (
+              <Trans>Re-enter your wallet password to reveal the seed phrase.</Trans>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {!verified && (
           <form onSubmit={onVerify} className="flex flex-col gap-2">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="reveal-password">Password</Label>
+              <Label htmlFor="reveal-password">
+                <Trans>Password</Trans>
+              </Label>
               <Input
                 id="reveal-password"
                 type="password"
@@ -381,10 +398,10 @@ function RevealSeedDialog({
             </div>
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" size="sm" onClick={handleClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button type="submit" size="sm" disabled={password.length === 0}>
-                Reveal
+                <Trans>Reveal</Trans>
               </Button>
             </DialogFooter>
           </form>
@@ -393,8 +410,10 @@ function RevealSeedDialog({
         {verified && (
           <div className="flex flex-col gap-2">
             <div className="rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
-              Do not share. Do not screenshot. The seed gives full control of every account
-              derived from it.
+              <Trans>
+                Do not share. Do not screenshot. The seed gives full control of every
+                account derived from it.
+              </Trans>
             </div>
             <ol className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono rounded border bg-muted p-3">
               {mnemonic.split(' ').map((word, i) => (
@@ -415,14 +434,14 @@ function RevealSeedDialog({
                 {copied ? (
                   <>
                     <Check className="h-3.5 w-3.5" />
-                    Copied
+                    <Trans>Copied</Trans>
                   </>
                 ) : (
-                  'Copy phrase'
+                  <Trans>Copy phrase</Trans>
                 )}
               </Button>
               <Button type="button" size="sm" onClick={handleClose}>
-                Done
+                <Trans>Done</Trans>
               </Button>
             </DialogFooter>
           </div>
@@ -434,6 +453,7 @@ function RevealSeedDialog({
 
 function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount }) {
   const renameSeedAccount = useVaultStore((s) => s.renameSeedAccount)
+  const { t } = useLingui()
   const [renaming, setRenaming] = useState(false)
 
   return (
@@ -460,7 +480,7 @@ function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount 
             size="icon"
             className="h-6 w-6"
             onClick={() => setRenaming(true)}
-            title="Rename account"
+            title={t`Rename account`}
           >
             <Pencil className="h-3 w-3" />
           </Button>
@@ -477,6 +497,7 @@ function AccountRow({ seedId, account }: { seedId: string; account: SeedAccount 
 function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
   const renameImportedKey = useVaultStore((s) => s.renameImportedKey)
   const removeImportedKey = useVaultStore((s) => s.removeImportedKey)
+  const { t } = useLingui()
 
   const [renaming, setRenaming] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -517,7 +538,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               size="icon"
               className="h-6 w-6"
               onClick={() => setRenaming(true)}
-              title="Rename key"
+              title={t`Rename key`}
             >
               <Pencil className="h-3 w-3" />
             </Button>
@@ -526,7 +547,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               size="icon"
               className="h-6 w-6 text-muted-foreground hover:text-destructive"
               onClick={() => setConfirmDelete(true)}
-              title="Delete key"
+              title={t`Delete key`}
             >
               <Trash2 className="h-3 w-3" />
             </Button>
@@ -535,9 +556,9 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
       )}
       <ConfirmDelete
         open={confirmDelete}
-        title={`Delete "${entry.label}"?`}
-        description={<>The private key will be removed from the vault.</>}
-        warning="The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable."
+        title={t`Delete "${entry.label}"?`}
+        description={<Trans>The private key will be removed from the vault.</Trans>}
+        warning={t`The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable.`}
         busy={deleting}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={onDelete}

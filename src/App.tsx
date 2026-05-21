@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro'
 import { useEffect, useState } from 'react'
 
 import { Header } from '@/components/Header'
@@ -89,20 +90,32 @@ function UnlockedShell({ surface }: { surface: Surface }) {
       <Card>
         <CardContent className="p-4 flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">Network:</span>
+            <span className="text-muted-foreground">
+              <Trans>Network:</Trans>
+            </span>
             <span className="font-medium">{endpoint.label}</span>
           </div>
-          {isLoading && <p className="text-muted-foreground">Connecting…</p>}
+          {isLoading && (
+            <p className="text-muted-foreground">
+              <Trans>Connecting…</Trans>
+            </p>
+          )}
           {isError && (
             <p className="text-destructive">
-              Failed to connect: {error instanceof Error ? error.message : String(error)}
+              <Trans>
+                Failed to connect: {error instanceof Error ? error.message : String(error)}
+              </Trans>
             </p>
           )}
           {data && (
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-              <dt className="text-muted-foreground">Chain ID</dt>
+              <dt className="text-muted-foreground">
+                <Trans>Chain ID</Trans>
+              </dt>
               <dd className="font-mono">{data.chainId}</dd>
-              <dt className="text-muted-foreground">Height</dt>
+              <dt className="text-muted-foreground">
+                <Trans>Height</Trans>
+              </dt>
               <dd className="font-mono">{data.height.toLocaleString()}</dd>
             </dl>
           )}
