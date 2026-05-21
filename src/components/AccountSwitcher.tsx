@@ -35,7 +35,7 @@ function isActive(active: VaultSignerRef | undefined, ref: VaultSignerRef): bool
  * account" button derives the next HD index via `addAccountToSeed`. Rename
  * + delete affordances deferred to a focused follow-up.
  */
-export function AccountSwitcher() {
+export function AccountSwitcher({ compact = false }: { compact?: boolean } = {}) {
   const { address } = useActiveSigner()
   const seeds = useVaultStore((s) => s.vault?.seeds ?? [])
   const importedKeys = useVaultStore((s) => s.vault?.importedKeys ?? [])
@@ -83,7 +83,7 @@ export function AccountSwitcher() {
           className="font-mono text-xs h-7 px-2"
           title={`${address} — click to switch account`}
         >
-          {truncate(address)}
+          {compact ? truncate(address, 5, 4) : truncate(address)}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

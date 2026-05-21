@@ -1,4 +1,4 @@
-import { Settings as SettingsIcon } from 'lucide-react'
+import { ExternalLink, Lock, Settings as SettingsIcon } from 'lucide-react'
 
 import { AccountSwitcher } from '@/components/AccountSwitcher'
 import { EndpointSwitcher } from '@/components/EndpointSwitcher'
@@ -13,17 +13,40 @@ export function Header({
   onOpenSettings: () => void
 }) {
   const lock = useVaultStore((s) => s.lock)
+  const isPopup = surface === 'popup'
+
+  const openInTab = () => {
+    if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
+      void chrome.tabs.create({ url: chrome.runtime.getURL('standalone.html') })
+      window.close()
+    }
+  }
 
   return (
-    <header className="flex items-center justify-between gap-2">
-      <div className="flex flex-col">
-        <h1 className="text-base font-semibold">Unification Wallet</h1>
-        <span className="text-[10px] text-gray-400">{surface}</span>
+    <header className="flex items-center justify-between gap-1">
+      <div className="flex flex-col min-w-0">
+        <h1 className="text-base font-semibold truncate">
+          {isPopup ? 'Wallet' : 'Unification Wallet'}
+        </h1>
+        {!isPopup && (
+          <span className="text-[10px] text-muted-foreground">{surface}</span>
+        )}
       </div>
 
-      <div className="flex items-center gap-2 text-xs">
+      <div className="flex items-center gap-1 text-xs">
         <EndpointSwitcher />
-        <AccountSwitcher />
+        <AccountSwitcher compact={isPopup} />
+        {isPopup && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={openInTab}
+            className="h-7 w-7"
+            title="Open in tab"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -33,13 +56,15 @@ export function Header({
         >
           <SettingsIcon className="h-3.5 w-3.5" />
         </Button>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={lock}
-          className="text-gray-500 hover:text-gray-900 underline"
+          className="h-7 w-7"
+          title="Lock wallet"
         >
-          Lock
-        </button>
+          <Lock className="h-3.5 w-3.5" />
+        </Button>
       </div>
     </header>
   )
