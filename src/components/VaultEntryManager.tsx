@@ -1,6 +1,7 @@
 import { Check, Eye, Pencil, Trash2, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
+import { AddSignerCard } from '@/components/AddSignerCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -25,40 +26,47 @@ import type { ImportedKeyEntry, SeedAccount, SeedEntry } from '@/lib/vault/types
  * (handled atomically inside the store actions). Confirm Dialog is mandatory
  * for every delete path.
  */
-export function VaultEntryManager() {
+export function VaultEntryManager({
+  surface,
+}: {
+  surface: 'popup' | 'standalone' | 'web'
+}) {
   const seeds = useVaultStore((s) => s.vault?.seeds ?? [])
   const importedKeys = useVaultStore((s) => s.vault?.importedKeys ?? [])
 
   return (
-    <Card>
-      <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-sm">Vault entries</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-2 flex flex-col gap-4 text-xs">
-        {seeds.length === 0 && importedKeys.length === 0 && (
-          <p className="text-muted-foreground italic">
-            No seeds or imported keys yet — head back to setup to add one.
-          </p>
-        )}
+    <div className="flex flex-col gap-4">
+      <AddSignerCard surface={surface} />
+      <Card>
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-sm">Vault entries</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-2 flex flex-col gap-4 text-xs">
+          {seeds.length === 0 && importedKeys.length === 0 && (
+            <p className="text-muted-foreground italic">
+              No seeds or imported keys yet — use Add another above to start.
+            </p>
+          )}
 
-        {seeds.map((seed) => (
-          <SeedRow key={seed.id} seed={seed} />
-        ))}
+          {seeds.map((seed) => (
+            <SeedRow key={seed.id} seed={seed} />
+          ))}
 
-        {importedKeys.length > 0 && (
-          <section className="flex flex-col gap-2 border-t pt-3">
-            <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Imported keys
-            </h3>
-            <ul className="flex flex-col gap-1">
-              {importedKeys.map((k) => (
-                <ImportedKeyRow key={k.id} entry={k} />
-              ))}
-            </ul>
-          </section>
-        )}
-      </CardContent>
-    </Card>
+          {importedKeys.length > 0 && (
+            <section className="flex flex-col gap-2 border-t pt-3">
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Imported keys
+              </h3>
+              <ul className="flex flex-col gap-1">
+                {importedKeys.map((k) => (
+                  <ImportedKeyRow key={k.id} entry={k} />
+                ))}
+              </ul>
+            </section>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

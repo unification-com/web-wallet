@@ -33,7 +33,13 @@ const emptyAdd = (): AddState => ({
   error: null,
 })
 
-export function Settings({ onBack }: { onBack: () => void }) {
+export function Settings({
+  onBack,
+  surface,
+}: {
+  onBack: () => void
+  surface: 'popup' | 'standalone' | 'web'
+}) {
   const active = useActiveEndpoint()
   const customEndpoints = useVaultStore((s) => s.vault?.customEndpoints ?? [])
   const addCustomEndpoint = useVaultStore((s) => s.addCustomEndpoint)
@@ -226,7 +232,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
         </CardContent>
       </Card>
 
-      <VaultEntryManager />
+      <VaultEntryManager surface={surface} />
     </main>
   )
 }
