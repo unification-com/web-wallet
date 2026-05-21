@@ -172,6 +172,14 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     async hydrate() {
       const blob = await loadEncryptedVault()
+      // Don't clobber an unlocked session. The chrome.storage.onChanged
+      // listener can fire from our OWN write during createVault — at the
+      // moment the listener queues hydrate, status is still 'no-vault', so
+      // the listener calls hydrate. Hydrate's storage read suspends while
+      // createVault's sync continuation flips status to 'unlocked'. By the
+      // time hydrate's read resolves, the user IS unlocked — we mustn't
+      // overwrite that with 'locked' just because the blob now exists.
+      if (get().status === 'unlocked') return
       set({ status: blob === null ? 'no-vault' : 'locked' })
     },
 
