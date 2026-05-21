@@ -184,3 +184,39 @@ export async function pingNodeInfo(rpc: string): Promise<PingResult> {
     client.disconnect()
   }
 }
+
+/**
+ * REST-side counterpart of `pingNodeInfo`. Hits the standard SDK endpoints:
+ *   - `/cosmos/base/tendermint/v1beta1/node_info` → `default_node_info.network`
+ *   - `/cosmos/base/tendermint/v1beta1/blocks/latest` → `block.header.height`
+ *
+ * Used by the Add-custom-endpoint form to cross-check that the REST URL is
+ * on the same chain as the RPC URL (and to surface the chain ID inline).
+ */
+export async function pingRestNodeInfo(rest: string): Promise<PingResult> {
+  const base = rest.replace(/\/$/, '')
+  const nodeInfoRes = await fetch(`${base}/cosmos/base/tendermint/v1beta1/node_info`)
+  if (!nodeInfoRes.ok) {
+    throw new Error(`REST node_info request failed: ${nodeInfoRes.status} ${nodeInfoRes.statusText}`)
+  }
+  const nodeInfo = (await nodeInfoRes.json()) as {
+    default_node_info?: { network?: string }
+  }
+  const chainId = nodeInfo.default_node_info?.network
+  if (!chainId) {
+    throw new Error('REST response missing default_node_info.network (chain ID)')
+  }
+  // Best-effort height — failure here doesn't invalidate the chain ID check.
+  let height = 0
+  try {
+    const blockRes = await fetch(`${base}/cosmos/base/tendermint/v1beta1/blocks/latest`)
+    if (blockRes.ok) {
+      const blockJson = (await blockRes.json()) as { block?: { header?: { height?: string } } }
+      const h = blockJson.block?.header?.height
+      if (h) height = Number.parseInt(h, 10)
+    }
+  } catch {
+    // ignore — height is informational
+  }
+  return { chainId, height }
+}

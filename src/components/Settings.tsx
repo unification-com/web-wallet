@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Trash2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Check, Loader2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -9,28 +9,38 @@ import { VaultEntryManager } from '@/components/VaultEntryManager'
 import {
   listBuiltInEndpoints,
   pingNodeInfo,
+  pingRestNodeInfo,
   validateEndpointUrl,
   useActiveEndpoint,
   type ChainEndpoint,
 } from '@/lib/chain'
 import { useVaultStore } from '@/lib/vault'
 
+interface PerEndpointPing {
+  status: 'idle' | 'pinging' | 'ok' | 'error'
+  chainId?: string
+  height?: number
+  error?: string
+}
+
 interface AddState {
   label: string
   rpc: string
   rest: string
-  pinging: boolean
-  pingResult: { chainId: string; height: number } | null
-  error: string | null
+  rpcPing: PerEndpointPing
+  restPing: PerEndpointPing
+  saveError: string | null
 }
+
+const idlePing: PerEndpointPing = { status: 'idle' }
 
 const emptyAdd = (): AddState => ({
   label: '',
   rpc: '',
   rest: '',
-  pinging: false,
-  pingResult: null,
-  error: null,
+  rpcPing: idlePing,
+  restPing: idlePing,
+  saveError: null,
 })
 
 export function Settings({
@@ -50,43 +60,75 @@ export function Settings({
 
   const builtIn = listBuiltInEndpoints()
 
-  const onPing = async () => {
-    const validation = validateEndpointUrl(add.rpc)
-    if (!validation.ok) {
-      setAdd({ ...add, error: validation.reason ?? 'invalid URL', pingResult: null })
+  const chainIdMismatch =
+    add.rpcPing.status === 'ok' &&
+    add.restPing.status === 'ok' &&
+    add.rpcPing.chainId !== add.restPing.chainId
+
+  const canSave =
+    add.label.trim().length > 0 &&
+    add.rpcPing.status === 'ok' &&
+    (add.rest.trim().length === 0 || add.restPing.status === 'ok') &&
+    !chainIdMismatch
+
+  const pingRpc = async (url: string) => {
+    if (!url.trim()) {
+      setAdd((s) => ({ ...s, rpcPing: idlePing }))
       return
     }
-    setAdd({ ...add, pinging: true, error: null, pingResult: null })
+    const validation = validateEndpointUrl(url)
+    if (!validation.ok) {
+      setAdd((s) => ({
+        ...s,
+        rpcPing: { status: 'error', error: validation.reason ?? 'invalid URL' },
+      }))
+      return
+    }
+    setAdd((s) => ({ ...s, rpcPing: { status: 'pinging' } }))
     try {
-      const result = await pingNodeInfo(add.rpc)
-      setAdd({ ...add, pinging: false, pingResult: result, error: null })
+      const result = await pingNodeInfo(url)
+      setAdd((s) => ({
+        ...s,
+        rpcPing: { status: 'ok', chainId: result.chainId, height: result.height },
+      }))
     } catch (err) {
-      setAdd({
-        ...add,
-        pinging: false,
-        pingResult: null,
-        error: err instanceof Error ? err.message : String(err),
-      })
+      setAdd((s) => ({
+        ...s,
+        rpcPing: { status: 'error', error: err instanceof Error ? err.message : String(err) },
+      }))
+    }
+  }
+
+  const pingRest = async (url: string) => {
+    if (!url.trim()) {
+      setAdd((s) => ({ ...s, restPing: idlePing }))
+      return
+    }
+    const validation = validateEndpointUrl(url)
+    if (!validation.ok) {
+      setAdd((s) => ({
+        ...s,
+        restPing: { status: 'error', error: validation.reason ?? 'invalid URL' },
+      }))
+      return
+    }
+    setAdd((s) => ({ ...s, restPing: { status: 'pinging' } }))
+    try {
+      const result = await pingRestNodeInfo(url)
+      setAdd((s) => ({
+        ...s,
+        restPing: { status: 'ok', chainId: result.chainId, height: result.height },
+      }))
+    } catch (err) {
+      setAdd((s) => ({
+        ...s,
+        restPing: { status: 'error', error: err instanceof Error ? err.message : String(err) },
+      }))
     }
   }
 
   const onSave = async () => {
-    if (!add.label.trim()) {
-      setAdd({ ...add, error: 'label is required' })
-      return
-    }
-    const validation = validateEndpointUrl(add.rpc)
-    if (!validation.ok) {
-      setAdd({ ...add, error: validation.reason ?? 'invalid URL' })
-      return
-    }
-    if (add.rest) {
-      const restValidation = validateEndpointUrl(add.rest)
-      if (!restValidation.ok) {
-        setAdd({ ...add, error: `REST URL: ${restValidation.reason ?? 'invalid'}` })
-        return
-      }
-    }
+    if (!canSave) return
     try {
       await addCustomEndpoint({
         label: add.label.trim(),
@@ -95,7 +137,7 @@ export function Settings({
       })
       setAdd(emptyAdd())
     } catch (err) {
-      setAdd({ ...add, error: err instanceof Error ? err.message : String(err) })
+      setAdd((s) => ({ ...s, saveError: err instanceof Error ? err.message : String(err) }))
     }
   }
 
@@ -161,7 +203,9 @@ export function Settings({
               <Input
                 id="ep-label"
                 value={add.label}
-                onChange={(e) => setAdd({ ...add, label: e.target.value, error: null })}
+                onChange={(e) =>
+                  setAdd((s) => ({ ...s, label: e.target.value, saveError: null }))
+                }
                 placeholder="My DevNet"
               />
             </div>
@@ -171,53 +215,59 @@ export function Settings({
                 id="ep-rpc"
                 value={add.rpc}
                 onChange={(e) =>
-                  setAdd({ ...add, rpc: e.target.value, error: null, pingResult: null })
+                  setAdd((s) => ({
+                    ...s,
+                    rpc: e.target.value,
+                    rpcPing: idlePing,
+                    saveError: null,
+                  }))
                 }
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onBlur={(e) => pingRpc(e.target.value)}
                 placeholder="https://… or http://localhost:26657"
                 className="font-mono text-xs"
               />
+              <PingHint ping={add.rpcPing} />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="ep-rest">REST URL (optional)</Label>
               <Input
                 id="ep-rest"
                 value={add.rest}
-                onChange={(e) => setAdd({ ...add, rest: e.target.value, error: null })}
+                onChange={(e) =>
+                  setAdd((s) => ({
+                    ...s,
+                    rest: e.target.value,
+                    restPing: idlePing,
+                    saveError: null,
+                  }))
+                }
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onBlur={(e) => pingRest(e.target.value)}
                 placeholder="https://…"
                 className="font-mono text-xs"
               />
+              <PingHint ping={add.restPing} />
             </div>
-            {add.error && (
-              <p className="text-xs text-destructive break-words">{add.error}</p>
-            )}
-            {add.pingResult && (
-              <p className="text-xs text-green-700">
-                Reached chain <span className="font-mono">{add.pingResult.chainId}</span> at
-                height <span className="font-mono">{add.pingResult.height.toLocaleString()}</span>
+            {chainIdMismatch && (
+              <p className="text-xs text-destructive flex items-start gap-1">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-none" />
+                <span>
+                  Chain ID mismatch: RPC reports{' '}
+                  <span className="font-mono">{add.rpcPing.chainId}</span>, REST reports{' '}
+                  <span className="font-mono">{add.restPing.chainId}</span>. These are
+                  different networks — fix one before saving.
+                </span>
               </p>
+            )}
+            {add.saveError && (
+              <p className="text-xs text-destructive break-words">{add.saveError}</p>
             )}
             <div className="flex gap-2">
               <Button
                 type="button"
-                variant="outline"
                 size="sm"
-                disabled={add.pinging || !add.rpc}
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                onClick={onPing}
-              >
-                {add.pinging ? (
-                  <>
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    Testing…
-                  </>
-                ) : (
-                  'Test connection'
-                )}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                disabled={!add.label || !add.rpc || add.pinging}
+                disabled={!canSave}
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 onClick={onSave}
               >
@@ -225,8 +275,9 @@ export function Settings({
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              HTTPS accepted always; HTTP only for localhost (DevNet). The chain ID is fetched
-              over the wire when you click Test connection.
+              HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified
+              automatically when each URL loses focus; Save is enabled once both URLs (if
+              REST given) report the same chain ID.
             </p>
           </div>
         </CardContent>
@@ -234,6 +285,34 @@ export function Settings({
 
       <VaultEntryManager surface={surface} />
     </main>
+  )
+}
+
+function PingHint({ ping }: { ping: PerEndpointPing }) {
+  if (ping.status === 'idle') return null
+  if (ping.status === 'pinging') {
+    return (
+      <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        Verifying…
+      </span>
+    )
+  }
+  if (ping.status === 'ok') {
+    return (
+      <span className="text-[11px] text-green-700 flex items-center gap-1">
+        <Check className="h-3 w-3" />
+        Chain <span className="font-mono">{ping.chainId}</span>
+        {typeof ping.height === 'number' && ping.height > 0 && (
+          <span className="text-muted-foreground">· height {ping.height.toLocaleString()}</span>
+        )}
+      </span>
+    )
+  }
+  return (
+    <span className="text-[11px] text-destructive break-words">
+      {ping.error ?? 'failed to reach endpoint'}
+    </span>
   )
 }
 
