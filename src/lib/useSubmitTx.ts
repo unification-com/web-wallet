@@ -4,9 +4,11 @@ import {
   SigningStargateClient,
   type StdFee,
 } from '@cosmjs/stargate'
+import { msg } from '@lingui/core/macro'
 import { useCallback, useState } from 'react'
 
 import { useActiveEndpoint, type ChainEndpoint } from './chain'
+import { i18n } from './i18n'
 import { useActiveSigner } from './signer'
 
 // ---------------------------------------------------------------------------
@@ -48,7 +50,9 @@ export async function submitTx(params: SubmitTxParams): Promise<DeliverTxRespons
     )
     if (result.code !== 0) {
       throw new Error(
-        `transaction rejected (code=${result.code.toString()}): ${result.rawLog ?? 'unknown error'}`,
+        i18n._(
+          msg`transaction rejected (code=${result.code.toString()}): ${result.rawLog ?? i18n._(msg`unknown error`)}`,
+        ),
       )
     }
     return result
@@ -105,7 +109,7 @@ export function useSubmitTx(): UseSubmitTxResult {
   const submit = useCallback(
     async (input: SubmitTxInput): Promise<DeliverTxResponse> => {
       if (!signer || !address) {
-        throw new Error('no active signer — unlock the vault and select an account')
+        throw new Error(i18n._(msg`no active signer — unlock the vault and select an account`))
       }
       setSubmitting(true)
       setError(null)

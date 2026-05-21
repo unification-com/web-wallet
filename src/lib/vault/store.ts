@@ -1,4 +1,7 @@
+import { msg } from '@lingui/core/macro'
 import { create } from 'zustand'
+
+import { i18n } from '../i18n'
 
 import { decryptVault, encryptVault } from './crypto'
 import { deriveAccount } from './seeds'
@@ -121,7 +124,7 @@ function requireUnlocked(vault: Vault | null, password: string | null): {
   password: string
 } {
   if (!vault || !password) {
-    throw new Error('vault is locked')
+    throw new Error(i18n._(msg`vault is locked`))
   }
   return { vault, password }
 }
@@ -184,8 +187,8 @@ export const useVaultStore = create<VaultState>((set, get) => {
     },
 
     async createVault(password) {
-      if (password.length < 8) throw new Error('password must be at least 8 characters')
-      if (get().status === 'unlocked') throw new Error('vault is already unlocked')
+      if (password.length < 8) throw new Error(i18n._(msg`password must be at least 8 characters`))
+      if (get().status === 'unlocked') throw new Error(i18n._(msg`vault is already unlocked`))
       const vault = emptyVault()
       const blob = await encryptVault(vault, password)
       await saveEncryptedVault(blob)
@@ -196,12 +199,12 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     async unlock(password) {
       const blob = await loadEncryptedVault()
-      if (blob === null) throw new Error('no vault to unlock')
+      if (blob === null) throw new Error(i18n._(msg`no vault to unlock`))
       let vault: Vault
       try {
         vault = await decryptVault(blob, password)
       } catch {
-        throw new Error('wrong password')
+        throw new Error(i18n._(msg`wrong password`))
       }
       cachedPassword = password
       set({ status: 'unlocked', vault, lastUnlockedAt: Date.now() })
@@ -246,7 +249,7 @@ export const useVaultStore = create<VaultState>((set, get) => {
     async addAccountToSeed(seedId, label) {
       const vault = get().vault!
       const seed = vault.seeds.find((s) => s.id === seedId)
-      if (!seed) throw new Error(`seed ${seedId} not found`)
+      if (!seed) throw new Error(i18n._(msg`seed ${seedId} not found`))
       const nextIndex =
         seed.accounts.length === 0
           ? 0
@@ -375,7 +378,7 @@ export const useVaultStore = create<VaultState>((set, get) => {
       const vault = get().vault!
       const isBuiltIn = (BUILT_IN_ENDPOINT_IDS as readonly string[]).includes(id)
       const isCustom = vault.customEndpoints.some((e) => e.id === id)
-      if (!isBuiltIn && !isCustom) throw new Error(`endpoint ${id} not found`)
+      if (!isBuiltIn && !isCustom) throw new Error(i18n._(msg`endpoint ${id} not found`))
       await persistMutation((v) => ({
         ...v,
         preferences: { ...v.preferences, activeEndpointId: id },
@@ -384,7 +387,7 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     async setAutoLockTimeoutMs(ms) {
       if (!Number.isInteger(ms) || ms <= 0) {
-        throw new Error('auto-lock timeout must be a positive integer (ms)')
+        throw new Error(i18n._(msg`auto-lock timeout must be a positive integer (ms)`))
       }
       await persistMutation((v) => ({
         ...v,

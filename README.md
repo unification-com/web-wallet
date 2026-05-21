@@ -62,6 +62,45 @@ To load the extension in Chrome:
 
 `dist/` and `dist-dev/` are kept separate so a stale dev build can't accidentally be loaded as a production extension (which would fail with `Service worker registration failed. Status code: 3` because the dev SW loader references `localhost:5173`).
 
+## Internationalisation (lingui)
+
+Every user-facing string is extracted into a single catalogue at `src/locales/en/messages.po` via [lingui](https://lingui.dev) v6. The wallet ships with British English as the source locale; additional locales are landed post-M9 by translators.
+
+**Adding a new user-facing string**:
+
+```tsx
+import { Trans, useLingui } from '@lingui/react/macro'
+
+function Example() {
+  const { t } = useLingui()
+  return (
+    <>
+      <h1><Trans>Welcome</Trans></h1>
+      <input placeholder={t`type a phrase`} />
+    </>
+  )
+}
+```
+
+Then run `yarn lingui:extract` to update `src/locales/en/messages.po`. Commit the .po change alongside your component change. The CI `yarn lingui:check` gate fails if you forget to extract.
+
+For errors thrown from non-React code (`src/lib/**`), use the `msg` macro from `@lingui/core/macro` + the singleton `i18n._()`:
+
+```ts
+import { msg } from '@lingui/core/macro'
+import { i18n } from '@/lib/i18n'
+
+throw new Error(i18n._(msg`something went wrong`))
+```
+
+**Catalogue conventions**: British English everywhere. Identifier names + commit messages also British (see project `CLAUDE.md`). Third-party API names keep upstream spelling. Don't edit `messages.po` by hand for new entries — always go through `yarn lingui:extract`. Translator edits to `msgstr` lines are fine (that's what the .po is for).
+
+**Compile vs extract**:
+
+- `yarn lingui:extract` reads sources → writes/updates `messages.po`. Run when adding/changing strings.
+- `yarn lingui:compile` reads `messages.po` → writes runtime `.mjs` catalogues. Run before production build (or as part of CI). Source-locale `en` doesn't strictly need a compiled catalogue since macros fall through to the source string, but compile anyway so the production code path matches non-en locales.
+- `yarn lingui:check` re-extracts and fails if the on-disk `.po` differs from what extraction would produce — the CI gate.
+
 ## Directory layout
 
 ```

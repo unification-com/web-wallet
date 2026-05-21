@@ -1,4 +1,7 @@
 import { fromBase64, toBase64 } from '@cosmjs/encoding'
+import { msg } from '@lingui/core/macro'
+
+import { i18n } from '../i18n'
 
 import { EncryptedVaultSchema, VaultSchema, type EncryptedVault, type Vault } from './types'
 
@@ -130,14 +133,14 @@ export async function decryptVault(
   try {
     plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext)
   } catch {
-    throw new Error('wrong password or corrupted vault')
+    throw new Error(i18n._(msg`wrong password or corrupted vault`))
   }
   const json = new TextDecoder().decode(plaintext)
   let parsed: unknown
   try {
     parsed = JSON.parse(json) as unknown
   } catch {
-    throw new Error('vault plaintext is not valid JSON (corrupted)')
+    throw new Error(i18n._(msg`vault plaintext is not valid JSON (corrupted)`))
   }
   return VaultSchema.parse(parsed)
 }

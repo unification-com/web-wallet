@@ -1,7 +1,9 @@
 import { StargateClient } from '@cosmjs/stargate'
+import { msg } from '@lingui/core/macro'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { i18n } from './i18n'
 import { useVaultStore } from './vault'
 import { BUILT_IN_ENDPOINT_IDS, type CustomEndpoint } from './vault/types'
 
@@ -179,7 +181,7 @@ export async function pingNodeInfo(rpc: string): Promise<PingResult> {
   try {
     client = await StargateClient.connect(rpc)
   } catch {
-    throw new Error("couldn't reach the RPC endpoint — please check the URL")
+    throw new Error(i18n._(msg`couldn't reach the RPC endpoint — please check the URL`))
   }
   try {
     const chainId = await client.getChainId()
@@ -204,11 +206,13 @@ export async function pingRestNodeInfo(rest: string): Promise<PingResult> {
   try {
     nodeInfoRes = await fetch(`${base}/cosmos/base/tendermint/v1beta1/node_info`)
   } catch {
-    throw new Error("couldn't reach the REST endpoint — please check the URL")
+    throw new Error(i18n._(msg`couldn't reach the REST endpoint — please check the URL`))
   }
   if (!nodeInfoRes.ok) {
     throw new Error(
-      `REST node_info request failed: ${nodeInfoRes.status} ${nodeInfoRes.statusText}. Check the URL is a Cosmos REST gateway (not RPC).`,
+      i18n._(
+        msg`REST node_info request failed: ${nodeInfoRes.status} ${nodeInfoRes.statusText}. Check the URL is a Cosmos REST gateway (not RPC).`,
+      ),
     )
   }
   let nodeInfo: { default_node_info?: { network?: string } }
@@ -217,13 +221,15 @@ export async function pingRestNodeInfo(rest: string): Promise<PingResult> {
   } catch (err) {
     const inner = err instanceof Error ? err.message : String(err)
     throw new Error(
-      `REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. (${inner})`,
+      i18n._(msg`REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. (${inner})`),
     )
   }
   const chainId = nodeInfo.default_node_info?.network
   if (!chainId) {
     throw new Error(
-      'REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway.',
+      i18n._(
+        msg`REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway.`,
+      ),
     )
   }
   // Best-effort height — failure here doesn't invalidate the chain ID check.

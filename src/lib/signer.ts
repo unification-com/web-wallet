@@ -3,8 +3,10 @@ import {
   DirectSecp256k1Wallet,
   type OfflineDirectSigner,
 } from '@cosmjs/proto-signing'
+import { msg } from '@lingui/core/macro'
 import { useEffect, useState } from 'react'
 
+import { i18n } from './i18n'
 import { useVaultStore, type Vault, type VaultSignerRef } from './vault'
 import { deriveAccount } from './vault/seeds'
 
@@ -36,11 +38,13 @@ export async function buildVaultSigner(
 ): Promise<VaultSigner> {
   if (ref.kind === 'vault-seed') {
     const seed = vault.seeds.find((s) => s.id === ref.seedId)
-    if (!seed) throw new Error(`seed ${ref.seedId} not found in vault`)
+    if (!seed) throw new Error(i18n._(msg`seed ${ref.seedId} not found in vault`))
     const accountEntry = seed.accounts.find((a) => a.index === ref.accountIndex)
     if (!accountEntry) {
       throw new Error(
-        `account index ${ref.accountIndex.toString()} not found in seed ${ref.seedId}`,
+        i18n._(
+          msg`account index ${ref.accountIndex.toString()} not found in seed ${ref.seedId}`,
+        ),
       )
     }
     const derived = await deriveAccount(seed.mnemonic, ref.accountIndex)
@@ -56,7 +60,7 @@ export async function buildVaultSigner(
 
   // vault-imported (single private key — typically a v1 JSON keystore import).
   const entry = vault.importedKeys.find((k) => k.id === ref.id)
-  if (!entry) throw new Error(`imported key ${ref.id} not found in vault`)
+  if (!entry) throw new Error(i18n._(msg`imported key ${ref.id} not found in vault`))
   /* eslint-disable @typescript-eslint/no-unsafe-assignment */
   const privkey: Uint8Array = fromHex(entry.privateKey)
   /* eslint-enable @typescript-eslint/no-unsafe-assignment */

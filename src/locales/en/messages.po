@@ -46,6 +46,12 @@ msgstr "24 words (stronger)"
 msgid "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
 msgstr "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
 
+#. placeholder {0}: ref.accountIndex.toString()
+#. placeholder {1}: ref.seedId
+#: src/lib/signer.ts
+msgid "account index {0} not found in seed {1}"
+msgstr "account index {0} not found in seed {1}"
+
 #: src/components/AccountSwitcher.tsx
 msgid "Accounts"
 msgstr "Accounts"
@@ -88,6 +94,10 @@ msgstr "Amount"
 #: src/components/Send.tsx
 msgid "Amount (FUND)"
 msgstr "Amount (FUND)"
+
+#: src/lib/vault/store.ts
+msgid "auto-lock timeout must be a positive integer (ms)"
+msgstr "auto-lock timeout must be a positive integer (ms)"
 
 #: src/components/Send.tsx
 #: src/components/Settings.tsx
@@ -174,6 +184,14 @@ msgstr "Copy address"
 msgid "Copy phrase"
 msgstr "Copy phrase"
 
+#: src/lib/chain.ts
+msgid "couldn't reach the REST endpoint — please check the URL"
+msgstr "couldn't reach the REST endpoint — please check the URL"
+
+#: src/lib/chain.ts
+msgid "couldn't reach the RPC endpoint — please check the URL"
+msgstr "couldn't reach the RPC endpoint — please check the URL"
+
 #: src/components/VaultSetup.tsx
 msgid "Create a fresh BIP39 mnemonic."
 msgstr "Create a fresh BIP39 mnemonic."
@@ -219,6 +237,10 @@ msgstr "Do not share. Do not screenshot. The seed gives full control of every ac
 #: src/components/VaultEntryManager.tsx
 msgid "Done"
 msgstr "Done"
+
+#: src/lib/vault/store.ts
+msgid "endpoint {id} not found"
+msgstr "endpoint {id} not found"
 
 #: src/components/UnlockScreen.tsx
 msgid "Enter your password"
@@ -316,6 +338,11 @@ msgstr "Import seed"
 msgid "Import v1 keystore"
 msgstr "Import v1 keystore"
 
+#. placeholder {0}: ref.id
+#: src/lib/signer.ts
+msgid "imported key {0} not found in vault"
+msgstr "imported key {0} not found in vault"
+
 #: src/components/AccountSwitcher.tsx
 #: src/components/VaultEntryManager.tsx
 msgid "Imported keys"
@@ -374,6 +401,10 @@ msgstr "Network endpoints"
 msgid "Network:"
 msgstr "Network:"
 
+#: src/lib/useSubmitTx.ts
+msgid "no active signer — unlock the vault and select an account"
+msgstr "no active signer — unlock the vault and select an account"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "no keystore file selected"
@@ -382,6 +413,10 @@ msgstr "no keystore file selected"
 #: src/components/VaultEntryManager.tsx
 msgid "No seeds or imported keys yet — use Add another above to start."
 msgstr "No seeds or imported keys yet — use Add another above to start."
+
+#: src/lib/vault/store.ts
+msgid "no vault to unlock"
+msgstr "no vault to unlock"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -407,6 +442,7 @@ msgid "Password (≥ 8 chars)"
 msgstr "Password (≥ 8 chars)"
 
 #: src/components/VaultSetup.tsx
+#: src/lib/vault/store.ts
 msgid "password must be at least 8 characters"
 msgstr "password must be at least 8 characters"
 
@@ -462,6 +498,20 @@ msgstr "Reset the wallet? This wipes the encrypted vault permanently."
 msgid "Reset wallet"
 msgstr "Reset wallet"
 
+#: src/lib/chain.ts
+msgid "REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. ({inner})"
+msgstr "REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. ({inner})"
+
+#. placeholder {0}: nodeInfoRes.status
+#. placeholder {1}: nodeInfoRes.statusText
+#: src/lib/chain.ts
+msgid "REST node_info request failed: {0} {1}. Check the URL is a Cosmos REST gateway (not RPC)."
+msgstr "REST node_info request failed: {0} {1}. Check the URL is a Cosmos REST gateway (not RPC)."
+
+#: src/lib/chain.ts
+msgid "REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway."
+msgstr "REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway."
+
 #: src/components/Settings.tsx
 msgid "REST URL"
 msgstr "REST URL"
@@ -497,6 +547,15 @@ msgstr "Save seed"
 #: src/components/AddSignerCard.tsx
 msgid "Saving…"
 msgstr "Saving…"
+
+#. placeholder {0}: ref.seedId
+#: src/lib/signer.ts
+msgid "seed {0} not found in vault"
+msgstr "seed {0} not found in vault"
+
+#: src/lib/vault/store.ts
+msgid "seed {seedId} not found"
+msgstr "seed {seedId} not found"
 
 #: src/components/AddSignerCard.tsx
 msgid "Seed phrase length"
@@ -563,6 +622,12 @@ msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-
 msgid "To"
 msgstr "To"
 
+#. placeholder {0}: result.code.toString()
+#. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
+#: src/lib/useSubmitTx.ts
+msgid "transaction rejected (code={0}): {1}"
+msgstr "transaction rejected (code={0}): {1}"
+
 #: src/components/Send.tsx
 msgid "und1…"
 msgstr "und1…"
@@ -570,6 +635,10 @@ msgstr "und1…"
 #: src/components/Header.tsx
 msgid "Unification Wallet"
 msgstr "Unification Wallet"
+
+#: src/lib/useSubmitTx.ts
+msgid "unknown error"
+msgstr "unknown error"
 
 #: src/components/UnlockScreen.tsx
 msgid "Unlock"
@@ -587,10 +656,29 @@ msgstr "Unlock wallet"
 msgid "Unlocking…"
 msgstr "Unlocking…"
 
+#. placeholder {0}: c.cipher
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore cipher: {0}"
+msgstr "unsupported v1 keystore cipher: {0}"
+
+#. placeholder {0}: c.kdf
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore KDF: {0}"
+msgstr "unsupported v1 keystore KDF: {0}"
+
+#. placeholder {0}: c.kdfparams.prf
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore PRF: {0}"
+msgstr "unsupported v1 keystore PRF: {0}"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "v1 keystore file"
 msgstr "v1 keystore file"
+
+#: src/lib/vault/v1-keystore.ts
+msgid "v1 keystore MAC check failed — wrong password or corrupted file"
+msgstr "v1 keystore MAC check failed — wrong password or corrupted file"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -600,6 +688,18 @@ msgstr "v1 keystore password"
 #: src/components/VaultEntryManager.tsx
 msgid "Vault entries"
 msgstr "Vault entries"
+
+#: src/lib/vault/store.ts
+msgid "vault is already unlocked"
+msgstr "vault is already unlocked"
+
+#: src/lib/vault/store.ts
+msgid "vault is locked"
+msgstr "vault is locked"
+
+#: src/lib/vault/crypto.ts
+msgid "vault plaintext is not valid JSON (corrupted)"
+msgstr "vault plaintext is not valid JSON (corrupted)"
 
 #: src/components/Settings.tsx
 msgid "Verifying…"
@@ -628,5 +728,10 @@ msgid "Write these words down somewhere safe. They are the only way to recover t
 msgstr "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
 
 #: src/components/VaultEntryManager.tsx
+#: src/lib/vault/store.ts
 msgid "wrong password"
 msgstr "wrong password"
+
+#: src/lib/vault/crypto.ts
+msgid "wrong password or corrupted vault"
+msgstr "wrong password or corrupted vault"

@@ -19,8 +19,11 @@
  */
 
 import { fromHex, toHex } from '@cosmjs/encoding'
+import { msg } from '@lingui/core/macro'
 import { sha256 } from '@noble/hashes/sha2'
 import { keccak_512 } from '@noble/hashes/sha3'
+
+import { i18n } from '../i18n'
 
 import { addressFromPrivateKey } from './seeds'
 
@@ -104,13 +107,13 @@ export async function decryptV1Keystore(
 ): Promise<DecryptedV1Keystore> {
   const c = json.crypto
   if (c.kdf !== 'pbkdf2') {
-    throw new Error(`unsupported v1 keystore KDF: ${c.kdf}`)
+    throw new Error(i18n._(msg`unsupported v1 keystore KDF: ${c.kdf}`))
   }
   if (c.kdfparams.prf !== 'hmac-sha256') {
-    throw new Error(`unsupported v1 keystore PRF: ${c.kdfparams.prf}`)
+    throw new Error(i18n._(msg`unsupported v1 keystore PRF: ${c.kdfparams.prf}`))
   }
   if (c.cipher !== 'aes-256-ctr') {
-    throw new Error(`unsupported v1 keystore cipher: ${c.cipher}`)
+    throw new Error(i18n._(msg`unsupported v1 keystore cipher: ${c.cipher}`))
   }
 
   const salt = fromHex(c.kdfparams.salt) as Uint8Array
@@ -138,7 +141,7 @@ export async function decryptV1Keystore(
     macOk = toHex(sha256(macInputBytes)) === expectedMac
   }
   if (!macOk) {
-    throw new Error('v1 keystore MAC check failed — wrong password or corrupted file')
+    throw new Error(i18n._(msg`v1 keystore MAC check failed — wrong password or corrupted file`))
   }
 
   const aesKey = derivedKey.slice(0, 32)
