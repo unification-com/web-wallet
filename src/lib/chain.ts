@@ -175,7 +175,12 @@ export interface PingResult {
  * connect. The settings UI should surface the error message verbatim.
  */
 export async function pingNodeInfo(rpc: string): Promise<PingResult> {
-  const client = await StargateClient.connect(rpc)
+  let client: StargateClient
+  try {
+    client = await StargateClient.connect(rpc)
+  } catch {
+    throw new Error("couldn't reach the RPC endpoint — please check the URL")
+  }
   try {
     const chainId = await client.getChainId()
     const height = await client.getHeight()
@@ -195,16 +200,31 @@ export async function pingNodeInfo(rpc: string): Promise<PingResult> {
  */
 export async function pingRestNodeInfo(rest: string): Promise<PingResult> {
   const base = rest.replace(/\/$/, '')
-  const nodeInfoRes = await fetch(`${base}/cosmos/base/tendermint/v1beta1/node_info`)
-  if (!nodeInfoRes.ok) {
-    throw new Error(`REST node_info request failed: ${nodeInfoRes.status} ${nodeInfoRes.statusText}`)
+  let nodeInfoRes: Response
+  try {
+    nodeInfoRes = await fetch(`${base}/cosmos/base/tendermint/v1beta1/node_info`)
+  } catch {
+    throw new Error("couldn't reach the REST endpoint — please check the URL")
   }
-  const nodeInfo = (await nodeInfoRes.json()) as {
-    default_node_info?: { network?: string }
+  if (!nodeInfoRes.ok) {
+    throw new Error(
+      `REST node_info request failed: ${nodeInfoRes.status} ${nodeInfoRes.statusText}. Check the URL is a Cosmos REST gateway (not RPC).`,
+    )
+  }
+  let nodeInfo: { default_node_info?: { network?: string } }
+  try {
+    nodeInfo = (await nodeInfoRes.json()) as { default_node_info?: { network?: string } }
+  } catch (err) {
+    const inner = err instanceof Error ? err.message : String(err)
+    throw new Error(
+      `REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. (${inner})`,
+    )
   }
   const chainId = nodeInfo.default_node_info?.network
   if (!chainId) {
-    throw new Error('REST response missing default_node_info.network (chain ID)')
+    throw new Error(
+      'REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway.',
+    )
   }
   // Best-effort height — failure here doesn't invalidate the chain ID check.
   let height = 0

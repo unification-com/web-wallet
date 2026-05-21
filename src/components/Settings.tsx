@@ -67,8 +67,10 @@ export function Settings({
 
   const canSave =
     add.label.trim().length > 0 &&
+    add.rpc.trim().length > 0 &&
+    add.rest.trim().length > 0 &&
     add.rpcPing.status === 'ok' &&
-    (add.rest.trim().length === 0 || add.restPing.status === 'ok') &&
+    add.restPing.status === 'ok' &&
     !chainIdMismatch
 
   const pingRpc = async (url: string) => {
@@ -140,6 +142,18 @@ export function Settings({
       setAdd((s) => ({ ...s, saveError: err instanceof Error ? err.message : String(err) }))
     }
   }
+
+  const onTestConnection = async () => {
+    // Fire both pings concurrently (whichever URLs are filled). Same flows
+    // that fire on input blur — explicit button gives users a visible
+    // trigger if they aren't sure when validation runs.
+    await Promise.all([
+      add.rpc.trim() ? pingRpc(add.rpc) : Promise.resolve(),
+      add.rest.trim() ? pingRest(add.rest) : Promise.resolve(),
+    ])
+  }
+
+  const pinging = add.rpcPing.status === 'pinging' || add.restPing.status === 'pinging'
 
   const onRemove = async (id: string) => {
     try {
@@ -230,7 +244,7 @@ export function Settings({
               <PingHint ping={add.rpcPing} />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="ep-rest">REST URL (optional)</Label>
+              <Label htmlFor="ep-rest">REST URL</Label>
               <Input
                 id="ep-rest"
                 value={add.rest}
@@ -266,6 +280,23 @@ export function Settings({
             <div className="flex gap-2">
               <Button
                 type="button"
+                variant="outline"
+                size="sm"
+                disabled={pinging || (!add.rpc.trim() && !add.rest.trim())}
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onClick={onTestConnection}
+              >
+                {pinging ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Testing…
+                  </>
+                ) : (
+                  'Test connection'
+                )}
+              </Button>
+              <Button
+                type="button"
                 size="sm"
                 disabled={!canSave}
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -275,9 +306,10 @@ export function Settings({
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified
-              automatically when each URL loses focus; Save is enabled once both URLs (if
-              REST given) report the same chain ID.
+              Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for
+              localhost (DevNet). Chain ID is verified automatically when each URL loses
+              focus, or click Test connection to verify both now. Save is enabled once
+              both URLs report the same chain ID.
             </p>
           </div>
         </CardContent>
