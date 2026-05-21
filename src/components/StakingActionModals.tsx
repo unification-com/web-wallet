@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { TxModal } from '@/components/TxModal'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { decCoinToFund, nundToFund } from '@/lib/msgs/send'
 import {
   buildMsgBeginRedelegate,
   buildMsgUndelegate,
@@ -101,7 +102,7 @@ export function UndelegateModal({
               <span className="text-[11px] text-muted-foreground">
                 <Trans>
                   Currently delegated:{' '}
-                  <span className="font-mono">{formatNundFund(currentDelegationNund)}</span> FUND
+                  <span className="font-mono">{nundToFund(currentDelegationNund)}</span> FUND
                 </Trans>
               </span>
             )}
@@ -268,7 +269,7 @@ export function RedelegateModal({
               <span className="text-[11px] text-muted-foreground">
                 <Trans>
                   Currently delegated:{' '}
-                  <span className="font-mono">{formatNundFund(currentDelegationNund)}</span> FUND
+                  <span className="font-mono">{nundToFund(currentDelegationNund)}</span> FUND
                 </Trans>
               </span>
             )}
@@ -320,7 +321,12 @@ interface WithdrawRewardsModalProps {
   open: boolean
   onOpenChange: (next: boolean) => void
   validator: Validator | null
-  /** Pending reward amount in nund — surfaces in the UI for confirmation. */
+  /**
+   * Pending reward amount as a raw `DecCoin.amount` string (LegacyDec int,
+   * `value × 10^18` in nund) — surfaces in the UI via {@link decCoinToFund}
+   * for confirmation. Never treat this as integer nund; the Dec scaling
+   * factor makes it ~10^18× too large if fed to {@link nundToFund} directly.
+   */
   pendingRewardsNund?: string
 }
 
@@ -358,7 +364,7 @@ export function WithdrawRewardsModal({
               <Trans>
                 Pending rewards:{' '}
                 <span className="font-mono font-medium">
-                  {formatNundFund(pendingRewardsNund)}
+                  {decCoinToFund(pendingRewardsNund)}
                 </span>{' '}
                 FUND
               </Trans>
@@ -383,18 +389,3 @@ export function WithdrawRewardsModal({
   )
 }
 
-// ---------------------------------------------------------------------------
-// Format helper — nund (1e9-scaled int) → FUND decimal string.
-// ---------------------------------------------------------------------------
-
-function formatNundFund(amount: string): string {
-  try {
-    const big = BigInt(amount.split('.')[0] ?? amount)
-    const nund = 1_000_000_000n
-    const whole = big / nund
-    const frac = (big % nund).toString().padStart(9, '0').replace(/0+$/, '')
-    return frac ? `${whole.toString()}.${frac}` : whole.toString()
-  } catch {
-    return '0'
-  }
-}

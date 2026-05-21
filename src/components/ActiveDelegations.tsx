@@ -9,6 +9,7 @@ import {
 import { TxModal } from '@/components/TxModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { decCoinToFund, nundToFund } from '@/lib/msgs/send'
 import { buildMsgsWithdrawAllRewards } from '@/lib/msgs/staking'
 import { useActiveSigner } from '@/lib/signer'
 import {
@@ -17,24 +18,6 @@ import {
   useValidators,
   type Validator,
 } from '@/lib/staking'
-
-/** Format nund (1e9-scaled int or proto Dec string) → FUND. */
-function formatNundFund(amount: string | undefined): string {
-  if (!amount) return '0'
-  try {
-    // Distribution rewards come back as a proto Dec — stringified with
-    // up to 18 fractional digits after a decimal point. Truncate the
-    // fractional part before BigInt parsing.
-    const intPart = amount.split('.')[0] ?? '0'
-    const big = BigInt(intPart)
-    const nund = 1_000_000_000n
-    const whole = big / nund
-    const frac = (big % nund).toString().padStart(9, '0').replace(/0+$/, '')
-    return frac ? `${whole.toString()}.${frac}` : whole.toString()
-  } catch {
-    return '0'
-  }
-}
 
 /**
  * Active-delegations list — one row per validator the user has stake
@@ -107,7 +90,7 @@ export function ActiveDelegations() {
               disabled={!hasAnyRewards}
             >
               <Trans>
-                Withdraw all (~{formatNundFund(totalRewardsNund)} FUND)
+                Withdraw all (~{decCoinToFund(totalRewardsNund)} FUND)
               </Trans>
             </Button>
           )}
@@ -149,11 +132,11 @@ export function ActiveDelegations() {
                     </span>
                     <span className="flex flex-col items-end tabular-nums">
                       <span className="font-mono">
-                        <Trans>{formatNundFund(stakeNund)} FUND</Trans>
+                        <Trans>{nundToFund(stakeNund)} FUND</Trans>
                       </span>
                       {pendingHasValue && (
                         <span className="text-[10px] text-green-700">
-                          <Trans>+{formatNundFund(pending)} pending</Trans>
+                          <Trans>+{decCoinToFund(pending)} pending</Trans>
                         </span>
                       )}
                     </span>
@@ -260,7 +243,7 @@ export function ActiveDelegations() {
               <Trans>
                 Total pending across all delegations:{' '}
                 <span className="font-mono font-medium">
-                  {formatNundFund(totalRewardsNund)}
+                  {decCoinToFund(totalRewardsNund)}
                 </span>{' '}
                 FUND
               </Trans>
