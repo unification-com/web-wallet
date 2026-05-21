@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useMemo, useState } from 'react'
 
+import { DelegateModal } from '@/components/DelegateModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -36,6 +37,7 @@ export function Validators() {
   const { t } = useLingui()
   const { data: validators, isLoading, isError, error } = useValidators()
   const [search, setSearch] = useState('')
+  const [delegateTarget, setDelegateTarget] = useState<Validator | null>(null)
 
   const filteredSorted = useMemo<Validator[]>(() => {
     if (!validators) return []
@@ -87,45 +89,56 @@ export function Validators() {
               const moniker = v.description?.moniker ?? v.operatorAddress
               const commissionPct = (commissionRate(v) * 100).toFixed(2)
               return (
-                <li
-                  key={v.operatorAddress}
-                  className={
-                    'flex items-center justify-between gap-2 rounded border p-2 text-xs ' +
-                    (active ? 'border-border' : 'border-border opacity-60')
-                  }
-                >
-                  <span className="flex flex-col flex-1 min-w-0">
-                    <span className="font-medium truncate" title={moniker}>
-                      {moniker}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground font-mono truncate">
-                      {v.operatorAddress}
-                    </span>
-                  </span>
-                  <span className="flex flex-col items-end text-[10px]">
-                    {active ? (
-                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 font-medium">
-                        <Trans>ACTIVE</Trans>
+                <li key={v.operatorAddress}>
+                  <button
+                    type="button"
+                    onClick={() => setDelegateTarget(v)}
+                    disabled={!active || v.jailed}
+                    title={
+                      active && !v.jailed
+                        ? t`Delegate to ${moniker}`
+                        : t`Cannot delegate to inactive or jailed validators`
+                    }
+                    className={
+                      'w-full flex items-center justify-between gap-2 rounded border p-2 text-xs text-left transition-colors ' +
+                      (active
+                        ? 'border-border hover:bg-accent hover:border-primary/40 cursor-pointer'
+                        : 'border-border opacity-60 cursor-not-allowed')
+                    }
+                  >
+                    <span className="flex flex-col flex-1 min-w-0">
+                      <span className="font-medium truncate" title={moniker}>
+                        {moniker}
                       </span>
-                    ) : (
-                      <span className="rounded bg-muted text-muted-foreground px-1.5 py-0.5">
-                        <Trans>INACTIVE</Trans>
+                      <span className="text-[10px] text-muted-foreground font-mono truncate">
+                        {v.operatorAddress}
                       </span>
-                    )}
-                    {v.jailed && (
-                      <span className="text-destructive mt-0.5">
-                        <Trans>JAILED</Trans>
+                    </span>
+                    <span className="flex flex-col items-end text-[10px]">
+                      {active ? (
+                        <span className="rounded bg-primary/10 text-primary px-1.5 py-0.5 font-medium">
+                          <Trans>ACTIVE</Trans>
+                        </span>
+                      ) : (
+                        <span className="rounded bg-muted text-muted-foreground px-1.5 py-0.5">
+                          <Trans>INACTIVE</Trans>
+                        </span>
+                      )}
+                      {v.jailed && (
+                        <span className="text-destructive mt-0.5">
+                          <Trans>JAILED</Trans>
+                        </span>
+                      )}
+                    </span>
+                    <span className="flex flex-col items-end text-[10px] tabular-nums">
+                      <span className="font-mono text-foreground">
+                        {formatTokensAsFund(v.tokens)} FUND
                       </span>
-                    )}
-                  </span>
-                  <span className="flex flex-col items-end text-[10px] tabular-nums">
-                    <span className="font-mono text-foreground">
-                      {formatTokensAsFund(v.tokens)} FUND
+                      <span className="text-muted-foreground">
+                        <Trans>{commissionPct}% fee</Trans>
+                      </span>
                     </span>
-                    <span className="text-muted-foreground">
-                      <Trans>{commissionPct}% fee</Trans>
-                    </span>
-                  </span>
+                  </button>
                 </li>
               )
             })}
@@ -138,6 +151,14 @@ export function Validators() {
           </p>
         )}
       </CardContent>
+
+      <DelegateModal
+        open={delegateTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setDelegateTarget(null)
+        }}
+        validator={delegateTarget}
+      />
     </Card>
   )
 }

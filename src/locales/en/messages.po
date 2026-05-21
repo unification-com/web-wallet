@@ -102,6 +102,7 @@ msgstr "All {0} derived account{1} will be removed from the vault."
 msgid "Amount"
 msgstr "Amount"
 
+#: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
 msgid "Amount (FUND)"
 msgstr "Amount (FUND)"
@@ -117,6 +118,8 @@ msgid "Back"
 msgstr "Back"
 
 #. placeholder {0}: formatNund(balance.data.amount)
+#. placeholder {0}: formatNundDisplay(balance.data.amount)
+#: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
 msgid "Balance: <0>{0}</0> FUND"
 msgstr "Balance: <0>{0}</0> FUND"
@@ -126,6 +129,7 @@ msgid "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for
 msgstr "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
 
 #: src/components/Send.tsx
+#: src/components/TxModal.tsx
 msgid "Broadcasting…"
 msgstr "Broadcasting…"
 
@@ -134,9 +138,14 @@ msgid "Built-in"
 msgstr "Built-in"
 
 #: src/components/AddSignerCard.tsx
+#: src/components/TxModal.tsx
 #: src/components/VaultEntryManager.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/components/Validators.tsx
+msgid "Cannot delegate to inactive or jailed validators"
+msgstr "Cannot delegate to inactive or jailed validators"
 
 #. placeholder {0}: ping.chainId ?? ''
 #: src/components/Settings.tsx
@@ -160,6 +169,10 @@ msgstr "click to switch"
 #: src/components/AccountSwitcher.tsx
 msgid "click to switch account"
 msgstr "click to switch account"
+
+#: src/components/TxModal.tsx
+msgid "Confirm"
+msgstr "Confirm"
 
 #: src/components/Send.tsx
 msgid "Confirm + send"
@@ -218,6 +231,19 @@ msgstr "Creating…"
 #: src/components/Settings.tsx
 msgid "Custom"
 msgstr "Custom"
+
+#: src/components/DelegateModal.tsx
+msgid "Delegate"
+msgstr "Delegate"
+
+#: src/components/DelegateModal.tsx
+msgid "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
+msgstr "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
+
+#: src/components/DelegateModal.tsx
+#: src/components/Validators.tsx
+msgid "Delegate to {moniker}"
+msgstr "Delegate to {moniker}"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Delete"
@@ -377,6 +403,10 @@ msgstr "Importing…"
 msgid "INACTIVE"
 msgstr "INACTIVE"
 
+#: src/components/DelegateModal.tsx
+msgid "Insufficient balance — delegate would exceed available funds plus fee."
+msgstr "Insufficient balance — delegate would exceed available funds plus fee."
+
 #: src/components/Validators.tsx
 msgid "JAILED"
 msgstr "JAILED"
@@ -409,6 +439,7 @@ msgstr "Lock wallet"
 msgid "Memo"
 msgstr "Memo"
 
+#: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
 msgid "Memo (optional)"
 msgstr "Memo (optional)"
@@ -497,6 +528,10 @@ msgstr "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
 #: src/components/VaultSetup.tsx
 msgid "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
 msgstr "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
+
+#: src/components/DelegateModal.tsx
+msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
+msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 
 #: src/components/VaultEntryManager.tsx
 msgid "Re-enter your wallet password to reveal the seed phrase."
@@ -630,6 +665,10 @@ msgstr "Share this address or scan the QR code to receive FUND. Anyone with the 
 msgid "Staking"
 msgstr "Staking"
 
+#: src/components/TxModal.tsx
+msgid "Submitted! Tx: <0>{txHash}</0>"
+msgstr "Submitted! Tx: <0>{txHash}</0>"
+
 #: src/components/AccountSwitcher.tsx
 msgid "Switch between accounts derived from your seeds or imported keys."
 msgstr "Switch between accounts derived from your seeds or imported keys."
@@ -724,6 +763,10 @@ msgstr "v1 keystore MAC check failed — wrong password or corrupted file"
 #: src/components/VaultSetup.tsx
 msgid "v1 keystore password"
 msgstr "v1 keystore password"
+
+#: src/components/DelegateModal.tsx
+msgid "Validator"
+msgstr "Validator"
 
 #: src/components/Validators.tsx
 msgid "Validators"
