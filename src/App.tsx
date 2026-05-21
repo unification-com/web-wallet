@@ -26,6 +26,22 @@ export function App({ surface }: { surface: Surface }) {
     void hydrate()
   }, [hydrate])
 
+  // Listen for cross-window vault changes (popup vs standalone tab). If
+  // another surface created / reset the vault while THIS surface is idle
+  // (no-vault or locked), re-hydrate so the UI reflects the new blob state.
+  // Skipped while unlocked — re-hydrating would clobber the active session
+  // and force the user back to UnlockScreen. Full unlocked-state sync is M9.
+  useEffect(() => {
+    if (typeof chrome === 'undefined' || !chrome.storage?.onChanged) return
+    const listener = (changes: Record<string, chrome.storage.StorageChange>) => {
+      if (!('webwallet:vault:v1' in changes)) return
+      if (useVaultStore.getState().status === 'unlocked') return
+      void hydrate()
+    }
+    chrome.storage.onChanged.addListener(listener)
+    return () => chrome.storage.onChanged.removeListener(listener)
+  }, [hydrate])
+
   // An unlocked vault with no active signer is mid-setup (just-created or
   // re-opened after a partial setup) — route back to VaultSetup until the
   // user picks a path and the first signer becomes active.
@@ -63,7 +79,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
   useIdleActivity(true)
 
   if (view === 'settings') {
-    return <Settings onBack={() => setView('wallet')} />
+    return <Settings onBack={() => setView('wallet')} surface={surface} />
   }
 
   return (
