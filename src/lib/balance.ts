@@ -24,7 +24,10 @@ async function fetchBalance(
 
 /**
  * Live balance query for `address` in `denom` (default `nund`). Refetches
- * every 12 s while mounted. Disabled when `address` is null/empty.
+ * every 8 s while mounted (chains produce blocks every ~6 s; 8 s keeps us
+ * within roughly one-block staleness without hammering RPCs). Send flows
+ * also invalidate this query on success for instant post-broadcast feedback.
+ * Disabled when `address` is null/empty.
  */
 export function useBalance(address: string | null, denom = 'nund') {
   const endpoint = useActiveEndpoint()
@@ -35,6 +38,6 @@ export function useBalance(address: string | null, denom = 'nund') {
       return await fetchBalance(endpoint.rpc, address, denom)
     },
     enabled: !!address,
-    refetchInterval: 12_000,
+    refetchInterval: 8_000,
   })
 }

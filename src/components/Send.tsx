@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -44,6 +45,7 @@ export function Send() {
   const { address } = useActiveSigner()
   const balance = useBalance(address, 'nund')
   const { submit, submitting, error, txHash, reset } = useSubmitTx()
+  const queryClient = useQueryClient()
   const [pendingValues, setPendingValues] = useState<SendFormValues | null>(null)
 
   const form = useForm<SendFormValues>({
@@ -87,6 +89,10 @@ export function Send() {
       })
       form.reset()
       setPendingValues(null)
+      // Instant balance refresh — don't wait for the 8 s poll interval.
+      // Sender's balance drops by amount + fee; recipient's balance bumps
+      // (if it's our address too, the second invalidation handles it).
+      await queryClient.invalidateQueries({ queryKey: ['balance'] })
     } catch {
       // error already captured in useSubmitTx state — surfaced below.
     }
