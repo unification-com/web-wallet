@@ -17,6 +17,14 @@ msgstr ""
 msgid "-- pick a destination --"
 msgstr "-- pick a destination --"
 
+#: src/components/ProposalDetail.tsx
+msgid "—"
+msgstr "—"
+
+#: src/components/ProposalStatusBadge.tsx
+msgid "?"
+msgstr "?"
+
 #. placeholder {0}: ping.height.toLocaleString()
 #: src/components/Settings.tsx
 msgid "· height {0}"
@@ -25,6 +33,10 @@ msgstr "· height {0}"
 #: src/components/AddSignerCard.tsx
 msgid "(opens tab)"
 msgstr "(opens tab)"
+
+#: src/components/ProposalList.tsx
+msgid "(untitled)"
+msgstr "(untitled)"
 
 #. placeholder {0}: seed.accounts.length
 #. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
@@ -62,6 +74,16 @@ msgstr "{seedLabel} — seed phrase"
 msgid "{srcMoniker} → {dstMoniker}"
 msgstr "{srcMoniker} → {dstMoniker}"
 
+#. placeholder {0}: proposal.id.toString()
+#. placeholder {1}: proposal.title
+#: src/components/ProposalDetail.tsx
+msgid "#{0} — {1}"
+msgstr "#{0} — {1}"
+
+#: src/components/ProposalDetail.tsx
+msgid "← Back to list"
+msgstr "← Back to list"
+
 #. placeholder {0}: decCoinToFund(pending)
 #: src/components/ActiveDelegations.tsx
 msgid "+{0} pending"
@@ -80,6 +102,11 @@ msgstr "24 words (stronger)"
 #: src/components/AddSignerCard.tsx
 msgid "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
 msgstr "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Abstain"
+msgstr "Abstain"
 
 #. placeholder {0}: ref.accountIndex.toString()
 #. placeholder {1}: ref.seedId
@@ -120,6 +147,10 @@ msgstr "Add custom endpoint"
 #: src/components/AccountSwitcher.tsx
 msgid "Adding…"
 msgstr "Adding…"
+
+#: src/components/ProposalList.tsx
+msgid "All"
+msgstr "All"
 
 #. placeholder {0}: seed.accounts.length
 #. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
@@ -184,6 +215,15 @@ msgstr "Cancel"
 msgid "Cannot delegate to inactive or jailed validators"
 msgstr "Cannot delegate to inactive or jailed validators"
 
+#: src/components/VoteModal.tsx
+msgid "Cast a vote on this active proposal. Your choice is recorded on-chain against your account and weighted by your staked FUND at the voting-period snapshot."
+msgstr "Cast a vote on this active proposal. Your choice is recorded on-chain against your account and weighted by your staked FUND at the voting-period snapshot."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Cast vote"
+msgstr "Cast vote"
+
 #. placeholder {0}: ping.chainId ?? ''
 #: src/components/Settings.tsx
 msgid "Chain <0>{0}</0>"
@@ -198,6 +238,10 @@ msgstr "Chain ID"
 #: src/components/Settings.tsx
 msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+
+#: src/components/ProposalDetail.tsx
+msgid "Change vote"
+msgstr "Change vote"
 
 #: src/components/StakingActionModals.tsx
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
@@ -218,6 +262,10 @@ msgstr "click to switch account"
 #: src/components/TxModal.tsx
 msgid "Close"
 msgstr "Close"
+
+#: src/components/ProposalDetail.tsx
+msgid "Closed"
+msgstr "Closed"
 
 #. placeholder {0}: rel.label
 #: src/components/InFlightQueues.tsx
@@ -261,6 +309,11 @@ msgstr "Copy address"
 #: src/components/VaultEntryManager.tsx
 msgid "Copy phrase"
 msgstr "Copy phrase"
+
+#. placeholder {0}: proposalId.toString()
+#: src/components/ProposalDetail.tsx
+msgid "Couldn't load proposal #{0}."
+msgstr "Couldn't load proposal #{0}."
 
 #: src/lib/chain.ts
 msgid "couldn't reach the REST endpoint — please check the URL"
@@ -326,6 +379,16 @@ msgstr "Delete seed"
 msgid "Deleting…"
 msgstr "Deleting…"
 
+#: src/components/ProposalDetail.tsx
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Deposit"
+msgstr "Deposit"
+
+#: src/components/ProposalDetail.tsx
+msgid "Deposit ends"
+msgstr "Deposit ends"
+
 #: src/components/InFlightQueues.tsx
 msgid "destination locked until completion"
 msgstr "destination locked until completion"
@@ -337,6 +400,10 @@ msgstr "Destination validator"
 #: src/components/VaultEntryManager.tsx
 msgid "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
 msgstr "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
+
+#: src/components/VoteModal.tsx
+msgid "Don't count my stake for or against"
+msgstr "Don't count my stake for or against"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Done"
@@ -350,10 +417,24 @@ msgstr "endpoint {id} not found"
 msgid "Enter your password"
 msgstr "Enter your password"
 
+#: src/components/ProposalDetail.tsx
+msgid "Expedited"
+msgstr "Expedited"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Failed"
+msgstr "Failed"
+
 #. placeholder {0}: error instanceof Error ? error.message : String(error)
 #: src/App.tsx
 msgid "Failed to connect: {0}"
 msgstr "Failed to connect: {0}"
+
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/ProposalList.tsx
+msgid "Failed to load proposals: {0}"
+msgstr "Failed to load proposals: {0}"
 
 #. placeholder {0}: error instanceof Error ? error.message : String(error)
 #: src/components/Validators.tsx
@@ -369,6 +450,11 @@ msgstr "failed to reach endpoint"
 #: src/components/VaultSetup.tsx
 msgid "failed to read file: {0}"
 msgstr "failed to read file: {0}"
+
+#. placeholder {0}: proposal.failedReason
+#: src/components/ProposalDetail.tsx
+msgid "Failure reason: {0}"
+msgstr "Failure reason: {0}"
 
 #: src/components/Send.tsx
 msgid "Fee"
@@ -409,6 +495,10 @@ msgid "Generate new seed"
 msgstr "Generate new seed"
 
 #: src/App.tsx
+msgid "Governance"
+msgstr "Governance"
+
+#: src/App.tsx
 msgid "Height"
 msgstr "Height"
 
@@ -419,6 +509,14 @@ msgstr "How would you like to start? Pick one to continue."
 #: src/components/Settings.tsx
 msgid "https://… or http://localhost:26657"
 msgstr "https://… or http://localhost:26657"
+
+#: src/components/VoteModal.tsx
+msgid "I oppose this proposal"
+msgstr "I oppose this proposal"
+
+#: src/components/VoteModal.tsx
+msgid "I support this proposal"
+msgstr "I support this proposal"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -502,6 +600,14 @@ msgstr "Loaded: {v1JsonFileName}"
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
 
+#: src/components/ProposalDetail.tsx
+msgid "Loading proposal…"
+msgstr "Loading proposal…"
+
+#: src/components/ProposalList.tsx
+msgid "Loading proposals…"
+msgstr "Loading proposals…"
+
 #: src/components/Validators.tsx
 msgid "Loading validators…"
 msgstr "Loading validators…"
@@ -521,6 +627,7 @@ msgstr "Memo"
 #: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
 #: src/components/StakingActionModals.tsx
+#: src/components/VoteModal.tsx
 msgid "Memo (optional)"
 msgstr "Memo (optional)"
 
@@ -544,6 +651,11 @@ msgstr "Network endpoints"
 msgid "Network:"
 msgstr "Network:"
 
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "No"
+msgstr "No"
+
 #: src/components/ActiveDelegations.tsx
 msgid "No active delegations. Pick a validator above to start earning rewards."
 msgstr "No active delegations. Pick a validator above to start earning rewards."
@@ -556,6 +668,10 @@ msgstr "no active signer — unlock the vault and select an account"
 #: src/components/VaultSetup.tsx
 msgid "no keystore file selected"
 msgstr "no keystore file selected"
+
+#: src/components/ProposalList.tsx
+msgid "No proposals match this filter."
+msgstr "No proposals match this filter."
 
 #: src/components/ActiveDelegations.tsx
 msgid "No rewards to withdraw from this validator yet."
@@ -573,6 +689,15 @@ msgstr "No validators match the filter."
 msgid "no vault to unlock"
 msgstr "no vault to unlock"
 
+#: src/components/ProposalDetail.tsx
+msgid "No votes recorded yet."
+msgstr "No votes recorded yet."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "No with veto"
+msgstr "No with veto"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "not a v1 keystore file (missing version:1 or crypto block)"
@@ -586,6 +711,11 @@ msgstr "not a valid BIP39 mnemonic (check wordlist + checksum)"
 #: src/components/Header.tsx
 msgid "Open in tab"
 msgstr "Open in tab"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Passed"
+msgstr "Passed"
 
 #: src/components/UnlockScreen.tsx
 #: src/components/VaultEntryManager.tsx
@@ -626,6 +756,14 @@ msgstr "Pending rewards: <0>{0}</0> FUND"
 msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 
+#: src/components/ProposalList.tsx
+msgid "Proposals"
+msgstr "Proposals"
+
+#: src/components/ProposalDetail.tsx
+msgid "Proposer"
+msgstr "Proposer"
+
 #: src/components/VaultEntryManager.tsx
 msgid "Re-enter your wallet password to reveal the seed phrase."
 msgstr "Re-enter your wallet password to reveal the seed phrase."
@@ -654,6 +792,11 @@ msgstr "Redelegate FUND from this validator to another. No unbonding period appl
 #: src/components/InFlightQueues.tsx
 msgid "Redelegating"
 msgstr "Redelegating"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Rejected"
+msgstr "Rejected"
 
 #: src/components/Settings.tsx
 msgid "Remove endpoint"
@@ -783,6 +926,14 @@ msgstr "Starts a chain-defined unbonding period (typically 21 days on MainNet) b
 msgid "stored vault is not valid JSON (corrupted storage)"
 msgstr "stored vault is not valid JSON (corrupted storage)"
 
+#: src/components/VoteModal.tsx
+msgid "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
+msgstr "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
+
+#: src/components/ProposalDetail.tsx
+msgid "Submitted"
+msgstr "Submitted"
+
 #: src/components/TxModal.tsx
 msgid "Submitted! Tx: <0>{txHash}</0>"
 msgstr "Submitted! Tx: <0>{txHash}</0>"
@@ -790,6 +941,10 @@ msgstr "Submitted! Tx: <0>{txHash}</0>"
 #: src/components/AccountSwitcher.tsx
 msgid "Switch between accounts derived from your seeds or imported keys."
 msgstr "Switch between accounts derived from your seeds or imported keys."
+
+#: src/components/ProposalDetail.tsx
+msgid "Tally"
+msgstr "Tally"
 
 #: src/components/Settings.tsx
 msgid "Test connection"
@@ -824,11 +979,20 @@ msgstr "To"
 msgid "Total pending across all delegations: <0>{0}</0> FUND"
 msgstr "Total pending across all delegations: <0>{0}</0> FUND"
 
+#. placeholder {0}: nundToFund(total.toString())
+#: src/components/ProposalDetail.tsx
+msgid "Total stake voted: <0>{0}</0> FUND"
+msgstr "Total stake voted: <0>{0}</0> FUND"
+
 #. placeholder {0}: result.code.toString()
 #. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
 #: src/lib/useSubmitTx.ts
 msgid "transaction rejected (code={0}): {1}"
 msgstr "transaction rejected (code={0}): {1}"
+
+#: src/components/ProposalDetail.tsx
+msgid "Type"
+msgstr "Type"
 
 #: src/components/InFlightQueues.tsx
 msgid "Unbonding"
@@ -850,6 +1014,10 @@ msgstr "Undelegate from {moniker}"
 #: src/components/Header.tsx
 msgid "Unification Wallet"
 msgstr "Unification Wallet"
+
+#: src/components/ProposalStatusBadge.tsx
+msgid "Unknown"
+msgstr "Unknown"
 
 #: src/lib/useSubmitTx.ts
 msgid "unknown error"
@@ -928,6 +1096,29 @@ msgstr "vault plaintext is not valid JSON (corrupted)"
 msgid "Verifying…"
 msgstr "Verifying…"
 
+#. placeholder {0}: proposal?.id.toString() ?? ''
+#: src/components/VoteModal.tsx
+msgid "Vote on proposal #{0}"
+msgstr "Vote on proposal #{0}"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Voting"
+msgstr "Voting"
+
+#: src/components/ProposalDetail.tsx
+msgid "Voting ends"
+msgstr "Voting ends"
+
+#. placeholder {0}: votingEndRel.label
+#: src/components/ProposalList.tsx
+msgid "voting ends {0}"
+msgstr "voting ends {0}"
+
+#: src/components/ProposalDetail.tsx
+msgid "Voting is closed for this proposal."
+msgstr "Voting is closed for this proposal."
+
 #: src/App.tsx
 #: src/components/Header.tsx
 msgid "Wallet"
@@ -985,6 +1176,27 @@ msgstr "wrong password"
 msgid "wrong password or corrupted vault"
 msgstr "wrong password or corrupted vault"
 
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Yes"
+msgstr "Yes"
+
+#: src/components/ProposalDetail.tsx
+msgid "You haven't voted on this proposal yet."
+msgstr "You haven't voted on this proposal yet."
+
+#: src/components/ProposalDetail.tsx
+msgid "You voted <0><1/></0>"
+msgstr "You voted <0><1/></0>"
+
+#: src/components/VoteModal.tsx
+msgid "Your choice"
+msgstr "Your choice"
+
 #: src/components/ActiveDelegations.tsx
 msgid "Your delegations"
 msgstr "Your delegations"
+
+#: src/components/ProposalDetail.tsx
+msgid "Your vote"
+msgstr "Your vote"

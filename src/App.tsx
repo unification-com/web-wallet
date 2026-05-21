@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { ActiveDelegations } from '@/components/ActiveDelegations'
 import { Header } from '@/components/Header'
 import { InFlightQueues } from '@/components/InFlightQueues'
+import { ProposalDetail } from '@/components/ProposalDetail'
+import { ProposalList } from '@/components/ProposalList'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
 import { Settings } from '@/components/Settings'
@@ -72,12 +74,13 @@ export function App({ surface }: { surface: Surface }) {
   )
 }
 
-type UnlockedView = 'wallet' | 'staking' | 'settings'
+type UnlockedView = 'wallet' | 'staking' | 'gov' | 'settings'
 
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
   const [view, setView] = useState<UnlockedView>('wallet')
+  const [activeProposalId, setActiveProposalId] = useState<bigint | null>(null)
 
   // Resets the vault's idle-lock timer on user activity. Active only while
   // the unlocked shell is mounted (listeners added on unlock, removed on
@@ -134,6 +137,15 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         <ViewTab active={view === 'staking'} onClick={() => setView('staking')}>
           <Trans>Staking</Trans>
         </ViewTab>
+        <ViewTab
+          active={view === 'gov'}
+          onClick={() => {
+            setView('gov')
+            setActiveProposalId(null)
+          }}
+        >
+          <Trans>Governance</Trans>
+        </ViewTab>
       </nav>
 
       {view === 'wallet' && (
@@ -150,6 +162,16 @@ function UnlockedShell({ surface }: { surface: Surface }) {
           <Validators />
         </>
       )}
+
+      {view === 'gov' &&
+        (activeProposalId !== null ? (
+          <ProposalDetail
+            proposalId={activeProposalId}
+            onBack={() => setActiveProposalId(null)}
+          />
+        ) : (
+          <ProposalList onSelect={(id) => setActiveProposalId(id)} />
+        ))}
     </main>
   )
 }
