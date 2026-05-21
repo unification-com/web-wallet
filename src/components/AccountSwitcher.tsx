@@ -32,8 +32,9 @@ function isActive(active: VaultSignerRef | undefined, ref: VaultSignerRef): bool
 /**
  * Header-anchored Dialog listing every signer in the vault — per-seed account
  * groups plus imported keys. Click to switch active signer. Per-seed "Add
- * account" button derives the next HD index via `addAccountToSeed`. Rename
- * + delete affordances deferred to a focused follow-up.
+ * account" button derives the next HD index via `addAccountToSeed`. Rename +
+ * delete affordances live in Settings → Vault entries (`VaultEntryManager`)
+ * rather than this surface to keep the switcher dialog tight.
  */
 export function AccountSwitcher({ compact = false }: { compact?: boolean } = {}) {
   const { address } = useActiveSigner()
