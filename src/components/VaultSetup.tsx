@@ -301,15 +301,24 @@ export function VaultSetup({ surface }: { surface: Surface }) {
             />
             <span>I&apos;ve written the seed phrase down somewhere safe.</span>
           </label>
-          <button
-            type="button"
-            disabled={!acknowledged || submitting}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onClick={finishGenerate}
-            className="bg-green-600 text-white rounded py-1 text-sm hover:bg-green-700 disabled:opacity-50"
-          >
-            {submitting ? 'Finishing…' : 'Finish setup'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setStep('choose')}
+              className="border rounded py-1 px-3 text-sm hover:bg-gray-50"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              disabled={!acknowledged || submitting}
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={finishGenerate}
+              className="bg-green-600 text-white rounded py-1 px-3 text-sm hover:bg-green-700 disabled:opacity-50"
+            >
+              {submitting ? 'Finishing…' : 'Finish setup'}
+            </button>
+          </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
         </div>
       )}
