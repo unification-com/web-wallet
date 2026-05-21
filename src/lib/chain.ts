@@ -41,7 +41,7 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rpc: 'https://rpc-testnet.unification.io:443',
     rest: 'https://rest-testnet.unification.io',
     source: 'built-in',
-    txExplorerBase: 'https://explorer.unification.io/u-testnet/tx/',
+    txExplorerBase: 'https://explorer-testnet.unification.io/u/tx/',
   },
   devnet: {
     id: 'devnet',
