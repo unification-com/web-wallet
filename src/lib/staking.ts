@@ -1,6 +1,8 @@
 import {
   QueryClient,
+  setupDistributionExtension,
   setupStakingExtension,
+  type DistributionExtension,
   type StakingExtension,
 } from '@cosmjs/stargate'
 import { Comet38Client } from '@cosmjs/tendermint-rpc'
@@ -128,14 +130,18 @@ export function commissionRate(v: Validator): number {
 // Query client setup — cosmjs StakingExtension over Comet38 RPC
 // ---------------------------------------------------------------------------
 
-type StakingQueryClient = QueryClient & StakingExtension
+type StakingQueryClient = QueryClient & StakingExtension & DistributionExtension
 
 async function makeStakingClient(rpc: string): Promise<{
   client: StakingQueryClient
   disconnect: () => void
 }> {
   const cometClient = await Comet38Client.connect(rpc)
-  const client = QueryClient.withExtensions(cometClient, setupStakingExtension)
+  const client = QueryClient.withExtensions(
+    cometClient,
+    setupStakingExtension,
+    setupDistributionExtension,
+  )
   return {
     client,
     disconnect: () => cometClient.disconnect(),
@@ -209,6 +215,30 @@ export function useUnbondingDelegations(address: string | null) {
     },
     enabled: !!address,
     refetchInterval: 60_000,
+  })
+}
+
+/**
+ * Pending rewards for `address` across all delegated validators. Returns
+ * `{ rewards: ValidatorReward[], total: Coin[] }` — per-validator breakdown
+ * plus the aggregated total across all delegations.
+ */
+export function useDelegatorRewards(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['staking', 'rewards', endpoint.id, address],
+    queryFn: async () => {
+      if (!address) return { rewards: [], total: [] }
+      const { client, disconnect } = await makeStakingClient(endpoint.rpc)
+      try {
+        const res = await client.distribution.delegationTotalRewards(address)
+        return { rewards: res.rewards, total: res.total }
+      } finally {
+        disconnect()
+      }
+    },
+    enabled: !!address,
+    refetchInterval: 30_000,
   })
 }
 

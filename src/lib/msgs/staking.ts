@@ -67,3 +67,122 @@ export const DEFAULT_STAKING_FEE = {
   amount: [{ denom: 'nund', amount: '25000000' }],
   gas: '250000',
 }
+
+// ---------------------------------------------------------------------------
+// Undelegate
+// ---------------------------------------------------------------------------
+
+export const UndelegateFormSchema = z.object({
+  validatorAddress: z
+    .string()
+    .regex(VALIDATOR_BECH32_RE, 'validator must be a valid undvaloper1… address'),
+  amountFund: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/, 'amount must be a positive decimal'),
+  denom: z.string().default('nund'),
+  memo: z.string().max(256).optional(),
+})
+
+export type UndelegateFormValues = z.infer<typeof UndelegateFormSchema>
+
+/** Build a `MsgUndelegate` EncodeObject. */
+export function buildMsgUndelegate(params: {
+  delegatorAddress: string
+  validatorAddress: string
+  amountFund: string
+  denom: string
+}): EncodeObject {
+  return {
+    typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+    value: {
+      delegatorAddress: params.delegatorAddress,
+      validatorAddress: params.validatorAddress,
+      amount: {
+        denom: params.denom,
+        amount: fundToNund(params.amountFund),
+      },
+    },
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Redelegate (begin redelegation from one validator to another)
+// ---------------------------------------------------------------------------
+
+export const RedelegateFormSchema = z.object({
+  srcValidatorAddress: z
+    .string()
+    .regex(VALIDATOR_BECH32_RE, 'source validator must be a valid undvaloper1… address'),
+  dstValidatorAddress: z
+    .string()
+    .regex(VALIDATOR_BECH32_RE, 'destination validator must be a valid undvaloper1… address'),
+  amountFund: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/, 'amount must be a positive decimal'),
+  denom: z.string().default('nund'),
+  memo: z.string().max(256).optional(),
+}).refine((data) => data.srcValidatorAddress !== data.dstValidatorAddress, {
+  message: 'source and destination validators must differ',
+  path: ['dstValidatorAddress'],
+})
+
+export type RedelegateFormValues = z.infer<typeof RedelegateFormSchema>
+
+/** Build a `MsgBeginRedelegate` EncodeObject. */
+export function buildMsgBeginRedelegate(params: {
+  delegatorAddress: string
+  srcValidatorAddress: string
+  dstValidatorAddress: string
+  amountFund: string
+  denom: string
+}): EncodeObject {
+  return {
+    typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+    value: {
+      delegatorAddress: params.delegatorAddress,
+      validatorSrcAddress: params.srcValidatorAddress,
+      validatorDstAddress: params.dstValidatorAddress,
+      amount: {
+        denom: params.denom,
+        amount: fundToNund(params.amountFund),
+      },
+    },
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Withdraw delegator rewards (one Msg per validator)
+// ---------------------------------------------------------------------------
+
+/** Build a `MsgWithdrawDelegatorReward` EncodeObject. */
+export function buildMsgWithdrawDelegatorReward(params: {
+  delegatorAddress: string
+  validatorAddress: string
+}): EncodeObject {
+  return {
+    typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+    value: {
+      delegatorAddress: params.delegatorAddress,
+      validatorAddress: params.validatorAddress,
+    },
+  }
+}
+
+/**
+ * Build a multi-Msg `withdraw all rewards` payload — one
+ * `MsgWithdrawDelegatorReward` per validator the user is delegating to.
+ * Submitted as a single transaction; gas scales linearly so a delegator
+ * with many positions needs a higher gas cap (handled in the UI via a
+ * dynamic fee multiplier).
+ */
+export function buildMsgsWithdrawAllRewards(params: {
+  delegatorAddress: string
+  validatorAddresses: readonly string[]
+}): readonly EncodeObject[] {
+  return params.validatorAddresses.map((validatorAddress) =>
+    buildMsgWithdrawDelegatorReward({
+      delegatorAddress: params.delegatorAddress,
+      validatorAddress,
+    }),
+  )
+}

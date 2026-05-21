@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/react/macro'
 import { useEffect, useState } from 'react'
 
+import { ActiveDelegations } from '@/components/ActiveDelegations'
 import { Header } from '@/components/Header'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
@@ -141,7 +142,12 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         </>
       )}
 
-      {view === 'staking' && <Validators />}
+      {view === 'staking' && (
+        <>
+          <ActiveDelegations />
+          <Validators />
+        </>
+      )}
     </main>
   )
 }

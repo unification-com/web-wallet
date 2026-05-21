@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/components/StakingActionModals.tsx
+msgid "-- pick a destination --"
+msgstr "-- pick a destination --"
+
 #. placeholder {0}: ping.height.toLocaleString()
 #: src/components/Settings.tsx
 msgid "· height {0}"
@@ -28,6 +32,16 @@ msgstr "(opens tab)"
 msgid "{0} account{1}"
 msgstr "{0} account{1}"
 
+#. placeholder {0}: formatNundFund(stakeNund)
+#: src/components/ActiveDelegations.tsx
+msgid "{0} FUND"
+msgstr "{0} FUND"
+
+#. placeholder {0}: (delegations ?? []).filter((d) => { const r = rewardsByValidator.get(d.delegation.validatorAddress) return r && BigInt(r.split('.')[0] ?? '0') > 0n }).length
+#: src/components/ActiveDelegations.tsx
+msgid "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
+msgstr "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
+
 #. placeholder {0}: filteredSorted.length
 #. placeholder {1}: validators.length
 #: src/components/Validators.tsx
@@ -41,6 +55,11 @@ msgstr "{commissionPct}% fee"
 #: src/components/VaultEntryManager.tsx
 msgid "{seedLabel} — seed phrase"
 msgstr "{seedLabel} — seed phrase"
+
+#. placeholder {0}: formatNundFund(pending)
+#: src/components/ActiveDelegations.tsx
+msgid "+{0} pending"
+msgstr "+{0} pending"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -107,6 +126,14 @@ msgstr "Amount"
 msgid "Amount (FUND)"
 msgstr "Amount (FUND)"
 
+#: src/components/StakingActionModals.tsx
+msgid "Amount to redelegate (FUND)"
+msgstr "Amount to redelegate (FUND)"
+
+#: src/components/StakingActionModals.tsx
+msgid "Amount to undelegate (FUND)"
+msgstr "Amount to undelegate (FUND)"
+
 #: src/lib/vault/store.ts
 msgid "auto-lock timeout must be a positive integer (ms)"
 msgstr "auto-lock timeout must be a positive integer (ms)"
@@ -161,6 +188,14 @@ msgstr "Chain ID"
 #: src/components/Settings.tsx
 msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+
+#: src/components/StakingActionModals.tsx
+msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
+msgstr "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
+
+#: src/components/ActiveDelegations.tsx
+msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
+msgstr "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
 
 #: src/components/EndpointSwitcher.tsx
 msgid "click to switch"
@@ -228,6 +263,11 @@ msgstr "Create wallet"
 msgid "Creating…"
 msgstr "Creating…"
 
+#. placeholder {0}: formatNundFund(currentDelegationNund)
+#: src/components/StakingActionModals.tsx
+msgid "Currently delegated: <0>{0}</0> FUND"
+msgstr "Currently delegated: <0>{0}</0> FUND"
+
 #: src/components/Settings.tsx
 msgid "Custom"
 msgstr "Custom"
@@ -266,6 +306,10 @@ msgstr "Delete seed"
 #: src/components/VaultEntryManager.tsx
 msgid "Deleting…"
 msgstr "Deleting…"
+
+#: src/components/StakingActionModals.tsx
+msgid "Destination validator"
+msgstr "Destination validator"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
@@ -427,6 +471,10 @@ msgstr "Loaded: {fileName}"
 msgid "Loaded: {v1JsonFileName}"
 msgstr "Loaded: {v1JsonFileName}"
 
+#: src/components/ActiveDelegations.tsx
+msgid "Loading delegations…"
+msgstr "Loading delegations…"
+
 #: src/components/Validators.tsx
 msgid "Loading validators…"
 msgstr "Loading validators…"
@@ -441,6 +489,7 @@ msgstr "Memo"
 
 #: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
+#: src/components/StakingActionModals.tsx
 msgid "Memo (optional)"
 msgstr "Memo (optional)"
 
@@ -464,6 +513,10 @@ msgstr "Network endpoints"
 msgid "Network:"
 msgstr "Network:"
 
+#: src/components/ActiveDelegations.tsx
+msgid "No active delegations. Pick a validator above to start earning rewards."
+msgstr "No active delegations. Pick a validator above to start earning rewards."
+
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
@@ -472,6 +525,10 @@ msgstr "no active signer — unlock the vault and select an account"
 #: src/components/VaultSetup.tsx
 msgid "no keystore file selected"
 msgstr "no keystore file selected"
+
+#: src/components/ActiveDelegations.tsx
+msgid "No rewards to withdraw from this validator yet."
+msgstr "No rewards to withdraw from this validator yet."
 
 #: src/components/VaultEntryManager.tsx
 msgid "No seeds or imported keys yet — use Add another above to start."
@@ -529,6 +586,11 @@ msgstr "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
 msgid "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
 msgstr "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
 
+#. placeholder {0}: formatNundFund(pendingRewardsNund)
+#: src/components/StakingActionModals.tsx
+msgid "Pending rewards: <0>{0}</0> FUND"
+msgstr "Pending rewards: <0>{0}</0> FUND"
+
 #: src/components/DelegateModal.tsx
 msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
@@ -544,6 +606,19 @@ msgstr "Receive"
 #: src/components/Send.tsx
 msgid "Recipient"
 msgstr "Recipient"
+
+#: src/components/ActiveDelegations.tsx
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate"
+msgstr "Redelegate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate from {srcMoniker}"
+msgstr "Redelegate from {srcMoniker}"
+
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate FUND from this validator to another. No unbonding period applies — the destination starts earning rewards immediately — but the destination is locked from further redelegation until the unbonding-period window passes."
+msgstr "Redelegate FUND from this validator to another. No unbonding period applies — the destination starts earning rewards immediately — but the destination is locked from further redelegation until the unbonding-period window passes."
 
 #: src/components/Settings.tsx
 msgid "Remove endpoint"
@@ -665,6 +740,10 @@ msgstr "Share this address or scan the QR code to receive FUND. Anyone with the 
 msgid "Staking"
 msgstr "Staking"
 
+#: src/components/StakingActionModals.tsx
+msgid "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
+msgstr "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
+
 #: src/components/TxModal.tsx
 msgid "Submitted! Tx: <0>{txHash}</0>"
 msgstr "Submitted! Tx: <0>{txHash}</0>"
@@ -701,6 +780,11 @@ msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-
 msgid "To"
 msgstr "To"
 
+#. placeholder {0}: formatNundFund(totalRewardsNund)
+#: src/components/ActiveDelegations.tsx
+msgid "Total pending across all delegations: <0>{0}</0> FUND"
+msgstr "Total pending across all delegations: <0>{0}</0> FUND"
+
 #. placeholder {0}: result.code.toString()
 #. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
 #: src/lib/useSubmitTx.ts
@@ -710,6 +794,15 @@ msgstr "transaction rejected (code={0}): {1}"
 #: src/components/Send.tsx
 msgid "und1…"
 msgstr "und1…"
+
+#: src/components/ActiveDelegations.tsx
+#: src/components/StakingActionModals.tsx
+msgid "Undelegate"
+msgstr "Undelegate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Undelegate from {moniker}"
+msgstr "Undelegate from {moniker}"
 
 #: src/components/Header.tsx
 msgid "Unification Wallet"
@@ -797,6 +890,31 @@ msgstr "Verifying…"
 msgid "Wallet"
 msgstr "Wallet"
 
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw"
+msgstr "Withdraw"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all"
+msgstr "Withdraw all"
+
+#. placeholder {0}: formatNundFund(totalRewardsNund)
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all (~{0} FUND)"
+msgstr "Withdraw all (~{0} FUND)"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all rewards"
+msgstr "Withdraw all rewards"
+
+#: src/components/StakingActionModals.tsx
+msgid "Withdraw rewards"
+msgstr "Withdraw rewards"
+
+#: src/components/StakingActionModals.tsx
+msgid "Withdraw rewards from {moniker}"
+msgstr "Withdraw rewards from {moniker}"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "word1 word2 word3 …"
@@ -823,3 +941,7 @@ msgstr "wrong password"
 #: src/lib/vault/crypto.ts
 msgid "wrong password or corrupted vault"
 msgstr "wrong password or corrupted vault"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Your delegations"
+msgstr "Your delegations"
