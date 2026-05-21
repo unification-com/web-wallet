@@ -119,28 +119,40 @@ export function TxModal({
           </p>
         )}
         <DialogFooter className="gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={submitting}
-            onClick={onCancel}
-          >
-            <Trans>Cancel</Trans>
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            disabled={!canSubmit || submitting}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onClick={onConfirm}
-          >
-            {submitting ? (
-              <Trans>Broadcasting…</Trans>
-            ) : (
-              (confirmLabel ?? <Trans>Confirm</Trans>)
-            )}
-          </Button>
+          {txHash ? (
+            // Success state — swap Cancel/Confirm for a single Close button so
+            // the user can't accidentally re-broadcast the same Tx, and the
+            // post-success modal doesn't carry stale form data behind a still-
+            // active "Confirm" affordance.
+            <Button type="button" size="sm" onClick={onCancel}>
+              <Trans>Close</Trans>
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={submitting}
+                onClick={onCancel}
+              >
+                <Trans>Cancel</Trans>
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canSubmit || submitting}
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onClick={onConfirm}
+              >
+                {submitting ? (
+                  <Trans>Broadcasting…</Trans>
+                ) : (
+                  (confirmLabel ?? <Trans>Confirm</Trans>)
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

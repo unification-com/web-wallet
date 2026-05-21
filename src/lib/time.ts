@@ -1,5 +1,23 @@
 import { useEffect, useState } from 'react'
 
+/** Proto `google.protobuf.Timestamp` shape (cosmjs-types). */
+export interface ProtoTimestamp {
+  seconds: bigint
+  nanos: number
+}
+
+/**
+ * Convert a cosmjs-decoded proto `Timestamp` to a JS `Date`. Returns
+ * `undefined` for missing / zero timestamps (the proto default-init shape).
+ * Nanosecond precision is dropped — JS `Date` is millisecond resolution.
+ */
+export function timestampToDate(ts: ProtoTimestamp | undefined): Date | undefined {
+  if (!ts) return undefined
+  if (ts.seconds === 0n && ts.nanos === 0) return undefined
+  const ms = Number(ts.seconds) * 1000 + Math.floor(ts.nanos / 1_000_000)
+  return new Date(ms)
+}
+
 /**
  * Re-render the consumer every `intervalMs` so visible deadline countdowns
  * (unbonding entries, redelegation entries) refresh without a full data

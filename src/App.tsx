@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { ActiveDelegations } from '@/components/ActiveDelegations'
 import { Header } from '@/components/Header'
+import { InFlightQueues } from '@/components/InFlightQueues'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
 import { Settings } from '@/components/Settings'
@@ -144,6 +145,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
 
       {view === 'staking' && (
         <>
+          <InFlightQueues />
           <ActiveDelegations />
           <Validators />
         </>

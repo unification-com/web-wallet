@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatRelativeDeadline } from './time'
+import { formatRelativeDeadline, timestampToDate } from './time'
 
 const NOW = new Date('2026-05-21T12:00:00Z')
 
@@ -55,5 +55,26 @@ describe('time.formatRelativeDeadline', () => {
     const r = formatRelativeDeadline(target, NOW, 'en')
     // numeric:'auto' may emit "tomorrow" for 1-day deltas — accept either form.
     expect(r.label).toMatch(/tomorrow|day/)
+  })
+})
+
+describe('time.timestampToDate', () => {
+  it('returns undefined for missing / zero timestamps', () => {
+    expect(timestampToDate(undefined)).toBeUndefined()
+    expect(timestampToDate({ seconds: 0n, nanos: 0 })).toBeUndefined()
+  })
+
+  it('converts proto Timestamp to JS Date at millisecond resolution', () => {
+    const target = new Date('2026-05-21T12:00:00.500Z')
+    const seconds = BigInt(Math.floor(target.getTime() / 1000))
+    const nanos = (target.getMilliseconds() % 1000) * 1_000_000
+    const d = timestampToDate({ seconds, nanos })
+    expect(d).toBeDefined()
+    expect(d!.toISOString()).toBe('2026-05-21T12:00:00.500Z')
+  })
+
+  it('drops sub-millisecond precision (floor)', () => {
+    const ts = { seconds: 0n, nanos: 999_999 } // 0.999999 ms → 0 ms
+    expect(timestampToDate(ts)!.getTime()).toBe(0)
   })
 })

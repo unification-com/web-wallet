@@ -8,8 +8,11 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "predev": "yarn lingui:extract",
     "dev": "vite",
+    "prebuild": "yarn lingui:extract",
     "build": "tsc -b && vite build",
+    "prebuild:web": "yarn lingui:extract",
     "build:web": "tsc -b && vite build --mode web",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",

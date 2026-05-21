@@ -1,3 +1,7 @@
+import { msg } from '@lingui/core/macro'
+
+import { i18n } from '@/lib/i18n'
+
 import { EncryptedVaultSchema, type EncryptedVault } from './types'
 
 /**
@@ -86,7 +90,7 @@ export async function loadEncryptedVault(): Promise<EncryptedVault | null> {
   try {
     parsed = JSON.parse(raw)
   } catch {
-    throw new Error('stored vault is not valid JSON (corrupted storage)')
+    throw new Error(i18n._(msg`stored vault is not valid JSON (corrupted storage)`))
   }
   return EncryptedVaultSchema.parse(parsed)
 }

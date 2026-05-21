@@ -12,7 +12,10 @@
 import { rawSecp256k1PubkeyToRawAddress } from '@cosmjs/amino'
 import { Secp256k1, Slip10, Slip10Curve, stringToPath } from '@cosmjs/crypto'
 import { fromHex, toBech32, toHex } from '@cosmjs/encoding'
+import { msg } from '@lingui/core/macro'
 import * as bip39 from 'bip39'
+
+import { i18n } from '@/lib/i18n'
 
 /** Unification BIP44 coin type (registered SLIP-44 entry). */
 const UNIFICATION_COIN_TYPE = 5555
@@ -80,10 +83,10 @@ export async function deriveAccount(
   accountIndex: number,
 ): Promise<DerivedAccount> {
   if (!validateMnemonic(mnemonic)) {
-    throw new Error('invalid BIP39 mnemonic (failed checksum or unknown word)')
+    throw new Error(i18n._(msg`invalid BIP39 mnemonic (failed checksum or unknown word)`))
   }
   if (!Number.isInteger(accountIndex) || accountIndex < 0) {
-    throw new Error('accountIndex must be a non-negative integer')
+    throw new Error(i18n._(msg`accountIndex must be a non-negative integer`))
   }
   // `const seed: Uint8Array` annotation pins the type at the bip39 boundary —
   // tsc + typescript-eslint then both agree the chain through SLIP-10 is sound.
