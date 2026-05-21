@@ -28,6 +28,7 @@ interface AddState {
   label: string
   rpc: string
   rest: string
+  txExplorerBase: string
   rpcPing: PerEndpointPing
   restPing: PerEndpointPing
   saveError: string | null
@@ -39,6 +40,7 @@ const emptyAdd = (): AddState => ({
   label: '',
   rpc: '',
   rest: '',
+  txExplorerBase: '',
   rpcPing: idlePing,
   restPing: idlePing,
   saveError: null,
@@ -138,6 +140,9 @@ export function Settings({
         label: add.label.trim(),
         rpc: add.rpc.trim(),
         ...(add.rest.trim() ? { rest: add.rest.trim() } : {}),
+        ...(add.txExplorerBase.trim()
+          ? { txExplorerBase: add.txExplorerBase.trim() }
+          : {}),
       })
       setAdd(emptyAdd())
     } catch (err) {
@@ -274,6 +279,26 @@ export function Settings({
                 className="font-mono text-xs"
               />
               <PingHint ping={add.restPing} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="ep-explorer">
+                <Trans>Explorer base URL (optional)</Trans>
+              </Label>
+              <Input
+                id="ep-explorer"
+                value={add.txExplorerBase}
+                onChange={(e) =>
+                  setAdd((s) => ({ ...s, txExplorerBase: e.target.value, saveError: null }))
+                }
+                placeholder="https://explorer.example.com/tx/"
+                className="font-mono text-xs"
+              />
+              <span className="text-[11px] text-muted-foreground">
+                <Trans>
+                  When set, tx hashes in the wallet become clickable links built by
+                  appending the upper-case hash to this URL.
+                </Trans>
+              </span>
             </div>
             {chainIdMismatch && (
               <p className="text-xs text-destructive flex items-start gap-1">

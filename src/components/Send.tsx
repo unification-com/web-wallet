@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useBalance } from '@/lib/balance'
+import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import {
   buildMsgSend,
   fundToNund,
@@ -246,14 +247,34 @@ export function Send() {
         {error && !pendingValues && (
           <p className="text-xs text-destructive break-words">{error.message}</p>
         )}
-        {txHash && (
-          <p className="text-xs text-green-700 break-all">
-            <Trans>
-              Sent! Tx: <span className="font-mono">{txHash}</span>
-            </Trans>
-          </p>
-        )}
+        {txHash && <SentLine txHash={txHash} />}
       </CardContent>
     </Card>
+  )
+}
+
+function SentLine({ txHash }: { txHash: string }) {
+  const endpoint = useActiveEndpoint()
+  const href = txExplorerUrl(endpoint, txHash)
+  return (
+    <p className="text-xs text-green-700 break-all">
+      {href ? (
+        <Trans>
+          Sent! Tx:{' '}
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono hover:underline"
+          >
+            {txHash}
+          </a>
+        </Trans>
+      ) : (
+        <Trans>
+          Sent! Tx: <span className="font-mono">{txHash}</span>
+        </Trans>
+      )}
+    </p>
   )
 }

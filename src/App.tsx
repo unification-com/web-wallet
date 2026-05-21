@@ -9,6 +9,7 @@ import { ProposalList } from '@/components/ProposalList'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
 import { Settings } from '@/components/Settings'
+import { TxHistory } from '@/components/TxHistory'
 import { Card, CardContent } from '@/components/ui/card'
 import { UnlockScreen } from '@/components/UnlockScreen'
 import { Validators } from '@/components/Validators'
@@ -74,7 +75,7 @@ export function App({ surface }: { surface: Surface }) {
   )
 }
 
-type UnlockedView = 'wallet' | 'staking' | 'gov' | 'settings'
+type UnlockedView = 'wallet' | 'staking' | 'gov' | 'history' | 'settings'
 
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
@@ -146,6 +147,9 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         >
           <Trans>Governance</Trans>
         </ViewTab>
+        <ViewTab active={view === 'history'} onClick={() => setView('history')}>
+          <Trans>History</Trans>
+        </ViewTab>
       </nav>
 
       {view === 'wallet' && (
@@ -172,6 +176,8 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         ) : (
           <ProposalList onSelect={(id) => setActiveProposalId(id)} />
         ))}
+
+      {view === 'history' && <TxHistory />}
     </main>
   )
 }

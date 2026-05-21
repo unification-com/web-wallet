@@ -64,6 +64,12 @@ export const CustomEndpointSchema = z.object({
   rest: z.string().url().optional(),
   /** Chain ID captured at add-time after the node_info sanity check. */
   chainId: z.string().min(1).optional(),
+  /**
+   * Optional explorer base URL for tx-hash deep-links — e.g.
+   * `https://example.com/tx/`. The tx-history view + Send success-line
+   * append the upper-case hash to build the final URL.
+   */
+  txExplorerBase: z.string().url().optional(),
   createdAt: z.number().int(),
 })
 

@@ -17,6 +17,13 @@ export interface ChainEndpoint {
   rpc: string
   rest: string
   source: 'built-in' | 'custom'
+  /**
+   * Optional explorer base URL for tx-hash deep-links. When set, the tx-
+   * history view + Send success-line render the hash as a clickable link.
+   * The final URL is built by appending the upper-case hash, so the base
+   * must include any required path segment (e.g. `…/tx/`).
+   */
+  txExplorerBase?: string
 }
 
 const BUILT_IN: Record<string, ChainEndpoint> = {
@@ -26,6 +33,7 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rpc: 'https://rpc1.unification.io:443',
     rest: 'https://rest.unification.io',
     source: 'built-in',
+    txExplorerBase: 'https://explorer.unification.io/u/tx/',
   },
   testnet: {
     id: 'testnet',
@@ -33,6 +41,7 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rpc: 'https://rpc-testnet.unification.io:443',
     rest: 'https://rest-testnet.unification.io',
     source: 'built-in',
+    txExplorerBase: 'https://explorer.unification.io/u-testnet/tx/',
   },
   devnet: {
     id: 'devnet',
@@ -40,7 +49,18 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rpc: 'http://localhost:26657',
     rest: 'http://localhost:1317',
     source: 'built-in',
+    // No public explorer for the local DevNet container.
   },
+}
+
+/**
+ * Build the explorer-link URL for a given tx hash on the active endpoint.
+ * Returns null when the endpoint has no `txExplorerBase` configured — UI
+ * callers should render the hash as plain monospace text in that case.
+ */
+export function txExplorerUrl(endpoint: ChainEndpoint, hash: string): string | null {
+  if (!endpoint.txExplorerBase) return null
+  return `${endpoint.txExplorerBase}${hash.toUpperCase()}`
 }
 
 /** Look up a built-in endpoint by id. Returns null for unknown ids. */
@@ -61,6 +81,7 @@ export function customToChainEndpoint(c: CustomEndpoint): ChainEndpoint {
     rpc: c.rpc,
     rest: c.rest ?? '',
     source: 'custom',
+    ...(c.txExplorerBase ? { txExplorerBase: c.txExplorerBase } : {}),
   }
 }
 
