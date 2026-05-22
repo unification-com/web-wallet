@@ -109,7 +109,7 @@ msgid "{srcMoniker} → {dstMoniker}"
 msgstr "{srcMoniker} → {dstMoniker}"
 
 #. placeholder {0}: proposal.id.toString()
-#. placeholder {1}: proposal.title
+#. placeholder {1}: getProposalTitle(proposal) || '(untitled)'
 #: src/components/ProposalDetail.tsx
 msgid "#{0} — {1}"
 msgstr "#{0} — {1}"
@@ -501,6 +501,7 @@ msgid "Decision"
 msgstr "Decision"
 
 #: src/components/DelegateModal.tsx
+#: src/components/Validators.tsx
 msgid "Delegate"
 msgstr "Delegate"
 

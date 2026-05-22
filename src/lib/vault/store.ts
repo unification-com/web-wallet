@@ -136,6 +136,41 @@ function clearIdleTimer() {
   }
 }
 
+/**
+ * Pick the next unused integer suffix for a label of the form `${prefix} N`.
+ * Pure helper used by `addSeed` / `addAccountToSeed` / `importV1Keystore` so
+ * default labels don't collide after a delete-then-add cycle (array-length
+ * heuristic would re-issue the deleted entry's number).
+ */
+export function nextLabelWithPrefix(prefix: string, existing: readonly string[]): string {
+  const taken = new Set(existing)
+  let n = 1
+  while (taken.has(`${prefix} ${n.toString()}`)) n++
+  return `${prefix} ${n.toString()}`
+}
+
+/**
+ * Pick a fallback signer when the active one is being removed. Prefers the
+ * first remaining seed's account 0; falls back to the first imported key;
+ * returns undefined when the vault has no other entries (in which case the
+ * UI lands back on VaultSetup, which is the correct empty-vault state).
+ *
+ * `excludingSeedId` / `excludingImportedKeyId` let the caller pre-exclude
+ * the entry being deleted (the deletion is queued in the same mutate fn).
+ */
+export function pickFallbackSigner(
+  vault: Vault,
+  excluding: { seedId?: string; importedKeyId?: string } = {},
+): VaultSignerRef | undefined {
+  const seed = vault.seeds.find((s) => s.id !== excluding.seedId)
+  if (seed && seed.accounts.length > 0) {
+    return { kind: 'vault-seed', seedId: seed.id, accountIndex: seed.accounts[0].index }
+  }
+  const imported = vault.importedKeys.find((k) => k.id !== excluding.importedKeyId)
+  if (imported) return { kind: 'vault-imported', id: imported.id }
+  return undefined
+}
+
 // ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
@@ -229,9 +264,10 @@ export const useVaultStore = create<VaultState>((set, get) => {
       const account0 = await deriveAccount(mnemonic, 0)
       const seedId = uuid()
       const now = Date.now()
+      const existingSeedLabels = get().vault!.seeds.map((s) => s.label)
       const seed: SeedEntry = {
         id: seedId,
-        label: label ?? `Seed ${get().vault!.seeds.length + 1}`,
+        label: label ?? nextLabelWithPrefix('Seed', existingSeedLabels),
         mnemonic,
         accounts: [
           {
@@ -255,9 +291,10 @@ export const useVaultStore = create<VaultState>((set, get) => {
           ? 0
           : Math.max(...seed.accounts.map((a) => a.index)) + 1
       const derived = await deriveAccount(seed.mnemonic, nextIndex)
+      const existingAccountLabels = seed.accounts.map((a) => a.label)
       const account: SeedAccount = {
         index: nextIndex,
-        label: label ?? `Account ${nextIndex + 1}`,
+        label: label ?? nextLabelWithPrefix('Account', existingAccountLabels),
         address: derived.address,
       }
       await persistMutation((v) => ({
@@ -270,16 +307,26 @@ export const useVaultStore = create<VaultState>((set, get) => {
     },
 
     async removeSeed(seedId) {
-      await persistMutation((v) => ({
-        ...v,
-        seeds: v.seeds.filter((s) => s.id !== seedId),
-        // If active signer pointed at this seed, clear it.
-        preferences:
+      await persistMutation((v) => {
+        const activePointsAtRemoved =
           v.preferences.activeSignerRef?.kind === 'vault-seed' &&
           v.preferences.activeSignerRef.seedId === seedId
-            ? { ...v.preferences, activeSignerRef: undefined }
-            : v.preferences,
-      }))
+        const nextActive = activePointsAtRemoved
+          ? pickFallbackSigner(v, { seedId })
+          : v.preferences.activeSignerRef
+        return {
+          ...v,
+          seeds: v.seeds.filter((s) => s.id !== seedId),
+          // Conditional spread: `activeSignerRef` is optional in the schema
+          // and `exactOptionalPropertyTypes: true` forbids an explicit
+          // `undefined`. When there's no fallback, omit the key.
+          preferences: {
+            ...v.preferences,
+            ...(nextActive ? { activeSignerRef: nextActive } : {}),
+            ...(activePointsAtRemoved && !nextActive ? { activeSignerRef: undefined } : {}),
+          },
+        }
+      })
     },
 
     async renameSeed(seedId, label) {
@@ -307,10 +354,10 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     async importV1Keystore(json, password, label) {
       const decrypted = await decryptV1Keystore(json, password)
+      const existingLabels = get().vault!.importedKeys.map((k) => k.label)
       const entry: ImportedKeyEntry = {
         id: uuid(),
-        label:
-          label ?? `Imported ${get().vault!.importedKeys.length + 1} (v1 JSON)`,
+        label: label ?? nextLabelWithPrefix('Imported', existingLabels),
         privateKey: decrypted.privateKey,
         address: decrypted.address,
         source: 'v1-json',
@@ -324,15 +371,23 @@ export const useVaultStore = create<VaultState>((set, get) => {
     },
 
     async removeImportedKey(id) {
-      await persistMutation((v) => ({
-        ...v,
-        importedKeys: v.importedKeys.filter((k) => k.id !== id),
-        preferences:
+      await persistMutation((v) => {
+        const activePointsAtRemoved =
           v.preferences.activeSignerRef?.kind === 'vault-imported' &&
           v.preferences.activeSignerRef.id === id
-            ? { ...v.preferences, activeSignerRef: undefined }
-            : v.preferences,
-      }))
+        const nextActive = activePointsAtRemoved
+          ? pickFallbackSigner(v, { importedKeyId: id })
+          : v.preferences.activeSignerRef
+        return {
+          ...v,
+          importedKeys: v.importedKeys.filter((k) => k.id !== id),
+          preferences: {
+            ...v.preferences,
+            ...(nextActive ? { activeSignerRef: nextActive } : {}),
+            ...(activePointsAtRemoved && !nextActive ? { activeSignerRef: undefined } : {}),
+          },
+        }
+      })
     },
 
     async renameImportedKey(id, label) {

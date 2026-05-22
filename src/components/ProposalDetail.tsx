@@ -8,6 +8,8 @@ import { VoteModal } from '@/components/VoteModal'
 import {
   ProposalStatus,
   VoteOption,
+  getProposalSummary,
+  getProposalTitle,
   isVoteable,
   tallyPercentages,
   tallyTotal,
@@ -94,7 +96,7 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
           <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0 gap-2">
             <div className="flex flex-col min-w-0">
               <CardTitle className="text-sm leading-snug">
-                <Trans>#{proposal.id.toString()} — {proposal.title}</Trans>
+                <Trans>#{proposal.id.toString()} — {getProposalTitle(proposal) || '(untitled)'}</Trans>
               </CardTitle>
               {proposal.expedited && (
                 <span className="text-[10px] uppercase tracking-wider text-amber-700 mt-0.5">
@@ -105,9 +107,12 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
             <ProposalStatusBadge status={proposal.status} size="md" />
           </CardHeader>
           <CardContent className="p-4 pt-2 flex flex-col gap-3 text-xs">
-            {proposal.summary && (
-              <p className="whitespace-pre-wrap text-muted-foreground">{proposal.summary}</p>
-            )}
+            {(() => {
+              const summary = getProposalSummary(proposal)
+              return summary ? (
+                <p className="whitespace-pre-wrap text-muted-foreground">{summary}</p>
+              ) : null
+            })()}
 
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
               {messageTypes.length > 0 && (

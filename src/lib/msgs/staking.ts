@@ -57,15 +57,17 @@ export function buildMsgDelegate(params: {
 }
 
 /**
- * Default fee for delegate / undelegate / redelegate / withdraw Txs.
- * Aligned with v1's `DEFAULT_STAKING_FEES` style — slightly more gas than
- * a bank send since the staking module's keeper does more work, but the
- * same fee denomination + amount. Chain-side this is well within the
- * minimum-gas-prices floor for `nund`.
+ * Default fee for delegate / undelegate / redelegate / withdraw Txs. Gas
+ * budget set with ~40% headroom over the observed worst-case (redelegate
+ * landed at 250764 gas during 2026-05-22 smoke — same-validator hand-off
+ * to a new track plus updating two delegation records is the most
+ * expensive single-Msg staking op). Fee amount stays well over the
+ * chain's `25nund/gas` minimum-gas-prices floor. Gas estimation +
+ * advanced user-override accordion is a backlog item (see SESSION_HANDOFF).
  */
 export const DEFAULT_STAKING_FEE = {
   amount: [{ denom: 'nund', amount: '25000000' }],
-  gas: '250000',
+  gas: '350000',
 }
 
 // ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { TxModal } from '@/components/TxModal'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { VoteOption, type Proposal } from '@/lib/gov'
+import { getProposalTitle, VoteOption, type Proposal } from '@/lib/gov'
 import { buildMsgVote, DEFAULT_VOTE_FEE } from '@/lib/msgs/gov'
 import { useActiveSigner } from '@/lib/signer'
 
@@ -50,8 +50,11 @@ export function VoteModal({ open, onOpenChange, proposal }: VoteModalProps) {
       }
       formBody={
         <div className="flex flex-col gap-3 text-sm">
-          <p className="text-xs text-muted-foreground truncate" title={proposal?.title}>
-            {proposal?.title ?? ''}
+          <p
+            className="text-xs text-muted-foreground truncate"
+            title={proposal ? getProposalTitle(proposal) : ''}
+          >
+            {proposal ? getProposalTitle(proposal) : ''}
           </p>
 
           <fieldset className="flex flex-col gap-2">

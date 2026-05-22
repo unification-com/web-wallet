@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ProposalStatus,
+  getProposalTitle,
   isVoteable,
   sortProposals,
   useProposals,
@@ -95,6 +96,10 @@ function ProposalRow({
 }) {
   const votingEnd = timestampToDate(proposal.votingEndTime)
   const votingEndRel = votingEnd ? formatRelativeDeadline(votingEnd, now) : undefined
+  // Falls back to the wrapped v1beta1 TextProposal.title when the v1
+  // top-level title is empty (older proposals submitted via the legacy
+  // MsgExecLegacyContent route).
+  const title = getProposalTitle(proposal)
 
   return (
     <li>
@@ -107,8 +112,8 @@ function ProposalRow({
           #{proposal.id.toString()}
         </span>
         <span className="flex flex-col flex-1 min-w-0">
-          <span className="font-medium truncate" title={proposal.title}>
-            {proposal.title || <Trans>(untitled)</Trans>}
+          <span className="font-medium truncate" title={title}>
+            {title || <Trans>(untitled)</Trans>}
           </span>
           {isVoteable(proposal) && votingEndRel && !votingEndRel.complete && (
             <span className="text-[10px] text-muted-foreground">

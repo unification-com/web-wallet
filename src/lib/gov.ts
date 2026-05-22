@@ -11,6 +11,8 @@ import {
   type Vote,
 } from 'cosmjs-types/cosmos/gov/v1/gov'
 import { QueryClientImpl } from 'cosmjs-types/cosmos/gov/v1/query'
+import { MsgExecLegacyContent } from 'cosmjs-types/cosmos/gov/v1/tx'
+import { TextProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov'
 
 import { useActiveEndpoint } from './chain'
 
@@ -74,6 +76,50 @@ async function makeGovClient(rpc: string): Promise<{
  */
 export function isVoteable(p: Pick<Proposal, 'status'>): boolean {
   return Number(p.status) === Number(ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD)
+}
+
+/**
+ * Extract a legacy `TextProposal` (or any other v1beta1 typed content) from
+ * a v1 proposal's `messages[0]`. Older proposals submitted via the v1beta1
+ * route are stored on a v1-running chain as a single
+ * `MsgExecLegacyContent` wrapping the original content; the v1 top-level
+ * `title` / `summary` fields are blank on those entries. Returns null when
+ * the proposal isn't in legacy-content shape.
+ */
+function legacyTextContent(proposal: Pick<Proposal, 'messages'>): TextProposal | null {
+  const first = proposal.messages[0]
+  if (!first) return null
+  if (first.typeUrl !== '/cosmos.gov.v1.MsgExecLegacyContent') return null
+  try {
+    const exec = MsgExecLegacyContent.decode(first.value)
+    const content = exec.content
+    if (!content) return null
+    if (content.typeUrl !== '/cosmos.gov.v1beta1.TextProposal') return null
+    return TextProposal.decode(content.value)
+  } catch {
+    // Malformed legacy content — fall back to the v1 fields (likely blank).
+    return null
+  }
+}
+
+/**
+ * Effective proposal title — prefers the v1 top-level `title`, falls back
+ * to the wrapped v1beta1 `TextProposal.title` when the proposal was
+ * submitted via the legacy `MsgExecLegacyContent` route. Used in the list
+ * + detail views so really old proposals don't render as "(untitled)".
+ */
+export function getProposalTitle(proposal: Pick<Proposal, 'title' | 'messages'>): string {
+  if (proposal.title) return proposal.title
+  return legacyTextContent(proposal)?.title ?? ''
+}
+
+/**
+ * Effective proposal summary — same fallback as `getProposalTitle`. The
+ * v1beta1 `description` is the analogue of v1 `summary`.
+ */
+export function getProposalSummary(proposal: Pick<Proposal, 'summary' | 'messages'>): string {
+  if (proposal.summary) return proposal.summary
+  return legacyTextContent(proposal)?.description ?? ''
 }
 
 /**
