@@ -108,8 +108,8 @@ msgid "{0} txs"
 msgstr "{0} txs"
 
 #: src/components/Validators.tsx
-msgid "{commissionPct}% fee"
-msgstr "{commissionPct}% fee"
+#~ msgid "{commissionPct}% fee"
+#~ msgstr "{commissionPct}% fee"
 
 #: src/lib/msgs/presenters.ts
 msgid "{module}: {short}"
@@ -253,6 +253,10 @@ msgstr "Amount to redelegate (FUND)"
 msgid "Amount to undelegate (FUND)"
 msgstr "Amount to undelegate (FUND)"
 
+#: src/components/AppearanceSettings.tsx
+msgid "Appearance"
+msgstr "Appearance"
+
 #: src/components/GasAccordion.tsx
 msgid "Apply estimate"
 msgstr "Apply estimate"
@@ -371,8 +375,12 @@ msgid "Channel"
 msgstr "Channel"
 
 #: src/components/AddSignerCard.tsx
-msgid "Check"
-msgstr "Check"
+#~ msgid "Check"
+#~ msgstr "Check"
+
+#: src/components/VaultSetup.tsx
+msgid "Choose how to start"
+msgstr "Choose how to start"
 
 #: src/components/StakingActionModals.tsx
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
@@ -461,6 +469,14 @@ msgstr "Copy key"
 msgid "Copy phrase"
 msgstr "Copy phrase"
 
+#: src/components/AppearanceSettings.tsx
+msgid "Cosmos"
+msgstr "Cosmos"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Cosmos is the default — refined, soft, brand-blue. Mainframe is an industrial terminal-style alternate; same wallet, denser visual rhythm."
+msgstr "Cosmos is the default — refined, soft, brand-blue. Mainframe is an industrial terminal-style alternate; same wallet, denser visual rhythm."
+
 #. placeholder {0}: proposalId.toString()
 #: src/components/ProposalDetail.tsx
 msgid "Couldn't load proposal #{0}."
@@ -523,13 +539,17 @@ msgstr "Currently delegated: <0>{0}</0> FUND"
 msgid "Custom"
 msgstr "Custom"
 
+#: src/components/AppearanceSettings.tsx
+msgid "Dark"
+msgstr "Dark"
+
 #: src/lib/msgs/presenters.ts
 msgid "Decision"
 msgstr "Decision"
 
 #: src/components/AddSignerCard.tsx
-msgid "Decrypt locally + check for duplicates without saving"
-msgstr "Decrypt locally + check for duplicates without saving"
+#~ msgid "Decrypt locally + check for duplicates without saving"
+#~ msgstr "Decrypt locally + check for duplicates without saving"
 
 #: src/components/DelegateModal.tsx
 #: src/components/Validators.tsx
@@ -875,6 +895,7 @@ msgid "Import an existing seed"
 msgstr "Import an existing seed"
 
 #: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
 msgid "Import existing seed"
 msgstr "Import existing seed"
 
@@ -961,6 +982,10 @@ msgstr "Label"
 msgid "label is required"
 msgstr "label is required"
 
+#: src/components/AppearanceSettings.tsx
+msgid "Light"
+msgstr "Light"
+
 #. placeholder {0}: Math.min(more, PAGE_SIZE).toString()
 #: src/components/TxHistory.tsx
 msgid "Load {0} more"
@@ -1002,6 +1027,10 @@ msgstr "Loading…"
 msgid "Lock wallet"
 msgstr "Lock wallet"
 
+#: src/components/AppearanceSettings.tsx
+msgid "Mainframe"
+msgstr "Mainframe"
+
 #: src/components/InFlightQueues.tsx
 msgid "Maturing…"
 msgstr "Maturing…"
@@ -1034,6 +1063,10 @@ msgstr "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key onl
 #: src/components/AddSignerCard.tsx
 msgid "Mnemonic"
 msgstr "Mnemonic"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Mode"
+msgstr "Mode"
 
 #: src/lib/msgs/presenters.ts
 msgid "Module"
@@ -1274,6 +1307,10 @@ msgstr "Purchased wrkchain storage"
 msgid "Purchaser"
 msgstr "Purchaser"
 
+#: src/components/ProposalDetail.tsx
+msgid "Quorum · In progress"
+msgstr "Quorum · In progress"
+
 #: src/lib/msgs/presenters.ts
 msgid "Raised eFUND purchase order"
 msgstr "Raised eFUND purchase order"
@@ -1464,6 +1501,10 @@ msgstr "Save endpoint"
 msgid "Save seed"
 msgstr "Save seed"
 
+#: src/components/VaultSetup.tsx
+msgid "Save your seed phrase"
+msgstr "Save your seed phrase"
+
 #: src/components/AddSignerCard.tsx
 msgid "Saving…"
 msgstr "Saving…"
@@ -1523,6 +1564,10 @@ msgid "Sent! Tx: <0>{txHash}</0>"
 msgstr "Sent! Tx: <0>{txHash}</0>"
 
 #: src/components/VaultSetup.tsx
+msgid "Set a password"
+msgstr "Set a password"
+
+#: src/components/VaultSetup.tsx
 msgid "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
 msgstr "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
 
@@ -1542,6 +1587,10 @@ msgstr "Settings"
 #: src/components/Receive.tsx
 msgid "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
 msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+
+#: src/components/TxHistory.tsx
+msgid "Showing txs indexed by this RPC. Public nodes typically prune older entries from the tx index — for full history, see your account on a block explorer."
+msgstr "Showing txs indexed by this RPC. Public nodes typically prune older entries from the tx index — for full history, see your account on a block explorer."
 
 #: src/lib/msgs/presenters.ts
 msgid "Signer"
@@ -1566,6 +1615,10 @@ msgstr "Slow ({0})"
 msgid "Splits"
 msgstr "Splits"
 
+#: src/components/Validators.tsx
+msgid "staked"
+msgstr "staked"
+
 #: src/App.tsx
 msgid "Staking"
 msgstr "Staking"
@@ -1573,6 +1626,11 @@ msgstr "Staking"
 #: src/components/StakingActionModals.tsx
 msgid "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
 msgstr "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
+
+#. placeholder {0}: stepNum.toString()
+#: src/components/VaultSetup.tsx
+msgid "Step {0} / 3 · {stepLabel}"
+msgstr "Step {0} / 3 · {stepLabel}"
 
 #: src/lib/vault/storage.ts
 msgid "stored vault is not valid JSON (corrupted storage)"
@@ -1610,6 +1668,10 @@ msgstr "Submitter"
 msgid "Switch between accounts derived from your seeds or imported keys."
 msgstr "Switch between accounts derived from your seeds or imported keys."
 
+#: src/components/AppearanceSettings.tsx
+msgid "System"
+msgstr "System"
+
 #: src/components/ProposalDetail.tsx
 msgid "Tally"
 msgstr "Tally"
@@ -1634,6 +1696,18 @@ msgstr "The private key will be removed from the vault."
 msgid "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
 msgstr "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
 
+#: src/components/AppearanceSettings.tsx
+msgid "Theme"
+msgstr "Theme"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Theme mode"
+msgstr "Theme mode"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Theme palette"
+msgstr "Theme palette"
+
 #: src/components/UnlockScreen.tsx
 msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
 msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
@@ -1643,6 +1717,26 @@ msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-
 #: src/components/AddSignerCard.tsx
 msgid "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
 msgstr "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
+
+#. placeholder {0}: match.containerLabel
+#. placeholder {1}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This private key's address ({address}) already exists in your vault as {0}{1}. Delete it first if you want to re-import."
+msgstr "This private key's address ({address}) already exists in your vault as {0}{1}. Delete it first if you want to re-import."
+
+#. placeholder {0}: account0.address
+#. placeholder {1}: match.containerLabel
+#. placeholder {2}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+msgstr "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+
+#. placeholder {0}: decrypted.address
+#. placeholder {1}: match.containerLabel
+#. placeholder {2}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+msgstr "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 
 #: src/lib/msgs/presenters.ts
 msgid "Timestamp ID"
@@ -1665,6 +1759,11 @@ msgstr "To validator"
 msgid "Topped up stream deposit"
 msgstr "Topped up stream deposit"
 
+#. placeholder {0}: nundToFund(total.toString())
+#: src/components/ProposalDetail.tsx
+msgid "Total <0>{0}</0> FUND"
+msgstr "Total <0>{0}</0> FUND"
+
 #: src/lib/msgs/presenters.ts
 msgid "Total claimed"
 msgstr "Total claimed"
@@ -1678,10 +1777,9 @@ msgstr "Total moved"
 msgid "Total pending across all delegations: <0>{0}</0> FUND"
 msgstr "Total pending across all delegations: <0>{0}</0> FUND"
 
-#. placeholder {0}: nundToFund(total.toString())
 #: src/components/ProposalDetail.tsx
-msgid "Total stake voted: <0>{0}</0> FUND"
-msgstr "Total stake voted: <0>{0}</0> FUND"
+#~ msgid "Total stake voted: <0>{0}</0> FUND"
+#~ msgstr "Total stake voted: <0>{0}</0> FUND"
 
 #. placeholder {0}: result.code.toString()
 #. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)

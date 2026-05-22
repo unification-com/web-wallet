@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertTriangle, ArrowLeft, Check, Loader2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
+import { AppearanceSettings } from '@/components/AppearanceSettings'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -189,6 +190,8 @@ export function Settings({
           <Trans>Settings</Trans>
         </h1>
       </div>
+
+      <AppearanceSettings />
 
       <Card>
         <CardHeader className="p-4 pb-2">

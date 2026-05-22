@@ -81,6 +81,19 @@ export function TxHistory() {
             <Trans>Load {Math.min(more, PAGE_SIZE).toString()} more</Trans>
           </Button>
         )}
+        {/* Honest footnote about tx-index pruning: public RPCs typically
+         *  retain only recent-block tx events, so very old activity may
+         *  not appear here even when the chain itself still has the txs.
+         *  M12 Phase 2 will add a block-explorer link for full history. */}
+        {!isLoading && !isError && all.length > 0 && (
+          <p className="text-[10px] text-muted-foreground italic pt-1">
+            <Trans>
+              Showing txs indexed by this RPC. Public nodes typically prune older
+              entries from the tx index — for full history, see your account on a block
+              explorer.
+            </Trans>
+          </p>
+        )}
       </CardContent>
     </Card>
   )

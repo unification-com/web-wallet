@@ -1,8 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro'
-import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, ChevronDown, ChevronRight, ExternalLink, Info } from 'lucide-react'
 import { useMemo, useState } from 'react'
-
-
 
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import {
@@ -21,14 +19,9 @@ interface TxRowProps {
 }
 
 /**
- * Single tx-history row. Resolves the presenter per Msg in the tx body
- * and renders verb + structured items. Multi-Msg txs surface as a stack
- * of per-Msg sub-rows; the row header summarises the first Msg's verb +
- * the count if more than one is present.
- *
- * Expandable detail panel shows raw chain context: tx hash (linkable when
- * the active endpoint has `txExplorerBase` configured), height, gas, fee,
- * memo, code (non-zero = failure).
+ * Single tx-history row. Structure preserved from the previous design;
+ * only the direction badge / failed badge / chevron treatment have moved
+ * to the new tokens so the row inherits the active theme.
  */
 export function TxRow({ tx, activeAddress }: TxRowProps) {
   const { t } = useLingui()
@@ -52,7 +45,7 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
   const memo = tx.decoded.body.memo
 
   return (
-    <li className="flex flex-col gap-1 border border-border rounded p-2 text-xs">
+    <li className="flex flex-col gap-1 border border-border rounded bg-card p-2.5 text-xs">
       <button
         type="button"
         className="flex items-start gap-2 text-left w-full"
@@ -63,6 +56,7 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
         ) : (
           <ChevronRight className="h-3 w-3 mt-1 shrink-0 text-muted-foreground" />
         )}
+        <DirectionGlyph direction={headlineDirection} />
         <span className="flex flex-col flex-1 min-w-0">
           <span className="flex items-center gap-2">
             <span className="font-medium truncate">
@@ -75,12 +69,12 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
             </span>
             <DirectionBadge direction={headlineDirection} />
             {tx.code !== 0 && (
-              <span className="text-[10px] px-1 py-0.5 rounded uppercase tracking-wider bg-red-100 text-red-900">
+              <span className="text-[10px] px-1.5 py-0.5 rounded uppercase tracking-[0.08em] font-mono font-semibold bg-destructive/15 text-destructive border border-destructive/30">
                 <Trans>Failed</Trans>
               </span>
             )}
           </span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[10px] text-muted-foreground font-mono">
             <Trans>
               h{tx.height.toString()} · {presented.length.toString()}{' '}
               {presented.length === 1 ? <>msg</> : <>msgs</>}
@@ -96,7 +90,7 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
             {presented.map((p, i) => (
               <li
                 key={`${tx.hash}-msg-${i.toString()}`}
-                className="rounded border border-border bg-muted/30 p-2 flex flex-col gap-1"
+                className="rounded border border-border bg-surface-sunk p-2 flex flex-col gap-1"
               >
                 <span className="font-medium flex items-center gap-2">
                   {p.verb}
@@ -121,7 +115,7 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
                   href={explorerHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline inline-flex items-center gap-1"
+                  className="text-primary hover:underline inline-flex items-center gap-1"
                   title={t`Open in block explorer`}
                 >
                   {tx.hash}
@@ -206,6 +200,35 @@ function PresenterItemRow({ item }: { item: PresenterItem }) {
   )
 }
 
+/**
+ * Leading glyph in the row header — colour-coded soft-pill icon. Reads at
+ * a glance ahead of the direction badge text. Keeps WCAG AA without
+ * relying on colour alone (the badge text remains).
+ */
+function DirectionGlyph({ direction }: { direction: TxDirection }) {
+  const cls = 'h-3.5 w-3.5'
+  switch (direction) {
+    case 'sent':
+      return (
+        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-destructive/15 text-destructive">
+          <ArrowUpRight className={cls} />
+        </span>
+      )
+    case 'received':
+      return (
+        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-success/15 text-success">
+          <ArrowDownLeft className={cls} />
+        </span>
+      )
+    default:
+      return (
+        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-primary/15 text-primary">
+          <Info className={cls} />
+        </span>
+      )
+  }
+}
+
 function DirectionBadge({ direction }: { direction: TxDirection }) {
   const { t } = useLingui()
   let label: string
@@ -213,18 +236,20 @@ function DirectionBadge({ direction }: { direction: TxDirection }) {
   switch (direction) {
     case 'sent':
       label = t`Sent`
-      cls = 'bg-amber-100 text-amber-900'
+      cls = 'bg-destructive/12 text-destructive border-destructive/30'
       break
     case 'received':
       label = t`Received`
-      cls = 'bg-green-100 text-green-900'
+      cls = 'bg-success/12 text-success border-success/30'
       break
     default:
       label = t`Info`
-      cls = 'bg-muted text-muted-foreground'
+      cls = 'bg-muted text-muted-foreground border-border'
   }
   return (
-    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${cls}`}>
+    <span
+      className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-[0.08em] font-mono font-semibold shrink-0 border ${cls}`}
+    >
       {label}
     </span>
   )

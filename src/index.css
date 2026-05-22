@@ -1,58 +1,361 @@
+/*
+ * Unification Web Wallet — v2 skin
+ * ─────────────────────────────────────────────────────────────────────
+ *
+ * Two themes, two modes:
+ *
+ *   class on <html>           result
+ *   ──────────────────────────────────────────────────────────────────
+ *   (none)                    Cosmos · Light
+ *   .dark                     Cosmos · Dark            ← default ship state
+ *   .theme-mainframe          Mainframe · Light
+ *   .dark.theme-mainframe     Mainframe · Dark
+ *
+ * Theme toggle UI lands in Settings (M11). Until then, ship with
+ *   <html class="dark"> in src/lib/bootstrap.tsx
+ * so first-run users see Cosmos · Dark.
+ *
+ * ── Direction at a glance ─────────────────────────────────────────────
+ *
+ * Cosmos (default) — refined-minimal. Soft 12px radii, electric brand blue
+ *   #4F9CF9, warm-gold rewards accent. Geist + Geist Mono. Subtle elevation
+ *   shadows. The "trustworthy + technical" baseline most users meet.
+ *
+ * Mainframe (opt-in) — industrial / terminal. Sharp 2px corners, cyan
+ *   #4FD4E8 on near-black, monospace-led structure with CAPS labels and
+ *   bracket CTAs. JetBrains Mono + Inter. For power users who want the
+ *   wallet to feel like dev tooling.
+ *
+ * ── Token contract ────────────────────────────────────────────────────
+ *
+ * Every shadcn semantic token from the previous index.css is preserved.
+ * Added (non-breaking):
+ *   --color-success, --color-success-foreground   (tx receive, vote yes)
+ *   --color-warning, --color-warning-foreground   (unbond, deposit period)
+ *   --color-surface-sunk        (inputs, inset card variants)
+ *   --color-border-strong       (high-contrast borders — focus rings, etc.)
+ *   --color-brand-accent-fg     (text colour on the gold accent fill)
+ *   --font-sans, --font-mono, --font-display   (Tailwind v4 font tokens)
+ *   --shadow-elevated           (Cosmos card lift — `none` in Mainframe)
+ *
+ * Existing names kept verbatim so any class consuming them (bg-primary,
+ * text-muted-foreground, etc.) still resolves untouched.
+ *
+ * ── Fonts ─────────────────────────────────────────────────────────────
+ *
+ * Self-hosted. Place the .woff2 files at src/assets/fonts/ — Vite copies
+ * them into the extension bundle so we never reach out to a CDN at
+ * runtime (MV3 + offline use). Sources:
+ *   Geist + Geist Mono   github.com/vercel/geist-font            (OFL)
+ *   Inter                rsms.me/inter                            (OFL)
+ *   JetBrains Mono       jetbrains.com/lp/mono                    (OFL)
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/*
- * shadcn/ui v4 + Tailwind v4 theme tokens. Light-only for now; dark variant
- * lands during the M1.10c palette polish pass.
- *
- * Unification brand colours (`--color-brand-*`) preserved alongside shadcn's
- * semantic tokens so existing components can keep using them while new
- * shadcn primitives consume `--color-primary` etc.
- */
+/* ─── @font-face: self-hosted, swap so layout doesn't block on font load ── */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/Geist-Variable.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/GeistMono-Variable.woff2") format("woff2-variations");
+  font-feature-settings: "ss01", "cv01", "tnum";
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/Inter-Variable.woff2") format("woff2-variations");
+  font-feature-settings: "cv11", "ss01";
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("./assets/fonts/JetBrainsMono-Variable.woff2") format("woff2-variations");
+  font-feature-settings: "calt", "ss19", "tnum";
+}
+
+/* ─── Theme tokens: Cosmos · LIGHT (the @theme baseline) ────────────────── */
+
 @theme {
-  /* Unification brand — ported from OLD_VUE/src/assets/scss/custom-vars.scss */
+  /* Fonts ─ Tailwind v4 picks these up automatically as font-sans/mono/display */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-background: #ffffff;
+  --color-foreground: #0b1220;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0b1220;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0b1220;
+
+  --color-surface-sunk: #f4f6fa;     /* inputs, inset cards */
+
+  /* Brand — Cosmos electric blue */
+  --color-primary: #1d6dab;          /* preserves legacy brand hex for parity */
+  --color-primary-foreground: #ffffff;
+
+  /* Secondary / muted / accent */
+  --color-secondary: #f1f4f9;
+  --color-secondary-foreground: #0b1220;
+
+  --color-muted: #f1f4f9;
+  --color-muted-foreground: #5b6878;
+
+  --color-accent: #f5a623;           /* warm gold (preserved from v1) */
+  --color-accent-foreground: #2a1a04;
+  --color-brand-accent-fg: #2a1a04;  /* alias used in places that fill with accent */
+
+  /* Semantic states */
+  --color-destructive: #c43838;
+  --color-destructive-foreground: #ffffff;
+
+  --color-success: #1a8a4f;
+  --color-success-foreground: #ffffff;
+
+  --color-warning: #b45309;
+  --color-warning-foreground: #ffffff;
+
+  /* Lines & focus */
+  --color-border: #e3e8f0;
+  --color-border-strong: #c6cfdc;
+  --color-input: #e3e8f0;
+  --color-ring: #1d6dab;
+
+  /* Legacy v1 aliases — keep so any older class still resolves */
   --color-brand-primary: #1d6dab;
   --color-brand-accent: #f5a623;
 
-  /* shadcn semantic tokens (neutral base + Unification blue primary) */
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
+  /* Geometry */
+  --radius: 0.75rem;                 /* 12px — Cosmos soft */
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+
+  /* Shadows */
+  --shadow-elevated: 0 1px 2px rgba(11, 18, 32, 0.06),
+                     0 8px 24px rgba(11, 18, 32, 0.06);
+}
+
+/* ─── Cosmos · DARK (default shipping state) ────────────────────────────── */
+
+.dark {
+  --color-background: #080c18;
+  --color-foreground: #f1f5fb;
+
+  --color-card: #0f1525;
+  --color-card-foreground: #f1f5fb;
+
+  --color-popover: #161e33;
+  --color-popover-foreground: #f1f5fb;
+
+  --color-surface-sunk: #0a0f1c;
+
+  --color-primary: #4f9cf9;
+  --color-primary-foreground: #061227;
+
+  --color-secondary: #161e33;
+  --color-secondary-foreground: #f1f5fb;
+
+  --color-muted: #161e33;
+  --color-muted-foreground: #94a4bd;
+
+  --color-accent: #ffb95c;
+  --color-accent-foreground: #2a1a04;
+  --color-brand-accent-fg: #2a1a04;
+
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #2a0b0b;
+
+  --color-success: #34d399;
+  --color-success-foreground: #062b1a;
+
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #2a1a04;
+
+  --color-border: rgba(148, 170, 200, 0.10);
+  --color-border-strong: rgba(148, 170, 200, 0.22);
+  --color-input: rgba(148, 170, 200, 0.16);
+  --color-ring: #4f9cf9;
+
+  --color-brand-primary: #4f9cf9;
+  --color-brand-accent: #ffb95c;
+
+  --shadow-elevated: 0 1px 2px rgba(0, 0, 0, 0.40),
+                     0 8px 24px rgba(0, 0, 0, 0.32);
+}
+
+/* ─── Mainframe · LIGHT (opt-in alt theme) ──────────────────────────────── */
+
+.theme-mainframe {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
+  --font-display: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: #f7f8fa;
+  --color-foreground: #0a0e14;
 
   --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
+  --color-card-foreground: #0a0e14;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #0a0a0a;
+  --color-popover-foreground: #0a0e14;
 
-  --color-primary: #1d6dab;
-  --color-primary-foreground: #fafafa;
+  --color-surface-sunk: #eef1f5;
 
-  --color-secondary: #f5f5f5;
-  --color-secondary-foreground: #171717;
+  --color-primary: #0e7a92;          /* deepened cyan for AA on white */
+  --color-primary-foreground: #ffffff;
 
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
+  --color-secondary: #eef1f5;
+  --color-secondary-foreground: #0a0e14;
 
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #171717;
+  --color-muted: #eef1f5;
+  --color-muted-foreground: #566373;
 
-  --color-destructive: #dc2626;
-  --color-destructive-foreground: #fafafa;
+  --color-accent: #b45309;
+  --color-accent-foreground: #ffffff;
+  --color-brand-accent-fg: #ffffff;
 
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #1d6dab;
+  --color-destructive: #b91c1c;
+  --color-destructive-foreground: #ffffff;
 
-  --radius: 0.5rem;
+  --color-success: #15803d;
+  --color-success-foreground: #ffffff;
+
+  --color-warning: #b45309;
+  --color-warning-foreground: #ffffff;
+
+  --color-border: #d6dde6;
+  --color-border-strong: #aeb8c5;
+  --color-input: #d6dde6;
+  --color-ring: #0e7a92;
+
+  --color-brand-primary: #0e7a92;
+  --color-brand-accent: #b45309;
+
+  --radius: 0.125rem;                /* 2px — sharp */
+  --radius-sm: 0.125rem;
+  --radius-lg: 0.25rem;
+
+  --shadow-elevated: none;
 }
+
+/* ─── Mainframe · DARK ──────────────────────────────────────────────────── */
+
+.dark.theme-mainframe {
+  --color-background: #070a10;
+  --color-foreground: #e6ecf5;
+
+  --color-card: #0d131c;
+  --color-card-foreground: #e6ecf5;
+
+  --color-popover: #141c28;
+  --color-popover-foreground: #e6ecf5;
+
+  --color-surface-sunk: #0a0f16;
+
+  --color-primary: #4fd4e8;
+  --color-primary-foreground: #06121a;
+
+  --color-secondary: #141c28;
+  --color-secondary-foreground: #e6ecf5;
+
+  --color-muted: #141c28;
+  --color-muted-foreground: #8fa0b6;
+
+  --color-accent: #fbbf24;
+  --color-accent-foreground: #2a1a04;
+  --color-brand-accent-fg: #2a1a04;
+
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #2a0b0b;
+
+  --color-success: #5fe39a;
+  --color-success-foreground: #062b1a;
+
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #2a1a04;
+
+  --color-border: #1b2532;
+  --color-border-strong: #2a3849;
+  --color-input: #2a3849;
+  --color-ring: #4fd4e8;
+
+  --color-brand-primary: #4fd4e8;
+  --color-brand-accent: #fbbf24;
+
+  --shadow-elevated: none;
+}
+
+/* ─── Base layout + font defaults ───────────────────────────────────────── */
 
 html, body, #root {
   height: 100%;
 }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
+  font-family: var(--font-sans);
   background-color: var(--color-background);
+  color: var(--color-foreground);
+  /* tabular-nums everywhere so amount columns line up without per-element opt-in.
+     `font-mono` utility still overrides where we want explicit mono. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mainframe-only: subtle pixel grid backdrop. Hidden in Cosmos. */
+.theme-mainframe body {
+  background-image:
+    linear-gradient(rgba(120, 140, 170, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 140, 170, 0.04) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+.dark.theme-mainframe body {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* Focus ring — kept accessible across both themes */
+:where(button, [role="button"], a, input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbars — slim, themed */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+/* Selection */
+::selection {
+  background: color-mix(in oklab, var(--color-primary) 30%, transparent);
   color: var(--color-foreground);
 }

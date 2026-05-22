@@ -99,10 +99,29 @@ const ActiveEndpointIdSchema = z.union([
   z.string().uuid(),
 ])
 
+/** UI theme variants — picks the colour palette + light/dark mode. */
+export const ThemeModeSchema = z.enum(['system', 'light', 'dark'])
+export const ThemePaletteSchema = z.enum(['cosmos', 'mainframe'])
+export type ThemeMode = z.infer<typeof ThemeModeSchema>
+export type ThemePalette = z.infer<typeof ThemePaletteSchema>
+
 export const VaultPreferencesSchema = z.object({
   activeEndpointId: ActiveEndpointIdSchema.default('mainnet'),
   activeSignerRef: VaultSignerRefSchema.optional(),
   autoLockTimeoutMs: z.number().int().positive().default(DEFAULT_AUTO_LOCK_MS),
+  /**
+   * UI theme mode. `system` follows the OS-level prefers-color-scheme;
+   * `light` / `dark` override it. Optional — older vaults deserialise
+   * without the field and the consumer (`useTheme()`) treats undefined
+   * as `system`.
+   */
+  themeMode: ThemeModeSchema.optional(),
+  /**
+   * UI theme palette. `cosmos` is the refined brand-blue default;
+   * `mainframe` is the industrial terminal-style alternate. Optional —
+   * undefined defaults to `cosmos`.
+   */
+  themePalette: ThemePaletteSchema.optional(),
 })
 
 export const VaultSchema = z.object({

@@ -211,12 +211,29 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
                   count={effectiveTally?.noWithVetoCount}
                   colour="bg-red-900"
                 />
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  <Trans>
-                    Total stake voted:{' '}
-                    <span className="font-mono">{nundToFund(total.toString())}</span> FUND
-                  </Trans>
-                </p>
+                <div className="border-t pt-2 mt-1 flex items-center justify-between text-[10px] uppercase tracking-[0.08em] font-mono text-muted-foreground">
+                  <span>
+                    {/*
+                     * Quorum strip — designer-spec'd "✓ Reached / · In
+                     * progress" CAPS strip. Full quorum-vs-staked-supply
+                     * comparison needs the gov tallying-params query, which
+                     * we don't yet hit; surfaced as "In progress" for now
+                     * with a M13 follow-up to query the actual quorum + show
+                     * Reached / Not reached. Total-stake-voted line stays as
+                     * the visible scale anchor in the meantime.
+                     */}
+                    <Trans>Quorum · In progress</Trans>
+                  </span>
+                  <span>
+                    <Trans>
+                      Total{' '}
+                      <span className="font-mono normal-case">
+                        {nundToFund(total.toString())}
+                      </span>{' '}
+                      FUND
+                    </Trans>
+                  </span>
+                </div>
               </>
             )}
           </CardContent>
@@ -290,24 +307,30 @@ function TallyBar({
   count: string | undefined
   colour: string
 }) {
+  // Stacked labelled-row treatment per the M5 deliverable design system:
+  // label + percentage on top (the easy-to-scan numbers), bar + raw count
+  // below. Reads top-to-bottom rather than left-to-right, which gives the
+  // tally section more vertical rhythm against the rest of the detail view.
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-24 text-[11px]">{label}</span>
-      <div className="flex-1 h-2 rounded bg-muted overflow-hidden">
-        <div
-          className={`h-full ${colour}`}
-          style={{ width: `${percent.toString()}%` }}
-        />
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <span>{label}</span>
+        <span className="tabular-nums font-mono">{percent.toFixed(2)}%</span>
       </div>
-      <span className="w-16 text-right tabular-nums text-[11px]">
-        {percent.toFixed(2)}%
-      </span>
-      <span
-        className="w-20 text-right tabular-nums font-mono text-[10px] text-muted-foreground"
-        title={count ?? '0'}
-      >
-        {nundToFund(count)}
-      </span>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-1.5 rounded bg-muted overflow-hidden">
+          <div
+            className={`h-full ${colour}`}
+            style={{ width: `${percent.toString()}%` }}
+          />
+        </div>
+        <span
+          className="w-24 text-right tabular-nums font-mono text-[10px] text-muted-foreground"
+          title={count ?? '0'}
+        >
+          {nundToFund(count)} FUND
+        </span>
+      </div>
     </div>
   )
 }

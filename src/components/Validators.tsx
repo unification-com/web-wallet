@@ -5,10 +5,12 @@ import { DelegateModal } from '@/components/DelegateModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { useActiveSigner } from '@/lib/signer'
 import {
   commissionRate,
   isActiveValidator,
   sortValidators,
+  useDelegations,
   useValidators,
   type Validator,
 } from '@/lib/staking'
@@ -37,8 +39,18 @@ function formatTokensAsFund(tokens: string): string {
 export function Validators() {
   const { t } = useLingui()
   const { data: validators, isLoading, isError, error } = useValidators()
+  const { address } = useActiveSigner()
+  const { data: delegations } = useDelegations(address)
   const [search, setSearch] = useState('')
   const [delegateTarget, setDelegateTarget] = useState<Validator | null>(null)
+
+  // Pre-compute the set of validator operator addresses the user has stake
+  // with — used to surface a "staked" chip on those rows.
+  const stakedSet = useMemo<Set<string>>(() => {
+    const s = new Set<string>()
+    for (const d of delegations ?? []) s.add(d.delegation.validatorAddress)
+    return s
+  }, [delegations])
 
   const filteredSorted = useMemo<Validator[]>(() => {
     if (!validators) return []
@@ -85,11 +97,15 @@ export function Validators() {
 
         {filteredSorted.length > 0 && (
           <ul className="flex flex-col gap-1 max-h-[400px] overflow-y-auto">
-            {filteredSorted.map((v) => {
+            {filteredSorted.map((v, i) => {
               const active = isActiveValidator(v)
               const moniker = v.description?.moniker ?? v.operatorAddress
               const commissionPct = (commissionRate(v) * 100).toFixed(2)
               const canDelegate = active && !v.jailed
+              const staked = stakedSet.has(v.operatorAddress)
+              // Rank prefix `01`, `02`, … (two-digit pad to keep the column
+              // tidy; larger sets just wrap to three digits naturally).
+              const rank = (i + 1).toString().padStart(2, '0')
               return (
                 <li
                   key={v.operatorAddress}
@@ -98,9 +114,19 @@ export function Validators() {
                     (canDelegate ? 'border-border' : 'border-border opacity-60')
                   }
                 >
+                  <span className="font-mono text-[10px] text-muted-foreground shrink-0 w-6 text-right">
+                    {rank}
+                  </span>
                   <span className="flex flex-col flex-1 min-w-0">
-                    <span className="font-medium truncate" title={moniker}>
-                      {moniker}
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-medium truncate" title={moniker}>
+                        {moniker}
+                      </span>
+                      {staked && (
+                        <span className="text-[9px] px-1 py-0.5 rounded uppercase tracking-wider font-mono bg-primary/15 text-primary shrink-0">
+                          <Trans>staked</Trans>
+                        </span>
+                      )}
                     </span>
                     <span className="text-[10px] text-muted-foreground font-mono truncate">
                       {v.operatorAddress}
@@ -122,12 +148,13 @@ export function Validators() {
                       </span>
                     )}
                   </span>
-                  <span className="flex flex-col items-end text-[10px] tabular-nums">
-                    <span className="font-mono text-foreground">
-                      {formatTokensAsFund(v.tokens)} FUND
+                  <span className="flex flex-col items-end text-[10px] tabular-nums font-mono">
+                    <span className="text-foreground">
+                      <span className="text-muted-foreground">VP </span>
+                      {formatTokensAsFund(v.tokens)}
                     </span>
                     <span className="text-muted-foreground">
-                      <Trans>{commissionPct}% fee</Trans>
+                      COMM {commissionPct}%
                     </span>
                   </span>
                   <Button

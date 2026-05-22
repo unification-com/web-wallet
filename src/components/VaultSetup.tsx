@@ -171,8 +171,29 @@ export function VaultSetup({ surface }: { surface: Surface }) {
     }
   }
 
+  // Step-breadcrumb label: maps the internal `Step` machine onto a
+  // user-facing 1-of-3 ("Set password", "Choose mode", "Save / import seed")
+  // so the user always knows where they are in the setup flow.
+  const stepNum: 1 | 2 | 3 =
+    step === 'password' ? 1 : step === 'choose' ? 2 : 3
+  const stepLabel =
+    step === 'password'
+      ? t`Set a password`
+      : step === 'choose'
+        ? t`Choose how to start`
+        : step === 'generate-show'
+          ? t`Save your seed phrase`
+          : step === 'import-seed-paste'
+            ? t`Import existing seed`
+            : t`Import v1 keystore`
+
   return (
     <main className="p-4 flex flex-col gap-3 max-w-md mx-auto">
+      <p className="text-[10px] uppercase tracking-[0.08em] font-mono text-muted-foreground">
+        <Trans>
+          Step {stepNum.toString()} / 3 · {stepLabel}
+        </Trans>
+      </p>
       <h1 className="text-xl font-semibold">
         <Trans>Create wallet</Trans>
       </h1>
@@ -186,7 +207,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               There&apos;s no recovery — write it down somewhere safe.
             </Trans>
           </p>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- nested <input> IS the associated control + accessible text via <Trans>; lint can't see through the macro */}
+          { }
           <label className="flex flex-col gap-1">
             <span className="text-gray-500">
               <Trans>Password (≥ 8 chars)</Trans>
@@ -199,6 +220,7 @@ export function VaultSetup({ surface }: { surface: Surface }) {
               autoFocus
               className="border rounded px-2 py-1"
             />
+            {password.length > 0 && <PasswordStrengthMeter password={password} />}
           </label>
           {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- as above; lint can't see <Trans> as accessible text */}
           <label className="flex flex-col gap-1">
@@ -450,5 +472,62 @@ export function VaultSetup({ surface }: { surface: Surface }) {
         </div>
       )}
     </main>
+  )
+}
+
+/**
+ * Quick-heuristic password strength meter — four segments, semantic colours.
+ * Scoring is a deliberately simple length + character-class signal (not a
+ * zxcvbn-quality entropy estimate; that would pull a ~30 kB dep for marginal
+ * value here). Bucket boundaries:
+ *
+ *   length ≥ 8         → score ≥ 1
+ *   length ≥ 12        → +1
+ *   has lower + upper  → +1
+ *   has digit + symbol → +1
+ *   length ≥ 20        → +1 (caps the score at 4)
+ *
+ * Resulting labels: 0 = Too short, 1 = Weak, 2 = Fair, 3 = Strong, 4 = Excellent.
+ */
+function PasswordStrengthMeter({ password }: { password: string }) {
+  let score = 0
+  if (password.length >= 8) score += 1
+  if (password.length >= 12) score += 1
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 1
+  if (/[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) score += 1
+  if (password.length >= 20) score = Math.min(4, score + 1)
+
+  const segmentColour = (i: number): string => {
+    if (i >= score) return 'bg-muted'
+    if (score === 1) return 'bg-destructive'
+    if (score === 2) return 'bg-amber-500'
+    if (score === 3) return 'bg-emerald-500'
+    return 'bg-emerald-600' // score === 4
+  }
+  const label =
+    score === 0
+      ? 'Too short'
+      : score === 1
+        ? 'Weak'
+        : score === 2
+          ? 'Fair'
+          : score === 3
+            ? 'Strong'
+            : 'Excellent'
+
+  return (
+    <div className="flex items-center gap-2 mt-1">
+      <div className="flex-1 flex gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={`h-1 flex-1 rounded ${segmentColour(i)}`}
+          />
+        ))}
+      </div>
+      <span className="text-[10px] font-mono text-muted-foreground tabular-nums w-20 text-right">
+        {label}
+      </span>
+    </div>
   )
 }

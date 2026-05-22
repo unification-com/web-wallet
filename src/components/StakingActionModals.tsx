@@ -274,12 +274,26 @@ export function RedelegateModal({
             <Label htmlFor="redelegate-amount">
               <Trans>Amount to redelegate (FUND)</Trans>
             </Label>
-            <Input
-              id="redelegate-amount"
-              {...form.register('amountFund')}
-              placeholder="0.001"
-              className="font-mono"
-            />
+            <div className="flex gap-1">
+              <Input
+                id="redelegate-amount"
+                {...form.register('amountFund')}
+                placeholder="0.001"
+                className="font-mono"
+              />
+              {currentDelegationNund && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-2 text-[11px] shrink-0"
+                  onClick={() => form.setValue('amountFund', nundToFund(currentDelegationNund))}
+                  title={t`Fill the amount with your full current delegation`}
+                >
+                  <Trans>Max</Trans>
+                </Button>
+              )}
+            </div>
             {currentDelegationNund && (
               <span className="text-[11px] text-muted-foreground">
                 <Trans>

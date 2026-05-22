@@ -15,6 +15,8 @@ import {
   type ImportedKeyEntry,
   type SeedAccount,
   type SeedEntry,
+  type ThemeMode,
+  type ThemePalette,
   type Vault,
   type VaultSignerRef,
   BUILT_IN_ENDPOINT_IDS,
@@ -104,6 +106,8 @@ interface VaultState {
 
   // Preferences
   setAutoLockTimeoutMs: (ms: number) => Promise<void>
+  setThemeMode: (mode: ThemeMode) => Promise<void>
+  setThemePalette: (palette: ThemePalette) => Promise<void>
 
   // Idle timer (called on user activity)
   resetIdleTimer: () => void
@@ -311,9 +315,21 @@ export const useVaultStore = create<VaultState>((set, get) => {
     async addSeed(mnemonic, label) {
       // First account derived as part of seed creation — seeds always have ≥1 account.
       const account0 = await deriveAccount(mnemonic, 0)
+      const vault = get().vault!
+      // Hard-block duplicate addresses. UI also disables Save when the
+      // live-derived address matches an existing entry; this throw is
+      // the defence-in-depth backstop for race conditions / API misuse.
+      const match = findAddressInVault(vault, account0.address)
+      if (match) {
+        throw new Error(
+          i18n._(
+            msg`This seed's first account (${account0.address}) already exists in your vault as ${match.containerLabel}${match.accountLabel ? ` / ${match.accountLabel}` : ''}. Delete it first if you want to re-import.`,
+          ),
+        )
+      }
       const seedId = uuid()
       const now = Date.now()
-      const existingSeedLabels = get().vault!.seeds.map((s) => s.label)
+      const existingSeedLabels = vault.seeds.map((s) => s.label)
       const seed: SeedEntry = {
         id: seedId,
         label: label ?? nextLabelWithPrefix('Seed', existingSeedLabels),
@@ -403,7 +419,16 @@ export const useVaultStore = create<VaultState>((set, get) => {
 
     async importV1Keystore(json, password, label) {
       const decrypted = await decryptV1Keystore(json, password)
-      const existingLabels = get().vault!.importedKeys.map((k) => k.label)
+      const vault = get().vault!
+      const match = findAddressInVault(vault, decrypted.address)
+      if (match) {
+        throw new Error(
+          i18n._(
+            msg`This v1 keystore's address (${decrypted.address}) already exists in your vault as ${match.containerLabel}${match.accountLabel ? ` / ${match.accountLabel}` : ''}. Delete it first if you want to re-import.`,
+          ),
+        )
+      }
+      const existingLabels = vault.importedKeys.map((k) => k.label)
       const entry: ImportedKeyEntry = {
         id: uuid(),
         label: label ?? nextLabelWithPrefix('Imported', existingLabels),
@@ -429,7 +454,16 @@ export const useVaultStore = create<VaultState>((set, get) => {
         )
       }
       const { address } = await addressFromPrivateKey(normalised)
-      const existingLabels = get().vault!.importedKeys.map((k) => k.label)
+      const vault = get().vault!
+      const match = findAddressInVault(vault, address)
+      if (match) {
+        throw new Error(
+          i18n._(
+            msg`This private key's address (${address}) already exists in your vault as ${match.containerLabel}${match.accountLabel ? ` / ${match.accountLabel}` : ''}. Delete it first if you want to re-import.`,
+          ),
+        )
+      }
+      const existingLabels = vault.importedKeys.map((k) => k.label)
       const entry: ImportedKeyEntry = {
         id: uuid(),
         label: label ?? nextLabelWithPrefix('Imported', existingLabels),
@@ -522,6 +556,20 @@ export const useVaultStore = create<VaultState>((set, get) => {
       await persistMutation((v) => ({
         ...v,
         preferences: { ...v.preferences, autoLockTimeoutMs: ms },
+      }))
+    },
+
+    async setThemeMode(mode) {
+      await persistMutation((v) => ({
+        ...v,
+        preferences: { ...v.preferences, themeMode: mode },
+      }))
+    },
+
+    async setThemePalette(palette) {
+      await persistMutation((v) => ({
+        ...v,
+        preferences: { ...v.preferences, themePalette: palette },
       }))
     },
 

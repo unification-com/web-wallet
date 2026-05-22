@@ -16,6 +16,7 @@ import { Validators } from '@/components/Validators'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
 import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
+import { ThemeApplier } from '@/lib/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
 
@@ -68,6 +69,7 @@ export function App({ surface }: { surface: Surface }) {
         surface === 'popup' ? 'w-[360px]' : 'w-full max-w-2xl mx-auto',
       )}
     >
+      <ThemeApplier />
       {view === 'setup' && <VaultSetup surface={surface} />}
       {view === 'unlock' && <UnlockScreen />}
       {view === 'unlocked' && <UnlockedShell surface={surface} />}
@@ -92,66 +94,83 @@ function UnlockedShell({ surface }: { surface: Surface }) {
     return <Settings onBack={() => setView('wallet')} surface={surface} />
   }
 
-  return (
-    <main className="p-4 flex flex-col gap-4">
-      <Header surface={surface} onOpenSettings={() => setView('settings')} />
+  // On standalone / web (non-popup) at ≥640px viewport, tabs convert to a
+  // left-hand sidebar nav per the M5 deliverable design system. Popup
+  // surface always uses horizontal top tabs (no horizontal room for a
+  // sidebar at 360px wide).
+  const sidebarMode = surface !== 'popup'
 
-      <Card>
-        <CardContent className="p-4 flex flex-col gap-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">
-              <Trans>Network:</Trans>
-            </span>
-            <span className="font-medium">{endpoint.label}</span>
-          </div>
-          {isLoading && (
-            <p className="text-muted-foreground">
-              <Trans>Connecting…</Trans>
-            </p>
-          )}
-          {isError && (
-            <p className="text-destructive">
-              <Trans>
-                Failed to connect: {error instanceof Error ? error.message : String(error)}
-              </Trans>
-            </p>
-          )}
-          {data && (
-            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-              <dt className="text-muted-foreground">
-                <Trans>Chain ID</Trans>
-              </dt>
-              <dd className="font-mono">{data.chainId}</dd>
-              <dt className="text-muted-foreground">
-                <Trans>Height</Trans>
-              </dt>
-              <dd className="font-mono">{data.height.toLocaleString()}</dd>
-            </dl>
-          )}
-        </CardContent>
-      </Card>
+  const chainInfoCard = (
+    <Card>
+      <CardContent className="p-4 flex flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">
+            <Trans>Network:</Trans>
+          </span>
+          <span className="font-medium">{endpoint.label}</span>
+        </div>
+        {isLoading && (
+          <p className="text-muted-foreground">
+            <Trans>Connecting…</Trans>
+          </p>
+        )}
+        {isError && (
+          <p className="text-destructive">
+            <Trans>
+              Failed to connect: {error instanceof Error ? error.message : String(error)}
+            </Trans>
+          </p>
+        )}
+        {data && (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            <dt className="text-muted-foreground">
+              <Trans>Chain ID</Trans>
+            </dt>
+            <dd className="font-mono">{data.chainId}</dd>
+            <dt className="text-muted-foreground">
+              <Trans>Height</Trans>
+            </dt>
+            <dd className="font-mono">{data.height.toLocaleString()}</dd>
+          </dl>
+        )}
+      </CardContent>
+    </Card>
+  )
 
-      <nav className="flex gap-1 text-xs border-b">
-        <ViewTab active={view === 'wallet'} onClick={() => setView('wallet')}>
-          <Trans>Wallet</Trans>
-        </ViewTab>
-        <ViewTab active={view === 'staking'} onClick={() => setView('staking')}>
-          <Trans>Staking</Trans>
-        </ViewTab>
-        <ViewTab
-          active={view === 'gov'}
-          onClick={() => {
-            setView('gov')
-            setActiveProposalId(null)
-          }}
-        >
-          <Trans>Governance</Trans>
-        </ViewTab>
-        <ViewTab active={view === 'history'} onClick={() => setView('history')}>
-          <Trans>History</Trans>
-        </ViewTab>
-      </nav>
+  const navItems = (
+    <>
+      <ViewTab
+        active={view === 'wallet'}
+        onClick={() => setView('wallet')}
+        sidebar={sidebarMode}
+      >
+        <Trans>Wallet</Trans>
+      </ViewTab>
+      <ViewTab
+        active={view === 'staking'}
+        onClick={() => setView('staking')}
+        sidebar={sidebarMode}
+      >
+        <Trans>Staking</Trans>
+      </ViewTab>
+      <ViewTab
+        active={view === 'gov'}
+        onClick={() => {
+          setView('gov')
+          setActiveProposalId(null)
+        }}
+        sidebar={sidebarMode}
+      >
+        <Trans>Governance</Trans>
+      </ViewTab>
+      <ViewTab active={view === 'history'} onClick={() => setView('history')} sidebar={sidebarMode}>
+        <Trans>History</Trans>
+      </ViewTab>
+    </>
+  )
 
+  const mainContent = (
+    <>
       {view === 'wallet' && (
         <>
           <Receive />
@@ -178,6 +197,32 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         ))}
 
       {view === 'history' && <TxHistory />}
+    </>
+  )
+
+  if (sidebarMode) {
+    return (
+      <main className="p-4 flex flex-col gap-4">
+        <Header surface={surface} onOpenSettings={() => setView('settings')} />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <nav className="sm:w-44 shrink-0 flex sm:flex-col gap-1 text-xs sm:border-r sm:pr-3 sm:border-b-0 border-b pb-2 sm:pb-0 overflow-x-auto">
+            {navItems}
+          </nav>
+          <div className="flex flex-col gap-4 flex-1 min-w-0">
+            {chainInfoCard}
+            {mainContent}
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="p-4 flex flex-col gap-4">
+      <Header surface={surface} onOpenSettings={() => setView('settings')} />
+      {chainInfoCard}
+      <nav className="flex gap-1 text-xs border-b">{navItems}</nav>
+      {mainContent}
     </main>
   )
 }
@@ -186,11 +231,34 @@ function ViewTab({
   active,
   onClick,
   children,
+  sidebar = false,
 }: {
   active: boolean
   onClick: () => void
   children: React.ReactNode
+  /** When true: sidebar style (left border accent, full-width row). When false: horizontal top-tab style. */
+  sidebar?: boolean
 }) {
+  if (sidebar) {
+    // Sidebar layout: full-width row, left-border accent when active.
+    // Falls back to horizontal-tab shape on small viewports via the parent
+    // nav's `flex-col sm:flex-row` (so the very-narrow web breakpoint still
+    // shows tabs along the top).
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={
+          'text-left px-3 py-2 rounded transition-colors ' +
+          (active
+            ? 'bg-primary/10 text-primary font-medium'
+            : 'text-muted-foreground hover:bg-accent hover:text-foreground')
+        }
+      >
+        {children}
+      </button>
+    )
+  }
   return (
     <button
       type="button"

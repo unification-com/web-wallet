@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { useVaultStore } from '@/lib/vault'
 import { addressFromPrivateKey, deriveAccount, generateMnemonic, validateMnemonic } from '@/lib/vault/seeds'
 import { findAddressInVault, type ExistingAddressMatch } from '@/lib/vault/store'
-import { decryptV1Keystore, type V1KeystoreJson } from '@/lib/vault/v1-keystore'
+import { type V1KeystoreJson } from '@/lib/vault/v1-keystore'
 
 type Mode = null | 'generate' | 'import-seed' | 'import-v1' | 'import-private-key'
 
@@ -402,7 +402,7 @@ function ImportSeedDialog({
           </Button>
           <Button
             size="sm"
-            disabled={submitting || phrase.trim().length === 0}
+            disabled={submitting || phrase.trim().length === 0 || duplicate !== null}
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onClick={finish}
           >
@@ -435,12 +435,6 @@ function ImportV1Dialog({
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // v1 keystore needs the password to derive an address — we can't show a
-  // live duplicate warning while the user is typing the password. Instead
-  // we run the check post-decrypt + show a warning above the Import button
-  // before commit.
-  const [candidateAddress, setCandidateAddress] = useState<string | null>(null)
-  const duplicate = useDuplicateMatch(candidateAddress)
 
   const reset = () => {
     setJson(null)
@@ -448,7 +442,6 @@ function ImportV1Dialog({
     setPassword('')
     setError(null)
     setSubmitting(false)
-    setCandidateAddress(null)
   }
 
   const handleClose = () => {
@@ -476,27 +469,10 @@ function ImportV1Dialog({
     }
   }
 
-  // Two-phase commit: "Check" decrypts only (cheap, surfaces address +
-  // duplicate warning); "Import" actually adds. Without this, the user
-  // wouldn't see the duplicate warning until after import succeeded.
-  const checkOnly = async () => {
-    if (!json) {
-      setError(t`no keystore file selected`)
-      return
-    }
-    setSubmitting(true)
-    setError(null)
-    try {
-      const decrypted = await decryptV1Keystore(json, password)
-      setCandidateAddress(decrypted.address)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-      setCandidateAddress(null)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
+  // Single-button flow: decrypt + check + import happen inside
+  // `importV1Keystore` which throws on duplicate. The seed + raw-key
+  // dialogs CAN pre-check (live derivation) but v1 needs the password
+  // to decrypt, so the throw on submit is the only practical gate.
   const finish = async () => {
     if (!json) {
       setError(t`no keystore file selected`)
@@ -556,29 +532,14 @@ function ImportV1Dialog({
               id="add-v1-password"
               type="password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                // Password change invalidates the previous check.
-                setCandidateAddress(null)
-              }}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {duplicate && <DuplicateWarning match={duplicate} />}
           {error && <p className="text-destructive break-words">{error}</p>}
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" size="sm" onClick={handleClose} disabled={submitting}>
             <Trans>Cancel</Trans>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={submitting || !json || password.length === 0 || candidateAddress !== null}
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onClick={checkOnly}
-            title={t`Decrypt locally + check for duplicates without saving`}
-          >
-            <Trans>Check</Trans>
           </Button>
           <Button
             size="sm"
@@ -707,7 +668,7 @@ function ImportPrivateKeyDialog({
           </Button>
           <Button
             size="sm"
-            disabled={submitting || candidateAddress === null}
+            disabled={submitting || candidateAddress === null || duplicate !== null}
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onClick={finish}
           >

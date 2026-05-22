@@ -19,6 +19,17 @@ import '../index.css'
 // translated locales exist, activateLocale() becomes the async load point.
 void activateLocale()
 
+// Ship-state default: Cosmos · Dark. Removed once the user has saved a
+// preference; useTheme() takes over from the vault store on mount. We
+// only stamp `.dark` when *neither* theme class is set yet so a returning
+// user with `theme-mainframe` already in place doesn't lose it.
+if (
+  !document.documentElement.classList.contains('dark') &&
+  !document.documentElement.classList.contains('theme-mainframe')
+) {
+  document.documentElement.classList.add('dark')
+}
+
 export function mount(children: ReactNode) {
   const root = document.getElementById('root')
   if (!root) throw new Error('#root element not found in document')
