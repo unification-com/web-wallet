@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro'
+import { Check, ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import {
@@ -7,12 +8,17 @@ import {
   useActiveEndpoint,
   type ChainEndpoint,
 } from '@/lib/chain'
+import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
 
 /**
  * Clickable Header endpoint chip + dropdown. Switches between built-in
  * (MainNet/TestNet/DevNet) and any vault-stored custom endpoints. Adding new
  * custom endpoints lives in the full Settings panel (M1.10c).
+ *
+ * Token-aware re-skin: the chip + popover honour `--color-card`,
+ * `--color-popover`, `--color-border`, etc. so the dropdown reads the
+ * same dark surface as the rest of the app instead of a hardcoded white.
  */
 export function EndpointSwitcher() {
   const active = useActiveEndpoint()
@@ -68,18 +74,36 @@ export function EndpointSwitcher() {
         title={`${active.label} (${active.source}) — ${t`click to switch`}`}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs"
+        className={cn(
+          'inline-flex items-center gap-1 px-2 h-7 rounded text-xs',
+          'border border-border bg-card text-foreground hover:bg-secondary transition-colors',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background',
+        )}
       >
-        <span>{active.label}</span>
-        <span aria-hidden className={open ? 'rotate-180 transition-transform' : 'transition-transform'}>
-          ▾
-        </span>
+        {/* network status dot — small green pulse so the chip carries health at a glance */}
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 rounded-full bg-success shrink-0"
+        />
+        <span className="font-medium">{active.label}</span>
+        <ChevronDown
+          aria-hidden
+          className={cn(
+            'h-3 w-3 text-muted-foreground transition-transform',
+            open && 'rotate-180',
+          )}
+        />
       </button>
 
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 mt-1 min-w-[180px] max-w-[260px] border bg-white rounded shadow-lg text-xs z-10"
+          className={cn(
+            'absolute right-0 mt-1.5 min-w-[220px] max-w-[300px] z-50',
+            'rounded border border-border bg-popover text-popover-foreground',
+            'shadow-[var(--shadow-elevated)] [.theme-mainframe_&]:shadow-none',
+            'p-1 text-xs',
+          )}
         >
           {all.map((e) => {
             const isActive = e.id === active.id
@@ -91,16 +115,22 @@ export function EndpointSwitcher() {
                   aria-selected={isActive}
                   // eslint-disable-next-line @typescript-eslint/no-misused-promises
                   onClick={() => pick(e.id)}
-                  className={
-                    'w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-gray-50 ' +
-                    (isActive ? 'font-medium text-blue-700' : 'text-gray-700')
-                  }
+                  className={cn(
+                    'w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded text-left transition-colors',
+                    isActive
+                      ? 'bg-primary/12 text-primary'
+                      : 'text-foreground hover:bg-secondary',
+                  )}
                 >
-                  <span className="flex flex-col">
-                    <span>{e.label}</span>
-                    <span className="text-[10px] text-gray-400 font-mono truncate">{e.rpc}</span>
+                  <span className="flex flex-col min-w-0">
+                    <span className={cn('truncate', isActive && 'font-semibold')}>
+                      {e.label}
+                    </span>
+                    <span className="text-[10px] font-mono text-muted-foreground truncate">
+                      {e.rpc}
+                    </span>
                   </span>
-                  {isActive && <span aria-hidden>✓</span>}
+                  {isActive && <Check aria-hidden className="h-3.5 w-3.5 shrink-0 text-primary" />}
                 </button>
               </li>
             )
