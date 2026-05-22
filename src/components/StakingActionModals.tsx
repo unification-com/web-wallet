@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { TxModal } from '@/components/TxModal'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { decCoinToFund, nundToFund } from '@/lib/msgs/send'
@@ -92,12 +93,26 @@ export function UndelegateModal({
             <Label htmlFor="undelegate-amount">
               <Trans>Amount to undelegate (FUND)</Trans>
             </Label>
-            <Input
-              id="undelegate-amount"
-              {...form.register('amountFund')}
-              placeholder="0.001"
-              className="font-mono"
-            />
+            <div className="flex gap-1">
+              <Input
+                id="undelegate-amount"
+                {...form.register('amountFund')}
+                placeholder="0.001"
+                className="font-mono"
+              />
+              {currentDelegationNund && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-2 text-[11px] shrink-0"
+                  onClick={() => form.setValue('amountFund', nundToFund(currentDelegationNund))}
+                  title={t`Fill the amount with your full current delegation`}
+                >
+                  <Trans>Max</Trans>
+                </Button>
+              )}
+            </div>
             {currentDelegationNund && (
               <span className="text-[11px] text-muted-foreground">
                 <Trans>

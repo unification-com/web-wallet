@@ -2,8 +2,9 @@ import { type EncodeObject } from '@cosmjs/proto-signing'
 import { type StdFee } from '@cosmjs/stargate'
 import { Trans } from '@lingui/react/macro'
 import { useQueryClient } from '@tanstack/react-query'
-import { type ReactNode } from 'react'
+import { useCallback, useState, type ReactNode } from 'react'
 
+import { GasAccordion } from '@/components/GasAccordion'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,7 +38,14 @@ export interface TxModalProps {
   canSubmit: boolean
   /** Returns the Msgs to broadcast. Called when Confirm is clicked. */
   buildMsgs: () => readonly EncodeObject[]
-  /** Default-fee for the Tx. */
+  /**
+   * Default fee for the Tx. The advanced accordion (rendered below
+   * `formBody`) lets the user override gas + gas-price; the resulting
+   * `StdFee` replaces this default in the actual broadcast. Pass `'auto'`
+   * to delegate gas estimation to cosmjs entirely — the accordion's
+   * override path is disabled in that case (cosmjs's auto fee is opaque
+   * to our UI).
+   */
   fee: StdFee | 'auto'
   /** Optional memo on the Tx. */
   memo?: string
@@ -65,12 +73,16 @@ export function TxModal({
 }: TxModalProps) {
   const { submit, submitting, error, txHash, reset } = useSubmitTx()
   const queryClient = useQueryClient()
+  // Effective fee — starts at the prop default, mutated by the
+  // `<GasAccordion />` when the user touches gas / gas-price.
+  const [effectiveFee, setEffectiveFee] = useState<StdFee | 'auto'>(fee)
+  const onFeeChange = useCallback((next: StdFee) => setEffectiveFee(next), [])
 
   const onConfirm = async () => {
     try {
       const result = await submit({
         msgs: buildMsgs(),
-        fee,
+        fee: effectiveFee,
         ...(memo !== undefined ? { memo } : {}),
       })
       // Invalidate downstream queries so balance / delegations / etc. refresh
@@ -108,6 +120,18 @@ export function TxModal({
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         <div className="flex flex-col gap-2">{formBody}</div>
+        {/* Advanced fee accordion — only meaningful when the consumer
+         *  passed an explicit StdFee default (cosmjs 'auto' has no
+         *  exposable gas / gas-price values to override). Renders
+         *  collapsed by default; users can ignore it entirely. */}
+        {fee !== 'auto' && !txHash && (
+          <GasAccordion
+            buildMsgs={buildMsgs}
+            {...(memo !== undefined ? { memo } : {})}
+            defaultFee={fee}
+            onFeeChange={onFeeChange}
+          />
+        )}
         {error && (
           <p className="text-xs text-destructive break-words">{error.message}</p>
         )}

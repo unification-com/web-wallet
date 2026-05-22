@@ -4,7 +4,7 @@ import { create } from 'zustand'
 import { i18n } from '../i18n'
 
 import { decryptVault, encryptVault } from './crypto'
-import { deriveAccount } from './seeds'
+import { addressFromPrivateKey, deriveAccount } from './seeds'
 import {
   clearEncryptedVault,
   loadEncryptedVault,
@@ -77,6 +77,12 @@ interface VaultState {
     password: string,
     label?: string,
   ) => Promise<ImportedKeyEntry>
+  /**
+   * Import a raw hex-encoded private key (64 hex chars / 32 bytes). The
+   * address is derived via `addressFromPrivateKey`. Throws if the input
+   * doesn't parse to a valid secp256k1 key.
+   */
+  importPrivateKey: (privateKeyHex: string, label?: string) => Promise<ImportedKeyEntry>
   removeImportedKey: (id: string) => Promise<void>
   renameImportedKey: (id: string, label: string) => Promise<void>
 
@@ -147,6 +153,49 @@ export function nextLabelWithPrefix(prefix: string, existing: readonly string[])
   let n = 1
   while (taken.has(`${prefix} ${n.toString()}`)) n++
   return `${prefix} ${n.toString()}`
+}
+
+/**
+ * Returns every address currently held by the vault — across seeds (every
+ * derived account) and imported keys. Used by the import flows to detect
+ * duplicates before adding (warn the user rather than silently insert).
+ */
+export function collectVaultAddresses(vault: Vault): Set<string> {
+  const all = new Set<string>()
+  for (const seed of vault.seeds) {
+    for (const account of seed.accounts) all.add(account.address)
+  }
+  for (const k of vault.importedKeys) all.add(k.address)
+  return all
+}
+
+/**
+ * Locate a vault entry by its bech32 address. Returns the entry kind
+ * (seed-derived account vs imported key) + its labels so the caller can
+ * surface a precise "already exists as Seed X / Account Y" message.
+ * Returns null when the address isn't in the vault.
+ */
+export interface ExistingAddressMatch {
+  kind: 'seed' | 'imported'
+  /** Top-level container label (seed label / imported entry label). */
+  containerLabel: string
+  /** For seed accounts only: the per-account label (e.g. "Account 1"). */
+  accountLabel?: string
+}
+
+export function findAddressInVault(
+  vault: Vault,
+  address: string,
+): ExistingAddressMatch | null {
+  for (const seed of vault.seeds) {
+    const account = seed.accounts.find((a) => a.address === address)
+    if (account) {
+      return { kind: 'seed', containerLabel: seed.label, accountLabel: account.label }
+    }
+  }
+  const imported = vault.importedKeys.find((k) => k.address === address)
+  if (imported) return { kind: 'imported', containerLabel: imported.label }
+  return null
 }
 
 /**
@@ -361,6 +410,32 @@ export const useVaultStore = create<VaultState>((set, get) => {
         privateKey: decrypted.privateKey,
         address: decrypted.address,
         source: 'v1-json',
+        createdAt: Date.now(),
+      }
+      await persistMutation((v) => ({
+        ...v,
+        importedKeys: [...v.importedKeys, entry],
+      }))
+      return entry
+    },
+
+    async importPrivateKey(privateKeyHex, label) {
+      // Normalise to lower-case hex without 0x prefix; schema requires
+      // exactly 64 hex chars (32 bytes secp256k1 private key).
+      const normalised = privateKeyHex.trim().toLowerCase().replace(/^0x/, '')
+      if (!/^[0-9a-f]{64}$/.test(normalised)) {
+        throw new Error(
+          i18n._(msg`private key must be 64 hex characters (32 bytes); 0x prefix optional`),
+        )
+      }
+      const { address } = await addressFromPrivateKey(normalised)
+      const existingLabels = get().vault!.importedKeys.map((k) => k.label)
+      const entry: ImportedKeyEntry = {
+        id: uuid(),
+        label: label ?? nextLabelWithPrefix('Imported', existingLabels),
+        privateKey: normalised,
+        address,
+        source: 'raw-private-key',
         createdAt: Date.now(),
       }
       await persistMutation((v) => ({

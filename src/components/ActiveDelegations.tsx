@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useMemo, useState } from 'react'
 
+import { RefreshButton } from '@/components/RefreshButton'
 import {
   RedelegateModal,
   UndelegateModal,
@@ -77,23 +78,26 @@ export function ActiveDelegations() {
   return (
     <>
       <Card>
-        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
           <CardTitle className="text-sm">
             <Trans>Your delegations</Trans>
           </CardTitle>
-          {totalRewardsNund && BigInt(totalRewardsNund.split('.')[0] ?? '0') > 0n && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => setBulkWithdrawOpen(true)}
-              disabled={!hasAnyRewards}
-            >
-              <Trans>
-                Withdraw all (~{decCoinToFund(totalRewardsNund)} FUND)
-              </Trans>
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {totalRewardsNund && BigInt(totalRewardsNund.split('.')[0] ?? '0') > 0n && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setBulkWithdrawOpen(true)}
+                disabled={!hasAnyRewards}
+              >
+                <Trans>
+                  Withdraw all (~{decCoinToFund(totalRewardsNund)} FUND)
+                </Trans>
+              </Button>
+            )}
+            <RefreshButton queryKeys={[['staking']]} />
+          </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
           {isLoading && (

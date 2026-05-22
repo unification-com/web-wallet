@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { useMemo, useState } from 'react'
 
 import { ProposalStatusBadge } from '@/components/ProposalStatusBadge'
+import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -44,18 +45,21 @@ export function ProposalList({ onSelect }: ProposalListProps) {
         <CardTitle className="text-sm">
           <Trans>Proposals</Trans>
         </CardTitle>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(Number(e.target.value))}
-          className="h-7 rounded-md border border-input bg-background px-2 text-[11px]"
-        >
-          <option value={ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED}>{t`All`}</option>
-          <option value={ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD}>{t`Voting`}</option>
-          <option value={ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD}>{t`Deposit`}</option>
-          <option value={ProposalStatus.PROPOSAL_STATUS_PASSED}>{t`Passed`}</option>
-          <option value={ProposalStatus.PROPOSAL_STATUS_REJECTED}>{t`Rejected`}</option>
-          <option value={ProposalStatus.PROPOSAL_STATUS_FAILED}>{t`Failed`}</option>
-        </select>
+        <div className="flex items-center gap-1">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(Number(e.target.value))}
+            className="h-7 rounded-md border border-input bg-background px-2 text-[11px]"
+          >
+            <option value={ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED}>{t`All`}</option>
+            <option value={ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD}>{t`Voting`}</option>
+            <option value={ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD}>{t`Deposit`}</option>
+            <option value={ProposalStatus.PROPOSAL_STATUS_PASSED}>{t`Passed`}</option>
+            <option value={ProposalStatus.PROPOSAL_STATUS_REJECTED}>{t`Rejected`}</option>
+            <option value={ProposalStatus.PROPOSAL_STATUS_FAILED}>{t`Failed`}</option>
+          </select>
+          <RefreshButton queryKeys={[['gov']]} />
+        </div>
       </CardHeader>
       <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
         {isLoading && (

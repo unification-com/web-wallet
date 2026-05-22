@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { useActiveSigner } from '@/lib/signer'
+import { useActiveSigner, useActiveSignerLabel } from '@/lib/signer'
 import { useVaultStore } from '@/lib/vault'
 import type { VaultSignerRef } from '@/lib/vault/types'
 
@@ -39,6 +39,7 @@ function isActive(active: VaultSignerRef | undefined, ref: VaultSignerRef): bool
  */
 export function AccountSwitcher({ compact = false }: { compact?: boolean } = {}) {
   const { address } = useActiveSigner()
+  const activeLabel = useActiveSignerLabel()
   const seeds = useVaultStore((s) => s.vault?.seeds ?? [])
   const importedKeys = useVaultStore((s) => s.vault?.importedKeys ?? [])
   const activeRef = useVaultStore((s) => s.vault?.preferences.activeSignerRef)
@@ -83,10 +84,21 @@ export function AccountSwitcher({ compact = false }: { compact?: boolean } = {})
         <Button
           variant="outline"
           size="sm"
-          className="font-mono text-xs h-7 px-2"
-          title={`${address} — ${t`click to switch account`}`}
+          className="text-xs h-auto py-1 px-2 flex flex-col items-end gap-0 leading-tight"
+          title={
+            activeLabel
+              ? `${activeLabel} — ${address} — ${t`click to switch account`}`
+              : `${address} — ${t`click to switch account`}`
+          }
         >
-          {compact ? truncate(address, 5, 4) : truncate(address)}
+          {activeLabel && (
+            <span className="text-[10px] text-muted-foreground font-normal max-w-[140px] truncate">
+              {activeLabel}
+            </span>
+          )}
+          <span className="font-mono">
+            {compact ? truncate(address, 5, 4) : truncate(address)}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

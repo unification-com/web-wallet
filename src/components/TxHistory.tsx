@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/react/macro'
 import { useState } from 'react'
 
+import { RefreshButton } from '@/components/RefreshButton'
 import { TxRow } from '@/components/TxRow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,9 +38,12 @@ export function TxHistory() {
         <CardTitle className="text-sm">
           <Trans>History</Trans>
         </CardTitle>
-        <span className="text-[10px] text-muted-foreground">
-          <Trans>{all.length.toString()} txs</Trans>
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-muted-foreground">
+            <Trans>{all.length.toString()} txs</Trans>
+          </span>
+          <RefreshButton queryKeys={[['txhistory']]} />
+        </div>
       </CardHeader>
       <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
         {isLoading && (

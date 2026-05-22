@@ -202,6 +202,10 @@ msgstr "Adding…"
 msgid "Address"
 msgstr "Address"
 
+#: src/components/GasAccordion.tsx
+msgid "Advanced: gas + fee"
+msgstr "Advanced: gas + fee"
+
 #: src/components/ProposalList.tsx
 msgid "All"
 msgstr "All"
@@ -233,6 +237,10 @@ msgstr "Amount to redelegate (FUND)"
 #: src/components/StakingActionModals.tsx
 msgid "Amount to undelegate (FUND)"
 msgstr "Amount to undelegate (FUND)"
+
+#: src/components/GasAccordion.tsx
+msgid "Apply estimate"
+msgstr "Apply estimate"
 
 #: src/lib/msgs/presenters.ts
 msgid "Authorisation"
@@ -346,6 +354,10 @@ msgstr "Change vote"
 #: src/lib/msgs/presenters.ts
 msgid "Channel"
 msgstr "Channel"
+
+#: src/components/AddSignerCard.tsx
+msgid "Check"
+msgstr "Check"
 
 #: src/components/StakingActionModals.tsx
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
@@ -500,6 +512,10 @@ msgstr "Custom"
 msgid "Decision"
 msgstr "Decision"
 
+#: src/components/AddSignerCard.tsx
+msgid "Decrypt locally + check for duplicates without saving"
+msgstr "Decrypt locally + check for duplicates without saving"
+
 #: src/components/DelegateModal.tsx
 #: src/components/Validators.tsx
 msgid "Delegate"
@@ -563,6 +579,10 @@ msgstr "Deposit ends"
 msgid "Deposited to proposal"
 msgstr "Deposited to proposal"
 
+#: src/components/AddSignerCard.tsx
+msgid "Derived address: {candidateAddress}"
+msgstr "Derived address: {candidateAddress}"
+
 #: src/components/InFlightQueues.tsx
 msgid "destination locked until completion"
 msgstr "destination locked until completion"
@@ -606,6 +626,14 @@ msgstr "endpoint {id} not found"
 #: src/components/UnlockScreen.tsx
 msgid "Enter your password"
 msgstr "Enter your password"
+
+#: src/components/GasAccordion.tsx
+msgid "Estimate from chain"
+msgstr "Estimate from chain"
+
+#: src/components/GasAccordion.tsx
+msgid "Estimating…"
+msgstr "Estimating…"
 
 #: src/lib/msgs/presenters.ts
 msgid "Evidence type"
@@ -673,6 +701,21 @@ msgstr "Failure reason: {0}"
 msgid "Fee"
 msgstr "Fee"
 
+#. placeholder {0}: effectiveFeeNund.toString()
+#. placeholder {1}: nundToFund(effectiveFeeNund.toString())
+#. placeholder {2}: DEFAULT_MIN_GAS_PRICE_NUND.toString()
+#: src/components/GasAccordion.tsx
+msgid "Fee: <0>{0}</0> nund (<1>{1}</1> FUND). Chain floor is <2>{2}</2> nund/gas."
+msgstr "Fee: <0>{0}</0> nund (<1>{1}</1> FUND). Chain floor is <2>{2}</2> nund/gas."
+
+#: src/components/GasAccordion.tsx
+msgid "fill in the form first — nothing to estimate"
+msgstr "fill in the form first — nothing to estimate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Fill the amount with your full current delegation"
+msgstr "Fill the amount with your full current delegation"
+
 #: src/components/Validators.tsx
 msgid "Filter by moniker…"
 msgstr "Filter by moniker…"
@@ -704,6 +747,10 @@ msgstr "From validator"
 #: src/lib/msgs/presenters.ts
 msgid "Funded community pool"
 msgstr "Funded community pool"
+
+#: src/components/GasAccordion.tsx
+msgid "Gas"
+msgstr "Gas"
 
 #: src/components/TxRow.tsx
 msgid "Gas used"
@@ -812,8 +859,16 @@ msgid "Import existing seed"
 msgstr "Import existing seed"
 
 #: src/components/AddSignerCard.tsx
+msgid "Import key"
+msgstr "Import key"
+
+#: src/components/AddSignerCard.tsx
 msgid "Import keystore"
 msgstr "Import keystore"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import private key"
+msgstr "Import private key"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -930,6 +985,10 @@ msgstr "Lock wallet"
 #: src/components/InFlightQueues.tsx
 msgid "Maturing…"
 msgstr "Maturing…"
+
+#: src/components/StakingActionModals.tsx
+msgid "Max"
+msgstr "Max"
 
 #: src/components/Send.tsx
 #: src/components/TxRow.tsx
@@ -1120,6 +1179,10 @@ msgstr "Paste a 12 or 24 word BIP39 phrase."
 msgid "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
 msgstr "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
 
+#: src/components/AddSignerCard.tsx
+msgid "Paste a 64-character hex-encoded secp256k1 private key (32 bytes). 0x prefix is optional. The corresponding address is derived locally; nothing leaves your browser."
+msgstr "Paste a 64-character hex-encoded secp256k1 private key (32 bytes). 0x prefix is optional. The corresponding address is derived locally; nothing leaves your browser."
+
 #: src/components/VaultSetup.tsx
 msgid "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
 msgstr "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
@@ -1136,6 +1199,18 @@ msgstr "Periods"
 #: src/components/DelegateModal.tsx
 msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
+
+#: src/components/GasAccordion.tsx
+msgid "Price (nund/gas)"
+msgstr "Price (nund/gas)"
+
+#: src/components/AddSignerCard.tsx
+msgid "Private key (hex)"
+msgstr "Private key (hex)"
+
+#: src/lib/vault/store.ts
+msgid "private key must be 64 hex characters (32 bytes); 0x prefix optional"
+msgstr "private key must be 64 hex characters (32 bytes); 0x prefix optional"
 
 #: src/lib/msgs/presenters.ts
 msgid "Processed eFUND purchase order"
@@ -1241,6 +1316,10 @@ msgstr "Redelegated"
 msgid "Redelegating"
 msgstr "Redelegating"
 
+#: src/components/RefreshButton.tsx
+msgid "Refresh"
+msgstr "Refresh"
+
 #: src/lib/msgs/presenters.ts
 msgid "Refunded"
 msgstr "Refunded"
@@ -1285,6 +1364,10 @@ msgstr "Rename key"
 #: src/components/VaultEntryManager.tsx
 msgid "Rename seed"
 msgstr "Rename seed"
+
+#: src/components/GasAccordion.tsx
+msgid "Reset"
+msgstr "Reset"
 
 #: src/components/UnlockScreen.tsx
 msgid "Reset the wallet? This wipes the encrypted vault permanently."
@@ -1414,6 +1497,10 @@ msgstr "Sent! Tx: <0>{txHash}</0>"
 msgid "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
 msgstr "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
 
+#: src/components/GasAccordion.tsx
+msgid "Set gas to estimate × 1.4 safety margin"
+msgstr "Set gas to estimate × 1.4 safety margin"
+
 #: src/lib/msgs/presenters.ts
 msgid "Set withdraw address"
 msgstr "Set withdraw address"
@@ -1430,6 +1517,16 @@ msgstr "Share this address or scan the QR code to receive FUND. Anyone with the 
 #: src/lib/msgs/presenters.ts
 msgid "Signer"
 msgstr "Signer"
+
+#. placeholder {0}: simulated.toString()
+#. placeholder {1}: recommendedGas(simulated).toString()
+#: src/components/GasAccordion.tsx
+msgid "Simulated gas: <0>{0}</0> · recommended (×1.4): <1>{1}</1>"
+msgstr "Simulated gas: <0>{0}</0> · recommended (×1.4): <1>{1}</1>"
+
+#: src/components/GasAccordion.tsx
+msgid "simulation failed — the chain rejected the dry-run"
+msgstr "simulation failed — the chain rejected the dry-run"
 
 #: src/lib/msgs/presenters.ts
 msgid "Splits"
@@ -1507,6 +1604,12 @@ msgstr "The seed mnemonic is NOT stored elsewhere. If you do not have it written
 msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
 msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
 
+#. placeholder {0}: match.containerLabel
+#. placeholder {1}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/components/AddSignerCard.tsx
+msgid "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
+msgstr "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
+
 #: src/lib/msgs/presenters.ts
 msgid "Timestamp ID"
 msgstr "Timestamp ID"
@@ -1551,6 +1654,10 @@ msgstr "Total stake voted: <0>{0}</0> FUND"
 #: src/lib/useSubmitTx.ts
 msgid "transaction rejected (code={0}): {1}"
 msgstr "transaction rejected (code={0}): {1}"
+
+#: src/components/AddSignerCard.tsx
+msgid "Treat the source of this key with the same care as a seed phrase. Anyone with this hex string can spend funds at the derived address."
+msgstr "Treat the source of this key with the same care as a seed phrase. Anyone with this hex string can spend funds at the derived address."
 
 #: src/components/ProposalDetail.tsx
 msgid "Type"
@@ -1600,6 +1707,10 @@ msgstr "Unlock"
 #: src/components/Send.tsx
 msgid "Unlock the vault and select an account to send."
 msgstr "Unlock the vault and select an account to send."
+
+#: src/components/GasAccordion.tsx
+msgid "unlock the vault first"
+msgstr "unlock the vault first"
 
 #: src/components/UnlockScreen.tsx
 msgid "Unlock wallet"

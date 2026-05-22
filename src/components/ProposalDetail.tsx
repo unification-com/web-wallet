@@ -8,6 +8,7 @@ import { VoteModal } from '@/components/VoteModal'
 import {
   ProposalStatus,
   VoteOption,
+  getProposalMessageTypes,
   getProposalSummary,
   getProposalTitle,
   isVoteable,
@@ -80,12 +81,12 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
   const depositEnd = timestampToDate(proposal.depositEndTime)
 
   // Message-type summary — for v1 multi-message proposals show all distinct
-  // typeUrls. M4 (tx-history Msg coverage) will decode these into human
-  // labels; for M3 we surface the raw typeUrls so the user can recognise
-  // common patterns (`MsgSoftwareUpgrade`, `MsgUpdateParams`, etc.).
-  const messageTypes = Array.from(
-    new Set(proposal.messages.map((m) => shortTypeUrl(m.typeUrl))),
-  )
+  // typeUrls. For legacy v1beta1 proposals submitted via
+  // MsgExecLegacyContent, `getProposalMessageTypes` unwraps the inner
+  // content typeUrl (e.g. `SoftwareUpgradeProposal`) instead of just
+  // surfacing the wrapper (`MsgExecLegacyContent`), which is the useful
+  // information for the user.
+  const messageTypes = getProposalMessageTypes(proposal).map(shortTypeUrl)
 
   return (
     <>

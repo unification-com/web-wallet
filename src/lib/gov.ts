@@ -12,7 +12,6 @@ import {
 } from 'cosmjs-types/cosmos/gov/v1/gov'
 import { QueryClientImpl } from 'cosmjs-types/cosmos/gov/v1/query'
 import { MsgExecLegacyContent } from 'cosmjs-types/cosmos/gov/v1/tx'
-import { TextProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov'
 
 import { useActiveEndpoint } from './chain'
 
@@ -79,14 +78,83 @@ export function isVoteable(p: Pick<Proposal, 'status'>): boolean {
 }
 
 /**
- * Extract a legacy `TextProposal` (or any other v1beta1 typed content) from
- * a v1 proposal's `messages[0]`. Older proposals submitted via the v1beta1
- * route are stored on a v1-running chain as a single
- * `MsgExecLegacyContent` wrapping the original content; the v1 top-level
- * `title` / `summary` fields are blank on those entries. Returns null when
- * the proposal isn't in legacy-content shape.
+ * Read the first two string fields out of a length-delimited protobuf
+ * payload. Every legacy `govtypes.Content` implementation in the
+ * cosmos-sdk universe — `TextProposal`, `ParameterChangeProposal`,
+ * `SoftwareUpgradeProposal`, `CancelSoftwareUpgradeProposal`,
+ * `CommunityPoolSpendProposal`, `ClientUpdateProposal`, etc. — puts
+ * `title: string` at proto field 1 and `description: string` at proto
+ * field 2 (the SDK's `Content` interface contract maps `GetTitle()` /
+ * `GetDescription()` to those field tags via the proto generator).
+ *
+ * Doing a generic field-1/field-2 read lets us extract title +
+ * description from ANY legacy proposal type without per-type imports —
+ * including custom chain modules whose proposal types aren't in
+ * `cosmjs-types`.
+ *
+ * Returns `{ title: '', description: '' }` on unparseable input.
+ *
+ * Wire format reference: tag byte for a length-delimited (wire type 2)
+ * field number N is `(N << 3) | 2`, so field 1 → `0x0a`, field 2 → `0x12`.
  */
-function legacyTextContent(proposal: Pick<Proposal, 'messages'>): TextProposal | null {
+function readLegacyTitleAndDescription(bytes: Uint8Array): {
+  title: string
+  description: string
+} {
+  let title = ''
+  let description = ''
+  const decoder = new TextDecoder('utf-8')
+  let pos = 0
+  while (pos < bytes.length && (title === '' || description === '')) {
+    const tag = bytes[pos]
+    if (tag === undefined) break
+    pos++
+    const fieldNum = tag >> 3
+    const wireType = tag & 0x07
+    if (wireType !== 2) {
+      // Bail on non-string fields — title + description are always the
+      // first two length-delimited fields in legacy Content types, so if
+      // we hit a different wire type before finding them, give up rather
+      // than risk mis-parsing a message field.
+      break
+    }
+    // Read length as a varint.
+    let len = 0
+    let shift = 0
+    while (pos < bytes.length) {
+      const b = bytes[pos]
+      if (b === undefined) break
+      pos++
+      len |= (b & 0x7f) << shift
+      if ((b & 0x80) === 0) break
+      shift += 7
+    }
+    const data = bytes.slice(pos, pos + len)
+    pos += len
+    if (fieldNum === 1) title = decoder.decode(data)
+    else if (fieldNum === 2) description = decoder.decode(data)
+    // Other field numbers (3, 4, …) might be strings too (e.g.
+    // ClientUpdateProposal.subjectClientId at field 3) — we don't need
+    // them, so loop continues until both title + description set OR end.
+  }
+  return { title, description }
+}
+
+interface LegacyContentInfo {
+  /** The wrapped content typeUrl, e.g. `/cosmos.gov.v1beta1.TextProposal`. */
+  typeUrl: string
+  title: string
+  description: string
+}
+
+/**
+ * Unwrap a `MsgExecLegacyContent` from a v1 proposal's `messages[0]`.
+ * Returns the wrapped content's typeUrl + a best-effort title +
+ * description via the generic field-1/field-2 reader above. Older
+ * proposals (submitted via the v1beta1 route, then migrated to v1
+ * storage) consistently land here.
+ */
+function legacyContentInfo(proposal: Pick<Proposal, 'messages'>): LegacyContentInfo | null {
   const first = proposal.messages[0]
   if (!first) return null
   if (first.typeUrl !== '/cosmos.gov.v1.MsgExecLegacyContent') return null
@@ -94,23 +162,23 @@ function legacyTextContent(proposal: Pick<Proposal, 'messages'>): TextProposal |
     const exec = MsgExecLegacyContent.decode(first.value)
     const content = exec.content
     if (!content) return null
-    if (content.typeUrl !== '/cosmos.gov.v1beta1.TextProposal') return null
-    return TextProposal.decode(content.value)
+    const { title, description } = readLegacyTitleAndDescription(content.value)
+    return { typeUrl: content.typeUrl, title, description }
   } catch {
-    // Malformed legacy content — fall back to the v1 fields (likely blank).
     return null
   }
 }
 
 /**
  * Effective proposal title — prefers the v1 top-level `title`, falls back
- * to the wrapped v1beta1 `TextProposal.title` when the proposal was
- * submitted via the legacy `MsgExecLegacyContent` route. Used in the list
- * + detail views so really old proposals don't render as "(untitled)".
+ * to the wrapped legacy content's title when the proposal was submitted
+ * via the v1beta1 route. Works for every `Content` implementation
+ * (TextProposal, ParameterChangeProposal, SoftwareUpgradeProposal, etc.)
+ * without needing per-type proto bindings.
  */
 export function getProposalTitle(proposal: Pick<Proposal, 'title' | 'messages'>): string {
   if (proposal.title) return proposal.title
-  return legacyTextContent(proposal)?.title ?? ''
+  return legacyContentInfo(proposal)?.title ?? ''
 }
 
 /**
@@ -119,7 +187,21 @@ export function getProposalTitle(proposal: Pick<Proposal, 'title' | 'messages'>)
  */
 export function getProposalSummary(proposal: Pick<Proposal, 'summary' | 'messages'>): string {
   if (proposal.summary) return proposal.summary
-  return legacyTextContent(proposal)?.description ?? ''
+  return legacyContentInfo(proposal)?.description ?? ''
+}
+
+/**
+ * Effective proposal "type" label — for v1 proposals, the typeUrl of
+ * `messages[0]`. For legacy v1beta1-via-MsgExecLegacyContent proposals
+ * we surface the WRAPPED content's typeUrl (e.g.
+ * `SoftwareUpgradeProposal`) instead of the wrapper
+ * (`MsgExecLegacyContent`), which is the useful information for the user.
+ * Returns an empty string when the proposal has no messages at all.
+ */
+export function getProposalMessageTypes(proposal: Pick<Proposal, 'messages'>): string[] {
+  const legacy = legacyContentInfo(proposal)
+  if (legacy) return [legacy.typeUrl]
+  return Array.from(new Set(proposal.messages.map((m) => m.typeUrl)))
 }
 
 /**

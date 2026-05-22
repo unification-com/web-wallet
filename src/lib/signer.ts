@@ -129,3 +129,24 @@ export function useActiveSigner(): UseActiveSignerResult {
 
   return { signer, address, loading, error }
 }
+
+/**
+ * Human-readable label for the active signer, e.g. `"Seed 1 / Account 1"`
+ * or `"Imported 1"`. Returns null when the vault is locked / there's no
+ * active signer ref. Used by the header so the user can recognise which
+ * account they're acting on without parsing the truncated address chip.
+ */
+export function useActiveSignerLabel(): string | null {
+  const vault = useVaultStore((s) => s.vault)
+  const ref = vault?.preferences.activeSignerRef
+  if (!vault || !ref) return null
+  if (ref.kind === 'vault-seed') {
+    const seed = vault.seeds.find((s) => s.id === ref.seedId)
+    const account = seed?.accounts.find((a) => a.index === ref.accountIndex)
+    if (!seed || !account) return null
+    return `${seed.label} / ${account.label}`
+  }
+  // ref.kind === 'vault-imported'
+  const imported = vault.importedKeys.find((k) => k.id === ref.id)
+  return imported?.label ?? null
+}

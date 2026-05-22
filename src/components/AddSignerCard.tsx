@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { Eye, FileJson, KeyRound, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,10 +15,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useVaultStore } from '@/lib/vault'
-import { generateMnemonic, validateMnemonic } from '@/lib/vault/seeds'
-import { type V1KeystoreJson } from '@/lib/vault/v1-keystore'
+import { addressFromPrivateKey, deriveAccount, generateMnemonic, validateMnemonic } from '@/lib/vault/seeds'
+import { findAddressInVault, type ExistingAddressMatch } from '@/lib/vault/store'
+import { decryptV1Keystore, type V1KeystoreJson } from '@/lib/vault/v1-keystore'
 
-type Mode = null | 'generate' | 'import-seed' | 'import-v1'
+type Mode = null | 'generate' | 'import-seed' | 'import-v1' | 'import-private-key'
 
 /**
  * Add another wallet entry to an already-unlocked vault. Three flows:
@@ -37,6 +38,7 @@ type Mode = null | 'generate' | 'import-seed' | 'import-v1'
 export function AddSignerCard({ surface }: { surface: 'popup' | 'standalone' | 'web' }) {
   const addSeed = useVaultStore((s) => s.addSeed)
   const importV1Keystore = useVaultStore((s) => s.importV1Keystore)
+  const importPrivateKey = useVaultStore((s) => s.importPrivateKey)
   const setActiveSigner = useVaultStore((s) => s.setActiveSigner)
 
   const [mode, setMode] = useState<Mode>(null)
@@ -84,6 +86,10 @@ export function AddSignerCard({ surface }: { surface: 'popup' | 'standalone' | '
               </span>
             )}
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setMode('import-private-key')}>
+            <KeyRound className="h-3.5 w-3.5" />
+            <Trans>Import private key</Trans>
+          </Button>
         </div>
       </CardContent>
 
@@ -105,7 +111,46 @@ export function AddSignerCard({ surface }: { surface: 'popup' | 'standalone' | '
         importV1Keystore={importV1Keystore}
         setActiveSigner={setActiveSigner}
       />
+      <ImportPrivateKeyDialog
+        open={mode === 'import-private-key'}
+        onClose={close}
+        importPrivateKey={importPrivateKey}
+        setActiveSigner={setActiveSigner}
+      />
     </Card>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Duplicate-warning helper — shared shape across all three import dialogs
+// ---------------------------------------------------------------------------
+
+/**
+ * Subscribe to the live vault state + return any existing-address match
+ * for the candidate address. Null when no candidate (e.g. before the
+ * user fills the input). Renders an inline non-blocking warning in the
+ * dialog body — the user can still proceed (e.g. they might be
+ * intentionally re-importing a seed to expose more derived accounts).
+ */
+function useDuplicateMatch(candidateAddress: string | null): ExistingAddressMatch | null {
+  const vault = useVaultStore((s) => s.vault)
+  if (!vault || !candidateAddress) return null
+  return findAddressInVault(vault, candidateAddress)
+}
+
+function DuplicateWarning({ match }: { match: ExistingAddressMatch }) {
+  return (
+    <div className="rounded border border-amber-500/40 bg-amber-50 p-2 text-[11px] text-amber-900">
+      <Trans>
+        This address is already in your vault as{' '}
+        <span className="font-medium">
+          {match.containerLabel}
+          {match.accountLabel ? ` / ${match.accountLabel}` : ''}
+        </span>
+        . Importing again will create a duplicate entry pointing at the same address — you
+        can still proceed if you want to (e.g. to expose more accounts derived from a seed).
+      </Trans>
+    </div>
   )
 }
 
@@ -274,11 +319,32 @@ function ImportSeedDialog({
   const [phrase, setPhrase] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Derive account 0's address as the user types so we can show a
+  // duplicate warning without forcing them to submit first. Debounced
+  // implicitly via React's re-render cadence; bip39 derive is sub-ms.
+  const [candidateAddress, setCandidateAddress] = useState<string | null>(null)
+  const duplicate = useDuplicateMatch(candidateAddress)
+
+  useEffect(() => {
+    let cancelled = false
+    const normalised = phrase.trim().replace(/\s+/g, ' ')
+    if (!normalised || !validateMnemonic(normalised)) {
+      setCandidateAddress(null)
+      return undefined
+    }
+    void deriveAccount(normalised, 0).then(({ address }) => {
+      if (!cancelled) setCandidateAddress(address)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [phrase])
 
   const reset = () => {
     setPhrase('')
     setError(null)
     setSubmitting(false)
+    setCandidateAddress(null)
   }
 
   const handleClose = () => {
@@ -327,6 +393,7 @@ function ImportSeedDialog({
             placeholder={t`word1 word2 word3 …`}
             className="border rounded px-2 py-1 font-mono text-xs bg-background"
           />
+          {duplicate && <DuplicateWarning match={duplicate} />}
           {error && <p className="text-destructive">{error}</p>}
         </div>
         <DialogFooter className="gap-2">
@@ -368,6 +435,12 @@ function ImportV1Dialog({
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // v1 keystore needs the password to derive an address — we can't show a
+  // live duplicate warning while the user is typing the password. Instead
+  // we run the check post-decrypt + show a warning above the Import button
+  // before commit.
+  const [candidateAddress, setCandidateAddress] = useState<string | null>(null)
+  const duplicate = useDuplicateMatch(candidateAddress)
 
   const reset = () => {
     setJson(null)
@@ -375,6 +448,7 @@ function ImportV1Dialog({
     setPassword('')
     setError(null)
     setSubmitting(false)
+    setCandidateAddress(null)
   }
 
   const handleClose = () => {
@@ -399,6 +473,27 @@ function ImportV1Dialog({
           ? t`failed to read file: ${err.message}`
           : String(err),
       )
+    }
+  }
+
+  // Two-phase commit: "Check" decrypts only (cheap, surfaces address +
+  // duplicate warning); "Import" actually adds. Without this, the user
+  // wouldn't see the duplicate warning until after import succeeded.
+  const checkOnly = async () => {
+    if (!json) {
+      setError(t`no keystore file selected`)
+      return
+    }
+    setSubmitting(true)
+    setError(null)
+    try {
+      const decrypted = await decryptV1Keystore(json, password)
+      setCandidateAddress(decrypted.address)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setCandidateAddress(null)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -461,14 +556,29 @@ function ImportV1Dialog({
               id="add-v1-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                // Password change invalidates the previous check.
+                setCandidateAddress(null)
+              }}
             />
           </div>
+          {duplicate && <DuplicateWarning match={duplicate} />}
           {error && <p className="text-destructive break-words">{error}</p>}
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" size="sm" onClick={handleClose} disabled={submitting}>
             <Trans>Cancel</Trans>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={submitting || !json || password.length === 0 || candidateAddress !== null}
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={checkOnly}
+            title={t`Decrypt locally + check for duplicates without saving`}
+          >
+            <Trans>Check</Trans>
           </Button>
           <Button
             size="sm"
@@ -477,6 +587,131 @@ function ImportV1Dialog({
             onClick={finish}
           >
             {submitting ? <Trans>Importing…</Trans> : <Trans>Import keystore</Trans>}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Import raw private key (64 hex chars)
+// ---------------------------------------------------------------------------
+
+function ImportPrivateKeyDialog({
+  open,
+  onClose,
+  importPrivateKey,
+  setActiveSigner,
+}: {
+  open: boolean
+  onClose: () => void
+  importPrivateKey: ReturnType<typeof useVaultStore.getState>['importPrivateKey']
+  setActiveSigner: ReturnType<typeof useVaultStore.getState>['setActiveSigner']
+}) {
+  const [hex, setHex] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  // Live address derivation as the user types — matches the seed import
+  // pattern. Hex is cheap to validate; address derivation only fires when
+  // the format is right.
+  const [candidateAddress, setCandidateAddress] = useState<string | null>(null)
+  const duplicate = useDuplicateMatch(candidateAddress)
+
+  useEffect(() => {
+    let cancelled = false
+    const normalised = hex.trim().toLowerCase().replace(/^0x/, '')
+    if (!/^[0-9a-f]{64}$/.test(normalised)) {
+      setCandidateAddress(null)
+      return undefined
+    }
+    void addressFromPrivateKey(normalised).then(({ address }) => {
+      if (!cancelled) setCandidateAddress(address)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [hex])
+
+  const reset = () => {
+    setHex('')
+    setError(null)
+    setSubmitting(false)
+    setCandidateAddress(null)
+  }
+
+  const handleClose = () => {
+    reset()
+    onClose()
+  }
+
+  const finish = async () => {
+    setSubmitting(true)
+    setError(null)
+    try {
+      const entry = await importPrivateKey(hex)
+      await setActiveSigner({ kind: 'vault-imported', id: entry.id })
+      handleClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            <Trans>Import private key</Trans>
+          </DialogTitle>
+          <DialogDescription>
+            <Trans>
+              Paste a 64-character hex-encoded secp256k1 private key (32 bytes). 0x prefix is
+              optional. The corresponding address is derived locally; nothing leaves your
+              browser.
+            </Trans>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 text-xs">
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="add-private-key">
+              <Trans>Private key (hex)</Trans>
+            </Label>
+            <textarea
+              id="add-private-key"
+              value={hex}
+              onChange={(e) => setHex(e.target.value)}
+              rows={2}
+              placeholder="0x… or 64 hex characters"
+              className="border rounded px-2 py-1 font-mono text-xs bg-background break-all"
+            />
+            {candidateAddress && (
+              <span className="text-[11px] text-muted-foreground font-mono break-all">
+                <Trans>Derived address: {candidateAddress}</Trans>
+              </span>
+            )}
+          </div>
+          {duplicate && <DuplicateWarning match={duplicate} />}
+          {error && <p className="text-destructive break-words">{error}</p>}
+          <div className="rounded border border-destructive/30 bg-destructive/5 p-2 text-[11px] text-destructive">
+            <Trans>
+              Treat the source of this key with the same care as a seed phrase. Anyone with
+              this hex string can spend funds at the derived address.
+            </Trans>
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" size="sm" onClick={handleClose} disabled={submitting}>
+            <Trans>Cancel</Trans>
+          </Button>
+          <Button
+            size="sm"
+            disabled={submitting || candidateAddress === null}
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={finish}
+          >
+            {submitting ? <Trans>Importing…</Trans> : <Trans>Import key</Trans>}
           </Button>
         </DialogFooter>
       </DialogContent>
