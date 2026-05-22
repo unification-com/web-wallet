@@ -9,7 +9,10 @@ import {
 import { cn } from '@/lib/utils'
 
 const labelVariants = cva(
-  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+  // text-xs by default fits the dense utility surface better than text-sm.
+  // Mainframe theme auto-applies mono + uppercase + tracking so labels read
+  // as terminal headers without per-call branching.
+  'text-xs font-medium leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70 [.theme-mainframe_&]:font-mono [.theme-mainframe_&]:uppercase [.theme-mainframe_&]:tracking-[0.10em]',
 )
 
 export const Label = forwardRef<

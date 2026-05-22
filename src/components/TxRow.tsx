@@ -204,13 +204,22 @@ function PresenterItemRow({ item }: { item: PresenterItem }) {
  * Leading glyph in the row header — colour-coded soft-pill icon. Reads at
  * a glance ahead of the direction badge text. Keeps WCAG AA without
  * relying on colour alone (the badge text remains).
+ *
+ * Colour mapping:
+ *   received → success (green)    — FUND came in (incl. claim rewards)
+ *   sent     → muted/neutral     — FUND went out (transfer, delegate, redelegate)
+ *   info     → primary (blue)    — governance vote, no-op message
+ *
+ * Destructive red is reserved for the FAILED tx badge — NOT for
+ * sent-direction rows, because most "sent" messages in this wallet are
+ * legitimate staking ops that shouldn't read as alarming.
  */
 function DirectionGlyph({ direction }: { direction: TxDirection }) {
   const cls = 'h-3.5 w-3.5'
   switch (direction) {
     case 'sent':
       return (
-        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-destructive/15 text-destructive">
+        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
           <ArrowUpRight className={cls} />
         </span>
       )
@@ -236,7 +245,7 @@ function DirectionBadge({ direction }: { direction: TxDirection }) {
   switch (direction) {
     case 'sent':
       label = t`Sent`
-      cls = 'bg-destructive/12 text-destructive border-destructive/30'
+      cls = 'bg-muted text-muted-foreground border-border'
       break
     case 'received':
       label = t`Received`
@@ -244,7 +253,7 @@ function DirectionBadge({ direction }: { direction: TxDirection }) {
       break
     default:
       label = t`Info`
-      cls = 'bg-muted text-muted-foreground border-border'
+      cls = 'bg-primary/10 text-primary border-primary/30'
   }
   return (
     <span

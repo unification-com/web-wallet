@@ -3,6 +3,7 @@ import { ExternalLink, Lock, Settings as SettingsIcon } from 'lucide-react'
 
 import { AccountSwitcher } from '@/components/AccountSwitcher'
 import { EndpointSwitcher } from '@/components/EndpointSwitcher'
+import { BrandMark } from '@/components/ui/BrandMark'
 import { Button } from '@/components/ui/button'
 import { useVaultStore } from '@/lib/vault'
 
@@ -25,17 +26,24 @@ export function Header({
   }
 
   return (
-    <header className="flex items-center justify-between gap-1">
-      <div className="flex flex-col min-w-0">
-        <h1 className="text-base font-semibold truncate">
-          {isPopup ? t`Wallet` : t`Unification Wallet`}
-        </h1>
-        {!isPopup && (
-          <span className="text-[10px] text-muted-foreground">{surface}</span>
-        )}
+    <header className="flex items-center justify-between gap-2 pb-1">
+      {/* Left: brand mark + product wordmark */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        <BrandMark className="shrink-0 h-7 w-7" />
+        <div className="flex flex-col min-w-0 leading-tight">
+          <h1 className="text-base font-semibold truncate [.theme-mainframe_&]:font-mono [.theme-mainframe_&]:uppercase [.theme-mainframe_&]:tracking-[0.06em]">
+            {isPopup ? t`Wallet` : t`Unification Wallet`}
+          </h1>
+          {!isPopup && (
+            <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.10em]">
+              {surface}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-1 text-xs">
+      {/* Right: switchers + icon buttons */}
+      <div className="flex items-center gap-1.5 text-xs">
         <EndpointSwitcher />
         <AccountSwitcher compact={isPopup} />
         {isPopup && (

@@ -197,19 +197,34 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
               </p>
             ) : (
               <>
-                <TallyBar label={t`Yes`} percent={pct.yes} count={effectiveTally?.yesCount} colour="bg-green-600" />
-                <TallyBar label={t`No`} percent={pct.no} count={effectiveTally?.noCount} colour="bg-red-600" />
+                {/* Semantic-token tints per the v2 design system —
+                  * automatically picks up the active theme's success /
+                  * destructive / muted / accent colours instead of
+                  * hardcoded Tailwind palette values that only worked on
+                  * the original light-only Cosmos. */}
+                <TallyBar
+                  label={t`Yes`}
+                  percent={pct.yes}
+                  count={effectiveTally?.yesCount}
+                  colour="bg-success"
+                />
+                <TallyBar
+                  label={t`No`}
+                  percent={pct.no}
+                  count={effectiveTally?.noCount}
+                  colour="bg-destructive"
+                />
                 <TallyBar
                   label={t`Abstain`}
                   percent={pct.abstain}
                   count={effectiveTally?.abstainCount}
-                  colour="bg-slate-500"
+                  colour="bg-muted-foreground"
                 />
                 <TallyBar
                   label={t`No with veto`}
                   percent={pct.noWithVeto}
                   count={effectiveTally?.noWithVetoCount}
-                  colour="bg-red-900"
+                  colour="bg-accent"
                 />
                 <div className="border-t pt-2 mt-1 flex items-center justify-between text-[10px] uppercase tracking-[0.08em] font-mono text-muted-foreground">
                   <span>
