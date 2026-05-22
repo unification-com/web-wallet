@@ -81,6 +81,21 @@ msgstr "{0} FUND"
 msgid "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
 msgstr "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
 
+#. placeholder {0}: tiers.average.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"average\""
+msgstr "{0} nund/gas — chain-registry \"average\""
+
+#. placeholder {0}: tiers.high.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"high\""
+msgstr "{0} nund/gas — chain-registry \"high\""
+
+#. placeholder {0}: tiers.low.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"low\""
+msgstr "{0} nund/gas — chain-registry \"low\""
+
 #. placeholder {0}: filteredSorted.length
 #. placeholder {1}: validators.length
 #: src/components/Validators.tsx
@@ -696,6 +711,11 @@ msgstr "failed to read file: {0}"
 msgid "Failure reason: {0}"
 msgstr "Failure reason: {0}"
 
+#. placeholder {0}: tiers.high.toString()
+#: src/components/GasAccordion.tsx
+msgid "Fast ({0})"
+msgstr "Fast ({0})"
+
 #: src/components/Send.tsx
 #: src/components/TxRow.tsx
 msgid "Fee"
@@ -1102,6 +1122,11 @@ msgstr "No votes recorded yet."
 msgid "No with veto"
 msgstr "No with veto"
 
+#. placeholder {0}: tiers.average.toString()
+#: src/components/GasAccordion.tsx
+msgid "Normal ({0})"
+msgstr "Normal ({0})"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "not a v1 keystore file (missing version:1 or crypto block)"
@@ -1203,6 +1228,10 @@ msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to
 #: src/components/GasAccordion.tsx
 msgid "Price (nund/gas)"
 msgstr "Price (nund/gas)"
+
+#: src/components/GasAccordion.tsx
+msgid "Price preset:"
+msgstr "Price preset:"
 
 #: src/components/AddSignerCard.tsx
 msgid "Private key (hex)"
@@ -1527,6 +1556,11 @@ msgstr "Simulated gas: <0>{0}</0> · recommended (×1.4): <1>{1}</1>"
 #: src/components/GasAccordion.tsx
 msgid "simulation failed — the chain rejected the dry-run"
 msgstr "simulation failed — the chain rejected the dry-run"
+
+#. placeholder {0}: tiers.low.toString()
+#: src/components/GasAccordion.tsx
+msgid "Slow ({0})"
+msgstr "Slow ({0})"
 
 #: src/lib/msgs/presenters.ts
 msgid "Splits"

@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useActiveEndpoint } from '@/lib/chain'
+import { useChainGasPrices } from '@/lib/chainRegistry'
 import {
   buildFee,
   DEFAULT_MIN_GAS_PRICE_NUND,
   recommendedGas,
   simulateGas,
+  type GasPriceTier,
 } from '@/lib/gasEstimate'
 import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
@@ -57,6 +59,11 @@ export function GasAccordion({
   const { signer, address } = useActiveSigner()
   const { t } = useLingui()
   const [expanded, setExpanded] = useState(false)
+  const tiers = useChainGasPrices()
+
+  const applyTier = (tier: GasPriceTier) => {
+    setGasPrice(tiers[tier])
+  }
 
   // Initial values from the default fee. User edits drift these — when
   // they differ from the originals we emit a custom fee, otherwise the
@@ -141,7 +148,7 @@ export function GasAccordion({
 
       {expanded && (
         <div className="flex flex-col gap-2 mt-2 text-[11px]">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
               variant="outline"
@@ -180,6 +187,41 @@ export function GasAccordion({
               onClick={reset}
             >
               <Trans>Reset</Trans>
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-1 border-t pt-2">
+            <span className="text-muted-foreground mr-1">
+              <Trans>Price preset:</Trans>
+            </span>
+            <Button
+              type="button"
+              variant={gasPrice === tiers.low ? 'default' : 'outline'}
+              size="sm"
+              className="h-7 text-[11px]"
+              onClick={() => applyTier('low')}
+              title={t`${tiers.low.toString()} nund/gas — chain-registry "low"`}
+            >
+              <Trans>Slow ({tiers.low.toString()})</Trans>
+            </Button>
+            <Button
+              type="button"
+              variant={gasPrice === tiers.average ? 'default' : 'outline'}
+              size="sm"
+              className="h-7 text-[11px]"
+              onClick={() => applyTier('average')}
+              title={t`${tiers.average.toString()} nund/gas — chain-registry "average"`}
+            >
+              <Trans>Normal ({tiers.average.toString()})</Trans>
+            </Button>
+            <Button
+              type="button"
+              variant={gasPrice === tiers.high ? 'default' : 'outline'}
+              size="sm"
+              className="h-7 text-[11px]"
+              onClick={() => applyTier('high')}
+              title={t`${tiers.high.toString()} nund/gas — chain-registry "high"`}
+            >
+              <Trans>Fast ({tiers.high.toString()})</Trans>
             </Button>
           </div>
 

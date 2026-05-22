@@ -19,8 +19,29 @@ import { type ChainEndpoint } from './chain'
 // is the only path.
 // ---------------------------------------------------------------------------
 
-/** Default `minimum-gas-prices` floor on Unification, in nund per gas unit. */
+/**
+ * Default `minimum-gas-prices` floor on Unification, in nund per gas unit.
+ * Used as the always-available fallback when the chain-registry runtime
+ * fetch hasn't resolved (offline / first paint / GitHub unreachable).
+ * Matches `unification/chain.json:fees.fee_tokens[0].fixed_min_gas_price`
+ * — bump when upstream changes if you care about offline correctness.
+ */
 export const DEFAULT_MIN_GAS_PRICE_NUND = 25
+
+/**
+ * Fallback gas-price tiers (nund per gas unit). Same source-of-truth +
+ * upgrade story as `DEFAULT_MIN_GAS_PRICE_NUND` — these are the values
+ * shown when the chain-registry fetch hasn't resolved yet. Live values
+ * via {@link useChainGasPrices} (in `chainRegistry.ts`).
+ */
+export const FALLBACK_GAS_PRICES = {
+  fixedMin: 25,
+  low: 100,
+  average: 200,
+  high: 300,
+} as const
+
+export type GasPriceTier = 'low' | 'average' | 'high'
 
 /**
  * Safety margin applied to the simulated gas figure when building the
