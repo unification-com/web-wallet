@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/react/macro'
 import { Check, ChevronDown } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import {
   customToChainEndpoint,
@@ -28,6 +28,30 @@ export function EndpointSwitcher() {
 
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLUListElement>(null)
+  const [shiftX, setShiftX] = useState(0)
+
+  // Viewport-collision clamp: the trigger sits in the middle of the popup header
+  // (≈360 px wide in MV3 popup) with `right-0` anchoring the dropdown to the
+  // trigger's right edge. The 220-300 px-wide menu can extend past the popup's
+  // left edge. Measure once on open and shift right with translateX if needed;
+  // works at any viewport size (popup vs. standalone vs. web).
+  useLayoutEffect(() => {
+    if (!open) {
+      setShiftX(0)
+      return
+    }
+    const ul = dropdownRef.current
+    if (!ul) return
+    ul.style.transform = ''
+    const rect = ul.getBoundingClientRect()
+    const margin = 8
+    if (rect.left < margin) {
+      setShiftX(Math.ceil(margin - rect.left))
+    } else if (rect.right > window.innerWidth - margin) {
+      setShiftX(Math.floor(window.innerWidth - margin - rect.right))
+    }
+  }, [open])
 
   // Close on outside click + Escape — keeps the popup-tight UI from getting
   // wedged open after navigation.
@@ -97,7 +121,9 @@ export function EndpointSwitcher() {
 
       {open && (
         <ul
+          ref={dropdownRef}
           role="listbox"
+          style={shiftX ? { transform: `translateX(${String(shiftX)}px)` } : undefined}
           className={cn(
             'absolute right-0 mt-1.5 min-w-[220px] max-w-[300px] z-50',
             'rounded border border-border bg-popover text-popover-foreground',
