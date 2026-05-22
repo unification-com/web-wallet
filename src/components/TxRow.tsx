@@ -2,6 +2,8 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+
+
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import {
   presentMsg,
@@ -33,11 +35,12 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
   const endpoint = useActiveEndpoint()
   const [expanded, setExpanded] = useState(false)
 
-  const ctx = useMemo(() => ({ address: activeAddress }), [activeAddress])
-
   const presented = useMemo<PresenterResult[]>(
-    () => tx.decoded.body.messages.map((m) => presentMsg(m, ctx)),
-    [tx.decoded.body.messages, ctx],
+    () =>
+      tx.decoded.body.messages.map((m, i) =>
+        presentMsg(m, { address: activeAddress, events: tx.events, msgIndex: i }),
+      ),
+    [tx.decoded.body.messages, tx.events, activeAddress],
   )
 
   const headlineVerb = presented[0]?.verb ?? t`(no messages)`

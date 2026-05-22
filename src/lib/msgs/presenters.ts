@@ -1,3 +1,4 @@
+import type { Event } from '@cosmjs/stargate'
 import { msg } from '@lingui/core/macro'
 import { MsgExec, MsgGrant, MsgRevoke } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
 import { MsgMultiSend, MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx'
@@ -83,6 +84,69 @@ export type TxDirection = 'sent' | 'received' | 'info'
 export interface PresenterContext {
   /** Active wallet address — drives sent vs received inference. */
   address: string
+  /**
+   * All events from the tx ABCI response — Unification module presenters
+   * (beacon / wrkchain / enterprise / stream) read structured attributes
+   * out of these because the proto bodies don't tree-shake under linked
+   * fundjs-react. SDK v0.50+ tags each Event with a `msg_index` attribute
+   * pointing back to the source Msg in the tx body — when present, the
+   * `findEvent` helper uses it to disambiguate multi-Msg txs.
+   */
+  events: readonly Event[]
+  /** Zero-based index of the current Msg within the tx body. */
+  msgIndex: number
+}
+
+// ---------------------------------------------------------------------------
+// Event-attribute helpers — used by Unification presenters (which read from
+// chain-emitted structured events instead of decoding the Msg body).
+// ---------------------------------------------------------------------------
+
+/**
+ * Find the first event with `type === eventType` that's tagged with the
+ * current Msg's index (SDK v0.50+ `msg_index` attribute). Falls back to
+ * the first matching-by-type event when the tag is absent (older SDK / a
+ * chain that doesn't emit msg_index). Returns null when no event matches.
+ */
+export function findEvent(
+  events: readonly Event[],
+  eventType: string,
+  msgIndex: number,
+): Event | null {
+  // First pass: prefer msg_index-tagged events.
+  for (const e of events) {
+    if (e.type !== eventType) continue
+    const tag = e.attributes.find((a) => a.key === 'msg_index')
+    if (tag && Number(tag.value) === msgIndex) return e
+  }
+  // Fallback: first by type. Acceptable for single-Msg txs which is the
+  // common case for user-initiated activity.
+  for (const e of events) {
+    if (e.type === eventType) return e
+  }
+  return null
+}
+
+/** Read a single attribute's value from an event by key. Returns null if absent. */
+export function getAttr(event: Event | null, key: string): string | null {
+  if (!event) return null
+  return event.attributes.find((a) => a.key === key)?.value ?? null
+}
+
+/**
+ * Build a `PresenterItem` only when the attribute has a non-empty value.
+ * Used by event-driven presenters so empty / missing attributes don't show
+ * up as blank rows in the detail panel.
+ */
+export function itemFromAttr(
+  label: string,
+  event: Event | null,
+  key: string,
+  opts: { mono?: boolean } = {},
+): PresenterItem | null {
+  const value = getAttr(event, key)
+  if (value === null || value === '') return null
+  return { label, value, ...(opts.mono ? { mono: true } : {}) }
 }
 
 export interface PresenterItem {
@@ -677,27 +741,284 @@ function presentInfoOnly(typeUrl: string): Presenter {
 }
 
 // ---------------------------------------------------------------------------
-// Unification module presenters — fundjs-react proto bindings don't tree-shake
-// under linked Rollup (see staking.ts module note). For the first-cut M4 we
-// render the short typeUrl + an `info` badge. The chain emits structured
-// events for these Msgs (in the `IndexedTx.events[]`) — a follow-up commit
-// can surface event-level details (e.g. beacon-id, stream-id, deposit
-// amount) without needing the proto decoder. Tracked at M4.2 close-out.
+// Unification module presenters — read from chain-emitted events
+// ---------------------------------------------------------------------------
+// fundjs-react proto bindings don't tree-shake under linked Rollup (see
+// staking.ts + gov.ts module notes), so instead of decoding the Msg body
+// these presenters read structured attributes from the chain-emitted
+// `IndexedTx.events[]`. Attribute keys mirror the Go-side constants in
+// `mainchain/x/<module>/types/events.go` (verified at M4.6 time).
+//
+// Multi-Msg disambiguation: SDK v0.50+ tags each Event with a `msg_index`
+// attribute pointing back to the Msg in the body. `findEvent` prefers this
+// tag when present, falls back to first-by-type otherwise.
+//
+// All Msgs here are signed by the active wallet account (they appear in
+// the user's history because we queried `message.sender = address`), so
+// `direction = 'sent'` is correct for beacon / wrkchain / stream-create /
+// enterprise-purchase. Stream-claim flows the other way: the receiver
+// signs the claim Tx, so the direction is `received` from their POV.
 // ---------------------------------------------------------------------------
 
-/**
- * First-cut Unification-Msg renderer — short typeUrl + `sent` badge (since
- * the user is necessarily the signer of any tx in their own history). A
- * follow-up commit can surface chain-emitted event attributes (beacon-id,
- * stream-id, deposit amount, …) without needing the fundjs-react proto
- * decoder. Tracked at M4 close.
- */
-function presentUnificationMsg(typeUrl: string): PresenterResult {
+// --- Beacon ---------------------------------------------------------------
+
+function presentMsgRegisterBeacon(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'register_beacon', ctx.msgIndex)
   return {
-    verb: shortTypeUrl(typeUrl),
+    verb: i18n._(msg`Registered beacon`),
     direction: 'sent',
-    items: [],
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Beacon ID`), e, 'beacon_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Moniker`), e, 'beacon_moniker'),
+      itemFromAttr(i18n._(msg`Name`), e, 'beacon_name'),
+      itemFromAttr(i18n._(msg`Owner`), e, 'beacon_owner', { mono: true }),
+    ]),
   }
+}
+
+function presentMsgRecordBeaconTimestamp(
+  _raw: Uint8Array,
+  ctx: PresenterContext,
+): PresenterResult {
+  const e = findEvent(ctx.events, 'record_beacon_timestamp', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Recorded beacon timestamp`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Beacon ID`), e, 'beacon_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Timestamp ID`), e, 'beacon_timestamp_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Hash`), e, 'beacon_timestamp_hash', { mono: true }),
+      itemFromAttr(i18n._(msg`Submit time`), e, 'beacon_timestamp_submit_time', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgPurchaseBeaconStateStorage(
+  _raw: Uint8Array,
+  ctx: PresenterContext,
+): PresenterResult {
+  const e = findEvent(ctx.events, 'purchase_beacon_storage', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Purchased beacon storage`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Beacon ID`), e, 'beacon_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Purchased`), e, 'beacon_storage_num_purchased', { mono: true }),
+      itemFromAttr(
+        i18n._(msg`Remaining capacity`),
+        e,
+        'beacon_storage_num_can_purchase',
+        { mono: true },
+      ),
+    ]),
+  }
+}
+
+// --- WrkChain -------------------------------------------------------------
+
+function presentMsgRegisterWrkChain(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'register_wrkchain', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Registered wrkchain`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`WrkChain ID`), e, 'wrkchain_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Moniker`), e, 'wrkchain_moniker'),
+      itemFromAttr(i18n._(msg`Name`), e, 'wrkchain_name'),
+      itemFromAttr(i18n._(msg`Base type`), e, 'wrkchain_base_type'),
+      itemFromAttr(i18n._(msg`Genesis hash`), e, 'wrkchain_genesis_hash', { mono: true }),
+      itemFromAttr(i18n._(msg`Owner`), e, 'wrkchain_owner', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgRecordWrkChainBlock(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'record_wrkchain_hash', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Recorded wrkchain block`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`WrkChain ID`), e, 'wrkchain_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Block height`), e, 'wrkchain_block_height', { mono: true }),
+      itemFromAttr(i18n._(msg`Block hash`), e, 'wrkchain_block_hash', { mono: true }),
+      itemFromAttr(i18n._(msg`Parent hash`), e, 'wrkchain_parent_hash', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgPurchaseWrkChainStateStorage(
+  _raw: Uint8Array,
+  ctx: PresenterContext,
+): PresenterResult {
+  const e = findEvent(ctx.events, 'purchase_wrkchain_storage', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Purchased wrkchain storage`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`WrkChain ID`), e, 'wrkchain_id', { mono: true }),
+      itemFromAttr(i18n._(msg`Purchased`), e, 'wrkchain_storage_num_purchased', { mono: true }),
+      itemFromAttr(
+        i18n._(msg`Remaining capacity`),
+        e,
+        'wrkchain_storage_num_can_purchase',
+        { mono: true },
+      ),
+    ]),
+  }
+}
+
+// --- Enterprise -----------------------------------------------------------
+
+function presentMsgUndPurchaseOrder(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'raise_purchase_order', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Raised eFUND purchase order`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Order ID`), e, 'id', { mono: true }),
+      itemFromAttr(i18n._(msg`Purchaser`), e, 'purchaser', { mono: true }),
+      itemFromAttr(i18n._(msg`Amount`), e, 'amount', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgProcessUndPurchaseOrder(
+  _raw: Uint8Array,
+  ctx: PresenterContext,
+): PresenterResult {
+  const e = findEvent(ctx.events, 'process_purchase_order_decision', ctx.msgIndex)
+  const decision = getAttr(e, 'decision')
+  return {
+    verb:
+      decision === 'accept'
+        ? i18n._(msg`Accepted eFUND purchase order`)
+        : decision === 'reject'
+          ? i18n._(msg`Rejected eFUND purchase order`)
+          : i18n._(msg`Processed eFUND purchase order`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Order ID`), e, 'id', { mono: true }),
+      itemFromAttr(i18n._(msg`Decision`), e, 'decision'),
+      itemFromAttr(i18n._(msg`Signer`), e, 'signer', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgWhitelistAddress(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'whitelist_purchase_order_address', ctx.msgIndex)
+  const action = getAttr(e, 'action')
+  return {
+    verb:
+      action === 'add'
+        ? i18n._(msg`Whitelisted address`)
+        : action === 'remove'
+          ? i18n._(msg`Unwhitelisted address`)
+          : i18n._(msg`Updated address whitelist`),
+    direction: 'sent',
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Action`), e, 'action'),
+      itemFromAttr(i18n._(msg`Address`), e, 'address', { mono: true }),
+    ]),
+  }
+}
+
+// --- Stream ---------------------------------------------------------------
+// Stream Msgs split direction by signer role: create / topup / update-flow
+// / cancel are sender-driven (active address === sender); claim is
+// receiver-driven (active address === receiver). The event always carries
+// both addresses so we infer direction from them rather than from the Msg
+// itself.
+
+function streamDirection(event: ReturnType<typeof findEvent>, ctxAddress: string): TxDirection {
+  const sender = getAttr(event, 'sender')
+  const receiver = getAttr(event, 'receiver')
+  if (sender === ctxAddress) return 'sent'
+  if (receiver === ctxAddress) return 'received'
+  return 'info'
+}
+
+function presentMsgCreateStream(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'create_stream', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Created stream`),
+    direction: streamDirection(e, ctx.address),
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
+      itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
+      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
+      itemFromAttr(i18n._(msg`Flow rate`), e, 'flow_rate', { mono: true }),
+      itemFromAttr(i18n._(msg`Deposit`), e, 'amount_deposited', { mono: true }),
+      itemFromAttr(i18n._(msg`Drains at`), e, 'deposit_zero_time', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgTopUpDeposit(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'stream_deposit', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Topped up stream deposit`),
+    direction: streamDirection(e, ctx.address),
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
+      itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
+      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
+      itemFromAttr(i18n._(msg`Added`), e, 'amount_deposited', { mono: true }),
+      itemFromAttr(i18n._(msg`Extends by`), e, 'deposit_duration', { mono: true }),
+      itemFromAttr(i18n._(msg`Now drains at`), e, 'deposit_zero_time', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgClaimStream(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'claim_stream', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Claimed stream`),
+    direction: streamDirection(e, ctx.address),
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
+      itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
+      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
+      itemFromAttr(i18n._(msg`Received`), e, 'amount_received', { mono: true }),
+      itemFromAttr(i18n._(msg`Validator fee`), e, 'validator_fee', { mono: true }),
+      itemFromAttr(i18n._(msg`Total claimed`), e, 'claim_total', { mono: true }),
+      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgUpdateFlowRate(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'update_flow_rate', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Updated stream flow rate`),
+    direction: streamDirection(e, ctx.address),
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
+      itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
+      itemFromAttr(i18n._(msg`Old flow rate`), e, 'old_flow_rate', { mono: true }),
+      itemFromAttr(i18n._(msg`New flow rate`), e, 'new_flow_rate', { mono: true }),
+    ]),
+  }
+}
+
+function presentMsgCancelStream(_raw: Uint8Array, ctx: PresenterContext): PresenterResult {
+  const e = findEvent(ctx.events, 'cancel_stream', ctx.msgIndex)
+  return {
+    verb: i18n._(msg`Cancelled stream`),
+    direction: streamDirection(e, ctx.address),
+    items: filterItems([
+      itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
+      itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
+      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
+      itemFromAttr(i18n._(msg`Refunded`), e, 'refund_amount', { mono: true }),
+      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true }),
+    ]),
+  }
+}
+
+// --- Helper: drop the nulls from an item-list-with-optionals shape ---
+
+function filterItems(items: readonly (PresenterItem | null)[]): PresenterItem[] {
+  return items.filter((i): i is PresenterItem => i !== null)
 }
 
 // ---------------------------------------------------------------------------
@@ -864,38 +1185,43 @@ export const PRESENTERS: Record<string, Presenter> = {
 }
 
 // ---------------------------------------------------------------------------
-// Unification module presenter wiring — see comment above on why these
-// fall back to short-typeUrl rendering rather than fully-decoded bodies.
-// Listed in PRESENTERS so the default-branch JSON-dump fallback isn't used
-// (avoids surfacing raw proto bytes for known module messages).
+// Unification module presenter wiring — event-attribute driven (see module
+// note above each Unification presenter block for why we read events rather
+// than decode proto bodies).
 // ---------------------------------------------------------------------------
 
-const UNIFICATION_MSG_TYPEURLS = [
-  // beacon
-  '/mainchain.beacon.v1.MsgRegisterBeacon',
-  '/mainchain.beacon.v1.MsgRecordBeaconTimestamp',
-  '/mainchain.beacon.v1.MsgPurchaseBeaconStateStorage',
-  // wrkchain
-  '/mainchain.wrkchain.v1.MsgRegisterWrkChain',
-  '/mainchain.wrkchain.v1.MsgRecordWrkChainBlock',
-  '/mainchain.wrkchain.v1.MsgPurchaseWrkChainStateStorage',
-  // enterprise
-  '/mainchain.enterprise.v1.MsgUndPurchaseOrder',
-  '/mainchain.enterprise.v1.MsgProcessUndPurchaseOrder',
-  '/mainchain.enterprise.v1.MsgWhitelistAddress',
-  '/mainchain.enterprise.v1.MsgUnwhitelistAddress',
-  // stream
-  '/mainchain.stream.v1.MsgCreateStream',
-  '/mainchain.stream.v1.MsgClaimStream',
-  '/mainchain.stream.v1.MsgTopUpDeposit',
-  '/mainchain.stream.v1.MsgUpdateFlowRate',
-  '/mainchain.stream.v1.MsgCancelStream',
-  '/mainchain.stream.v1.MsgUpdateParams',
-] as const
+// Beacon
+PRESENTERS['/mainchain.beacon.v1.MsgRegisterBeacon'] = presentMsgRegisterBeacon
+PRESENTERS['/mainchain.beacon.v1.MsgRecordBeaconTimestamp'] = presentMsgRecordBeaconTimestamp
+PRESENTERS['/mainchain.beacon.v1.MsgPurchaseBeaconStateStorage'] =
+  presentMsgPurchaseBeaconStateStorage
 
-for (const typeUrl of UNIFICATION_MSG_TYPEURLS) {
-  PRESENTERS[typeUrl] = () => presentUnificationMsg(typeUrl)
-}
+// WrkChain
+PRESENTERS['/mainchain.wrkchain.v1.MsgRegisterWrkChain'] = presentMsgRegisterWrkChain
+PRESENTERS['/mainchain.wrkchain.v1.MsgRecordWrkChainBlock'] = presentMsgRecordWrkChainBlock
+PRESENTERS['/mainchain.wrkchain.v1.MsgPurchaseWrkChainStateStorage'] =
+  presentMsgPurchaseWrkChainStateStorage
+
+// Enterprise — chain has a single `MsgWhitelistAddress` with an `action`
+// field (add / remove); the verb in the presenter switches on the event's
+// `action` attribute. There is no separate `MsgUnwhitelistAddress`.
+PRESENTERS['/mainchain.enterprise.v1.MsgUndPurchaseOrder'] = presentMsgUndPurchaseOrder
+PRESENTERS['/mainchain.enterprise.v1.MsgProcessUndPurchaseOrder'] =
+  presentMsgProcessUndPurchaseOrder
+PRESENTERS['/mainchain.enterprise.v1.MsgWhitelistAddress'] = presentMsgWhitelistAddress
+
+// Stream
+PRESENTERS['/mainchain.stream.v1.MsgCreateStream'] = presentMsgCreateStream
+PRESENTERS['/mainchain.stream.v1.MsgTopUpDeposit'] = presentMsgTopUpDeposit
+PRESENTERS['/mainchain.stream.v1.MsgClaimStream'] = presentMsgClaimStream
+PRESENTERS['/mainchain.stream.v1.MsgUpdateFlowRate'] = presentMsgUpdateFlowRate
+PRESENTERS['/mainchain.stream.v1.MsgCancelStream'] = presentMsgCancelStream
+// Stream MsgUpdateParams is a gov-only param-update Msg with no chain-emitted
+// event of its own — surface as info-only like the other module-internal
+// param-update Msgs.
+PRESENTERS['/mainchain.stream.v1.MsgUpdateParams'] = presentInfoOnly(
+  '/mainchain.stream.v1.MsgUpdateParams',
+)
 
 // ---------------------------------------------------------------------------
 // Public entry — typeUrl → presenter, with default-branch fallback.

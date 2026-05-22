@@ -146,6 +146,10 @@ msgstr "Abstain"
 msgid "ABSTAIN"
 msgstr "ABSTAIN"
 
+#: src/lib/msgs/presenters.ts
+msgid "Accepted eFUND purchase order"
+msgstr "Accepted eFUND purchase order"
+
 #. placeholder {0}: ref.accountIndex.toString()
 #. placeholder {1}: ref.seedId
 #: src/lib/signer.ts
@@ -159,6 +163,10 @@ msgstr "accountIndex must be a non-negative integer"
 #: src/components/AccountSwitcher.tsx
 msgid "Accounts"
 msgstr "Accounts"
+
+#: src/lib/msgs/presenters.ts
+msgid "Action"
+msgstr "Action"
 
 #: src/components/AccountSwitcher.tsx
 #: src/components/Settings.tsx
@@ -182,9 +190,17 @@ msgstr "Add another"
 msgid "Add custom endpoint"
 msgstr "Add custom endpoint"
 
+#: src/lib/msgs/presenters.ts
+msgid "Added"
+msgstr "Added"
+
 #: src/components/AccountSwitcher.tsx
 msgid "Adding…"
 msgstr "Adding…"
+
+#: src/lib/msgs/presenters.ts
+msgid "Address"
+msgstr "Address"
 
 #: src/components/ProposalList.tsx
 msgid "All"
@@ -243,6 +259,22 @@ msgstr "Back"
 msgid "Balance: <0>{0}</0> FUND"
 msgstr "Balance: <0>{0}</0> FUND"
 
+#: src/lib/msgs/presenters.ts
+msgid "Base type"
+msgstr "Base type"
+
+#: src/lib/msgs/presenters.ts
+msgid "Beacon ID"
+msgstr "Beacon ID"
+
+#: src/lib/msgs/presenters.ts
+msgid "Block hash"
+msgstr "Block hash"
+
+#: src/lib/msgs/presenters.ts
+msgid "Block height"
+msgstr "Block height"
+
 #: src/components/Settings.tsx
 msgid "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
 msgstr "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
@@ -266,6 +298,10 @@ msgstr "Cancel"
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled proposal"
 msgstr "Cancelled proposal"
+
+#: src/lib/msgs/presenters.ts
+msgid "Cancelled stream"
+msgstr "Cancelled stream"
 
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled unbonding"
@@ -318,6 +354,10 @@ msgstr "Claim accrued staking rewards from this validator. Rewards land in your 
 #: src/components/ActiveDelegations.tsx
 msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
 msgstr "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
+
+#: src/lib/msgs/presenters.ts
+msgid "Claimed stream"
+msgstr "Claimed stream"
 
 #: src/components/EndpointSwitcher.tsx
 msgid "click to switch"
@@ -428,6 +468,10 @@ msgid "Created permanent-locked account"
 msgstr "Created permanent-locked account"
 
 #: src/lib/msgs/presenters.ts
+msgid "Created stream"
+msgstr "Created stream"
+
+#: src/lib/msgs/presenters.ts
 msgid "Created validator"
 msgstr "Created validator"
 
@@ -451,6 +495,10 @@ msgstr "Currently delegated: <0>{0}</0> FUND"
 #: src/components/Settings.tsx
 msgid "Custom"
 msgstr "Custom"
+
+#: src/lib/msgs/presenters.ts
+msgid "Decision"
+msgstr "Decision"
 
 #: src/components/DelegateModal.tsx
 msgid "Delegate"
@@ -495,9 +543,14 @@ msgstr "Delete seed"
 msgid "Deleting…"
 msgstr "Deleting…"
 
+#: src/lib/msgs/presenters.ts
+msgid "Denom"
+msgstr "Denom"
+
 #: src/components/ProposalDetail.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
+#: src/lib/msgs/presenters.ts
 msgid "Deposit"
 msgstr "Deposit"
 
@@ -534,6 +587,10 @@ msgid "Done"
 msgstr "Done"
 
 #: src/lib/msgs/presenters.ts
+msgid "Drains at"
+msgstr "Drains at"
+
+#: src/lib/msgs/presenters.ts
 msgid "Edited validator"
 msgstr "Edited validator"
 
@@ -564,6 +621,10 @@ msgstr "Expedited"
 #: src/components/Settings.tsx
 msgid "Explorer base URL (optional)"
 msgstr "Explorer base URL (optional)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Extends by"
+msgstr "Extends by"
 
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
@@ -623,6 +684,10 @@ msgstr "Finish setup"
 msgid "Finishing…"
 msgstr "Finishing…"
 
+#: src/lib/msgs/presenters.ts
+msgid "Flow rate"
+msgstr "Flow rate"
+
 #: src/components/UnlockScreen.tsx
 msgid "Forgot your password?"
 msgstr "Forgot your password?"
@@ -661,6 +726,10 @@ msgstr "Generate a new seed"
 msgid "Generate new seed"
 msgstr "Generate new seed"
 
+#: src/lib/msgs/presenters.ts
+msgid "Genesis hash"
+msgstr "Genesis hash"
+
 #: src/App.tsx
 msgid "Governance"
 msgstr "Governance"
@@ -693,6 +762,7 @@ msgid "h{0} · {1} {2}"
 msgstr "h{0} · {1} {2}"
 
 #: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
 msgid "Hash"
 msgstr "Hash"
 
@@ -913,6 +983,10 @@ msgstr "Network endpoints"
 msgid "Network:"
 msgstr "Network:"
 
+#: src/lib/msgs/presenters.ts
+msgid "New flow rate"
+msgstr "New flow rate"
+
 #: src/components/ProposalDetail.tsx
 #: src/components/VoteModal.tsx
 msgid "No"
@@ -978,6 +1052,14 @@ msgstr "not a v1 keystore file (missing version:1 or crypto block)"
 msgid "not a valid BIP39 mnemonic (check wordlist + checksum)"
 msgstr "not a valid BIP39 mnemonic (check wordlist + checksum)"
 
+#: src/lib/msgs/presenters.ts
+msgid "Now drains at"
+msgstr "Now drains at"
+
+#: src/lib/msgs/presenters.ts
+msgid "Old flow rate"
+msgstr "Old flow rate"
+
 #: src/components/TxRow.tsx
 msgid "Open in block explorer"
 msgstr "Open in block explorer"
@@ -991,8 +1073,20 @@ msgid "Operator"
 msgstr "Operator"
 
 #: src/lib/msgs/presenters.ts
+msgid "Order ID"
+msgstr "Order ID"
+
+#: src/lib/msgs/presenters.ts
 msgid "Outputs"
 msgstr "Outputs"
+
+#: src/lib/msgs/presenters.ts
+msgid "Owner"
+msgstr "Owner"
+
+#: src/lib/msgs/presenters.ts
+msgid "Parent hash"
+msgstr "Parent hash"
 
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
@@ -1043,6 +1137,10 @@ msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to 
 msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 
 #: src/lib/msgs/presenters.ts
+msgid "Processed eFUND purchase order"
+msgstr "Processed eFUND purchase order"
+
+#: src/lib/msgs/presenters.ts
 msgid "Proposal"
 msgstr "Proposal"
 
@@ -1054,6 +1152,26 @@ msgstr "Proposals"
 #: src/lib/msgs/presenters.ts
 msgid "Proposer"
 msgstr "Proposer"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased"
+msgstr "Purchased"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased beacon storage"
+msgstr "Purchased beacon storage"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased wrkchain storage"
+msgstr "Purchased wrkchain storage"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchaser"
+msgstr "Purchaser"
+
+#: src/lib/msgs/presenters.ts
+msgid "Raised eFUND purchase order"
+msgstr "Raised eFUND purchase order"
 
 #. placeholder {0}: account.index.toString()
 #: src/components/VaultEntryManager.tsx
@@ -1085,9 +1203,21 @@ msgstr "Received (multi)"
 msgid "Received via IBC"
 msgstr "Received via IBC"
 
+#: src/lib/msgs/presenters.ts
+msgid "Receiver"
+msgstr "Receiver"
+
 #: src/components/Send.tsx
 msgid "Recipient"
 msgstr "Recipient"
+
+#: src/lib/msgs/presenters.ts
+msgid "Recorded beacon timestamp"
+msgstr "Recorded beacon timestamp"
+
+#: src/lib/msgs/presenters.ts
+msgid "Recorded wrkchain block"
+msgstr "Recorded wrkchain block"
 
 #: src/components/ActiveDelegations.tsx
 #: src/components/StakingActionModals.tsx
@@ -1110,10 +1240,34 @@ msgstr "Redelegated"
 msgid "Redelegating"
 msgstr "Redelegating"
 
+#: src/lib/msgs/presenters.ts
+msgid "Refunded"
+msgstr "Refunded"
+
+#: src/lib/msgs/presenters.ts
+msgid "Registered beacon"
+msgstr "Registered beacon"
+
+#: src/lib/msgs/presenters.ts
+msgid "Registered wrkchain"
+msgstr "Registered wrkchain"
+
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
 msgid "Rejected"
 msgstr "Rejected"
+
+#: src/lib/msgs/presenters.ts
+msgid "Rejected eFUND purchase order"
+msgstr "Rejected eFUND purchase order"
+
+#: src/lib/msgs/presenters.ts
+msgid "Remaining capacity"
+msgstr "Remaining capacity"
+
+#: src/lib/msgs/presenters.ts
+msgid "Remaining deposit"
+msgstr "Remaining deposit"
 
 #: src/components/Settings.tsx
 msgid "Remove endpoint"
@@ -1234,6 +1388,10 @@ msgstr "Self-bond"
 msgid "Send"
 msgstr "Send"
 
+#: src/lib/msgs/presenters.ts
+msgid "Sender"
+msgstr "Sender"
+
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Sent"
@@ -1269,6 +1427,10 @@ msgid "Share this address or scan the QR code to receive FUND. Anyone with the a
 msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
 
 #: src/lib/msgs/presenters.ts
+msgid "Signer"
+msgstr "Signer"
+
+#: src/lib/msgs/presenters.ts
 msgid "Splits"
 msgstr "Splits"
 
@@ -1287,6 +1449,10 @@ msgstr "stored vault is not valid JSON (corrupted storage)"
 #: src/components/VoteModal.tsx
 msgid "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
 msgstr "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
+
+#: src/lib/msgs/presenters.ts
+msgid "Submit time"
+msgstr "Submit time"
 
 #: src/components/ProposalDetail.tsx
 msgid "Submitted"
@@ -1341,6 +1507,10 @@ msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-G
 msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
 
 #: src/lib/msgs/presenters.ts
+msgid "Timestamp ID"
+msgstr "Timestamp ID"
+
+#: src/lib/msgs/presenters.ts
 msgid "Title"
 msgstr "Title"
 
@@ -1352,6 +1522,14 @@ msgstr "To"
 #: src/lib/msgs/presenters.ts
 msgid "To validator"
 msgstr "To validator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Topped up stream deposit"
+msgstr "Topped up stream deposit"
+
+#: src/lib/msgs/presenters.ts
+msgid "Total claimed"
+msgstr "Total claimed"
 
 #: src/lib/msgs/presenters.ts
 msgid "Total moved"
@@ -1445,6 +1623,18 @@ msgstr "unsupported v1 keystore KDF: {0}"
 msgid "unsupported v1 keystore PRF: {0}"
 msgstr "unsupported v1 keystore PRF: {0}"
 
+#: src/lib/msgs/presenters.ts
+msgid "Unwhitelisted address"
+msgstr "Unwhitelisted address"
+
+#: src/lib/msgs/presenters.ts
+msgid "Updated address whitelist"
+msgstr "Updated address whitelist"
+
+#: src/lib/msgs/presenters.ts
+msgid "Updated stream flow rate"
+msgstr "Updated stream flow rate"
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "v1 keystore file"
@@ -1463,6 +1653,10 @@ msgstr "v1 keystore password"
 #: src/lib/msgs/presenters.ts
 msgid "Validator"
 msgstr "Validator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Validator fee"
+msgstr "Validator fee"
 
 #: src/components/Validators.tsx
 msgid "Validators"
@@ -1534,6 +1728,10 @@ msgstr "Wallet"
 msgid "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
 msgstr "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
 
+#: src/lib/msgs/presenters.ts
+msgid "Whitelisted address"
+msgstr "Whitelisted address"
+
 #: src/components/ActiveDelegations.tsx
 msgid "Withdraw"
 msgstr "Withdraw"
@@ -1588,6 +1786,10 @@ msgstr "Write these words down somewhere safe. Anyone with this phrase can spend
 #: src/components/AddSignerCard.tsx
 msgid "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
 msgstr "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
+
+#: src/lib/msgs/presenters.ts
+msgid "WrkChain ID"
+msgstr "WrkChain ID"
 
 #: src/components/RevealSecretDialog.tsx
 #: src/lib/vault/store.ts
