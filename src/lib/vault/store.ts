@@ -109,6 +109,19 @@ interface VaultState {
   setThemeMode: (mode: ThemeMode) => Promise<void>
   setThemePalette: (palette: ThemePalette) => Promise<void>
 
+  /**
+   * Set (or clear, when `label` is empty / undefined) a local-only label
+   * for a stream identified by the `(sender, receiver, denom)` triple. The
+   * label is stored in the encrypted vault and surfaces in the Streams tab
+   * row in place of the bech32 address for the counterparty.
+   */
+  setStreamLabel: (
+    sender: string,
+    receiver: string,
+    denom: string,
+    label: string,
+  ) => Promise<void>
+
   // Idle timer (called on user activity)
   resetIdleTimer: () => void
 
@@ -571,6 +584,20 @@ export const useVaultStore = create<VaultState>((set, get) => {
         ...v,
         preferences: { ...v.preferences, themePalette: palette },
       }))
+    },
+
+    async setStreamLabel(sender, receiver, denom, label) {
+      const key = `${sender}:${receiver}:${denom}`
+      const trimmed = label.trim()
+      await persistMutation((v) => {
+        const next = { ...(v.streamLabels ?? {}) }
+        if (trimmed === '') {
+          delete next[key]
+        } else {
+          next[key] = trimmed
+        }
+        return { ...v, streamLabels: next }
+      })
     },
 
     resetIdleTimer() {

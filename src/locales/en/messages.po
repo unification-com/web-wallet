@@ -211,6 +211,10 @@ msgstr "Add another"
 msgid "Add custom endpoint"
 msgstr "Add custom endpoint"
 
+#: src/components/StreamLabel.tsx
+msgid "Add stream label"
+msgstr "Add stream label"
+
 #: src/components/StreamActionModals.tsx
 msgid "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
 msgstr "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
@@ -308,8 +312,8 @@ msgstr "Base type"
 msgid "Beacon ID"
 msgstr "Beacon ID"
 
-#. placeholder {0}: c.height.toLocaleString()
-#: src/components/ClaimHistoryPanel.tsx
+#. placeholder {0}: event.height.toLocaleString()
+#: src/components/StreamHistoryPanel.tsx
 msgid "Block {0}"
 msgstr "Block {0}"
 
@@ -336,6 +340,7 @@ msgstr "Built-in"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/RevealSecretDialog.tsx
+#: src/components/StreamLabel.tsx
 #: src/components/StreamsList.tsx
 #: src/components/TxModal.tsx
 #: src/components/VaultEntryManager.tsx
@@ -349,6 +354,10 @@ msgstr "Cancel stream"
 #: src/components/StreamsList.tsx
 msgid "Cancellation disabled (eFUND-backed stream)"
 msgstr "Cancellation disabled (eFUND-backed stream)"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
 
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled proposal"
@@ -415,6 +424,7 @@ msgid "Choose keystore file…"
 msgstr "Choose keystore file…"
 
 #: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
 #: src/components/StreamsList.tsx
 msgid "Claim"
 msgstr "Claim"
@@ -424,8 +434,8 @@ msgid "Claim accrued staking rewards from this validator. Rewards land in your a
 msgstr "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
 
 #: src/components/ClaimHistoryPanel.tsx
-msgid "Claim history"
-msgstr "Claim history"
+#~ msgid "Claim history"
+#~ msgstr "Claim history"
 
 #: src/components/ActiveDelegations.tsx
 msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
@@ -445,8 +455,8 @@ msgid "Claimable: <0>{0}</0> {denomLabel}"
 msgstr "Claimable: <0>{0}</0> {denomLabel}"
 
 #: src/components/ClaimHistoryPanel.tsx
-msgid "Claimed"
-msgstr "Claimed"
+#~ msgid "Claimed"
+#~ msgstr "Claimed"
 
 #: src/lib/msgs/presenters.ts
 msgid "Claimed stream"
@@ -573,6 +583,10 @@ msgstr "Create stream"
 msgid "Create wallet"
 msgstr "Create wallet"
 
+#: src/components/StreamHistoryPanel.tsx
+msgid "Created"
+msgstr "Created"
+
 #: src/lib/msgs/presenters.ts
 msgid "Created periodic vesting account"
 msgstr "Created periodic vesting account"
@@ -686,6 +700,10 @@ msgstr "Deposit ends"
 msgid "Deposit: {0} {denomLabel}"
 msgstr "Deposit: {0} {denomLabel}"
 
+#: src/components/StreamHistoryPanel.tsx
+msgid "Deposited"
+msgstr "Deposited"
+
 #: src/lib/msgs/presenters.ts
 msgid "Deposited to proposal"
 msgstr "Deposited to proposal"
@@ -725,6 +743,10 @@ msgstr "Download"
 #: src/lib/msgs/presenters.ts
 msgid "Drains at"
 msgstr "Drains at"
+
+#: src/components/StreamLabel.tsx
+msgid "Edit stream label"
+msgstr "Edit stream label"
 
 #: src/lib/msgs/presenters.ts
 msgid "Edited validator"
@@ -793,7 +815,7 @@ msgstr "Failed to load proposals: {0}"
 
 #. placeholder {0}: String(error)
 #. placeholder {0}: error instanceof Error ? error.message : String(error)
-#: src/components/ClaimHistoryPanel.tsx
+#: src/components/StreamHistoryPanel.tsx
 #: src/components/Validators.tsx
 msgid "Failed to load: {0}"
 msgstr "Failed to load: {0}"
@@ -851,6 +873,7 @@ msgid "Finishing…"
 msgstr "Finishing…"
 
 #: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
 #: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Flow rate"
@@ -1078,6 +1101,10 @@ msgstr "Label"
 msgid "label is required"
 msgstr "label is required"
 
+#: src/components/StreamLabel.tsx
+msgid "Label this stream"
+msgstr "Label this stream"
+
 #: src/components/VaultSetup.tsx
 msgid "length ok"
 msgstr "length ok"
@@ -1096,8 +1123,8 @@ msgid "Loaded: {fileName}"
 msgstr "Loaded: {fileName}"
 
 #: src/components/ClaimHistoryPanel.tsx
-msgid "Loading claim history…"
-msgstr "Loading claim history…"
+#~ msgid "Loading claim history…"
+#~ msgstr "Loading claim history…"
 
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
@@ -1114,6 +1141,10 @@ msgstr "Loading proposal…"
 #: src/components/ProposalList.tsx
 msgid "Loading proposals…"
 msgstr "Loading proposals…"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Loading stream events…"
+msgstr "Loading stream events…"
 
 #: src/App.tsx
 #: src/components/StreamsList.tsx
@@ -1237,8 +1268,12 @@ msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
 
 #: src/components/ClaimHistoryPanel.tsx
-msgid "No claims yet."
-msgstr "No claims yet."
+#~ msgid "No claims yet."
+#~ msgstr "No claims yet."
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "No events yet."
+msgstr "No events yet."
 
 #: src/components/VaultSetup.tsx
 msgid "No file selected"
@@ -1499,7 +1534,7 @@ msgstr "Re-enter your wallet password to reveal the seed phrase."
 msgid "Receive"
 msgstr "Receive"
 
-#: src/components/ClaimHistoryPanel.tsx
+#: src/components/StreamHistoryPanel.tsx
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Received"
@@ -1563,6 +1598,7 @@ msgstr "Redelegating"
 msgid "Refresh"
 msgstr "Refresh"
 
+#: src/components/StreamHistoryPanel.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Refunded"
 msgstr "Refunded"
@@ -1687,6 +1723,10 @@ msgstr "Save"
 #: src/components/Settings.tsx
 msgid "Save endpoint"
 msgstr "Save endpoint"
+
+#: src/components/StreamLabel.tsx
+msgid "Save label"
+msgstr "Save label"
 
 #: src/components/AddSignerCard.tsx
 msgid "Save seed"
@@ -1841,9 +1881,17 @@ msgstr "Step {0} / {1}"
 msgid "stored vault is not valid JSON (corrupted storage)"
 msgstr "stored vault is not valid JSON (corrupted storage)"
 
+#: src/components/StreamHistoryPanel.tsx
+msgid "Stream history"
+msgstr "Stream history"
+
 #: src/components/StreamsList.tsx
 msgid "Stream is non-cancellable (eFUND-backed)."
 msgstr "Stream is non-cancellable (eFUND-backed)."
+
+#: src/components/StreamLabel.tsx
+msgid "Stream label"
+msgstr "Stream label"
 
 #: src/components/StreamsList.tsx
 msgid "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."
@@ -1986,6 +2034,7 @@ msgid "To validator"
 msgstr "To validator"
 
 #: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
 #: src/components/StreamsList.tsx
 msgid "Top up"
 msgstr "Top up"

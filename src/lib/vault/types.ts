@@ -124,12 +124,23 @@ export const VaultPreferencesSchema = z.object({
   themePalette: ThemePaletteSchema.optional(),
 })
 
+/**
+ * Local-only labels for streams. Keyed by `${sender}:${receiver}:${denom}`
+ * — the chain's stream identity triple. Both parties can independently label
+ * their view of the same on-chain stream (sender's vault stores their name,
+ * receiver's vault stores theirs). Empty / missing entries fall through to
+ * the bech32 default rendering. Backwards-compatible — older vaults
+ * deserialise without it.
+ */
+export const StreamLabelsSchema = z.record(z.string().min(1).max(64))
+
 export const VaultSchema = z.object({
   version: z.literal(VAULT_SCHEMA_VERSION),
   seeds: z.array(SeedEntrySchema).default([]),
   importedKeys: z.array(ImportedKeyEntrySchema).default([]),
   customEndpoints: z.array(CustomEndpointSchema).default([]),
   preferences: VaultPreferencesSchema,
+  streamLabels: StreamLabelsSchema.optional(),
   createdAt: z.number().int(),
   lastModifiedAt: z.number().int(),
 })

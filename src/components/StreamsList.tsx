@@ -2,7 +2,6 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { ClaimHistoryPanel } from '@/components/ClaimHistoryPanel'
 import { RefreshButton } from '@/components/RefreshButton'
 import {
   CancelStreamModal,
@@ -11,6 +10,8 @@ import {
   TopUpStreamModal,
   UpdateFlowRateModal,
 } from '@/components/StreamActionModals'
+import { StreamHistoryPanel } from '@/components/StreamHistoryPanel'
+import { StreamLabel } from '@/components/StreamLabel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { nundToFund } from '@/lib/msgs/send'
@@ -118,13 +119,16 @@ export function StreamsList() {
                     className="flex flex-col gap-1 rounded border border-border p-2"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="flex flex-col min-w-0">
+                      <span className="flex flex-col min-w-0 gap-0.5">
                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
                           <Trans>From</Trans>
                         </span>
-                        <span className="font-mono text-[11px] truncate" title={s.sender}>
-                          {s.sender}
-                        </span>
+                        <StreamLabel
+                          sender={s.sender}
+                          receiver={address}
+                          denom={denom}
+                          counterparty={s.sender}
+                        />
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
@@ -167,11 +171,7 @@ export function StreamsList() {
                         <Trans>Claim</Trans>
                       </Button>
                     </div>
-                    <ClaimHistoryPanel
-                      sender={s.sender}
-                      receiver={address}
-                      perspective="incoming"
-                    />
+                    <StreamHistoryPanel sender={s.sender} receiver={address} />
                   </li>
                 )
               })}
@@ -238,13 +238,16 @@ export function StreamsList() {
                     className="flex flex-col gap-1 rounded border border-border p-2"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="flex flex-col min-w-0">
+                      <span className="flex flex-col min-w-0 gap-0.5">
                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
                           <Trans>To</Trans>
                         </span>
-                        <span className="font-mono text-[11px] truncate" title={s.receiver}>
-                          {s.receiver}
-                        </span>
+                        <StreamLabel
+                          sender={address}
+                          receiver={s.receiver}
+                          denom={denom}
+                          counterparty={s.receiver}
+                        />
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
@@ -316,11 +319,7 @@ export function StreamsList() {
                         <Trans>Cancel</Trans>
                       </Button>
                     </div>
-                    <ClaimHistoryPanel
-                      sender={address}
-                      receiver={s.receiver}
-                      perspective="outgoing"
-                    />
+                    <StreamHistoryPanel sender={address} receiver={s.receiver} />
                   </li>
                 )
               })}

@@ -245,24 +245,27 @@ export function useCurrentFlow(
 }
 
 // ---------------------------------------------------------------------------
-// Claim history
+// Per-stream event timeline
 // ---------------------------------------------------------------------------
 
-/** Extracted attributes from a single `claim_stream` event. */
-export interface ClaimHistoryEntry {
+/** A single stream-related event surfaced for the timeline view. */
+export interface StreamEvent {
   hash: string
   height: number
-  /** Tx-block time. Populated from `IndexedTx` when present; undefined for
-   * older RPCs that don't surface block time on tx_search results. */
-  timestamp?: Date
-  /** Amount the receiver received (after validator fee). */
-  amountReceivedNund: string
-  /** Validator's cut of the claim. */
-  validatorFeeNund: string
-  /** Total claimed before the validator-fee split. */
-  claimTotalNund: string
-  /** Coin denom (always nund on pre-vaxildan chains). */
+  txIndex: number
+  /** Unique key within a Tx for events of the same kind. */
+  eventIndex: number
+  /** Event-type discriminator drives row rendering. */
+  kind: 'create' | 'topup' | 'claim' | 'update' | 'cancel'
+  /** Coin denom — always nund on pre-vaxildan chains. */
   denom: string
+  /** Primary numeric value (nund). Optional — Create + Update events carry
+   * non-amount data in the `secondary` field instead. */
+  amountNund?: string
+  /** Localised label for the primary value, e.g. `"Received"`, `"Refunded"`. */
+  amountLabel?: 'received' | 'deposited' | 'refunded'
+  /** Free-form secondary text (used for flow-rate change descriptions). */
+  secondary?: string
 }
 
 interface RawEventAttr {
@@ -279,62 +282,157 @@ function readAttr(event: RawEvent, key: string): string {
 }
 
 /**
- * Past `MsgClaimStream` txs against the given `(sender, receiver)` pair.
- * Uses Tendermint `tx_search` with two indexed-attribute filters so the
- * node only returns txs that touched this exact stream — no client-side
- * filtering on the full address-level history.
- *
- * RPC tx-index pruning still applies (same caveat as the M4 wallet-wide
- * history view) — public nodes typically prune older entries, so very-old
- * claim history may not surface. Same M13 Phase 2 explorer-deep-link is
- * the proper long-term fix.
+ * Cosmos event attributes for amounts come as `"<number><denom>"` strings
+ * (e.g. `"2723333061nund"`) — same wire shape as `sdk.Coin.String()`. Split
+ * into numeric + denom. Falls back to `{ amount: '0', denom: 'nund' }` on
+ * unparseable input.
  */
-export function useClaimHistory(sender: string | null, receiver: string | null) {
+function splitCoinAttr(value: string): { amount: string; denom: string } {
+  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+  const match = value.match(/^(\d+)([a-z][a-z0-9/]*)$/)
+  if (!match) return { amount: '0', denom: 'nund' }
+  return { amount: match[1] ?? '0', denom: match[2] ?? 'nund' }
+}
+
+/** Tendermint event types emitted by the x/stream module, mapped to our `kind` discriminator. */
+const EVENT_TYPE_TO_KIND: Record<string, StreamEvent['kind']> = {
+  create_stream: 'create',
+  stream_deposit: 'topup',
+  claim_stream: 'claim',
+  update_flow_rate: 'update',
+  cancel_stream: 'cancel',
+}
+
+/**
+ * Full audit log for a `(sender, receiver)` stream pair — surfaces every
+ * chain event (create / topup / claim / update / cancel) so users can trace
+ * the stream's lifecycle. Uses 5 parallel `tx_search` queries (one per event
+ * type) since Tendermint's query language is AND-only — UNION must happen
+ * client-side. Returns events sorted newest-first.
+ *
+ * RPC tx-index pruning caveat: public nodes typically prune older entries,
+ * so very-old stream events may not surface. M13 Phase 2 explorer-deep-link
+ * is the proper long-term fix.
+ */
+export function useStreamEvents(sender: string | null, receiver: string | null) {
   const endpoint = useActiveEndpoint()
   const enabled = !!sender && !!receiver
   return useQuery({
-    queryKey: ['stream', 'claim-history', endpoint.id, sender, receiver],
-    queryFn: async (): Promise<ClaimHistoryEntry[]> => {
+    queryKey: ['stream', 'events', endpoint.id, sender, receiver],
+    queryFn: async (): Promise<StreamEvent[]> => {
       if (!enabled) return []
       const client = await StargateClient.connect(endpoint.rpc)
       try {
-        const txs = await client.searchTx([
-          { key: 'claim_stream.sender', value: sender },
-          { key: 'claim_stream.receiver', value: receiver },
-        ])
-        return txs.map((tx) => parseClaimTx(tx, sender, receiver))
+        const eventTypes = Object.keys(EVENT_TYPE_TO_KIND)
+        const results = await Promise.all(
+          eventTypes.map((type) =>
+            client.searchTx([
+              { key: `${type}.sender`, value: sender },
+              { key: `${type}.receiver`, value: receiver },
+            ]),
+          ),
+        )
+        // Each query returns Txs that emitted that event type for this pair.
+        // For each Tx, extract every matching event of the queried type — a
+        // single Tx may emit multiple (e.g. update + co-emitted claim).
+        // Dedupe by (hash, event-type, event-index-within-tx).
+        const seen = new Set<string>()
+        const out: StreamEvent[] = []
+        eventTypes.forEach((eventType, i) => {
+          const kind = EVENT_TYPE_TO_KIND[eventType]
+          if (!kind) return
+          for (const tx of results[i] ?? []) {
+            const events = tx.events as RawEvent[]
+            let eventIndex = 0
+            for (const e of events) {
+              if (e.type !== eventType) continue
+              if (readAttr(e, 'sender') !== sender) continue
+              if (readAttr(e, 'receiver') !== receiver) continue
+              const key = `${tx.hash}:${eventType}:${String(eventIndex)}`
+              if (seen.has(key)) {
+                eventIndex++
+                continue
+              }
+              seen.add(key)
+              out.push(makeStreamEvent(tx, e, kind, eventIndex))
+              eventIndex++
+            }
+          }
+        })
+        // Newest first; ties on height break on txIndex.
+        out.sort((a, b) => {
+          if (a.height !== b.height) return b.height - a.height
+          if (a.txIndex !== b.txIndex) return b.txIndex - a.txIndex
+          return b.eventIndex - a.eventIndex
+        })
+        return out
       } finally {
         client.disconnect()
       }
     },
     enabled,
-    // Claim history is event-driven (a new entry only on broadcast), so a
-    // long polling interval is fine. 60 s catches near-realtime updates
-    // without spamming the RPC.
+    // Event-driven — long polling is fine.
     refetchInterval: 60_000,
   })
 }
 
-function parseClaimTx(tx: IndexedTx, sender: string, receiver: string): ClaimHistoryEntry {
-  // tx.events is the cosmjs-decoded events list — find the claim_stream
-  // event matching this (sender, receiver). For a single Claim Msg per
-  // Tx (our wallet always batches one stream Msg per Tx) there's exactly
-  // one such event.
-  const events = tx.events as RawEvent[]
-  const event =
-    events.find(
-      (e) =>
-        e.type === 'claim_stream' &&
-        readAttr(e, 'sender') === sender &&
-        readAttr(e, 'receiver') === receiver,
-    ) ?? null
-  return {
+function makeStreamEvent(
+  tx: IndexedTx,
+  event: RawEvent,
+  kind: StreamEvent['kind'],
+  eventIndex: number,
+): StreamEvent {
+  const base: Omit<StreamEvent, 'amountNund' | 'amountLabel' | 'secondary'> = {
     hash: tx.hash,
     height: tx.height,
-    amountReceivedNund: event ? readAttr(event, 'amount_received') : '',
-    validatorFeeNund: event ? readAttr(event, 'validator_fee') : '',
-    claimTotalNund: event ? readAttr(event, 'claim_total') : '',
-    denom: event ? readAttr(event, 'denom') : 'nund',
+    txIndex: tx.txIndex,
+    eventIndex,
+    kind,
+    denom: 'nund',
+  }
+  switch (kind) {
+    case 'create': {
+      const flowRate = readAttr(event, 'flow_rate')
+      return {
+        ...base,
+        secondary: flowRate ? `flow ${flowRate} nund/sec` : '',
+      }
+    }
+    case 'topup': {
+      const deposited = splitCoinAttr(readAttr(event, 'amount_deposited'))
+      return {
+        ...base,
+        amountNund: deposited.amount,
+        amountLabel: 'deposited',
+        denom: deposited.denom,
+      }
+    }
+    case 'claim': {
+      const received = splitCoinAttr(readAttr(event, 'amount_received'))
+      return {
+        ...base,
+        amountNund: received.amount,
+        amountLabel: 'received',
+        denom: received.denom,
+      }
+    }
+    case 'update': {
+      const oldRate = readAttr(event, 'old_flow_rate')
+      const newRate = readAttr(event, 'new_flow_rate')
+      return {
+        ...base,
+        secondary: oldRate && newRate ? `${oldRate} → ${newRate} nund/sec` : '',
+      }
+    }
+    case 'cancel': {
+      const refund = splitCoinAttr(readAttr(event, 'refund_amount'))
+      return {
+        ...base,
+        amountNund: refund.amount,
+        amountLabel: 'refunded',
+        denom: refund.denom,
+      }
+    }
   }
 }
 
