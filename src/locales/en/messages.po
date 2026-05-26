@@ -1755,6 +1755,14 @@ msgstr "Saving…"
 msgid "Scheduled upgrade"
 msgstr "Scheduled upgrade"
 
+#: src/App.tsx
+msgid "Scroll tabs left"
+msgstr "Scroll tabs left"
+
+#: src/App.tsx
+msgid "Scroll tabs right"
+msgstr "Scroll tabs right"
+
 #. placeholder {0}: ref.seedId
 #: src/lib/signer.ts
 msgid "seed {0} not found in vault"

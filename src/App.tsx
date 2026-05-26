@@ -1,5 +1,6 @@
-import { Trans } from '@lingui/react/macro'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { Trans, useLingui } from '@lingui/react/macro'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { ActiveDelegations } from '@/components/ActiveDelegations'
 import { Header } from '@/components/Header'
@@ -76,8 +77,14 @@ export function App({ surface }: { surface: Surface }) {
   return (
     <div
       className={cn(
-        'min-h-screen',
-        surface === 'popup' ? 'w-[360px]' : 'w-full max-w-2xl mx-auto',
+        // Popup uses the FIXED viewport height + overflow-hidden so the
+        // page-level scrollbar doesn't appear alongside the browser-popup
+        // chrome — the unlocked shell handles its own internal scrolling.
+        // Standalone / web keep `min-h-screen` so the document grows with
+        // content and the browser's native page scroll takes over.
+        surface === 'popup'
+          ? 'w-[360px] h-screen overflow-hidden flex flex-col'
+          : 'min-h-screen w-full max-w-2xl mx-auto',
       )}
     >
       <ThemeApplier />
@@ -105,8 +112,18 @@ function UnlockedShell({ surface }: { surface: Surface }) {
     return <Settings onBack={() => setView('wallet')} surface={surface} />
   }
 
+  const isPopup = surface === 'popup'
+
   return (
-    <main className="p-4 flex flex-col gap-4">
+    <main
+      className={cn(
+        'flex flex-col gap-4',
+        // Popup: take the full constrained height of the parent (`h-screen`
+        // on App's root) and let only the active-tab content scroll. Header
+        // + chain-info card + tab nav stay parked at the top.
+        isPopup ? 'h-full overflow-hidden p-4' : 'p-4',
+      )}
+    >
       <Header surface={surface} onOpenSettings={() => setView('settings')} />
 
       <Card>
@@ -151,13 +168,11 @@ function UnlockedShell({ surface }: { surface: Surface }) {
        * that doesn't earn its keep. A sidebar layout is reserved for the
        * future case where the IA grows past ~6 tabs.
        *
-       * Popup surface is ≤360 px wide and the 5-tab nav already overflows
-       * — `overflow-x-auto` enables horizontal swipe-scrolling, with the
-       * scrollbar hidden in both Firefox (`scrollbar-width:none`) and the
-       * Webkit family (`::-webkit-scrollbar`). The tabs stay on a single
-       * line because `flex` doesn't wrap by default.
+       * `<TabNav>` wraps the strip with left/right chevron buttons that
+       * surface only when there's overflow in that direction — popup
+       * surface (≤360 px) doesn't fit all 5 tabs natively.
        */}
-      <nav className="flex gap-1 text-xs border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <TabNav>
         <ViewTab active={view === 'wallet'} onClick={() => setView('wallet')}>
           <Trans>Wallet</Trans>
         </ViewTab>
@@ -179,46 +194,55 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         <ViewTab active={view === 'history'} onClick={() => setView('history')}>
           <Trans>History</Trans>
         </ViewTab>
-      </nav>
+      </TabNav>
 
-      {view === 'wallet' && (
-        <>
-          <Receive />
-          <Send />
-        </>
-      )}
+      <div
+        className={cn(
+          'flex flex-col gap-4',
+          // Popup: tab content scrolls internally; -mx-4 + px-4 keeps the
+          // scroll edge flush with the outer padding so card edges align.
+          isPopup ? 'flex-1 overflow-y-auto -mx-4 px-4 -mb-4 pb-4' : '',
+        )}
+      >
+        {view === 'wallet' && (
+          <>
+            <Receive />
+            <Send />
+          </>
+        )}
 
-      {view === 'staking' && (
-        <>
-          <InFlightQueues />
-          <ActiveDelegations />
-          <Validators />
-        </>
-      )}
+        {view === 'staking' && (
+          <>
+            <InFlightQueues />
+            <ActiveDelegations />
+            <Validators />
+          </>
+        )}
 
-      {view === 'gov' &&
-        (activeProposalId !== null ? (
-          <ProposalDetail
-            proposalId={activeProposalId}
-            onBack={() => setActiveProposalId(null)}
-          />
-        ) : (
-          <ProposalList onSelect={(id) => setActiveProposalId(id)} />
-        ))}
+        {view === 'gov' &&
+          (activeProposalId !== null ? (
+            <ProposalDetail
+              proposalId={activeProposalId}
+              onBack={() => setActiveProposalId(null)}
+            />
+          ) : (
+            <ProposalList onSelect={(id) => setActiveProposalId(id)} />
+          ))}
 
-      {view === 'streams' && (
-        <Suspense
-          fallback={
-            <p className="text-xs text-muted-foreground italic">
-              <Trans>Loading streams…</Trans>
-            </p>
-          }
-        >
-          <StreamsList />
-        </Suspense>
-      )}
+        {view === 'streams' && (
+          <Suspense
+            fallback={
+              <p className="text-xs text-muted-foreground italic">
+                <Trans>Loading streams…</Trans>
+              </p>
+            }
+          >
+            <StreamsList />
+          </Suspense>
+        )}
 
-      {view === 'history' && <TxHistory />}
+        {view === 'history' && <TxHistory />}
+      </div>
     </main>
   )
 }
@@ -245,5 +269,71 @@ function ViewTab({
     >
       {children}
     </button>
+  )
+}
+
+/**
+ * Horizontal tab strip with left/right chevron arrows for overflow scrolling.
+ * Arrows appear only when there's actually overflow in that direction —
+ * tracked via the scroll position + content/client width on scroll +
+ * ResizeObserver. Each click scrolls by ~80 px (smooth).
+ */
+function TabNav({ children }: { children: React.ReactNode }) {
+  const navRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+  const { t } = useLingui()
+
+  useLayoutEffect(() => {
+    const el = navRef.current
+    if (!el) return
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 0)
+      // -1 px tolerance for sub-pixel rounding at end-of-scroll.
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1)
+    }
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro.disconnect()
+    }
+  }, [])
+
+  const scrollBy = (dir: -1 | 1) => {
+    navRef.current?.scrollBy({ left: dir * 100, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="relative border-b">
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label={t`Scroll tabs left`}
+          className="absolute left-0 top-0 bottom-0 z-10 flex items-center px-1 bg-background/90 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-3 w-3" aria-hidden />
+        </button>
+      )}
+      <nav
+        ref={navRef}
+        className="flex gap-1 text-xs overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {children}
+      </nav>
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label={t`Scroll tabs right`}
+          className="absolute right-0 top-0 bottom-0 z-10 flex items-center px-1 bg-background/90 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronRight className="h-3 w-3" aria-hidden />
+        </button>
+      )}
+    </div>
   )
 }
