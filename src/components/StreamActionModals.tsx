@@ -285,7 +285,18 @@ export function ClaimStreamModal({
           buildMsgClaimStream({
             receiver: address,
             sender: source.sender,
-            denom: streamDenom(source),
+            // Pass `source.denom` raw, NOT via streamDenom() — pre-vaxildan
+            // chains (v1.12.0 on MainNet + TestNet) don't have the `denom`
+            // field in MsgClaimStream's proto (field 3 doesn't exist), so
+            // strict decoding rejects any populated denom as "unknown field".
+            // Empty string makes the proto encoder skip field 3 entirely;
+            // post-vaxildan chains populate `source.denom` themselves and the
+            // encoder emits it correctly. Both worlds work with this pass-
+            // through. Same applies to Update / Cancel below — only TopUp
+            // needs the streamDenom() fallback because TopUp's `denom` lives
+            // INSIDE Coin (field 3 is Coin, not a string), and an empty Coin.
+            // Denom trips the chain's own belt-and-braces check.
+            denom: source.denom,
           }),
         ]
       }}
@@ -509,7 +520,7 @@ export function UpdateFlowRateModal({
             sender: address,
             receiver: source.receiver,
             flowRateNundPerSec: flowRate,
-            denom: streamDenom(source),
+            denom: source.denom, // see ClaimStream above re: pre-vaxildan empty-skip
           }),
         ]
       }}
@@ -594,7 +605,7 @@ export function CancelStreamModal({ open, onOpenChange, source }: CancelStreamMo
           buildMsgCancelStream({
             sender: address,
             receiver: source.receiver,
-            denom: streamDenom(source),
+            denom: source.denom, // see ClaimStream above re: pre-vaxildan empty-skip
           }),
         ]
       }}
