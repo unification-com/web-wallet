@@ -248,6 +248,7 @@ msgstr "Address"
 msgid "Advanced: gas + fee"
 msgstr "Advanced: gas + fee"
 
+#: src/components/Enterprise.tsx
 #: src/components/ProposalList.tsx
 msgid "All"
 msgstr "All"
@@ -1347,6 +1348,10 @@ msgstr "No outgoing streams. Use Create to open one."
 #: src/components/ProposalList.tsx
 msgid "No proposals match this filter."
 msgstr "No proposals match this filter."
+
+#: src/components/Enterprise.tsx
+msgid "No purchase orders with this status."
+msgstr "No purchase orders with this status."
 
 #: src/components/Enterprise.tsx
 msgid "No purchase orders yet."

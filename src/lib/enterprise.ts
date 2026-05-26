@@ -126,6 +126,33 @@ export function usePurchaseOrders(
 }
 
 /**
+ * Single-PO detail by ID — useful for deep-link / detail-view paths and for
+ * polling a specific PO's status without re-fetching the full history. Picks
+ * up the same 30 s refresh cadence as the list query so status transitions
+ * surface promptly.
+ */
+export function usePurchaseOrder(id: bigint | null) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['enterprise', 'order', endpoint.id, id?.toString()],
+    queryFn: async (): Promise<EnterpriseUndPurchaseOrder | null> => {
+      if (id === null) return null
+      const { query, disconnect } = await makeEnterpriseClient(endpoint.rpc)
+      try {
+        const res = await query.enterpriseUndPurchaseOrder({
+          purchaseOrderId: id,
+        })
+        return res.purchaseOrder
+      } finally {
+        disconnect()
+      }
+    },
+    enabled: id !== null,
+    refetchInterval: 30_000,
+  })
+}
+
+/**
  * Module parameters (e.g. min/max raise amount, allowed denoms). Cached
  * aggressively — params change via governance only.
  */

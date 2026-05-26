@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { RaisePurchaseOrderModal } from '@/components/RaisePurchaseOrderModal'
 import { RefreshButton } from '@/components/RefreshButton'
@@ -17,6 +17,13 @@ import {
 } from '@/lib/enterprise'
 import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
+
+/**
+ * Status-filter chip values. `'all'` shows every PO; the other four match
+ * the `statusLabel()` strings, so filtering can compare label-to-label
+ * without needing to remember the upstream enum int values.
+ */
+type StatusFilter = 'all' | 'raised' | 'accepted' | 'rejected' | 'completed'
 
 /**
  * Enterprise tab — purchase-order surface for whitelisted accounts.
@@ -37,10 +44,35 @@ export function Enterprise() {
   const locked = useLockedFund(address)
   const orders = usePurchaseOrders(address, PurchaseOrderStatus.STATUS_NIL)
   const [raiseOpen, setRaiseOpen] = useState(false)
+  const [filter, setFilter] = useState<StatusFilter>('all')
+
+  // Count-per-status + filtered view derived from a single fetch — chain
+  // returns every order regardless of status when we query with STATUS_NIL,
+  // so client-side filtering keeps the UI responsive without N+1 RPCs per
+  // filter chip click.
+  const sorted = useMemo(
+    () => sortPurchaseOrders(orders.data ?? []),
+    [orders.data],
+  )
+  const counts = useMemo(() => {
+    const c: Record<Exclude<StatusFilter, 'all'>, number> = {
+      raised: 0,
+      accepted: 0,
+      rejected: 0,
+      completed: 0,
+    }
+    for (const po of sorted) {
+      const label = statusLabel(po.status)
+      if (label in c) c[label as keyof typeof c]++
+    }
+    return c
+  }, [sorted])
+  const filteredOrders = useMemo(() => {
+    if (filter === 'all') return sorted
+    return sorted.filter((po) => statusLabel(po.status) === filter)
+  }, [sorted, filter])
 
   if (!address) return null
-
-  const sorted = sortPurchaseOrders(orders.data ?? [])
 
   return (
     <>
@@ -130,13 +162,62 @@ export function Enterprise() {
               <Trans>Loading purchase orders…</Trans>
             </p>
           )}
+          {!orders.isLoading && sorted.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                count={sorted.length}
+                tone="all"
+              >
+                <Trans>All</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'raised'}
+                onClick={() => setFilter('raised')}
+                count={counts.raised}
+                tone="raised"
+              >
+                <Trans>Raised</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'accepted'}
+                onClick={() => setFilter('accepted')}
+                count={counts.accepted}
+                tone="accepted"
+              >
+                <Trans>Accepted</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'rejected'}
+                onClick={() => setFilter('rejected')}
+                count={counts.rejected}
+                tone="rejected"
+              >
+                <Trans>Rejected</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'completed'}
+                onClick={() => setFilter('completed')}
+                count={counts.completed}
+                tone="completed"
+              >
+                <Trans>Completed</Trans>
+              </FilterChip>
+            </div>
+          )}
           {!orders.isLoading && sorted.length === 0 && (
             <p className="text-muted-foreground italic">
               <Trans>No purchase orders yet.</Trans>
             </p>
           )}
+          {!orders.isLoading && sorted.length > 0 && filteredOrders.length === 0 && (
+            <p className="text-muted-foreground italic">
+              <Trans>No purchase orders with this status.</Trans>
+            </p>
+          )}
           <ul className="flex flex-col gap-2">
-            {sorted.map((po) => (
+            {filteredOrders.map((po) => (
               <PurchaseOrderRow key={po.id.toString()} po={po} t={t} />
             ))}
           </ul>
@@ -212,6 +293,51 @@ function PurchaseOrderStatusChip({ status }: { status: string }) {
     >
       <StatusLabel status={status} />
     </span>
+  )
+}
+
+interface FilterChipProps {
+  active: boolean
+  onClick: () => void
+  count: number
+  /** Drives the active/inactive accent — matches the per-row status colour
+   * scheme so the filter chip reads as "show me only the green ones" etc. */
+  tone: 'all' | 'raised' | 'accepted' | 'rejected' | 'completed'
+  children: React.ReactNode
+}
+
+function FilterChip({ active, onClick, count, tone, children }: FilterChipProps) {
+  const activeCls = (() => {
+    switch (tone) {
+      case 'raised':
+        return 'bg-muted text-foreground border-muted-foreground/30'
+      case 'accepted':
+        return 'bg-success/15 text-success border-success/30'
+      case 'rejected':
+        return 'bg-destructive/15 text-destructive border-destructive/30'
+      case 'completed':
+        return 'bg-primary/15 text-primary border-primary/30'
+      case 'all':
+      default:
+        return 'bg-accent text-accent-foreground border-foreground/20'
+    }
+  })()
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      disabled={count === 0 && tone !== 'all'}
+      className={
+        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-mono uppercase tracking-[0.06em] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ' +
+        (active
+          ? activeCls
+          : 'bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/30')
+      }
+    >
+      <span>{children}</span>
+      <span className="tabular-nums">{count}</span>
+    </button>
   )
 }
 
