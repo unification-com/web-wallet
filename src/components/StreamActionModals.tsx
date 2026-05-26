@@ -208,7 +208,16 @@ export function CreateStreamModal({ open, onOpenChange }: CreateStreamModalProps
       }}
       fee={DEFAULT_STREAM_FEE}
       {...(watched.memo ? { memo: watched.memo } : {})}
-      invalidateQueryKeys={[['stream', 'outgoing']]}
+      invalidateQueryKeys={[
+        // Invalidate BOTH sides — TanStack Query caches per-address, so the
+        // receiver's incoming list (cached from when they were viewing) goes
+        // stale on any sender-side Msg (deposit total / flow rate / existence
+        // all read off the same on-chain row). Prefix invalidation matches
+        // every address, so this catches the multi-account-in-one-vault case.
+        ['stream', 'outgoing'],
+        ['stream', 'incoming'],
+        ['stream', 'flow'],
+      ]}
       confirmLabel={t`Create stream`}
     />
   )
@@ -282,7 +291,12 @@ export function ClaimStreamModal({
       }}
       fee={DEFAULT_STREAM_FEE}
       invalidateQueryKeys={[
+        // Claim affects both sides: receiver's claimable resets to 0 and
+        // their balance grows; sender's outgoing row shows a new
+        // lastOutflowTime + smaller remaining deposit.
         ['stream', 'incoming'],
+        ['stream', 'outgoing'],
+        ['stream', 'flow'],
         ['balance'],
       ]}
       confirmLabel={t`Claim`}
@@ -375,7 +389,16 @@ export function TopUpStreamModal({ open, onOpenChange, source }: TopUpStreamModa
       }}
       fee={DEFAULT_STREAM_FEE}
       {...(watched.memo ? { memo: watched.memo } : {})}
-      invalidateQueryKeys={[['stream', 'outgoing']]}
+      invalidateQueryKeys={[
+        // Invalidate BOTH sides — TanStack Query caches per-address, so the
+        // receiver's incoming list (cached from when they were viewing) goes
+        // stale on any sender-side Msg (deposit total / flow rate / existence
+        // all read off the same on-chain row). Prefix invalidation matches
+        // every address, so this catches the multi-account-in-one-vault case.
+        ['stream', 'outgoing'],
+        ['stream', 'incoming'],
+        ['stream', 'flow'],
+      ]}
       confirmLabel={t`Top up`}
     />
   )
@@ -492,7 +515,16 @@ export function UpdateFlowRateModal({
       }}
       fee={DEFAULT_STREAM_FEE}
       {...(watched.memo ? { memo: watched.memo } : {})}
-      invalidateQueryKeys={[['stream', 'outgoing']]}
+      invalidateQueryKeys={[
+        // Invalidate BOTH sides — TanStack Query caches per-address, so the
+        // receiver's incoming list (cached from when they were viewing) goes
+        // stale on any sender-side Msg (deposit total / flow rate / existence
+        // all read off the same on-chain row). Prefix invalidation matches
+        // every address, so this catches the multi-account-in-one-vault case.
+        ['stream', 'outgoing'],
+        ['stream', 'incoming'],
+        ['stream', 'flow'],
+      ]}
       confirmLabel={t`Update`}
     />
   )
@@ -568,7 +600,11 @@ export function CancelStreamModal({ open, onOpenChange, source }: CancelStreamMo
       }}
       fee={DEFAULT_STREAM_FEE}
       invalidateQueryKeys={[
+        // Cancel removes the stream — receiver's incoming list must drop the
+        // row, sender gets balance back from the refund.
         ['stream', 'outgoing'],
+        ['stream', 'incoming'],
+        ['stream', 'flow'],
         ['balance'],
       ]}
       confirmLabel={t`Cancel stream`}
