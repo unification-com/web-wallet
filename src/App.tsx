@@ -150,8 +150,14 @@ function UnlockedShell({ surface }: { surface: Surface }) {
        * pushed back in v2: at 4 tabs a sidebar leaves a tall empty rail
        * that doesn't earn its keep. A sidebar layout is reserved for the
        * future case where the IA grows past ~6 tabs.
+       *
+       * Popup surface is ≤360 px wide and the 5-tab nav already overflows
+       * — `overflow-x-auto` enables horizontal swipe-scrolling, with the
+       * scrollbar hidden in both Firefox (`scrollbar-width:none`) and the
+       * Webkit family (`::-webkit-scrollbar`). The tabs stay on a single
+       * line because `flex` doesn't wrap by default.
        */}
-      <nav className="flex gap-1 text-xs border-b">
+      <nav className="flex gap-1 text-xs border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ViewTab active={view === 'wallet'} onClick={() => setView('wallet')}>
           <Trans>Wallet</Trans>
         </ViewTab>
@@ -231,7 +237,7 @@ function ViewTab({
       type="button"
       onClick={onClick}
       className={
-        '-mb-px px-3 py-1.5 border-b-2 transition-colors ' +
+        '-mb-px px-3 py-1.5 border-b-2 transition-colors whitespace-nowrap shrink-0 ' +
         (active
           ? 'border-primary text-primary font-medium'
           : 'border-transparent text-muted-foreground hover:text-foreground')
