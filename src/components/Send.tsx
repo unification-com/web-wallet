@@ -16,11 +16,15 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useBalance } from '@/lib/balance'
+import {
+  displayDenom,
+  formatCoinAmount,
+  useAllBalances,
+  userAmountToChain,
+} from '@/lib/balance'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import {
   buildMsgSend,
-  fundToNund,
   SendFormSchema,
   type SendFormValues,
 } from '@/lib/msgs/send'
@@ -35,17 +39,9 @@ const DEFAULT_SEND_FEE = {
   gas: '200000',
 }
 
-function formatNund(amount: string): string {
-  const n = BigInt(amount)
-  const nund = 1_000_000_000n
-  const whole = n / nund
-  const frac = (n % nund).toString().padStart(9, '0').replace(/0+$/, '')
-  return frac ? `${whole.toString()}.${frac}` : whole.toString()
-}
-
 export function Send() {
   const { address } = useActiveSigner()
-  const balance = useBalance(address, 'nund')
+  const { data: balances } = useAllBalances(address)
   const { submit, submitting, error, txHash, reset } = useSubmitTx()
   const queryClient = useQueryClient()
   const { t } = useLingui()
@@ -60,6 +56,14 @@ export function Send() {
       memo: '',
     },
   })
+
+  // Watch the chosen denom so we can display its balance in the card header
+  // and conditionally render the denom <select> only when the user has more
+  // than just nund (most accounts today). Avoids cluttering the form for the
+  // 99% nund-only case.
+  const selectedDenom = form.watch('denom')
+  const selectedBalance = balances?.find((c) => c.denom === selectedDenom)
+  const showDenomSelector = (balances?.length ?? 0) > 1
 
   if (!address) {
     return (
@@ -83,7 +87,10 @@ export function Send() {
           buildMsgSend({
             fromAddress: address,
             toAddress: pendingValues.recipient,
-            amountFund: pendingValues.amountFund,
+            amountChainSide: userAmountToChain(
+              pendingValues.amountFund,
+              pendingValues.denom,
+            ),
             denom: pendingValues.denom,
           }),
         ],
@@ -113,10 +120,14 @@ export function Send() {
         <CardTitle className="text-sm">
           <Trans>Send</Trans>
         </CardTitle>
-        {balance.data && (
+        {selectedBalance && (
           <span className="text-xs text-muted-foreground">
             <Trans>
-              Balance: <span className="font-mono">{formatNund(balance.data.amount)}</span> FUND
+              Balance:{' '}
+              <span className="font-mono">
+                {formatCoinAmount(selectedBalance.amount, selectedBalance.denom)}
+              </span>{' '}
+              {displayDenom(selectedBalance.denom)}
             </Trans>
           </span>
         )}
@@ -141,9 +152,28 @@ export function Send() {
             )}
           </div>
 
+          {showDenomSelector && (
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="send-denom">
+                <Trans>Denom</Trans>
+              </Label>
+              <select
+                id="send-denom"
+                {...form.register('denom')}
+                className="h-9 rounded-md border border-input bg-background px-2 text-xs"
+              >
+                {(balances ?? []).map((c) => (
+                  <option key={c.denom} value={c.denom}>
+                    {displayDenom(c.denom)} — {formatCoinAmount(c.amount, c.denom)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1">
             <Label htmlFor="send-amount">
-              <Trans>Amount (FUND)</Trans>
+              <Trans>Amount ({displayDenom(selectedDenom)})</Trans>
             </Label>
             <Input
               id="send-amount"
@@ -154,6 +184,15 @@ export function Send() {
             {form.formState.errors.amountFund && (
               <span className="text-xs text-destructive">
                 {form.formState.errors.amountFund.message}
+              </span>
+            )}
+            {selectedDenom !== 'nund' && (
+              <span className="text-[10px] text-muted-foreground">
+                <Trans>
+                  IBC-wrapped denoms use the source chain&apos;s native decimals;
+                  amount is interpreted as raw integer units until M9 denom-trace
+                  resolves the scaling.
+                </Trans>
               </span>
             )}
           </div>
@@ -202,7 +241,13 @@ export function Send() {
                 <Trans>Amount</Trans>
               </dt>
               <dd className="font-mono">
-                {pendingValues.amountFund} FUND ({fundToNund(pendingValues.amountFund)} nund)
+                {pendingValues.amountFund} {displayDenom(pendingValues.denom)}
+                {pendingValues.denom === 'nund' && (
+                  <>
+                    {' ('}
+                    {userAmountToChain(pendingValues.amountFund, pendingValues.denom)} nund)
+                  </>
+                )}
               </dd>
               {pendingValues.memo && (
                 <>

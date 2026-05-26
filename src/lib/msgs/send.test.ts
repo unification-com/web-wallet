@@ -133,7 +133,7 @@ describe('msgs.send.buildMsgSend', () => {
     const msg = buildMsgSend({
       fromAddress: 'und1from000000000000000000000000000000000000',
       toAddress: 'und1to0000000000000000000000000000000000000000',
-      amountFund: '1.5',
+      amountChainSide: '1500000000',
     })
     expect(msg.typeUrl).toBe('/cosmos.bank.v1beta1.MsgSend')
     interface MsgSendValue {
@@ -147,11 +147,11 @@ describe('msgs.send.buildMsgSend', () => {
     expect(value.amount).toEqual([{ denom: 'nund', amount: '1500000000' }])
   })
 
-  it('respects a custom denom', () => {
+  it('respects a custom denom (e.g. IBC-wrapped token, raw chain-side amount)', () => {
     const msg = buildMsgSend({
       fromAddress: 'und1from000000000000000000000000000000000000',
       toAddress: 'und1to0000000000000000000000000000000000000000',
-      amountFund: '1',
+      amountChainSide: '1000000',
       denom: 'ibc/ABC123',
     })
     interface MsgSendValue {
@@ -159,6 +159,7 @@ describe('msgs.send.buildMsgSend', () => {
     }
     const value = msg.value as MsgSendValue
     expect(value.amount[0].denom).toBe('ibc/ABC123')
+    expect(value.amount[0].amount).toBe('1000000')
   })
 })
 

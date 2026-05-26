@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { ActiveDelegations } from '@/components/ActiveDelegations'
+import { Balances } from '@/components/Balances'
 import { Header } from '@/components/Header'
 import { InFlightQueues } from '@/components/InFlightQueues'
 import { ProposalDetail } from '@/components/ProposalDetail'
@@ -241,6 +242,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         {view === 'wallet' && (
           <>
             <Receive />
+            <Balances />
             <Send />
           </>
         )}

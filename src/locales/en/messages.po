@@ -282,9 +282,13 @@ msgstr "Allowance"
 msgid "Amount"
 msgstr "Amount"
 
+#. placeholder {0}: displayDenom(selectedDenom)
+#: src/components/Send.tsx
+msgid "Amount ({0})"
+msgstr "Amount ({0})"
+
 #: src/components/DelegateModal.tsx
 #: src/components/RaisePurchaseOrderModal.tsx
-#: src/components/Send.tsx
 msgid "Amount (FUND)"
 msgstr "Amount (FUND)"
 
@@ -326,12 +330,20 @@ msgstr "auto-lock timeout must be a positive integer (ms)"
 msgid "Back"
 msgstr "Back"
 
-#. placeholder {0}: formatNund(balance.data.amount)
+#. placeholder {0}: formatCoinAmount(selectedBalance.amount, selectedBalance.denom)
+#. placeholder {1}: displayDenom(selectedBalance.denom)
+#: src/components/Send.tsx
+msgid "Balance: <0>{0}</0> {1}"
+msgstr "Balance: <0>{0}</0> {1}"
+
 #. placeholder {0}: formatNundDisplay(balance.data.amount)
 #: src/components/DelegateModal.tsx
-#: src/components/Send.tsx
 msgid "Balance: <0>{0}</0> FUND"
 msgstr "Balance: <0>{0}</0> FUND"
+
+#: src/components/Balances.tsx
+msgid "Balances"
+msgstr "Balances"
 
 #: src/lib/msgs/presenters.ts
 msgid "Base type"
@@ -444,10 +456,6 @@ msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. Thes
 #: src/components/Enterprise.tsx
 msgid "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
 msgstr "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
-
-#: src/components/Enterprise.tsx
-#~ msgid "Chain-side processing — admin actions don't appear in your tx history."
-#~ msgstr "Chain-side processing — admin actions don't appear in your tx history."
 
 #: src/components/StreamActionModals.tsx
 msgid "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
@@ -718,6 +726,7 @@ msgstr "Delete seed"
 msgid "Deleting…"
 msgstr "Deleting…"
 
+#: src/components/Send.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Denom"
 msgstr "Denom"
@@ -1056,6 +1065,14 @@ msgstr "I support this proposal"
 msgid "I've written the seed phrase down somewhere safe."
 msgstr "I've written the seed phrase down somewhere safe."
 
+#: src/components/Balances.tsx
+msgid "IBC-wrapped"
+msgstr "IBC-wrapped"
+
+#: src/components/Send.tsx
+msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
+msgstr "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
+
 #: src/components/VaultSetup.tsx
 msgid "Import a v1 wallet file"
 msgstr "Import a v1 wallet file"
@@ -1183,6 +1200,10 @@ msgstr "Load {0} more"
 #: src/components/AddSignerCard.tsx
 msgid "Loaded: {fileName}"
 msgstr "Loaded: {fileName}"
+
+#: src/components/Balances.tsx
+msgid "Loading balances…"
+msgstr "Loading balances…"
 
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
@@ -1341,6 +1362,10 @@ msgstr "No active delegations. Pick a validator above to start earning rewards."
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
+
+#: src/components/Balances.tsx
+msgid "No balances yet — receive some FUND to get started."
+msgstr "No balances yet — receive some FUND to get started."
 
 #: src/components/StreamsList.tsx
 msgid "No cancelled streams."
@@ -1633,6 +1658,10 @@ msgstr "Raised"
 #: src/lib/msgs/presenters.ts
 msgid "Raised eFUND purchase order"
 msgstr "Raised eFUND purchase order"
+
+#: src/components/Balances.tsx
+msgid "Raw amount — decimals unknown until M9 IBC denom-trace lands."
+msgstr "Raw amount — decimals unknown until M9 IBC denom-trace lands."
 
 #. placeholder {0}: account.index.toString()
 #: src/components/VaultEntryManager.tsx

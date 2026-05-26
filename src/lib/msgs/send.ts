@@ -111,7 +111,12 @@ export function decCoinToFund(amountDec: string | undefined): string {
 export interface BuildMsgSendParams {
   fromAddress: string
   toAddress: string
-  amountFund: string
+  /** Chain-side integer amount (NOT a user-facing FUND decimal). Callers
+   * should scale via `userAmountToChain(amount, denom)` from `lib/balance.ts`
+   * to handle the denom-dependent decimals correctly: nund uses 10^9 FUND
+   * scaling; IBC-wrapped denoms use the source chain's native decimals
+   * which we treat as raw integers pre-M9. */
+  amountChainSide: string
   denom?: string // defaults to 'nund'
 }
 
@@ -126,7 +131,7 @@ export function buildMsgSend(params: BuildMsgSendParams): EncodeObject {
     value: {
       fromAddress: params.fromAddress,
       toAddress: params.toAddress,
-      amount: [{ denom, amount: fundToNund(params.amountFund) }],
+      amount: [{ denom, amount: params.amountChainSide }],
     },
   }
 }
