@@ -14,7 +14,7 @@ import {
   buildMsgUpdateFlowRate,
 } from '@/lib/msgs/stream'
 import { useActiveSigner } from '@/lib/signer'
-import { SECONDS_PER_PERIOD, type StreamResult } from '@/lib/stream'
+import { SECONDS_PER_PERIOD, streamDenom, type StreamResult } from '@/lib/stream'
 
 // ---------------------------------------------------------------------------
 // Shared defaults
@@ -236,7 +236,8 @@ export function ClaimStreamModal({
   const { address } = useActiveSigner()
   const { t } = useLingui()
   const canSubmit = !!address && !!source && BigInt(claimableNund) > 0n
-  const denomLabel = source?.denom === 'nund' ? 'FUND' : (source?.denom ?? '')
+  const denom = source ? streamDenom(source) : ''
+  const denomLabel = denom === 'nund' ? 'FUND' : denom
 
   return (
     <TxModal
@@ -275,7 +276,7 @@ export function ClaimStreamModal({
           buildMsgClaimStream({
             receiver: address,
             sender: source.sender,
-            denom: source.denom,
+            denom: streamDenom(source),
           }),
         ]
       }}
@@ -368,7 +369,7 @@ export function TopUpStreamModal({ open, onOpenChange, source }: TopUpStreamModa
             sender: address,
             receiver: source.receiver,
             depositFund: watched.depositFund,
-            denom: source.denom,
+            denom: streamDenom(source),
           }),
         ]
       }}
@@ -485,7 +486,7 @@ export function UpdateFlowRateModal({
             sender: address,
             receiver: source.receiver,
             flowRateNundPerSec: flowRate,
-            denom: source.denom,
+            denom: streamDenom(source),
           }),
         ]
       }}
@@ -511,7 +512,8 @@ export function CancelStreamModal({ open, onOpenChange, source }: CancelStreamMo
   const { address } = useActiveSigner()
   const { t } = useLingui()
   const cancellable = source?.stream?.cancellable ?? false
-  const denomLabel = source?.denom === 'nund' ? 'FUND' : (source?.denom ?? '')
+  const denom = source ? streamDenom(source) : ''
+  const denomLabel = denom === 'nund' ? 'FUND' : denom
   const remainingDeposit = source?.stream?.deposit.amount ?? '0'
   const canSubmit = !!address && !!source && cancellable
 
@@ -560,7 +562,7 @@ export function CancelStreamModal({ open, onOpenChange, source }: CancelStreamMo
           buildMsgCancelStream({
             sender: address,
             receiver: source.receiver,
-            denom: source.denom,
+            denom: streamDenom(source),
           }),
         ]
       }}

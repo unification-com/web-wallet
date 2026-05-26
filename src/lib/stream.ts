@@ -82,6 +82,25 @@ export function claimableNow(stream: Stream | undefined): bigint {
   return earned < depositAmount ? earned : depositAmount
 }
 
+/**
+ * Resolve a stream's denom defensively. `StreamResult.denom` was added to the
+ * query response shape in Stage 5b (multi-denom support); chains running an
+ * older binary return it as the default empty string. We fall back to the
+ * stream's own `deposit.denom`, which has been the canonical source of denom
+ * since x/stream's first ship. Final fallback to `'nund'` for safety so we
+ * never broadcast a Msg with an empty Coin denom — the chain's TopUp keeper
+ * has a vestigial "belt-and-braces" check that triggers on empty (see
+ * `x-stream/x/stream/keeper/stream.go:212`).
+ */
+export function streamDenom(s: StreamResult): string {
+  // `||` not `??` — pre-5b chains return `denom: ""` (empty string, not
+  // undefined) in the StreamResult, so the nullish coalescing variant would
+  // keep the empty value and miss the fallback. Same applies to the
+  // nested `deposit.denom` cascade.
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  return s.denom || s.stream?.deposit.denom || 'nund'
+}
+
 /** Period picker for {@link formatFlowRate}. */
 export interface FlowRateDisplay {
   /** Human-readable amount per chosen period, e.g. `"1.5"`. */

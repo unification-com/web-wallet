@@ -19,6 +19,7 @@ import {
   depositRemainingMs,
   formatFlowRate,
   sortStreams,
+  streamDenom,
   useIncomingStreams,
   useOutgoingStreams,
   type StreamResult,
@@ -26,18 +27,27 @@ import {
 import { formatRelativeDeadline, useTickingNow } from '@/lib/time'
 
 /**
- * Format a stream's deposit-zero countdown. Past-due ("drained") streams
- * show a destructive-coloured "drained" label rather than a stale "X days
- * ago" because the chain caps outflow at the deposit total — the stream
+ * Format a stream's deposit-zero countdown. Past-due streams show a
+ * destructive-coloured terminal label rather than a stale "X days ago"
+ * because the chain caps outflow at the deposit total — the stream
  * stopped paying out at depositZeroTime, no matter how long ago that was.
+ *
+ * The terminal label is side-specific: receivers see `complete` (the chain
+ * has nothing further to pay them); senders see `drained` (the deposit they
+ * funded has been fully consumed). Two different framings of the same
+ * on-chain state — receiver gets the positive frame, sender the depletion
+ * frame.
  */
 function depositCountdown(
   s: StreamResult,
   now: Date,
+  side: 'incoming' | 'outgoing',
 ): { label: string; drained: boolean } {
   const remaining = depositRemainingMs(s.stream)
   if (remaining === null) return { label: '—', drained: false }
-  if (remaining <= 0) return { label: 'drained', drained: true }
+  if (remaining <= 0) {
+    return { label: side === 'incoming' ? 'complete' : 'drained', drained: true }
+  }
   const target = s.stream?.depositZeroTime
   if (!target) return { label: '—', drained: false }
   return { label: formatRelativeDeadline(target, now).label, drained: false }
@@ -98,11 +108,12 @@ export function StreamsList() {
                 const claimableNund = claimableNow(s.stream)
                 const claim = nundToFund(claimableNund.toString())
                 const deposit = s.stream?.deposit.amount ?? '0'
-                const cd = depositCountdown(s, now)
-                const denomLabel = s.denom === 'nund' ? 'FUND' : s.denom
+                const cd = depositCountdown(s, now, 'incoming')
+                const denom = streamDenom(s)
+                const denomLabel = denom === 'nund' ? 'FUND' : denom
                 return (
                   <li
-                    key={`${s.sender}-${s.denom}`}
+                    key={`${s.sender}-${denom}`}
                     className="flex flex-col gap-1 rounded border border-border p-2"
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -195,12 +206,13 @@ export function StreamsList() {
               {outgoingStreams.map((s) => {
                 const flow = s.stream ? formatFlowRate(s.stream.flowRate) : null
                 const deposit = s.stream?.deposit.amount ?? '0'
-                const cd = depositCountdown(s, now)
+                const cd = depositCountdown(s, now, 'outgoing')
                 const cancellable = s.stream?.cancellable ?? true
-                const denomLabel = s.denom === 'nund' ? 'FUND' : s.denom
+                const denom = streamDenom(s)
+                const denomLabel = denom === 'nund' ? 'FUND' : denom
                 return (
                   <li
-                    key={`${s.receiver}-${s.denom}`}
+                    key={`${s.receiver}-${denom}`}
                     className="flex flex-col gap-1 rounded border border-border p-2"
                   >
                     <div className="flex items-center justify-between gap-2">
