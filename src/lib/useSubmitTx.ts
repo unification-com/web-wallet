@@ -9,6 +9,7 @@ import { useCallback, useState } from 'react'
 
 import { useActiveEndpoint, type ChainEndpoint } from './chain'
 import { i18n } from './i18n'
+import { unificationRegistry } from './registry'
 import { useActiveSigner } from './signer'
 
 // ---------------------------------------------------------------------------
@@ -40,6 +41,7 @@ export async function submitTx(params: SubmitTxParams): Promise<DeliverTxRespons
   const client = await SigningStargateClient.connectWithSigner(
     params.endpoint.rpc,
     params.signer,
+    { registry: unificationRegistry },
   )
   try {
     const result = await client.signAndBroadcast(

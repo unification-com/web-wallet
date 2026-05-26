@@ -107,17 +107,9 @@ msgstr "{0} of {1}"
 msgid "{0} txs"
 msgstr "{0} txs"
 
-#: src/components/Validators.tsx
-#~ msgid "{commissionPct}% fee"
-#~ msgstr "{commissionPct}% fee"
-
 #: src/lib/msgs/presenters.ts
 msgid "{module}: {short}"
 msgstr "{module}: {short}"
-
-#: src/components/VaultEntryManager.tsx
-#~ msgid "{seedLabel} — seed phrase"
-#~ msgstr "{seedLabel} — seed phrase"
 
 #: src/components/InFlightQueues.tsx
 msgid "{srcMoniker} → {dstMoniker}"
@@ -137,6 +129,10 @@ msgstr "← Back to list"
 #: src/components/ActiveDelegations.tsx
 msgid "+{0} pending"
 msgstr "+{0} pending"
+
+#: src/components/StreamActionModals.tsx
+msgid "≈ {flowRate} nund/sec"
+msgstr "≈ {flowRate} nund/sec"
 
 #: src/components/VaultSetup.tsx
 msgid "12 words"
@@ -211,6 +207,10 @@ msgstr "Add another"
 msgid "Add custom endpoint"
 msgstr "Add custom endpoint"
 
+#: src/components/StreamActionModals.tsx
+msgid "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
+msgstr "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
+
 #: src/lib/msgs/presenters.ts
 msgid "Added"
 msgstr "Added"
@@ -218,6 +218,10 @@ msgstr "Added"
 #: src/components/AccountSwitcher.tsx
 msgid "Adding…"
 msgstr "Adding…"
+
+#: src/components/StreamActionModals.tsx
+msgid "Additional deposit (FUND)"
+msgstr "Additional deposit (FUND)"
 
 #: src/lib/msgs/presenters.ts
 msgid "Address"
@@ -323,10 +327,19 @@ msgstr "Built-in"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/RevealSecretDialog.tsx
+#: src/components/StreamsList.tsx
 #: src/components/TxModal.tsx
 #: src/components/VaultEntryManager.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/components/StreamActionModals.tsx
+msgid "Cancel stream"
+msgstr "Cancel stream"
+
+#: src/components/StreamsList.tsx
+msgid "Cancellation disabled (eFUND-backed stream)"
+msgstr "Cancellation disabled (eFUND-backed stream)"
 
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled proposal"
@@ -343,6 +356,10 @@ msgstr "Cancelled unbonding"
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled upgrade"
 msgstr "Cancelled upgrade"
+
+#: src/components/StreamActionModals.tsx
+msgid "Cancelling stops further outflow immediately. Any amount the recipient has accrued but not yet claimed stays claimable; the unclaimed portion of your deposit returns to your wallet."
+msgstr "Cancelling stops further outflow immediately. Any amount the recipient has accrued but not yet claimed stays claimable; the unclaimed portion of your deposit returns to your wallet."
 
 #: src/components/Validators.tsx
 msgid "Cannot delegate to inactive or jailed validators"
@@ -372,6 +389,10 @@ msgstr "Chain ID"
 msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 
+#: src/components/StreamActionModals.tsx
+msgid "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
+msgstr "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
+
 #: src/components/ProposalDetail.tsx
 msgid "Change vote"
 msgstr "Change vote"
@@ -380,17 +401,14 @@ msgstr "Change vote"
 msgid "Channel"
 msgstr "Channel"
 
-#: src/components/AddSignerCard.tsx
-#~ msgid "Check"
-#~ msgstr "Check"
-
-#: src/components/VaultSetup.tsx
-#~ msgid "Choose how to start"
-#~ msgstr "Choose how to start"
-
 #: src/components/VaultSetup.tsx
 msgid "Choose keystore file…"
 msgstr "Choose keystore file…"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamsList.tsx
+msgid "Claim"
+msgstr "Claim"
 
 #: src/components/StakingActionModals.tsx
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
@@ -399,6 +417,19 @@ msgstr "Claim accrued staking rewards from this validator. Rewards land in your 
 #: src/components/ActiveDelegations.tsx
 msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
 msgstr "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
+
+#: src/components/StreamActionModals.tsx
+msgid "Claim stream"
+msgstr "Claim stream"
+
+#: src/components/StreamsList.tsx
+msgid "Claimable"
+msgstr "Claimable"
+
+#. placeholder {0}: nundToFund(claimableNund)
+#: src/components/StreamActionModals.tsx
+msgid "Claimable: <0>{0}</0> {denomLabel}"
+msgstr "Claimable: <0>{0}</0> {denomLabel}"
 
 #: src/lib/msgs/presenters.ts
 msgid "Claimed stream"
@@ -458,6 +489,10 @@ msgstr "Content"
 msgid "Continue"
 msgstr "Continue"
 
+#: src/components/StreamActionModals.tsx
+msgid "Continuously pay the recipient at a chosen rate. The recipient claims accrued amounts whenever they want; you can top up the deposit, change the rate, or cancel at any time (unless the stream is non-cancellable)."
+msgstr "Continuously pay the recipient at a chosen rate. The recipient claims accrued amounts whenever they want; you can top up the deposit, change the rate, or cancel at any time (unless the stream is non-cancellable)."
+
 #: src/components/Receive.tsx
 #: src/components/RevealSecretDialog.tsx
 msgid "Copied"
@@ -505,9 +540,17 @@ msgstr "couldn't reach the RPC endpoint — please check the URL"
 msgid "Count"
 msgstr "Count"
 
+#: src/components/StreamsList.tsx
+msgid "Create"
+msgstr "Create"
+
 #: src/components/VaultSetup.tsx
 msgid "Create a fresh BIP39 mnemonic."
 msgstr "Create a fresh BIP39 mnemonic."
+
+#: src/components/StreamActionModals.tsx
+msgid "Create stream"
+msgstr "Create stream"
 
 #: src/components/VaultSetup.tsx
 msgid "Create wallet"
@@ -557,10 +600,6 @@ msgstr "Dark"
 #: src/lib/msgs/presenters.ts
 msgid "Decision"
 msgstr "Decision"
-
-#: src/components/AddSignerCard.tsx
-#~ msgid "Decrypt locally + check for duplicates without saving"
-#~ msgstr "Decrypt locally + check for duplicates without saving"
 
 #: src/components/DelegateModal.tsx
 #: src/components/Validators.tsx
@@ -613,9 +652,14 @@ msgstr "Denom"
 #: src/components/ProposalDetail.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Deposit"
 msgstr "Deposit"
+
+#: src/components/StreamsList.tsx
+msgid "Deposit drains"
+msgstr "Deposit drains"
 
 #: src/components/ProposalDetail.tsx
 msgid "Deposit ends"
@@ -676,10 +720,6 @@ msgstr "End time"
 #: src/lib/vault/store.ts
 msgid "endpoint {id} not found"
 msgstr "endpoint {id} not found"
-
-#: src/components/UnlockScreen.tsx
-#~ msgid "Enter your password"
-#~ msgstr "Enter your password"
 
 #: src/components/GasAccordion.tsx
 msgid "Estimate from chain"
@@ -787,14 +827,21 @@ msgstr "Finish setup"
 msgid "Finishing…"
 msgstr "Finishing…"
 
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Flow rate"
 msgstr "Flow rate"
+
+#: src/components/StreamActionModals.tsx
+msgid "Flow rate must be ≥ 1 nund/second. Try a larger amount or a shorter period."
+msgstr "Flow rate must be ≥ 1 nund/second. Try a larger amount or a shorter period."
 
 #: src/components/UnlockScreen.tsx
 msgid "Forgot your password?"
 msgstr "Forgot your password?"
 
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "From"
 msgstr "From"
@@ -824,10 +871,6 @@ msgstr "Generate {0} words"
 #: src/components/VaultSetup.tsx
 msgid "Generate {0}-word seed"
 msgstr "Generate {0}-word seed"
-
-#: src/components/VaultSetup.tsx
-#~ msgid "Generate {0}-word seed →"
-#~ msgstr "Generate {0}-word seed →"
 
 #: src/components/VaultSetup.tsx
 msgid "Generate a new seed"
@@ -968,6 +1011,10 @@ msgstr "Importing…"
 msgid "INACTIVE"
 msgstr "INACTIVE"
 
+#: src/components/StreamsList.tsx
+msgid "Incoming streams"
+msgstr "Incoming streams"
+
 #: src/components/TxRow.tsx
 msgid "Info"
 msgstr "Info"
@@ -975,6 +1022,10 @@ msgstr "Info"
 #: src/lib/msgs/presenters.ts
 msgid "Initial deposit"
 msgstr "Initial deposit"
+
+#: src/components/StreamActionModals.tsx
+msgid "Initial deposit (FUND)"
+msgstr "Initial deposit (FUND)"
 
 #: src/lib/msgs/presenters.ts
 msgid "Inner Msgs"
@@ -1021,10 +1072,6 @@ msgstr "Load {0} more"
 msgid "Loaded: {fileName}"
 msgstr "Loaded: {fileName}"
 
-#: src/components/VaultSetup.tsx
-#~ msgid "Loaded: {v1JsonFileName}"
-#~ msgstr "Loaded: {v1JsonFileName}"
-
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
@@ -1040,6 +1087,11 @@ msgstr "Loading proposal…"
 #: src/components/ProposalList.tsx
 msgid "Loading proposals…"
 msgstr "Loading proposals…"
+
+#: src/App.tsx
+#: src/components/StreamsList.tsx
+msgid "Loading streams…"
+msgstr "Loading streams…"
 
 #: src/components/Validators.tsx
 msgid "Loading validators…"
@@ -1074,6 +1126,7 @@ msgstr "Memo"
 #: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
 #: src/components/StakingActionModals.tsx
+#: src/components/StreamActionModals.tsx
 #: src/components/VoteModal.tsx
 msgid "Memo (optional)"
 msgstr "Memo (optional)"
@@ -1110,6 +1163,10 @@ msgstr "Moniker"
 msgid "Msg type"
 msgstr "Msg type"
 
+#: src/components/StreamActionModals.tsx
+msgid "Must be a valid und1… address."
+msgstr "Must be a valid und1… address."
+
 #: src/components/Settings.tsx
 msgid "My DevNet"
 msgstr "My DevNet"
@@ -1130,6 +1187,7 @@ msgstr "Network:"
 msgid "Never share. Never type into a website. Unification will never ask for it."
 msgstr "Never share. Never type into a website. Unification will never ask for it."
 
+#: src/components/StreamActionModals.tsx
 #: src/lib/msgs/presenters.ts
 msgid "New flow rate"
 msgstr "New flow rate"
@@ -1155,10 +1213,18 @@ msgstr "no active signer — unlock the vault and select an account"
 msgid "No file selected"
 msgstr "No file selected"
 
+#: src/components/StreamsList.tsx
+msgid "No incoming streams."
+msgstr "No incoming streams."
+
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
 msgid "no keystore file selected"
 msgstr "no keystore file selected"
+
+#: src/components/StreamsList.tsx
+msgid "No outgoing streams. Use Create to open one."
+msgstr "No outgoing streams. Use Create to open one."
 
 #: src/components/ProposalList.tsx
 msgid "No proposals match this filter."
@@ -1193,6 +1259,10 @@ msgstr "No votes recorded yet."
 msgid "No with veto"
 msgstr "No with veto"
 
+#: src/components/StreamsList.tsx
+msgid "non-cancel"
+msgstr "non-cancel"
+
 #. placeholder {0}: tiers.average.toString()
 #: src/components/GasAccordion.tsx
 msgid "Normal ({0})"
@@ -1207,6 +1277,10 @@ msgstr "not a v1 keystore file (missing version:1 or crypto block)"
 #: src/components/VaultSetup.tsx
 msgid "not a valid BIP39 mnemonic (check wordlist + checksum)"
 msgstr "not a valid BIP39 mnemonic (check wordlist + checksum)"
+
+#: src/components/StreamsList.tsx
+msgid "Nothing claimable yet — wait for accrual."
+msgstr "Nothing claimable yet — wait for accrual."
 
 #: src/lib/msgs/presenters.ts
 msgid "Now drains at"
@@ -1231,6 +1305,10 @@ msgstr "Operator"
 #: src/lib/msgs/presenters.ts
 msgid "Order ID"
 msgstr "Order ID"
+
+#: src/components/StreamsList.tsx
+msgid "Outgoing streams"
+msgstr "Outgoing streams"
 
 #: src/lib/msgs/presenters.ts
 msgid "Outputs"
@@ -1341,6 +1419,10 @@ msgstr "Proposals"
 msgid "Proposer"
 msgstr "Proposer"
 
+#: src/components/StreamActionModals.tsx
+msgid "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
+msgstr "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
+
 #: src/lib/msgs/presenters.ts
 msgid "Purchased"
 msgstr "Purchased"
@@ -1402,6 +1484,15 @@ msgstr "Receiver"
 #: src/components/Send.tsx
 msgid "Recipient"
 msgstr "Recipient"
+
+#: src/components/StreamActionModals.tsx
+msgid "Recipient address"
+msgstr "Recipient address"
+
+#. placeholder {0}: source?.receiver ?? ''
+#: src/components/StreamActionModals.tsx
+msgid "Recipient: <0>{0}</0>"
+msgstr "Recipient: <0>{0}</0>"
 
 #: src/lib/msgs/presenters.ts
 msgid "Recorded beacon timestamp"
@@ -1465,9 +1556,15 @@ msgstr "Rejected eFUND purchase order"
 msgid "Remaining capacity"
 msgstr "Remaining capacity"
 
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Remaining deposit"
 msgstr "Remaining deposit"
+
+#. placeholder {0}: nundToFund(remainingDeposit)
+#: src/components/StreamActionModals.tsx
+msgid "Remaining deposit: <0>{0}</0> {denomLabel}"
+msgstr "Remaining deposit: <0>{0}</0> {denomLabel}"
 
 #: src/components/Settings.tsx
 msgid "Remove endpoint"
@@ -1559,10 +1656,6 @@ msgstr "Save seed"
 msgid "Save your seed"
 msgstr "Save your seed"
 
-#: src/components/VaultSetup.tsx
-#~ msgid "Save your seed phrase"
-#~ msgstr "Save your seed phrase"
-
 #: src/components/AddSignerCard.tsx
 msgid "Saving…"
 msgstr "Saving…"
@@ -1612,6 +1705,11 @@ msgstr "Send"
 msgid "Sender"
 msgstr "Sender"
 
+#. placeholder {0}: source?.sender ?? ''
+#: src/components/StreamActionModals.tsx
+msgid "Sender: <0>{0}</0>"
+msgstr "Sender: <0>{0}</0>"
+
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Sent"
@@ -1628,10 +1726,6 @@ msgstr "Sent via IBC"
 #: src/components/Send.tsx
 msgid "Sent! Tx: <0>{txHash}</0>"
 msgstr "Sent! Tx: <0>{txHash}</0>"
-
-#: src/components/VaultSetup.tsx
-#~ msgid "Set a password"
-#~ msgstr "Set a password"
 
 #: src/components/VaultSetup.tsx
 msgid "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
@@ -1703,13 +1797,17 @@ msgstr "Starts a chain-defined unbonding period (typically 21 days on MainNet) b
 msgid "Step {0} / {1}"
 msgstr "Step {0} / {1}"
 
-#: src/components/VaultSetup.tsx
-#~ msgid "Step {0} / 3 · {stepLabel}"
-#~ msgstr "Step {0} / 3 · {stepLabel}"
-
 #: src/lib/vault/storage.ts
 msgid "stored vault is not valid JSON (corrupted storage)"
 msgstr "stored vault is not valid JSON (corrupted storage)"
+
+#: src/components/StreamsList.tsx
+msgid "Stream is non-cancellable (eFUND-backed)."
+msgstr "Stream is non-cancellable (eFUND-backed)."
+
+#: src/App.tsx
+msgid "Streams"
+msgstr "Streams"
 
 #: src/components/VaultSetup.tsx
 msgid "Strength"
@@ -1814,6 +1912,10 @@ msgstr "This private key's address ({address}) already exists in your vault as {
 msgid "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 msgstr "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 
+#: src/components/StreamActionModals.tsx
+msgid "This stream is non-cancellable (chain-enforced — typically because it's funded by eFUND)."
+msgstr "This stream is non-cancellable (chain-enforced — typically because it's funded by eFUND)."
+
 #. placeholder {0}: decrypted.address
 #. placeholder {1}: match.containerLabel
 #. placeholder {2}: match.accountLabel ? ` / ${match.accountLabel}` : ''
@@ -1830,6 +1932,7 @@ msgid "Title"
 msgstr "Title"
 
 #: src/components/Send.tsx
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "To"
 msgstr "To"
@@ -1837,6 +1940,15 @@ msgstr "To"
 #: src/lib/msgs/presenters.ts
 msgid "To validator"
 msgstr "To validator"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamsList.tsx
+msgid "Top up"
+msgstr "Top up"
+
+#: src/components/StreamActionModals.tsx
+msgid "Top up stream deposit"
+msgstr "Top up stream deposit"
 
 #: src/lib/msgs/presenters.ts
 msgid "Topped up stream deposit"
@@ -1859,10 +1971,6 @@ msgstr "Total moved"
 #: src/components/ActiveDelegations.tsx
 msgid "Total pending across all delegations: <0>{0}</0> FUND"
 msgstr "Total pending across all delegations: <0>{0}</0> FUND"
-
-#: src/components/ProposalDetail.tsx
-#~ msgid "Total stake voted: <0>{0}</0> FUND"
-#~ msgstr "Total stake voted: <0>{0}</0> FUND"
 
 #. placeholder {0}: result.code.toString()
 #. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
@@ -1929,10 +2037,6 @@ msgid "unlock the vault first"
 msgstr "unlock the vault first"
 
 #: src/components/UnlockScreen.tsx
-#~ msgid "Unlock wallet"
-#~ msgstr "Unlock wallet"
-
-#: src/components/UnlockScreen.tsx
 msgid "Unlocking…"
 msgstr "Unlocking…"
 
@@ -1954,6 +2058,15 @@ msgstr "unsupported v1 keystore PRF: {0}"
 #: src/lib/msgs/presenters.ts
 msgid "Unwhitelisted address"
 msgstr "Unwhitelisted address"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamsList.tsx
+msgid "Update"
+msgstr "Update"
+
+#: src/components/StreamActionModals.tsx
+msgid "Update flow rate"
+msgstr "Update flow rate"
 
 #: src/lib/msgs/presenters.ts
 msgid "Updated address whitelist"

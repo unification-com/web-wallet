@@ -1,0 +1,247 @@
+import {
+  createProtobufRpcClient,
+  QueryClient,
+} from '@cosmjs/stargate'
+import { Comet38Client } from '@cosmjs/tendermint-rpc'
+import { useQuery } from '@tanstack/react-query'
+import { type StreamResult } from '@unification-com/fundjs-react/mainchain/stream/v1/query'
+import { QueryClientImpl } from '@unification-com/fundjs-react/mainchain/stream/v1/query.rpc.Query'
+import { type Stream } from '@unification-com/fundjs-react/mainchain/stream/v1/stream'
+
+import { useActiveEndpoint } from './chain'
+import { nundToFund } from './msgs/send'
+
+// ---------------------------------------------------------------------------
+// Module note — fundjs-react sub-path imports
+// ---------------------------------------------------------------------------
+// Stream is a Unification-specific module (no cosmjs-types analogue) so we
+// import the generated client + types directly from fundjs-react sub-paths.
+// Path A architecture confirmed by build probe (M6.0) — typecheck clean,
+// production bundle uneffected because Rollup tree-shakes the single
+// QueryClientImpl from the per-module entry point.
+//
+// QueryClientImpl's constructor takes a `TxRpc`-shaped object — identical to
+// cosmjs's `ProtobufRpcClient`. Reusing the same `makeXxxClient` pattern as
+// `gov.ts` keeps the query layer architecturally uniform across modules.
+// ---------------------------------------------------------------------------
+
+// Re-export proto types so consumers don't reach into fundjs-react sub-paths.
+export { type Stream, type StreamResult }
+
+// ---------------------------------------------------------------------------
+// Query client setup
+// ---------------------------------------------------------------------------
+
+async function makeStreamClient(rpc: string): Promise<{
+  query: QueryClientImpl
+  disconnect: () => void
+}> {
+  const cometClient = await Comet38Client.connect(rpc)
+  const queryClient = new QueryClient(cometClient)
+  const protoRpc = createProtobufRpcClient(queryClient)
+  const query = new QueryClientImpl(protoRpc)
+  return {
+    query,
+    disconnect: () => cometClient.disconnect(),
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pure helpers — testable without React
+// ---------------------------------------------------------------------------
+
+/**
+ * Time remaining (ms) before the current deposit drains to zero. Negative
+ * when the deposit has already drained (chain stops outflow once
+ * `depositZeroTime` is in the past). Returns `null` when the stream has no
+ * data (defensive — should always be set on chain-side `StreamResult`).
+ */
+export function depositRemainingMs(stream: Stream | undefined): number | null {
+  if (!stream) return null
+  return stream.depositZeroTime.getTime() - Date.now()
+}
+
+/**
+ * Amount claimable now (in base units of the stream's denom) — equal to
+ * `min(flowRate × secondsSinceLastOutflow, remainingDeposit)`. Chain caps it
+ * at the deposit, so a stream past its `depositZeroTime` claims everything
+ * left and no more.
+ */
+export function claimableNow(stream: Stream | undefined): bigint {
+  if (!stream) return 0n
+  const lastOutflowMs = stream.lastOutflowTime.getTime()
+  const nowMs = Date.now()
+  const elapsedSec = BigInt(Math.max(0, Math.floor((nowMs - lastOutflowMs) / 1000)))
+  const earned = elapsedSec * stream.flowRate
+  let depositAmount: bigint
+  try {
+    depositAmount = BigInt(stream.deposit.amount || '0')
+  } catch {
+    depositAmount = 0n
+  }
+  return earned < depositAmount ? earned : depositAmount
+}
+
+/** Period picker for {@link formatFlowRate}. */
+export interface FlowRateDisplay {
+  /** Human-readable amount per chosen period, e.g. `"1.5"`. */
+  amountFund: string
+  /** Period label, e.g. `'sec' | 'min' | 'hour' | 'day' | 'month'`. */
+  period: 'sec' | 'min' | 'hour' | 'day' | 'month'
+}
+
+/** Seconds in each {@link FlowRateDisplay} period. */
+export const SECONDS_PER_PERIOD: Record<FlowRateDisplay['period'], bigint> = {
+  sec: 1n,
+  min: 60n,
+  hour: 3_600n,
+  day: 86_400n,
+  // SDK x/stream uses 30 days for "month" in `CalculateFlowRate` — match that
+  // convention here so what the user sees pre-broadcast equals what the chain
+  // computes post-broadcast.
+  month: 30n * 86_400n,
+}
+
+/**
+ * Pick a human-friendly period for a `flowRate` (nund per second) and return
+ * the FUND-denominated amount per that period. Tries successively coarser
+ * periods until the per-period amount is ≥ 1 nund; falls back to per-second
+ * for sub-1-nund flows so dust-rate streams still render a sensible label.
+ */
+export function formatFlowRate(flowRate: bigint): FlowRateDisplay {
+  const periods: FlowRateDisplay['period'][] = ['sec', 'min', 'hour', 'day', 'month']
+  for (const period of periods) {
+    const amount = flowRate * SECONDS_PER_PERIOD[period]
+    if (amount >= 1_000_000_000n) {
+      return { amountFund: nundToFund(amount.toString()), period }
+    }
+  }
+  // Sub-FUND-per-month flow rate — display as-is per second (will read as
+  // "0 FUND/sec" but is the most honest baseline).
+  return { amountFund: nundToFund(flowRate.toString()), period: 'sec' }
+}
+
+/**
+ * Sort key for stream lists: claimable streams first (so receivers see what
+ * they can act on at the top), then by descending deposit remaining (most
+ * funded streams above near-empty ones).
+ */
+export function sortStreams(streams: readonly StreamResult[]): StreamResult[] {
+  return [...streams].sort((a, b) => {
+    const ac = claimableNow(a.stream)
+    const bc = claimableNow(b.stream)
+    if (ac !== bc) return ac > bc ? -1 : 1
+    const ad = depositRemainingMs(a.stream) ?? 0
+    const bd = depositRemainingMs(b.stream) ?? 0
+    return bd - ad
+  })
+}
+
+// ---------------------------------------------------------------------------
+// React hooks
+// ---------------------------------------------------------------------------
+
+/**
+ * Streams where `address` is the receiver — the inbound list. One row per
+ * `(sender, denom)` pair (Stage 5b multi-denom: a single sender can fund
+ * multiple denom-distinct streams to the same receiver).
+ */
+export function useIncomingStreams(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['stream', 'incoming', endpoint.id, address],
+    queryFn: async (): Promise<StreamResult[]> => {
+      if (!address) return []
+      const { query, disconnect } = await makeStreamClient(endpoint.rpc)
+      try {
+        const res = await query.allStreamsForReceiver({ receiverAddr: address })
+        return res.streams
+      } finally {
+        disconnect()
+      }
+    },
+    enabled: !!address,
+    // 12s polling matches the chain's average block time — claimable amounts
+    // tick up roughly that fast at typical flow rates.
+    refetchInterval: 12_000,
+  })
+}
+
+/**
+ * Streams where `address` is the sender — the outbound list. Used by the
+ * sender to monitor + manage (topup / update flow rate / cancel).
+ */
+export function useOutgoingStreams(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['stream', 'outgoing', endpoint.id, address],
+    queryFn: async (): Promise<StreamResult[]> => {
+      if (!address) return []
+      const { query, disconnect } = await makeStreamClient(endpoint.rpc)
+      try {
+        const res = await query.allStreamsForSender({ senderAddr: address })
+        return res.streams
+      } finally {
+        disconnect()
+      }
+    },
+    enabled: !!address,
+    refetchInterval: 12_000,
+  })
+}
+
+/**
+ * Real-time flow data for a specific `(receiver, sender, denom)` triple.
+ * `currentFlowRate` is zero when the deposit has drained — useful for
+ * surfacing "draining" vs "drained" states in the UI.
+ */
+export function useCurrentFlow(
+  receiver: string | null,
+  sender: string | null,
+  denom: string | null,
+) {
+  const endpoint = useActiveEndpoint()
+  const enabled = !!receiver && !!sender && !!denom
+  return useQuery({
+    queryKey: ['stream', 'flow', endpoint.id, receiver, sender, denom],
+    queryFn: async () => {
+      if (!enabled) return null
+      const { query, disconnect } = await makeStreamClient(endpoint.rpc)
+      try {
+        const res = await query.streamReceiverSenderCurrentFlow({
+          receiverAddr: receiver,
+          senderAddr: sender,
+          denom,
+        })
+        return res
+      } finally {
+        disconnect()
+      }
+    },
+    enabled,
+    refetchInterval: 12_000,
+  })
+}
+
+/**
+ * Convenience query for the chain's stream-module parameters (validator
+ * fee fraction, max flow-rate, etc.). Cached aggressively — params change
+ * via governance only.
+ */
+export function useStreamParams() {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['stream', 'params', endpoint.id],
+    queryFn: async () => {
+      const { query, disconnect } = await makeStreamClient(endpoint.rpc)
+      try {
+        const res = await query.params({})
+        return res.params
+      } finally {
+        disconnect()
+      }
+    },
+    staleTime: 5 * 60_000,
+    refetchInterval: false,
+  })
+}

@@ -2,6 +2,7 @@ import { type EncodeObject, type OfflineDirectSigner } from '@cosmjs/proto-signi
 import { SigningStargateClient, type StdFee } from '@cosmjs/stargate'
 
 import { type ChainEndpoint } from './chain'
+import { unificationRegistry } from './registry'
 
 // ---------------------------------------------------------------------------
 // Module note
@@ -80,6 +81,7 @@ export async function simulateGas(params: {
   const client = await SigningStargateClient.connectWithSigner(
     params.endpoint.rpc,
     params.signer,
+    { registry: unificationRegistry },
   )
   try {
     return await client.simulate(params.signerAddress, [...params.msgs], params.memo)

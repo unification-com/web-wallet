@@ -60,7 +60,32 @@ export default defineConfig(({ command, mode }) => {
       // ancestry instead of from web-wallet's own node_modules. Dedupe forces resolution
       // through this project's installed copy, preventing both "module not found" build
       // errors and the "two copies of react" runtime footgun.
-      dedupe: ['react', 'react-dom', '@tanstack/react-query'],
+      //
+      // `cosmjs-types` is critical to dedupe: fundjs-react ships its own bundled copy
+      // (16 MB on disk inside the linked dist) and Rollup would otherwise bundle it
+      // alongside the web-wallet's own copy — duplicating ~1.2 MB of generated proto
+      // bindings into the vendor chunk.
+      dedupe: [
+        'react',
+        'react-dom',
+        '@tanstack/react-query',
+        'cosmjs-types',
+        // fundjs-react has its own ../node_modules/@cosmjs copies (different
+        // patch versions or just hoisted independently); without dedupe we
+        // bundle TWO copies of @cosmjs/stargate, @cosmjs/proto-signing etc.
+        '@cosmjs/amino',
+        '@cosmjs/encoding',
+        '@cosmjs/math',
+        '@cosmjs/proto-signing',
+        '@cosmjs/stargate',
+        '@cosmjs/tendermint-rpc',
+        '@cosmjs/utils',
+        // NB: `@interchainjs/math` is NOT in this list — it's not installed in
+        // web-wallet's own node_modules, so deduping it forces Rollup to
+        // resolve to a missing path and the bundle emits a bare `import` that
+        // fails at runtime ("Relative references must start with…"). It's
+        // resolved through fundjs's node_modules and bundled into vendor-fundjs.
+      ],
     },
     optimizeDeps: {
       // Pre-bundle the linked fundjs-react so its imports get resolved through Vite's
@@ -70,6 +95,18 @@ export default defineConfig(({ command, mode }) => {
     build: {
       outDir: isWebBundle ? 'dist-web' : isDev ? 'dist-dev' : 'dist',
       emptyOutDir: true,
+      // The `link:`-installed `@unification-com/fundjs-react` symlinks to a
+      // location OUTSIDE `node_modules`, which the default commonjs include
+      // pattern misses — so its CJS `exports.Foo = …` named exports aren't
+      // recognised as ESM-style named exports during the Rollup pass and
+      // imports like `import { MsgCreateStream } from '…/tx'` fail with
+      // "not exported by". Widen the commonjs scanner to cover the linked
+      // dist as well. Drop once Stage 10 publishes fundjs-react to npm
+      // (then the linked path resolves through node_modules and the default
+      // include matches).
+      commonjsOptions: {
+        include: [/node_modules/, /fundjs-react/],
+      },
       // crxjs bundles popup.html (via manifest action.default_popup) automatically.
       // standalone.html is an extension page (not manifest-referenced), so we add it
       // to rollupOptions.input so Vite emits it alongside the popup. Web bundle mode
@@ -83,6 +120,21 @@ export default defineConfig(({ command, mode }) => {
         input,
         output: {
           manualChunks(id: string) {
+            // fundjs-react CHECKED FIRST — before the node_modules gate. The `link:`
+            // resolved path is `…/fundjs/packages/fundjs-react/dist/…` which
+            // does NOT contain `node_modules`, so the early-return below
+            // would otherwise skip it. Holds the Unification telescope-
+            // generated proto bindings for x/stream / x/wrkchain / x/beacon /
+            // x/enterprise — kept distinct from cosmjs so its weight is
+            // visible and so lazy stream/enterprise tabs can land their
+            // bindings in route-specific chunks instead of the eager bundle.
+            if (
+              id.includes('@unification-com/fundjs-react') ||
+              id.includes('packages/fundjs-react') ||
+              id.includes('@interchainjs')
+            ) {
+              return 'vendor-fundjs'
+            }
             // Only chunk node_modules — app code stays in the main bootstrap
             // chunk so a typical app-code release only invalidates ~15 kB.
             if (!id.includes('node_modules')) return undefined

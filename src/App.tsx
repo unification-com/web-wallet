@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import { ActiveDelegations } from '@/components/ActiveDelegations'
 import { Header } from '@/components/Header'
@@ -19,6 +19,17 @@ import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
 import { ThemeApplier } from '@/lib/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
+
+// Lazy-load the Streams tab so the popup boot path doesn't pull in
+// fundjs-react's query stack (QueryClientImpl + telescope-generated proto
+// query types) when the user has no streams to monitor. Drops the eager-
+// loaded vendor-cosmjs chunk size dramatically (~1.2 MB raw / ~170 kB
+// gzipped) — only paid when the Streams tab is opened. Same lazy treatment
+// becomes the default pattern for the M7 enterprise + M8 IBC tabs, both
+// of which pull additional custom-module proto bindings.
+const StreamsList = lazy(() =>
+  import('@/components/StreamsList').then((m) => ({ default: m.StreamsList })),
+)
 
 type Surface = 'popup' | 'standalone' | 'web'
 
@@ -77,7 +88,7 @@ export function App({ surface }: { surface: Surface }) {
   )
 }
 
-type UnlockedView = 'wallet' | 'staking' | 'gov' | 'history' | 'settings'
+type UnlockedView = 'wallet' | 'staking' | 'gov' | 'streams' | 'history' | 'settings'
 
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
@@ -156,6 +167,9 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         >
           <Trans>Governance</Trans>
         </ViewTab>
+        <ViewTab active={view === 'streams'} onClick={() => setView('streams')}>
+          <Trans>Streams</Trans>
+        </ViewTab>
         <ViewTab active={view === 'history'} onClick={() => setView('history')}>
           <Trans>History</Trans>
         </ViewTab>
@@ -185,6 +199,18 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         ) : (
           <ProposalList onSelect={(id) => setActiveProposalId(id)} />
         ))}
+
+      {view === 'streams' && (
+        <Suspense
+          fallback={
+            <p className="text-xs text-muted-foreground italic">
+              <Trans>Loading streams…</Trans>
+            </p>
+          }
+        >
+          <StreamsList />
+        </Suspense>
+      )}
 
       {view === 'history' && <TxHistory />}
     </main>
