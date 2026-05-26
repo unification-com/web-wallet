@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { ClaimHistoryPanel } from '@/components/ClaimHistoryPanel'
 import { RefreshButton } from '@/components/RefreshButton'
 import {
   CancelStreamModal,
@@ -166,6 +167,11 @@ export function StreamsList() {
                         <Trans>Claim</Trans>
                       </Button>
                     </div>
+                    <ClaimHistoryPanel
+                      sender={s.sender}
+                      receiver={address}
+                      perspective="incoming"
+                    />
                   </li>
                 )
               })}
@@ -206,6 +212,22 @@ export function StreamsList() {
               {outgoingStreams.map((s) => {
                 const flow = s.stream ? formatFlowRate(s.stream.flowRate) : null
                 const deposit = s.stream?.deposit.amount ?? '0'
+                // Live "flowing" amount = what's accrued for the receiver since
+                // last claim, ticking up as time passes. Mirror of the incoming
+                // row's Claimable. Capped at deposit (chain enforces).
+                const pending = claimableNow(s.stream)
+                const pendingFund = nundToFund(pending.toString())
+                // Live remaining = deposit minus pending accrual. Ticks DOWN
+                // visibly as the stream flows. On-chain the deposit only
+                // shrinks when receiver claims, so this is a projected view.
+                let remainingNund: bigint
+                try {
+                  remainingNund = BigInt(deposit) - pending
+                  if (remainingNund < 0n) remainingNund = 0n
+                } catch {
+                  remainingNund = 0n
+                }
+                const remainingFund = nundToFund(remainingNund.toString())
                 const cd = depositCountdown(s, now, 'outgoing')
                 const cancellable = s.stream?.cancellable ?? true
                 const denom = streamDenom(s)
@@ -226,16 +248,21 @@ export function StreamsList() {
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
-                          <Trans>Deposit</Trans>
+                          <Trans>Remaining</Trans>
                         </span>
                         <span className="font-mono font-medium">
-                          {nundToFund(deposit)} {denomLabel}
+                          {remainingFund} {denomLabel}
                         </span>
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-mono">
                       <span title={t`Flow rate`}>
                         {flow ? `${flow.amountFund} / ${flow.period}` : '—'}
+                      </span>
+                      <span
+                        title={t`Streamed to receiver since last claim — ticks live until they claim or the deposit drains.`}
+                      >
+                        <Trans>+{pendingFund} pending</Trans>
                       </span>
                       <span
                         className={cd.drained ? 'text-destructive' : undefined}
@@ -251,6 +278,11 @@ export function StreamsList() {
                           <Trans>non-cancel</Trans>
                         </span>
                       )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+                      <span title={t`Original deposit amount including the pending accrual.`}>
+                        <Trans>Deposit: {nundToFund(deposit)} {denomLabel}</Trans>
+                      </span>
                     </div>
                     <div className="flex gap-1 flex-wrap justify-end">
                       <Button
@@ -284,6 +316,11 @@ export function StreamsList() {
                         <Trans>Cancel</Trans>
                       </Button>
                     </div>
+                    <ClaimHistoryPanel
+                      sender={address}
+                      receiver={s.receiver}
+                      perspective="outgoing"
+                    />
                   </li>
                 )
               })}

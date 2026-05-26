@@ -130,6 +130,10 @@ msgstr "← Back to list"
 msgid "+{0} pending"
 msgstr "+{0} pending"
 
+#: src/components/StreamsList.tsx
+msgid "+{pendingFund} pending"
+msgstr "+{pendingFund} pending"
+
 #: src/components/StreamActionModals.tsx
 msgid "≈ {flowRate} nund/sec"
 msgstr "≈ {flowRate} nund/sec"
@@ -304,6 +308,11 @@ msgstr "Base type"
 msgid "Beacon ID"
 msgstr "Beacon ID"
 
+#. placeholder {0}: c.height.toLocaleString()
+#: src/components/ClaimHistoryPanel.tsx
+msgid "Block {0}"
+msgstr "Block {0}"
+
 #: src/lib/msgs/presenters.ts
 msgid "Block hash"
 msgstr "Block hash"
@@ -414,6 +423,10 @@ msgstr "Claim"
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
 msgstr "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
 
+#: src/components/ClaimHistoryPanel.tsx
+msgid "Claim history"
+msgstr "Claim history"
+
 #: src/components/ActiveDelegations.tsx
 msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
 msgstr "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
@@ -430,6 +443,10 @@ msgstr "Claimable"
 #: src/components/StreamActionModals.tsx
 msgid "Claimable: <0>{0}</0> {denomLabel}"
 msgstr "Claimable: <0>{0}</0> {denomLabel}"
+
+#: src/components/ClaimHistoryPanel.tsx
+msgid "Claimed"
+msgstr "Claimed"
 
 #: src/lib/msgs/presenters.ts
 msgid "Claimed stream"
@@ -652,7 +669,6 @@ msgstr "Denom"
 #: src/components/ProposalDetail.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
-#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Deposit"
 msgstr "Deposit"
@@ -664,6 +680,11 @@ msgstr "Deposit drains"
 #: src/components/ProposalDetail.tsx
 msgid "Deposit ends"
 msgstr "Deposit ends"
+
+#. placeholder {0}: nundToFund(deposit)
+#: src/components/StreamsList.tsx
+msgid "Deposit: {0} {denomLabel}"
+msgstr "Deposit: {0} {denomLabel}"
 
 #: src/lib/msgs/presenters.ts
 msgid "Deposited to proposal"
@@ -770,7 +791,9 @@ msgstr "Failed to load history: {0}"
 msgid "Failed to load proposals: {0}"
 msgstr "Failed to load proposals: {0}"
 
+#. placeholder {0}: String(error)
 #. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/ClaimHistoryPanel.tsx
 #: src/components/Validators.tsx
 msgid "Failed to load: {0}"
 msgstr "Failed to load: {0}"
@@ -1072,6 +1095,10 @@ msgstr "Load {0} more"
 msgid "Loaded: {fileName}"
 msgstr "Loaded: {fileName}"
 
+#: src/components/ClaimHistoryPanel.tsx
+msgid "Loading claim history…"
+msgstr "Loading claim history…"
+
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
@@ -1209,6 +1236,10 @@ msgstr "No active delegations. Pick a validator above to start earning rewards."
 msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
 
+#: src/components/ClaimHistoryPanel.tsx
+msgid "No claims yet."
+msgstr "No claims yet."
+
 #: src/components/VaultSetup.tsx
 msgid "No file selected"
 msgstr "No file selected"
@@ -1305,6 +1336,10 @@ msgstr "Operator"
 #: src/lib/msgs/presenters.ts
 msgid "Order ID"
 msgstr "Order ID"
+
+#: src/components/StreamsList.tsx
+msgid "Original deposit amount including the pending accrual."
+msgstr "Original deposit amount including the pending accrual."
 
 #: src/components/StreamsList.tsx
 msgid "Outgoing streams"
@@ -1464,6 +1499,7 @@ msgstr "Re-enter your wallet password to reveal the seed phrase."
 msgid "Receive"
 msgstr "Receive"
 
+#: src/components/ClaimHistoryPanel.tsx
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Received"
@@ -1551,6 +1587,10 @@ msgstr "Rejected"
 #: src/lib/msgs/presenters.ts
 msgid "Rejected eFUND purchase order"
 msgstr "Rejected eFUND purchase order"
+
+#: src/components/StreamsList.tsx
+msgid "Remaining"
+msgstr "Remaining"
 
 #: src/lib/msgs/presenters.ts
 msgid "Remaining capacity"
@@ -1804,6 +1844,10 @@ msgstr "stored vault is not valid JSON (corrupted storage)"
 #: src/components/StreamsList.tsx
 msgid "Stream is non-cancellable (eFUND-backed)."
 msgstr "Stream is non-cancellable (eFUND-backed)."
+
+#: src/components/StreamsList.tsx
+msgid "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."
+msgstr "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."
 
 #: src/App.tsx
 msgid "Streams"

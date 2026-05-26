@@ -1,6 +1,8 @@
 import {
   createProtobufRpcClient,
   QueryClient,
+  StargateClient,
+  type IndexedTx,
 } from '@cosmjs/stargate'
 import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useQuery } from '@tanstack/react-query'
@@ -240,6 +242,100 @@ export function useCurrentFlow(
     enabled,
     refetchInterval: 12_000,
   })
+}
+
+// ---------------------------------------------------------------------------
+// Claim history
+// ---------------------------------------------------------------------------
+
+/** Extracted attributes from a single `claim_stream` event. */
+export interface ClaimHistoryEntry {
+  hash: string
+  height: number
+  /** Tx-block time. Populated from `IndexedTx` when present; undefined for
+   * older RPCs that don't surface block time on tx_search results. */
+  timestamp?: Date
+  /** Amount the receiver received (after validator fee). */
+  amountReceivedNund: string
+  /** Validator's cut of the claim. */
+  validatorFeeNund: string
+  /** Total claimed before the validator-fee split. */
+  claimTotalNund: string
+  /** Coin denom (always nund on pre-vaxildan chains). */
+  denom: string
+}
+
+interface RawEventAttr {
+  key: string
+  value: string
+}
+interface RawEvent {
+  type: string
+  attributes: readonly RawEventAttr[]
+}
+
+function readAttr(event: RawEvent, key: string): string {
+  return event.attributes.find((a) => a.key === key)?.value ?? ''
+}
+
+/**
+ * Past `MsgClaimStream` txs against the given `(sender, receiver)` pair.
+ * Uses Tendermint `tx_search` with two indexed-attribute filters so the
+ * node only returns txs that touched this exact stream — no client-side
+ * filtering on the full address-level history.
+ *
+ * RPC tx-index pruning still applies (same caveat as the M4 wallet-wide
+ * history view) — public nodes typically prune older entries, so very-old
+ * claim history may not surface. Same M13 Phase 2 explorer-deep-link is
+ * the proper long-term fix.
+ */
+export function useClaimHistory(sender: string | null, receiver: string | null) {
+  const endpoint = useActiveEndpoint()
+  const enabled = !!sender && !!receiver
+  return useQuery({
+    queryKey: ['stream', 'claim-history', endpoint.id, sender, receiver],
+    queryFn: async (): Promise<ClaimHistoryEntry[]> => {
+      if (!enabled) return []
+      const client = await StargateClient.connect(endpoint.rpc)
+      try {
+        const txs = await client.searchTx([
+          { key: 'claim_stream.sender', value: sender },
+          { key: 'claim_stream.receiver', value: receiver },
+        ])
+        return txs.map((tx) => parseClaimTx(tx, sender, receiver))
+      } finally {
+        client.disconnect()
+      }
+    },
+    enabled,
+    // Claim history is event-driven (a new entry only on broadcast), so a
+    // long polling interval is fine. 60 s catches near-realtime updates
+    // without spamming the RPC.
+    refetchInterval: 60_000,
+  })
+}
+
+function parseClaimTx(tx: IndexedTx, sender: string, receiver: string): ClaimHistoryEntry {
+  // tx.events is the cosmjs-decoded events list — find the claim_stream
+  // event matching this (sender, receiver). For a single Claim Msg per
+  // Tx (our wallet always batches one stream Msg per Tx) there's exactly
+  // one such event.
+  const events = tx.events as RawEvent[]
+  const event =
+    events.find(
+      (e) =>
+        e.type === 'claim_stream' &&
+        readAttr(e, 'sender') === sender &&
+        readAttr(e, 'receiver') === receiver,
+    ) ?? null
+  return {
+    hash: tx.hash,
+    height: tx.height,
+    amountReceivedNund: event ? readAttr(event, 'amount_received') : '',
+    validatorFeeNund: event ? readAttr(event, 'validator_fee') : '',
+    claimTotalNund: event ? readAttr(event, 'claim_total') : '',
+    denom: event ? readAttr(event, 'denom') : 'nund',
+  }
 }
 
 /**
