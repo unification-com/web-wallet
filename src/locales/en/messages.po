@@ -359,6 +359,11 @@ msgstr "Cancellation disabled (eFUND-backed stream)"
 msgid "Cancelled"
 msgstr "Cancelled"
 
+#. placeholder {0}: c.lastCancelHeight.toLocaleString()
+#: src/components/StreamsList.tsx
+msgid "Cancelled at block {0}"
+msgstr "Cancelled at block {0}"
+
 #: src/lib/msgs/presenters.ts
 msgid "Cancelled proposal"
 msgstr "Cancelled proposal"
@@ -1130,6 +1135,7 @@ msgstr "Loaded: {fileName}"
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
 
+#: src/components/StreamsList.tsx
 #: src/components/TxHistory.tsx
 msgid "Loading history…"
 msgstr "Loading history…"
@@ -1266,6 +1272,10 @@ msgstr "No active delegations. Pick a validator above to start earning rewards."
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
+
+#: src/components/StreamsList.tsx
+msgid "No cancelled streams."
+msgstr "No cancelled streams."
 
 #: src/components/ClaimHistoryPanel.tsx
 #~ msgid "No claims yet."
@@ -1599,6 +1609,7 @@ msgid "Refresh"
 msgstr "Refresh"
 
 #: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Refunded"
 msgstr "Refunded"
@@ -1882,6 +1893,7 @@ msgid "stored vault is not valid JSON (corrupted storage)"
 msgstr "stored vault is not valid JSON (corrupted storage)"
 
 #: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
 msgid "Stream history"
 msgstr "Stream history"
 
@@ -1892,6 +1904,10 @@ msgstr "Stream is non-cancellable (eFUND-backed)."
 #: src/components/StreamLabel.tsx
 msgid "Stream label"
 msgstr "Stream label"
+
+#: src/components/StreamsList.tsx
+msgid "Stream was cancelled at this block."
+msgstr "Stream was cancelled at this block."
 
 #: src/components/StreamsList.tsx
 msgid "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."

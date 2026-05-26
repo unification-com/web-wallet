@@ -436,6 +436,98 @@ function makeStreamEvent(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Cancelled-streams archive
+// ---------------------------------------------------------------------------
+
+/**
+ * A stream that has been cancelled at some point — sourced from on-chain
+ * `cancel_stream` events. The active-stream query is the source of truth for
+ * currently-existing streams; consumers subtract active pairs from this set
+ * to derive the "cancelled but not re-created" archive.
+ */
+export interface CancelledStream {
+  sender: string
+  receiver: string
+  denom: string
+  /** Latest cancel event for this triple — newest block wins if the pair has
+   * been cancel-then-recreate-then-cancel'd multiple times. */
+  lastCancelHeight: number
+  /** Tx hash of the latest cancel — used for explorer links. */
+  lastCancelTxHash: string
+  /** Refund amount (nund) returned to the sender on that cancel. */
+  refundAmountNund: string
+}
+
+/**
+ * All `cancel_stream` events touching `address` as either sender or receiver.
+ * Grouped by `(sender, receiver, denom)` triple — multiple cancels of the
+ * same pair (cancel → recreate → cancel) collapse to the latest entry.
+ *
+ * Returns the full cancellation set; the UI is expected to subtract any
+ * currently-active streams (via {@link useIncomingStreams} /
+ * {@link useOutgoingStreams}) so re-created streams don't appear in both
+ * the active card AND the archive.
+ */
+export function useCancelledStreams(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  const enabled = !!address
+  return useQuery({
+    queryKey: ['stream', 'cancelled', endpoint.id, address],
+    queryFn: async (): Promise<CancelledStream[]> => {
+      if (!address) return []
+      const client = await StargateClient.connect(endpoint.rpc)
+      try {
+        const [asSender, asReceiver] = await Promise.all([
+          client.searchTx([{ key: 'cancel_stream.sender', value: address }]),
+          client.searchTx([{ key: 'cancel_stream.receiver', value: address }]),
+        ])
+        // Dedupe Txs by hash before parsing — both queries can return the
+        // same Tx if the address is somehow on both sides (shouldn't happen
+        // on x/stream but defensive).
+        const seenHashes = new Set<string>()
+        const allTxs: IndexedTx[] = []
+        for (const tx of [...asSender, ...asReceiver]) {
+          if (seenHashes.has(tx.hash)) continue
+          seenHashes.add(tx.hash)
+          allTxs.push(tx)
+        }
+        // Per (sender, receiver, denom) keep the LATEST cancel event by height.
+        const byKey = new Map<string, CancelledStream>()
+        for (const tx of allTxs) {
+          const events = tx.events as RawEvent[]
+          for (const e of events) {
+            if (e.type !== 'cancel_stream') continue
+            const sender = readAttr(e, 'sender')
+            const receiver = readAttr(e, 'receiver')
+            if (!sender || !receiver) continue
+            const refund = splitCoinAttr(readAttr(e, 'refund_amount'))
+            const key = `${sender}:${receiver}:${refund.denom}`
+            const existing = byKey.get(key)
+            if (existing && existing.lastCancelHeight >= tx.height) continue
+            byKey.set(key, {
+              sender,
+              receiver,
+              denom: refund.denom,
+              lastCancelHeight: tx.height,
+              lastCancelTxHash: tx.hash,
+              refundAmountNund: refund.amount,
+            })
+          }
+        }
+        return [...byKey.values()].sort(
+          (a, b) => b.lastCancelHeight - a.lastCancelHeight,
+        )
+      } finally {
+        client.disconnect()
+      }
+    },
+    enabled,
+    // Cancellation is rare + event-driven. 60 s polling is plenty.
+    refetchInterval: 60_000,
+  })
+}
+
 /**
  * Convenience query for the chain's stream-module parameters (validator
  * fee fraction, max flow-rate, etc.). Cached aggressively — params change

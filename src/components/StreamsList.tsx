@@ -22,8 +22,10 @@ import {
   formatFlowRate,
   sortStreams,
   streamDenom,
+  useCancelledStreams,
   useIncomingStreams,
   useOutgoingStreams,
+  type CancelledStream,
   type StreamResult,
 } from '@/lib/stream'
 import { formatRelativeDeadline, useTickingNow } from '@/lib/time'
@@ -66,6 +68,7 @@ export function StreamsList() {
   const { address } = useActiveSigner()
   const incoming = useIncomingStreams(address)
   const outgoing = useOutgoingStreams(address)
+  const cancelled = useCancelledStreams(address)
   const now = useTickingNow(1_000)
   const { t } = useLingui()
 
@@ -82,6 +85,15 @@ export function StreamsList() {
 
   const incomingStreams = sortStreams(incoming.data ?? [])
   const outgoingStreams = sortStreams(outgoing.data ?? [])
+
+  // Subtract any (sender, receiver, denom) triple that has a currently-active
+  // stream — re-creating a cancelled stream moves it back to active.
+  const activeKeys = new Set<string>()
+  for (const s of incomingStreams) activeKeys.add(`${s.sender}:${s.receiver}:${streamDenom(s)}`)
+  for (const s of outgoingStreams) activeKeys.add(`${s.sender}:${s.receiver}:${streamDenom(s)}`)
+  const cancelledStreams: CancelledStream[] = (cancelled.data ?? []).filter(
+    (c) => !activeKeys.has(`${c.sender}:${c.receiver}:${c.denom}`),
+  )
 
   return (
     <>
@@ -320,6 +332,71 @@ export function StreamsList() {
                       </Button>
                     </div>
                     <StreamHistoryPanel sender={address} receiver={s.receiver} />
+                  </li>
+                )
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+            <CardTitle className="text-sm">
+              <Trans>Stream history</Trans>
+            </CardTitle>
+            <RefreshButton queryKeys={[['stream', 'cancelled']]} />
+          </CardHeader>
+          <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+            {cancelled.isLoading && (
+              <p className="text-muted-foreground">
+                <Trans>Loading history…</Trans>
+              </p>
+            )}
+            {!cancelled.isLoading && cancelledStreams.length === 0 && (
+              <p className="text-muted-foreground italic">
+                <Trans>No cancelled streams.</Trans>
+              </p>
+            )}
+            <ul className="flex flex-col gap-2">
+              {cancelledStreams.map((c) => {
+                const isOutgoing = c.sender === address
+                const counterparty = isOutgoing ? c.receiver : c.sender
+                const denomLabel = c.denom === 'nund' ? 'FUND' : c.denom
+                return (
+                  <li
+                    key={`${c.sender}-${c.receiver}-${c.denom}`}
+                    className="flex flex-col gap-1 rounded border border-border p-2 opacity-90"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex flex-col min-w-0 gap-0.5">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          {isOutgoing ? <Trans>To</Trans> : <Trans>From</Trans>}
+                        </span>
+                        <StreamLabel
+                          sender={c.sender}
+                          receiver={c.receiver}
+                          denom={c.denom}
+                          counterparty={counterparty}
+                        />
+                      </span>
+                      <span className="flex flex-col items-end tabular-nums">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>Refunded</Trans>
+                        </span>
+                        <span className="font-mono font-medium">
+                          {nundToFund(c.refundAmountNund)} {denomLabel}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+                      <span
+                        className="px-1 rounded bg-destructive/15 text-destructive uppercase tracking-[0.06em]"
+                        title={t`Stream was cancelled at this block.`}
+                      >
+                        <Trans>Cancelled at block {c.lastCancelHeight.toLocaleString()}</Trans>
+                      </span>
+                    </div>
+                    <StreamHistoryPanel sender={c.sender} receiver={c.receiver} />
                   </li>
                 )
               })}
