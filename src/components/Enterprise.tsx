@@ -10,9 +10,9 @@ import {
   PurchaseOrderStatus,
   sortPurchaseOrders,
   statusLabel,
+  useEnterpriseAccount,
   useEnterpriseParams,
   useIsWhitelisted,
-  useLockedFund,
   usePurchaseOrders,
   type EnterpriseUndPurchaseOrder,
   type PurchaseOrderDecision,
@@ -44,7 +44,7 @@ export function Enterprise() {
   const { address } = useActiveSigner()
   const { t } = useLingui()
   const whitelisted = useIsWhitelisted(address)
-  const locked = useLockedFund(address)
+  const account = useEnterpriseAccount(address)
   const orders = usePurchaseOrders(address, PurchaseOrderStatus.STATUS_NIL)
   const params = useEnterpriseParams()
   const minAccepts = params.data?.minAccepts ?? null
@@ -86,7 +86,7 @@ export function Enterprise() {
           <CardTitle className="text-sm">
             <Trans>Enterprise eFUND</Trans>
           </CardTitle>
-          <RefreshButton queryKeys={[['enterprise']]} />
+          <RefreshButton queryKeys={[['enterprise', 'account']]} />
         </CardHeader>
         <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
           <p>
@@ -97,21 +97,25 @@ export function Enterprise() {
               chain fees.
             </Trans>
           </p>
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
-              <Trans>Locked balance</Trans>
-            </span>
-            <span className="font-mono font-medium tabular-nums">
-              {locked.isLoading ? (
-                <Trans>loading…</Trans>
-              ) : (
-                <>
-                  {nundToFund(locked.data?.amount ?? '0')}{' '}
-                  {locked.data?.denom === 'nund' ? 'FUND' : (locked.data?.denom ?? '')}
-                </>
-              )}
-            </span>
-          </div>
+          <EFundMetric
+            label={<Trans>Locked balance</Trans>}
+            coin={account.data?.lockedEfund}
+            loading={account.isLoading}
+            tooltip={t`Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees.`}
+          />
+          <EFundMetric
+            label={<Trans>Spent eFUND</Trans>}
+            coin={account.data?.spentEfund}
+            loading={account.isLoading}
+            tooltip={t`Running tally of eFUND consumed on chain fees since this account was first whitelisted.`}
+          />
+          <EFundMetric
+            label={<Trans>Total spendable on fees</Trans>}
+            coin={account.data?.spendable}
+            loading={account.isLoading}
+            tooltip={t`Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees.`}
+            emphasis
+          />
         </CardContent>
       </Card>
 
@@ -440,6 +444,48 @@ function FilterChip({ active, onClick, count, tone, children }: FilterChipProps)
       <span>{children}</span>
       <span className="tabular-nums">{count}</span>
     </button>
+  )
+}
+
+interface EFundMetricProps {
+  label: React.ReactNode
+  coin: { denom: string; amount: string } | undefined
+  loading: boolean
+  tooltip: string
+  /** Render the value heavier — used for the spendable summary row at the
+   * bottom of the eFUND card so the "what can I actually spend" line stands
+   * out from its individual-component metrics above. */
+  emphasis?: boolean
+}
+
+function EFundMetric({ label, coin, loading, tooltip, emphasis = false }: EFundMetricProps) {
+  const denomLabel = coin?.denom === 'nund' ? 'FUND' : (coin?.denom ?? '')
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-between',
+        emphasis && 'pt-1 mt-1 border-t border-border',
+      )}
+      title={tooltip}
+    >
+      <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+        {label}
+      </span>
+      <span
+        className={cn(
+          'font-mono tabular-nums',
+          emphasis ? 'font-semibold text-primary' : 'font-medium',
+        )}
+      >
+        {loading ? (
+          <Trans>loading…</Trans>
+        ) : (
+          <>
+            {nundToFund(coin?.amount ?? '0')} {denomLabel}
+          </>
+        )}
+      </span>
+    </div>
   )
 }
 

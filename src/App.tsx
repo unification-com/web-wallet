@@ -16,8 +16,10 @@ import { UnlockScreen } from '@/components/UnlockScreen'
 import { Validators } from '@/components/Validators'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
+import { useIsWhitelistedLite } from '@/lib/enterpriseWhitelist'
 import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
 import { ThemeApplier } from '@/lib/hooks/useTheme'
+import { useActiveSigner } from '@/lib/signer'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
 
@@ -107,8 +109,25 @@ type UnlockedView =
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
+  const { address } = useActiveSigner()
   const [view, setView] = useState<UnlockedView>('wallet')
   const [activeProposalId, setActiveProposalId] = useState<bigint | null>(null)
+
+  // Enterprise tab gate — only whitelisted addresses see the tab or can
+  // navigate to the Enterprise view. Uses the lightweight REST-based hook
+  // so the eager bundle doesn't pull the heavy fundjs-react enterprise
+  // query stack (that stays inside the lazy Enterprise chunk).
+  const isEnterpriseWhitelisted = useIsWhitelistedLite(address)
+  const canSeeEnterprise = isEnterpriseWhitelisted.data === true
+
+  // If the active account switches to one that isn't whitelisted while the
+  // Enterprise tab is open, kick back to Wallet so the user isn't stuck on
+  // a view they can no longer access.
+  useEffect(() => {
+    if (view === 'enterprise' && isEnterpriseWhitelisted.data === false) {
+      setView('wallet')
+    }
+  }, [view, isEnterpriseWhitelisted.data])
 
   // Resets the vault's idle-lock timer on user activity. Active only while
   // the unlocked shell is mounted (listeners added on unlock, removed on
@@ -198,9 +217,14 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         <ViewTab active={view === 'streams'} onClick={() => setView('streams')}>
           <Trans>Streams</Trans>
         </ViewTab>
-        <ViewTab active={view === 'enterprise'} onClick={() => setView('enterprise')}>
-          <Trans>Enterprise</Trans>
-        </ViewTab>
+        {canSeeEnterprise && (
+          <ViewTab
+            active={view === 'enterprise'}
+            onClick={() => setView('enterprise')}
+          >
+            <Trans>Enterprise</Trans>
+          </ViewTab>
+        )}
         <ViewTab active={view === 'history'} onClick={() => setView('history')}>
           <Trans>History</Trans>
         </ViewTab>
@@ -251,7 +275,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
           </Suspense>
         )}
 
-        {view === 'enterprise' && (
+        {view === 'enterprise' && canSeeEnterprise && (
           <Suspense
             fallback={
               <p className="text-xs text-muted-foreground italic">

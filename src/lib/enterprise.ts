@@ -6,6 +6,7 @@ import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useQuery } from '@tanstack/react-query'
 import {
   type EnterpriseUndPurchaseOrder,
+  type EnterpriseUserAccount,
   type PurchaseOrderDecision,
   PurchaseOrderStatus,
 } from '@unification-com/fundjs-react/mainchain/enterprise/v1/enterprise'
@@ -26,6 +27,7 @@ import { useActiveEndpoint } from './chain'
 // Re-export proto types so consumers don't reach into fundjs-react sub-paths.
 export {
   type EnterpriseUndPurchaseOrder,
+  type EnterpriseUserAccount,
   type PurchaseOrderDecision,
   PurchaseOrderStatus,
 }
@@ -94,6 +96,34 @@ export function useLockedFund(address: string | null) {
       }
     },
     enabled: !!address,
+    refetchInterval: 12_000,
+  })
+}
+
+/**
+ * Combined enterprise account view for `address`: locked eFUND + general
+ * supply (regular bank-module FUND) + spent eFUND tally + spendable total.
+ * Replaces calling `useLockedFund` + `useSpentEFUND` separately — the chain
+ * returns all four in one round-trip via the dedicated `EnterpriseAccount`
+ * query.
+ */
+export function useEnterpriseAccount(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['enterprise', 'account', endpoint.id, address],
+    queryFn: async (): Promise<EnterpriseUserAccount | null> => {
+      if (!address) return null
+      const { query, disconnect } = await makeEnterpriseClient(endpoint.rpc)
+      try {
+        const res = await query.enterpriseAccount({ address })
+        return res.account
+      } finally {
+        disconnect()
+      }
+    },
+    enabled: !!address,
+    // Spent eFUND ticks up every time the user pays a beacon / wrkchain fee
+    // — 12 s polling keeps the tally fresh without hammering the RPC.
     refetchInterval: 12_000,
   })
 }

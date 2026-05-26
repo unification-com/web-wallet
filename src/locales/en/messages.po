@@ -442,6 +442,10 @@ msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 
 #: src/components/Enterprise.tsx
+msgid "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
+msgstr "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
+
+#: src/components/Enterprise.tsx
 #~ msgid "Chain-side processing — admin actions don't appear in your tx history."
 #~ msgstr "Chain-side processing — admin actions don't appear in your tx history."
 
@@ -1835,6 +1839,10 @@ msgstr "Revoked fee allowance"
 msgid "RPC URL"
 msgstr "RPC URL"
 
+#: src/components/Enterprise.tsx
+msgid "Running tally of eFUND consumed on chain fees since this account was first whitelisted."
+msgstr "Running tally of eFUND consumed on chain fees since this account was first whitelisted."
+
 #: src/components/VaultEntryManager.tsx
 msgid "Save"
 msgstr "Save"
@@ -1982,6 +1990,10 @@ msgstr "simulation failed — the chain rejected the dry-run"
 msgid "Slow ({0})"
 msgstr "Slow ({0})"
 
+#: src/components/Enterprise.tsx
+msgid "Spent eFUND"
+msgstr "Spent eFUND"
+
 #: src/lib/msgs/presenters.ts
 msgid "Splits"
 msgstr "Splits"
@@ -2076,6 +2088,10 @@ msgstr "Submitted! Tx: <0>{txHash}</0>"
 #: src/lib/msgs/presenters.ts
 msgid "Submitter"
 msgstr "Submitter"
+
+#: src/components/Enterprise.tsx
+msgid "Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees."
+msgstr "Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees."
 
 #: src/components/AccountSwitcher.tsx
 msgid "Switch between accounts derived from your seeds or imported keys."
@@ -2212,6 +2228,10 @@ msgstr "Total moved"
 #: src/components/ActiveDelegations.tsx
 msgid "Total pending across all delegations: <0>{0}</0> FUND"
 msgstr "Total pending across all delegations: <0>{0}</0> FUND"
+
+#: src/components/Enterprise.tsx
+msgid "Total spendable on fees"
+msgstr "Total spendable on fees"
 
 #. placeholder {0}: result.code.toString()
 #. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
