@@ -6,6 +6,7 @@ import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useQuery } from '@tanstack/react-query'
 import {
   type EnterpriseUndPurchaseOrder,
+  type PurchaseOrderDecision,
   PurchaseOrderStatus,
 } from '@unification-com/fundjs-react/mainchain/enterprise/v1/enterprise'
 import { QueryClientImpl } from '@unification-com/fundjs-react/mainchain/enterprise/v1/query.rpc.Query'
@@ -23,7 +24,11 @@ import { useActiveEndpoint } from './chain'
 // ---------------------------------------------------------------------------
 
 // Re-export proto types so consumers don't reach into fundjs-react sub-paths.
-export { type EnterpriseUndPurchaseOrder, PurchaseOrderStatus }
+export {
+  type EnterpriseUndPurchaseOrder,
+  type PurchaseOrderDecision,
+  PurchaseOrderStatus,
+}
 
 async function makeEnterpriseClient(rpc: string): Promise<{
   query: QueryClientImpl

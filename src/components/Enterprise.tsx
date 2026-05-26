@@ -1,22 +1,25 @@
 import { Trans, useLingui } from '@lingui/react/macro'
+import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { RaisePurchaseOrderModal } from '@/components/RaisePurchaseOrderModal'
 import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useActiveEndpoint } from '@/lib/chain'
 import {
   PurchaseOrderStatus,
   sortPurchaseOrders,
   statusLabel,
+  useEnterpriseParams,
   useIsWhitelisted,
   useLockedFund,
   usePurchaseOrders,
   type EnterpriseUndPurchaseOrder,
+  type PurchaseOrderDecision,
 } from '@/lib/enterprise'
 import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
+import { cn } from '@/lib/utils'
 
 /**
  * Status-filter chip values. `'all'` shows every PO; the other four match
@@ -43,6 +46,8 @@ export function Enterprise() {
   const whitelisted = useIsWhitelisted(address)
   const locked = useLockedFund(address)
   const orders = usePurchaseOrders(address, PurchaseOrderStatus.STATUS_NIL)
+  const params = useEnterpriseParams()
+  const minAccepts = params.data?.minAccepts ?? null
   const [raiseOpen, setRaiseOpen] = useState(false)
   const [filter, setFilter] = useState<StatusFilter>('all')
 
@@ -218,7 +223,12 @@ export function Enterprise() {
           )}
           <ul className="flex flex-col gap-2">
             {filteredOrders.map((po) => (
-              <PurchaseOrderRow key={po.id.toString()} po={po} t={t} />
+              <PurchaseOrderRow
+                key={po.id.toString()}
+                po={po}
+                t={t}
+                {...(minAccepts !== null ? { minAccepts } : {})}
+              />
             ))}
           </ul>
         </CardContent>
@@ -232,15 +242,28 @@ export function Enterprise() {
 interface PurchaseOrderRowProps {
   po: EnterpriseUndPurchaseOrder
   t: ReturnType<typeof useLingui>['t']
+  /** From `Params.minAccepts` — the quorum threshold of signer accepts needed
+   * before the chain processes the PO. Optional because params haven't always
+   * loaded by the time the first PO renders. */
+  minAccepts?: bigint
 }
 
-function PurchaseOrderRow({ po }: PurchaseOrderRowProps) {
-  const endpoint = useActiveEndpoint()
+function PurchaseOrderRow({ po, minAccepts }: PurchaseOrderRowProps) {
+  const [expanded, setExpanded] = useState(false)
   const status = statusLabel(po.status)
   const denomLabel = po.amount.denom === 'nund' ? 'FUND' : po.amount.denom
 
-  // raise_time is unix seconds. Convert to a JS Date for locale formatting.
+  // raise_time + completion_time are Unix seconds. Convert to JS Date for locale formatting.
   const raisedAt = po.raiseTime > 0n ? new Date(Number(po.raiseTime) * 1000) : null
+  const completedAt =
+    po.completionTime > 0n ? new Date(Number(po.completionTime) * 1000) : null
+
+  const accepts = po.decisions.filter(
+    (d) => d.decision === PurchaseOrderStatus.STATUS_ACCEPTED,
+  ).length
+  const rejects = po.decisions.filter(
+    (d) => d.decision === PurchaseOrderStatus.STATUS_REJECTED,
+  ).length
 
   return (
     <li className="flex flex-col gap-1 rounded border border-border p-2">
@@ -260,11 +283,90 @@ function PurchaseOrderRow({ po }: PurchaseOrderRowProps) {
           </span>
         </span>
       </div>
-      {endpoint.txExplorerBase && (
-        <span className="text-[10px] text-muted-foreground">
-          <Trans>Chain-side processing — admin actions don&apos;t appear in your tx history.</Trans>
+      <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+        <span>
+          <Trans>
+            {accepts} ✓ / {rejects} ✗
+            {minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`}
+          </Trans>
         </span>
+        <button
+          type="button"
+          onClick={() => setExpanded((o) => !o)}
+          aria-expanded={expanded}
+          className="flex items-center gap-1 hover:text-foreground transition-colors uppercase tracking-[0.06em]"
+        >
+          <Trans>Details</Trans>
+          <ChevronDown
+            aria-hidden
+            className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')}
+          />
+        </button>
+      </div>
+      {expanded && (
+        <div className="flex flex-col gap-1 rounded border border-border bg-surface-sunk p-2 text-[11px]">
+          {completedAt && (
+            <div className="flex items-center justify-between gap-2 font-mono">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                <Trans>Completed</Trans>
+              </span>
+              <span>{completedAt.toLocaleString()}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2 font-mono">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+              <Trans>Signer decisions</Trans>
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {po.decisions.length === 0 ? (
+                <Trans>none yet</Trans>
+              ) : (
+                <Trans>{po.decisions.length.toString()} recorded</Trans>
+              )}
+            </span>
+          </div>
+          {po.decisions.length > 0 && (
+            <ul className="flex flex-col gap-1">
+              {[...po.decisions]
+                .sort((a, b) => Number(a.decisionTime - b.decisionTime))
+                .map((d) => (
+                  <DecisionRow
+                    key={`${d.signer}-${d.decisionTime.toString()}`}
+                    decision={d}
+                  />
+                ))}
+            </ul>
+          )}
+        </div>
       )}
+    </li>
+  )
+}
+
+function DecisionRow({ decision }: { decision: PurchaseOrderDecision }) {
+  const isAccept = decision.decision === PurchaseOrderStatus.STATUS_ACCEPTED
+  const decisionAt =
+    decision.decisionTime > 0n ? new Date(Number(decision.decisionTime) * 1000) : null
+  return (
+    <li className="flex items-center justify-between gap-2 font-mono">
+      <span className="flex flex-col min-w-0">
+        <span
+          className={cn(
+            'px-1 rounded text-[9px] font-semibold uppercase tracking-[0.06em] inline-flex w-fit',
+            isAccept
+              ? 'bg-success/15 text-success'
+              : 'bg-destructive/15 text-destructive',
+          )}
+        >
+          {isAccept ? <Trans>Accept</Trans> : <Trans>Reject</Trans>}
+        </span>
+        <span className="truncate text-[10px] text-muted-foreground" title={decision.signer}>
+          {decision.signer}
+        </span>
+      </span>
+      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+        {decisionAt ? decisionAt.toLocaleString() : '—'}
+      </span>
     </li>
   )
 }

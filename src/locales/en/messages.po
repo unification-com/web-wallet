@@ -107,10 +107,20 @@ msgstr "{0} nund/gas — chain-registry \"low\""
 msgid "{0} of {1}"
 msgstr "{0} of {1}"
 
+#. placeholder {0}: po.decisions.length.toString()
+#: src/components/Enterprise.tsx
+msgid "{0} recorded"
+msgstr "{0} recorded"
+
 #. placeholder {0}: all.length.toString()
 #: src/components/TxHistory.tsx
 msgid "{0} txs"
 msgstr "{0} txs"
+
+#. placeholder {0}: minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`
+#: src/components/Enterprise.tsx
+msgid "{accepts} ✓ / {rejects} ✗{0}"
+msgstr "{accepts} ✓ / {rejects} ✗{0}"
 
 #: src/lib/msgs/presenters.ts
 msgid "{module}: {short}"
@@ -171,6 +181,10 @@ msgstr "Abstain"
 #: src/lib/msgs/presenters.ts
 msgid "ABSTAIN"
 msgstr "ABSTAIN"
+
+#: src/components/Enterprise.tsx
+msgid "Accept"
+msgstr "Accept"
 
 #: src/components/Enterprise.tsx
 msgid "Accepted"
@@ -428,8 +442,8 @@ msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 
 #: src/components/Enterprise.tsx
-msgid "Chain-side processing — admin actions don't appear in your tx history."
-msgstr "Chain-side processing — admin actions don't appear in your tx history."
+#~ msgid "Chain-side processing — admin actions don't appear in your tx history."
+#~ msgstr "Chain-side processing — admin actions don't appear in your tx history."
 
 #: src/components/StreamActionModals.tsx
 msgid "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
@@ -743,6 +757,10 @@ msgstr "destination locked until completion"
 #: src/components/StakingActionModals.tsx
 msgid "Destination validator"
 msgstr "Destination validator"
+
+#: src/components/Enterprise.tsx
+msgid "Details"
+msgstr "Details"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Do not share. Do not screenshot. Anyone with this private key can spend funds held at this address."
@@ -1390,6 +1408,10 @@ msgstr "No with veto"
 msgid "non-cancel"
 msgstr "non-cancel"
 
+#: src/components/Enterprise.tsx
+msgid "none yet"
+msgstr "none yet"
+
 #. placeholder {0}: tiers.average.toString()
 #: src/components/GasAccordion.tsx
 msgid "Normal ({0})"
@@ -1708,6 +1730,10 @@ msgid "Registered wrkchain"
 msgstr "Registered wrkchain"
 
 #: src/components/Enterprise.tsx
+msgid "Reject"
+msgstr "Reject"
+
+#: src/components/Enterprise.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
 msgid "Rejected"
@@ -1936,6 +1962,10 @@ msgstr "Showing txs indexed by this RPC. Public nodes typically prune older entr
 #: src/lib/msgs/presenters.ts
 msgid "Signer"
 msgstr "Signer"
+
+#: src/components/Enterprise.tsx
+msgid "Signer decisions"
+msgstr "Signer decisions"
 
 #. placeholder {0}: simulated.toString()
 #. placeholder {1}: recommendedGas(simulated).toString()
