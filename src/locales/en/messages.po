@@ -63,6 +63,11 @@ msgstr "{0} — private key"
 msgid "{0} — seed phrase"
 msgstr "{0} — seed phrase"
 
+#. placeholder {0}: (watched.memo ?? '').length
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "{0} / 100"
+msgstr "{0} / 100"
+
 #. placeholder {0}: seed.accounts.length
 #. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
 #: src/components/VaultEntryManager.tsx
@@ -167,6 +172,10 @@ msgstr "Abstain"
 msgid "ABSTAIN"
 msgstr "ABSTAIN"
 
+#: src/components/Enterprise.tsx
+msgid "Accepted"
+msgstr "Accepted"
+
 #: src/lib/msgs/presenters.ts
 msgid "Accepted eFUND purchase order"
 msgstr "Accepted eFUND purchase order"
@@ -259,9 +268,14 @@ msgid "Amount"
 msgstr "Amount"
 
 #: src/components/DelegateModal.tsx
+#: src/components/RaisePurchaseOrderModal.tsx
 #: src/components/Send.tsx
 msgid "Amount (FUND)"
 msgstr "Amount (FUND)"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Amount must be a positive number."
+msgstr "Amount must be a positive number."
 
 #: src/components/StakingActionModals.tsx
 msgid "Amount to redelegate (FUND)"
@@ -412,6 +426,10 @@ msgstr "Chain ID"
 msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
 
+#: src/components/Enterprise.tsx
+msgid "Chain-side processing — admin actions don't appear in your tx history."
+msgstr "Chain-side processing — admin actions don't appear in your tx history."
+
 #: src/components/StreamActionModals.tsx
 msgid "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
 msgstr "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
@@ -423,6 +441,10 @@ msgstr "Change vote"
 #: src/lib/msgs/presenters.ts
 msgid "Channel"
 msgstr "Channel"
+
+#: src/components/Enterprise.tsx
+msgid "Checking whitelist…"
+msgstr "Checking whitelist…"
 
 #: src/components/VaultSetup.tsx
 msgid "Choose keystore file…"
@@ -437,10 +459,6 @@ msgstr "Claim"
 #: src/components/StakingActionModals.tsx
 msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
 msgstr "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
-
-#: src/components/ClaimHistoryPanel.tsx
-#~ msgid "Claim history"
-#~ msgstr "Claim history"
 
 #: src/components/ActiveDelegations.tsx
 msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
@@ -458,10 +476,6 @@ msgstr "Claimable"
 #: src/components/StreamActionModals.tsx
 msgid "Claimable: <0>{0}</0> {denomLabel}"
 msgstr "Claimable: <0>{0}</0> {denomLabel}"
-
-#: src/components/ClaimHistoryPanel.tsx
-#~ msgid "Claimed"
-#~ msgstr "Claimed"
 
 #: src/lib/msgs/presenters.ts
 msgid "Claimed stream"
@@ -486,6 +500,10 @@ msgstr "Closed"
 #: src/components/TxRow.tsx
 msgid "Code"
 msgstr "Code"
+
+#: src/components/Enterprise.tsx
+msgid "Completed"
+msgstr "Completed"
 
 #. placeholder {0}: rel.label
 #: src/components/InFlightQueues.tsx
@@ -768,6 +786,18 @@ msgstr "End time"
 #: src/lib/vault/store.ts
 msgid "endpoint {id} not found"
 msgstr "endpoint {id} not found"
+
+#: src/App.tsx
+msgid "Enterprise"
+msgstr "Enterprise"
+
+#: src/components/Enterprise.tsx
+msgid "Enterprise eFUND"
+msgstr "Enterprise eFUND"
+
+#: src/components/Enterprise.tsx
+msgid "Enterprise members raise purchase orders for eFUND — a locked balance the chain mints to pay BEACON / WRKCHAIN / stream creation fees. eFUND can't be transferred or used outside chain fees."
+msgstr "Enterprise members raise purchase orders for eFUND — a locked balance the chain mints to pay BEACON / WRKCHAIN / stream creation fees. eFUND can't be transferred or used outside chain fees."
 
 #: src/components/GasAccordion.tsx
 msgid "Estimate from chain"
@@ -1094,6 +1124,10 @@ msgstr "Insufficient balance — delegate would exceed available funds plus fee.
 msgid "invalid BIP39 mnemonic (failed checksum or unknown word)"
 msgstr "invalid BIP39 mnemonic (failed checksum or unknown word)"
 
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Invoice #12345 — server costs"
+msgstr "Invoice #12345 — server costs"
+
 #: src/components/Validators.tsx
 msgid "JAILED"
 msgstr "JAILED"
@@ -1127,13 +1161,13 @@ msgstr "Load {0} more"
 msgid "Loaded: {fileName}"
 msgstr "Loaded: {fileName}"
 
-#: src/components/ClaimHistoryPanel.tsx
-#~ msgid "Loading claim history…"
-#~ msgstr "Loading claim history…"
-
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
+
+#: src/App.tsx
+msgid "Loading enterprise…"
+msgstr "Loading enterprise…"
 
 #: src/components/StreamsList.tsx
 #: src/components/TxHistory.tsx
@@ -1148,6 +1182,10 @@ msgstr "Loading proposal…"
 msgid "Loading proposals…"
 msgstr "Loading proposals…"
 
+#: src/components/Enterprise.tsx
+msgid "Loading purchase orders…"
+msgstr "Loading purchase orders…"
+
 #: src/components/StreamHistoryPanel.tsx
 msgid "Loading stream events…"
 msgstr "Loading stream events…"
@@ -1161,6 +1199,10 @@ msgstr "Loading streams…"
 msgid "Loading validators…"
 msgstr "Loading validators…"
 
+#: src/components/Enterprise.tsx
+msgid "loading…"
+msgstr "loading…"
+
 #: src/components/RevealSecretDialog.tsx
 msgid "Loading…"
 msgstr "Loading…"
@@ -1168,6 +1210,10 @@ msgstr "Loading…"
 #: src/components/Header.tsx
 msgid "Lock wallet"
 msgstr "Lock wallet"
+
+#: src/components/Enterprise.tsx
+msgid "Locked balance"
+msgstr "Locked balance"
 
 #: src/components/AppearanceSettings.tsx
 msgid "Mainframe"
@@ -1277,10 +1323,6 @@ msgstr "no active signer — unlock the vault and select an account"
 msgid "No cancelled streams."
 msgstr "No cancelled streams."
 
-#: src/components/ClaimHistoryPanel.tsx
-#~ msgid "No claims yet."
-#~ msgstr "No claims yet."
-
 #: src/components/StreamHistoryPanel.tsx
 msgid "No events yet."
 msgstr "No events yet."
@@ -1305,6 +1347,10 @@ msgstr "No outgoing streams. Use Create to open one."
 #: src/components/ProposalList.tsx
 msgid "No proposals match this filter."
 msgstr "No proposals match this filter."
+
+#: src/components/Enterprise.tsx
+msgid "No purchase orders yet."
+msgstr "No purchase orders yet."
 
 #: src/components/ActiveDelegations.tsx
 msgid "No rewards to withdraw from this validator yet."
@@ -1462,6 +1508,11 @@ msgstr "Periods"
 msgid "Pick a start"
 msgstr "Pick a start"
 
+#. placeholder {0}: po.id.toString()
+#: src/components/Enterprise.tsx
+msgid "PO #{0}"
+msgstr "PO #{0}"
+
 #: src/components/DelegateModal.tsx
 msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
 msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
@@ -1486,6 +1537,10 @@ msgstr "private key must be 64 hex characters (32 bytes); 0x prefix optional"
 msgid "Processed eFUND purchase order"
 msgstr "Processed eFUND purchase order"
 
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Proof of purchase / memo (max 100 chars)"
+msgstr "Proof of purchase / memo (max 100 chars)"
+
 #: src/lib/msgs/presenters.ts
 msgid "Proposal"
 msgstr "Proposal"
@@ -1502,6 +1557,10 @@ msgstr "Proposer"
 #: src/components/StreamActionModals.tsx
 msgid "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
 msgstr "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
+
+#: src/components/Enterprise.tsx
+msgid "Purchase order history"
+msgstr "Purchase order history"
 
 #: src/lib/msgs/presenters.ts
 msgid "Purchased"
@@ -1522,6 +1581,23 @@ msgstr "Purchaser"
 #: src/components/ProposalDetail.tsx
 msgid "Quorum · In progress"
 msgstr "Quorum · In progress"
+
+#: src/components/Enterprise.tsx
+msgid "Raise a purchase order"
+msgstr "Raise a purchase order"
+
+#: src/components/Enterprise.tsx
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Raise PO"
+msgstr "Raise PO"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Raise purchase order"
+msgstr "Raise purchase order"
+
+#: src/components/Enterprise.tsx
+msgid "Raised"
+msgstr "Raised"
 
 #: src/lib/msgs/presenters.ts
 msgid "Raised eFUND purchase order"
@@ -1626,6 +1702,7 @@ msgstr "Registered beacon"
 msgid "Registered wrkchain"
 msgstr "Registered wrkchain"
 
+#: src/components/Enterprise.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
 msgid "Rejected"
@@ -1937,6 +2014,10 @@ msgstr "Strong rejection — if more than 33.4% veto, proposal is rejected and d
 msgid "stronger"
 msgstr "stronger"
 
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Submit a PO for the enterprise admin to process. On acceptance the chain mints the equivalent in eFUND into your enterprise account — locked-balance that can pay chain fees but cannot be transferred."
+msgstr "Submit a PO for the enterprise admin to process. On acceptance the chain mints the equivalent in eFUND into your enterprise account — locked-balance that can pay chain fees but cannot be transferred."
+
 #: src/lib/msgs/presenters.ts
 msgid "Submit time"
 msgstr "Submit time"
@@ -2008,6 +2089,14 @@ msgstr "Theme palette"
 #: src/components/UnlockScreen.tsx
 msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
 msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
+
+#: src/components/Enterprise.tsx
+msgid "This account is whitelisted to raise enterprise POs."
+msgstr "This account is whitelisted to raise enterprise POs."
+
+#: src/components/Enterprise.tsx
+msgid "This account isn't on the enterprise whitelist. POs can only be raised by approved enterprise members. Contact an administrator to be added."
+msgstr "This account isn't on the enterprise whitelist. POs can only be raised by approved enterprise members. Contact an administrator to be added."
 
 #. placeholder {0}: match.containerLabel
 #. placeholder {1}: match.accountLabel ? ` / ${match.accountLabel}` : ''
@@ -2133,6 +2222,7 @@ msgstr "Unification Wallet"
 msgid "Unjailed validator"
 msgstr "Unjailed validator"
 
+#: src/components/Enterprise.tsx
 #: src/components/ProposalStatusBadge.tsx
 msgid "Unknown"
 msgstr "Unknown"

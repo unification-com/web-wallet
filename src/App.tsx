@@ -21,15 +21,15 @@ import { ThemeApplier } from '@/lib/hooks/useTheme'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
 
-// Lazy-load the Streams tab so the popup boot path doesn't pull in
-// fundjs-react's query stack (QueryClientImpl + telescope-generated proto
-// query types) when the user has no streams to monitor. Drops the eager-
-// loaded vendor-cosmjs chunk size dramatically (~1.2 MB raw / ~170 kB
-// gzipped) — only paid when the Streams tab is opened. Same lazy treatment
-// becomes the default pattern for the M7 enterprise + M8 IBC tabs, both
-// of which pull additional custom-module proto bindings.
+// Lazy-load the Streams + Enterprise tabs so the popup boot path doesn't
+// pull in fundjs-react's per-module query stacks (QueryClientImpl +
+// telescope-generated proto query types) when the user isn't using them.
+// Only paid when the tab is opened.
 const StreamsList = lazy(() =>
   import('@/components/StreamsList').then((m) => ({ default: m.StreamsList })),
+)
+const Enterprise = lazy(() =>
+  import('@/components/Enterprise').then((m) => ({ default: m.Enterprise })),
 )
 
 type Surface = 'popup' | 'standalone' | 'web'
@@ -95,7 +95,14 @@ export function App({ surface }: { surface: Surface }) {
   )
 }
 
-type UnlockedView = 'wallet' | 'staking' | 'gov' | 'streams' | 'history' | 'settings'
+type UnlockedView =
+  | 'wallet'
+  | 'staking'
+  | 'gov'
+  | 'streams'
+  | 'enterprise'
+  | 'history'
+  | 'settings'
 
 function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
@@ -191,6 +198,9 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         <ViewTab active={view === 'streams'} onClick={() => setView('streams')}>
           <Trans>Streams</Trans>
         </ViewTab>
+        <ViewTab active={view === 'enterprise'} onClick={() => setView('enterprise')}>
+          <Trans>Enterprise</Trans>
+        </ViewTab>
         <ViewTab active={view === 'history'} onClick={() => setView('history')}>
           <Trans>History</Trans>
         </ViewTab>
@@ -238,6 +248,18 @@ function UnlockedShell({ surface }: { surface: Surface }) {
             }
           >
             <StreamsList />
+          </Suspense>
+        )}
+
+        {view === 'enterprise' && (
+          <Suspense
+            fallback={
+              <p className="text-xs text-muted-foreground italic">
+                <Trans>Loading enterprise…</Trans>
+              </p>
+            }
+          >
+            <Enterprise />
           </Suspense>
         )}
 

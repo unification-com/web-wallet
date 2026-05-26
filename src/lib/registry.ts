@@ -1,5 +1,6 @@
 import { type GeneratedType, Registry } from '@cosmjs/proto-signing'
 import { defaultRegistryTypes } from '@cosmjs/stargate'
+import { MsgUndPurchaseOrder } from '@unification-com/fundjs-react/mainchain/enterprise/v1/tx'
 import {
   MsgCancelStream,
   MsgClaimStream,
@@ -34,11 +35,15 @@ import {
 // ---------------------------------------------------------------------------
 
 const unificationRegistryTypes: readonly [string, GeneratedType][] = [
+  // x/stream
   ['/mainchain.stream.v1.MsgCreateStream', MsgCreateStream],
   ['/mainchain.stream.v1.MsgClaimStream', MsgClaimStream],
   ['/mainchain.stream.v1.MsgTopUpDeposit', MsgTopUpDeposit],
   ['/mainchain.stream.v1.MsgUpdateFlowRate', MsgUpdateFlowRate],
   ['/mainchain.stream.v1.MsgCancelStream', MsgCancelStream],
+  // x/enterprise — purchaser-side only (admin Msgs intentionally excluded;
+  // see M7 tracker's "out-of-scope" section).
+  ['/mainchain.enterprise.v1.MsgUndPurchaseOrder', MsgUndPurchaseOrder],
 ]
 
 /**
