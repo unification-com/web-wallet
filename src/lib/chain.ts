@@ -24,6 +24,19 @@ export interface ChainEndpoint {
    * must include any required path segment (e.g. `…/tx/`).
    */
   txExplorerBase?: string
+  /**
+   * Optional explorer base URL for account-page deep-links. When set, the
+   * shared `<AddressLink>` primitive turns `und1…` bech32 strings into
+   * clickable links. The base is appended verbatim, so include the trailing
+   * path segment (e.g. `…/account/`).
+   */
+  accountExplorerBase?: string
+  /**
+   * Optional explorer base URL for validator-page deep-links. When set,
+   * `<AddressLink kind="validator">` turns `undvaloper1…` strings into
+   * clickable links. The base is appended verbatim (e.g. `…/staking/`).
+   */
+  validatorExplorerBase?: string
 }
 
 const BUILT_IN: Record<string, ChainEndpoint> = {
@@ -34,6 +47,8 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rest: 'https://rest.unification.io',
     source: 'built-in',
     txExplorerBase: 'https://explorer.unification.io/u/tx/',
+    accountExplorerBase: 'https://explorer.unification.io/u/account/',
+    validatorExplorerBase: 'https://explorer.unification.io/u/staking/',
   },
   testnet: {
     id: 'testnet',
@@ -42,6 +57,8 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
     rest: 'https://rest-testnet.unification.io',
     source: 'built-in',
     txExplorerBase: 'https://explorer-testnet.unification.io/u/tx/',
+    accountExplorerBase: 'https://explorer-testnet.unification.io/u/account/',
+    validatorExplorerBase: 'https://explorer-testnet.unification.io/u/staking/',
   },
   devnet: {
     id: 'devnet',
@@ -63,6 +80,26 @@ export function txExplorerUrl(endpoint: ChainEndpoint, hash: string): string | n
   return `${endpoint.txExplorerBase}${hash.toUpperCase()}`
 }
 
+/**
+ * Build the explorer-link URL for an account (`und1…`) on the active
+ * endpoint. Returns null when no `accountExplorerBase` is configured;
+ * `<AddressLink>` falls back to rendering plain monospace text in that case.
+ */
+export function accountExplorerUrl(endpoint: ChainEndpoint, address: string): string | null {
+  if (!endpoint.accountExplorerBase) return null
+  return `${endpoint.accountExplorerBase}${address}`
+}
+
+/**
+ * Build the explorer-link URL for a validator (`undvaloper1…`) on the
+ * active endpoint. Returns null when no `validatorExplorerBase` is
+ * configured.
+ */
+export function validatorExplorerUrl(endpoint: ChainEndpoint, valoper: string): string | null {
+  if (!endpoint.validatorExplorerBase) return null
+  return `${endpoint.validatorExplorerBase}${valoper}`
+}
+
 /** Look up a built-in endpoint by id. Returns null for unknown ids. */
 export function getBuiltInEndpoint(id: string): ChainEndpoint | null {
   return BUILT_IN[id] ?? null
@@ -82,6 +119,8 @@ export function customToChainEndpoint(c: CustomEndpoint): ChainEndpoint {
     rest: c.rest ?? '',
     source: 'custom',
     ...(c.txExplorerBase ? { txExplorerBase: c.txExplorerBase } : {}),
+    ...(c.accountExplorerBase ? { accountExplorerBase: c.accountExplorerBase } : {}),
+    ...(c.validatorExplorerBase ? { validatorExplorerBase: c.validatorExplorerBase } : {}),
   }
 }
 

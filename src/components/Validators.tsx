@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useMemo, useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { DelegateModal } from '@/components/DelegateModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -128,9 +129,11 @@ export function Validators() {
                         </span>
                       )}
                     </span>
-                    <span className="text-[10px] text-muted-foreground font-mono truncate">
-                      {v.operatorAddress}
-                    </span>
+                    <AddressLink
+                      address={v.operatorAddress}
+                      kind="validator"
+                      className="text-[10px] text-muted-foreground truncate"
+                    />
                   </span>
                   <span className="flex flex-col items-end text-[10px]">
                     {active ? (

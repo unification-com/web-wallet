@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { ArrowDownLeft, ArrowUpRight, ChevronDown, ChevronRight, ExternalLink, Info } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import {
   presentMsg,
@@ -191,11 +192,25 @@ function PresenterItemList({ items }: { items: readonly PresenterItem[] }) {
   )
 }
 
+// Native Unification bech32 — covers both account (`und1…`) and validator
+// (`undvaloper1…`) prefixes. Foreign-chain bech32 (cosmos1…, osmo1…) is
+// intentionally NOT matched here; AddressLink would render those as plain
+// text since the Unification explorer has no page for them. IBC presenters
+// that surface foreign addresses fall through to the default mono-text path.
+const NATIVE_BECH32 = /^und(valoper)?1[a-z0-9]{38,58}$/
+
 function PresenterItemRow({ item }: { item: PresenterItem }) {
+  const isNativeAddress = item.mono && NATIVE_BECH32.test(item.value)
   return (
     <>
       <dt className="text-muted-foreground">{item.label}</dt>
-      <dd className={`break-all ${item.mono ? 'font-mono' : ''}`}>{item.value}</dd>
+      <dd className={`break-all ${item.mono ? 'font-mono' : ''}`}>
+        {isNativeAddress ? (
+          <AddressLink address={item.value} truncate={false} />
+        ) : (
+          item.value
+        )}
+      </dd>
     </>
   )
 }

@@ -2,6 +2,7 @@ import { useLingui } from '@lingui/react/macro'
 import { Check, Pencil, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useVaultStore } from '@/lib/vault'
@@ -119,9 +120,7 @@ export function StreamLabel({
           {stored}
         </span>
       ) : (
-        <span className="font-mono text-[11px] truncate" title={counterparty}>
-          {counterparty}
-        </span>
+        <AddressLink address={counterparty} className="text-[11px] truncate" />
       )}
       <button
         type="button"

@@ -70,6 +70,19 @@ export const CustomEndpointSchema = z.object({
    * append the upper-case hash to build the final URL.
    */
   txExplorerBase: z.string().url().optional(),
+  /**
+   * Optional explorer base URL for account-page deep-links — e.g.
+   * `https://example.com/account/`. The address-link primitive appends the
+   * bech32 verbatim. Address-link sites fall back to plain text when absent.
+   */
+  accountExplorerBase: z.string().url().optional(),
+  /**
+   * Optional explorer base URL for validator-page deep-links — e.g.
+   * `https://example.com/staking/`. The address-link primitive appends the
+   * `undvaloper1…` bech32 verbatim. Address-link sites fall back to plain
+   * text when absent.
+   */
+  validatorExplorerBase: z.string().url().optional(),
   createdAt: z.number().int(),
 })
 

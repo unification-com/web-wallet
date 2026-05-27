@@ -29,30 +29,57 @@ async function fetchBalance(
 // ---------------------------------------------------------------------------
 
 /**
+ * Strip all `transfer/channel-X/` IBC-voucher prefixes from a denom to expose
+ * the underlying base denom. `nund` → `nund`; `transfer/channel-2/nund` →
+ * `nund` (wrapped FUND returning home); `transfer/channel-98/transfer/channel-X/uatom`
+ * → `uatom` (multi-hop ATOM). Stops on the first segment that isn't a
+ * well-formed `transfer/channel-N` pair so non-IBC denoms pass through.
+ *
+ * Exported because the IBC history view needs the same logic for packet-data
+ * denoms (which use the `transfer/...` form on the wire even when the token
+ * is unwrapped to native on receipt).
+ */
+export function getBaseDenom(denom: string): string {
+  let result = denom
+  while (result.startsWith('transfer/')) {
+    const parts = result.split('/')
+    if (parts.length >= 3 && parts[1]?.startsWith('channel-')) {
+      result = parts.slice(2).join('/')
+    } else {
+      break
+    }
+  }
+  return result
+}
+
+/**
  * Format `amount` (raw chain-side integer string) for the given `denom`. Knows
- * the Unification 10^9 scaling for `nund` (the chain's base denom) and IBC
- * denoms (left as raw integers — IBC-wrapped tokens carry the source chain's
- * native decimals, which we'd need bank metadata or chain-registry data to
- * resolve; rendering raw is the honest default).
+ * the Unification 10^9 scaling for `nund` — including wrapped variants
+ * (`transfer/channel-X/nund` etc., which represent FUND on a remote chain or
+ * FUND returning home through an IBC channel). IBC denoms with non-`nund`
+ * base (e.g. wrapped ATOM via `transfer/channel-2/uatom`, raw `ibc/HASH`
+ * forms) are left as raw integers — their source-chain decimals would need
+ * bank metadata or chain-registry data to resolve correctly; rendering raw
+ * is the honest default.
  *
  * Returns the formatted numeric portion only — pair with {@link displayDenom}
  * for the label.
  */
 export function formatCoinAmount(amount: string, denom: string): string {
-  if (denom === 'nund') return nundToFund(amount)
-  // IBC denoms and unknown denoms: return the raw integer. Future work
-  // (M9 IBC denom-trace + bank.denomMetadata polish) refines this.
+  if (getBaseDenom(denom) === 'nund') return nundToFund(amount)
   return amount
 }
 
 /**
- * Human-readable display label for a denom — `'FUND'` for `nund`, the raw
- * upper-case denom for non-IBC tokens, and a truncated `'ibc/AB12…'` shape
- * for IBC denoms (the full 64-char hash is unreadable; the leading prefix
- * is enough to recognise + the full denom is the row's `title` tooltip).
+ * Human-readable display label for a denom — `'FUND'` for `nund` and any
+ * wrapped variant (since they all represent FUND), the raw upper-case
+ * denom for other non-IBC tokens, and a truncated `'ibc/AB12…'` shape for
+ * opaque-hash IBC denoms (the full 64-char hash is unreadable; the leading
+ * prefix is enough to recognise + the full denom is the row's `title`
+ * tooltip).
  */
 export function displayDenom(denom: string): string {
-  if (denom === 'nund') return 'FUND'
+  if (getBaseDenom(denom) === 'nund') return 'FUND'
   if (denom.startsWith('ibc/')) {
     const hash = denom.slice(4)
     return `ibc/${hash.slice(0, 4)}…${hash.slice(-4)}`

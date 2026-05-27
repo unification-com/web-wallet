@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/react/macro'
 import { useMemo } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
@@ -73,9 +74,11 @@ export function InFlightQueues() {
                         >
                           {monikerFor(u.validatorAddress)}
                         </span>
-                        <span className="font-mono text-[10px] text-muted-foreground truncate">
-                          {u.validatorAddress}
-                        </span>
+                        <AddressLink
+                          address={u.validatorAddress}
+                          kind="validator"
+                          className="text-[10px] text-muted-foreground truncate"
+                        />
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono">

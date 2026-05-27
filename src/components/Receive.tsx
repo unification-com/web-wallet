@@ -3,6 +3,7 @@ import { Check, Copy } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useActiveSigner } from '@/lib/signer'
@@ -44,8 +45,8 @@ export function Receive() {
         <div className="self-center rounded border bg-white p-2">
           <QRCodeSVG value={address} size={128} level="M" />
         </div>
-        <div className="font-mono text-xs break-all rounded border bg-muted p-2">
-          {address}
+        <div className="text-xs break-all rounded border bg-muted p-2">
+          <AddressLink address={address} truncate={false} />
         </div>
         <Button
           variant="outline"

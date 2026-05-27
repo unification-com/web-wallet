@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { Check, Eye, KeyRound, Pencil, Trash2, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { AddSignerCard } from '@/components/AddSignerCard'
 import { RevealSecretDialog, type RevealedSecret } from '@/components/RevealSecretDialog'
 import { Button } from '@/components/ui/button'
@@ -381,9 +382,10 @@ function AccountRow({
         <>
           <div className="flex flex-col flex-1 min-w-0">
             <span className="font-medium">{account.label}</span>
-            <span className="font-mono text-[10px] text-muted-foreground truncate">
-              {account.address}
-            </span>
+            <AddressLink
+              address={account.address}
+              className="text-[10px] text-muted-foreground truncate"
+            />
           </div>
           <Button
             variant="ghost"
@@ -480,9 +482,10 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
         <>
           <div className="flex flex-col flex-1 min-w-0">
             <span className="text-xs font-medium">{entry.label}</span>
-            <span className="font-mono text-[10px] text-muted-foreground truncate">
-              {entry.address}
-            </span>
+            <AddressLink
+              address={entry.address}
+              className="text-[10px] text-muted-foreground truncate"
+            />
           </div>
           <div className="flex gap-0.5">
             <Button

@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useMemo, useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { RefreshButton } from '@/components/RefreshButton'
 import {
   RedelegateModal,
@@ -130,9 +131,11 @@ export function ActiveDelegations() {
                       <span className="font-medium truncate" title={moniker}>
                         {moniker}
                       </span>
-                      <span className="font-mono text-[10px] text-muted-foreground truncate">
-                        {valAddr}
-                      </span>
+                      <AddressLink
+                        address={valAddr}
+                        kind="validator"
+                        className="text-[10px] text-muted-foreground truncate"
+                      />
                     </span>
                     <span className="flex flex-col items-end tabular-nums">
                       <span className="font-mono">

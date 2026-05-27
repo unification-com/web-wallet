@@ -323,9 +323,26 @@ function parseOutboundPacketShallow(tx: IndexedTx): IbcPacket | null {
   const channelId = eventAttr(events, 'send_packet', 'packet_src_channel')
   const sequence = eventAttr(events, 'send_packet', 'packet_sequence')
   if (!channelId || !sequence) return null
+
+  // Outbound denom/amount come from TWO redundant places on the IBC
+  // transfer module's send path:
+  //   - `send_packet.packet_data` (JSON-encoded packet payload — the
+  //     canonical source, but SDK version variance has been observed in
+  //     the wild + JSON parse can silently fall through)
+  //   - `ibc_transfer.{sender,receiver,amount,denom}` (flat indexed
+  //     attributes — emitted by the transfer module's IBC keeper before
+  //     packet_data is constructed; more reliable for our display path)
+  //
+  // Prefer the JSON when it has the field populated; fall back to the flat
+  // event when it doesn't. Same goes for the receiver bech32. Stops
+  // outbound rows from rendering "0" amounts when packet_data parsing
+  // misses (the symptom the operator hit on 2026-05-27).
   const packetData = parsePacketData(eventAttr(events, 'send_packet', 'packet_data'))
   const counterparty =
     packetData.receiver ?? eventAttr(events, 'ibc_transfer', 'receiver')
+  const denom = packetData.denom ?? eventAttr(events, 'ibc_transfer', 'denom')
+  const amount = packetData.amount ?? eventAttr(events, 'ibc_transfer', 'amount')
+
   return {
     direction: 'outbound',
     // `in-transit` is the optimistic default — `usePacketStatus` upgrades
@@ -336,8 +353,8 @@ function parseOutboundPacketShallow(tx: IndexedTx): IbcPacket | null {
     channelId,
     sequence,
     counterparty,
-    denom: packetData.denom ?? '',
-    amount: packetData.amount ?? '0',
+    denom: denom || '',
+    amount: amount || '0',
   }
 }
 
@@ -574,6 +591,43 @@ export function useCounterpartPacketTx(packet: IbcPacket | null) {
     // Single attempt per RPC list — if all RPCs fail, don't keep retrying.
     retry: false,
   })
+}
+
+/**
+ * Resolve a counterparty bech32 address to an explorer-account URL by
+ * consulting the cosmos.directory registry for the matching chain. Returns
+ * null when the chain isn't in the registry, no registry details have been
+ * fetched yet, or the chain has no `account_page` explorer template.
+ *
+ * `chainId` is the counterparty chain_id surfaced by `useIbcChannels` for
+ * a packet's channel. The hook does NOT auto-fetch details — by the time
+ * `IbcHistory` renders, `useCounterpartPacketTx` has already triggered
+ * `ensureDetails` for the same chain.
+ */
+export function useCounterpartyAccountUrl(chainId: string, address: string): string | null {
+  const chainsByChainId = useCosmosRegistryStore((s) => s.chainsByChainId)
+  const detailsByChainName = useCosmosRegistryStore((s) => s.detailsByChainName)
+  const ensureDetails = useCosmosRegistryStore((s) => s.ensureDetails)
+
+  const entry = chainId ? (chainsByChainId.get(chainId) ?? null) : null
+  const chainName = entry?.chain_name ?? null
+  const details = chainName ? (detailsByChainName[chainName] ?? null) : null
+
+  // If we know the chain_name but haven't fetched yet, kick off a fetch so
+  // subsequent renders can produce the URL. (`IbcHistory` typically gets
+  // there first via `useCounterpartPacketTx`, but this keeps the address
+  // link working even for inbound rows where the counterpart tx is the
+  // send-side and isn't always queried — defensive belt-and-braces.)
+  useEffect(() => {
+    if (chainName && !details) {
+      void ensureDetails(chainName)
+    }
+  }, [chainName, details, ensureDetails])
+
+  if (!details || !address) return null
+  const template = details.explorers?.find((e) => e.account_page)?.account_page
+  if (!template) return null
+  return template.replace('${accountAddress}', address)
 }
 
 /**

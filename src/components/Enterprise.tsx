@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { RaisePurchaseOrderModal } from '@/components/RaisePurchaseOrderModal'
 import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
@@ -364,9 +365,10 @@ function DecisionRow({ decision }: { decision: PurchaseOrderDecision }) {
         >
           {isAccept ? <Trans>Accept</Trans> : <Trans>Reject</Trans>}
         </span>
-        <span className="truncate text-[10px] text-muted-foreground" title={decision.signer}>
-          {decision.signer}
-        </span>
+        <AddressLink
+          address={decision.signer}
+          className="truncate text-[10px] text-muted-foreground"
+        />
       </span>
       <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
         {decisionAt ? decisionAt.toLocaleString() : '—'}

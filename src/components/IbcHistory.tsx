@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro'
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 
+import { AddressLink } from '@/components/AddressLink'
 import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +11,7 @@ import { useChainByChainId } from '@/lib/cosmosRegistry'
 import {
   useBlockTime,
   useCounterpartPacketTx,
+  useCounterpartyAccountUrl,
   useIbcChannels,
   useIbcHistory,
   usePacketStatus,
@@ -134,6 +136,10 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
   // cosmos.directory RPC list. Resolves "where did this packet land /
   // come from" + an explorer deep-link.
   const counterpart = useCounterpartPacketTx(packet)
+  const counterpartyAccountUrl = useCounterpartyAccountUrl(
+    counterpartyChainId,
+    packet.counterparty,
+  )
 
   return (
     <li
@@ -162,9 +168,11 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
               {' · '}
               <span>{counterpartyChain}</span>
             </span>
-            <span className="font-mono text-[10px] truncate" title={packet.counterparty}>
-              {packet.counterparty}
-            </span>
+            <AddressLink
+              address={packet.counterparty}
+              url={counterpartyAccountUrl}
+              className="text-[10px] truncate"
+            />
           </span>
         </span>
         <span className="flex flex-col items-end shrink-0">

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { AddressLink } from '@/components/AddressLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -24,7 +25,7 @@ import {
 } from '@/lib/balance'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import { useChainByChainId, useCosmosRegistryStore } from '@/lib/cosmosRegistry'
-import { useIbcChannels } from '@/lib/ibc'
+import { useCounterpartyAccountUrl, useIbcChannels } from '@/lib/ibc'
 import {
   buildMsgTransfer,
   defaultTimeoutTimestampNs,
@@ -91,6 +92,10 @@ export function SendIbc() {
   // form schema). MUST be called before any early return for rules-of-hooks.
   const destinationChain = useChainByChainId(
     selectedChannelInfo?.counterpartyChainId,
+  )
+  const counterpartyAccountUrl = useCounterpartyAccountUrl(
+    selectedChannelInfo?.counterpartyChainId ?? '',
+    form.watch('receiver'),
   )
   // Full chain-id → entry map for the dropdown's per-option label
   // enrichment. Read once at render top so the .map() iteration below can
@@ -370,7 +375,13 @@ export function SendIbc() {
                 <dt className="text-muted-foreground">
                   <Trans>Recipient</Trans>
                 </dt>
-                <dd className="font-mono break-all">{pendingValues.receiver}</dd>
+                <dd className="break-all">
+                <AddressLink
+                  address={pendingValues.receiver}
+                  url={counterpartyAccountUrl}
+                  truncate={false}
+                />
+              </dd>
                 <dt className="text-muted-foreground">
                   <Trans>Amount</Trans>
                 </dt>

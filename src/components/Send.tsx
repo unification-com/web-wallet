@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { AddressLink } from '@/components/AddressLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -236,7 +237,9 @@ export function Send() {
               <dt className="text-muted-foreground">
                 <Trans>To</Trans>
               </dt>
-              <dd className="font-mono break-all">{pendingValues.recipient}</dd>
+              <dd className="break-all">
+                <AddressLink address={pendingValues.recipient} truncate={false} />
+              </dd>
               <dt className="text-muted-foreground">
                 <Trans>Amount</Trans>
               </dt>
