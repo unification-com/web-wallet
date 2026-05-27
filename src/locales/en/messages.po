@@ -1570,6 +1570,7 @@ msgstr "Now drains at"
 msgid "Old flow rate"
 msgstr "Old flow rate"
 
+#: src/components/AddressLink.tsx
 #: src/components/TxRow.tsx
 msgid "Open in block explorer"
 msgstr "Open in block explorer"

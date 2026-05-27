@@ -141,6 +141,20 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
     packet.counterparty,
   )
 
+  // Registry-driven denom enrichment for inbound rows. Inbound packets'
+  // `denom` is the counterparty chain's native base denom (e.g. `uatom`);
+  // the registry entry's `denom` + `symbol` + `decimals` give us
+  // human-readable label + scaling. Outbound rows are typically our `nund`
+  // — formatCoinAmount handles those natively. Multi-hop or wrapped-back
+  // forwarding cases fall through to the raw-display default.
+  const useCounterpartyAsset =
+    !isOutbound && counterpartyEntry?.denom === packet.denom
+  const amountDecimals = useCounterpartyAsset ? counterpartyEntry?.decimals : undefined
+  const amountSymbol =
+    useCounterpartyAsset && counterpartyEntry?.symbol
+      ? counterpartyEntry.symbol
+      : displayDenom(packet.denom)
+
   return (
     <li
       className="flex flex-col gap-1 rounded border border-border p-2"
@@ -178,8 +192,7 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
         <span className="flex flex-col items-end shrink-0">
           <PacketStatusChip status={displayStatus} />
           <span className="font-mono tabular-nums">
-            {formatCoinAmount(packet.amount, packet.denom)}{' '}
-            {displayDenom(packet.denom)}
+            {formatCoinAmount(packet.amount, packet.denom, amountDecimals)} {amountSymbol}
           </span>
         </span>
       </div>

@@ -56,18 +56,40 @@ export function getBaseDenom(denom: string): string {
  * Format `amount` (raw chain-side integer string) for the given `denom`. Knows
  * the Unification 10^9 scaling for `nund` — including wrapped variants
  * (`transfer/channel-X/nund` etc., which represent FUND on a remote chain or
- * FUND returning home through an IBC channel). IBC denoms with non-`nund`
- * base (e.g. wrapped ATOM via `transfer/channel-2/uatom`, raw `ibc/HASH`
- * forms) are left as raw integers — their source-chain decimals would need
- * bank metadata or chain-registry data to resolve correctly; rendering raw
- * is the honest default.
+ * FUND returning home through an IBC channel). For other denoms callers may
+ * pass an explicit `decimals` exponent — typically resolved via the
+ * cosmos.directory registry's per-chain `decimals` field — to scale wrapped
+ * tokens to their human-readable form (e.g. `uatom` → divide by 10^6).
+ * Without `decimals`, returns the raw integer (honest fallback when no
+ * metadata is available).
  *
  * Returns the formatted numeric portion only — pair with {@link displayDenom}
  * for the label.
  */
-export function formatCoinAmount(amount: string, denom: string): string {
+export function formatCoinAmount(amount: string, denom: string, decimals?: number): string {
   if (getBaseDenom(denom) === 'nund') return nundToFund(amount)
+  if (typeof decimals === 'number' && decimals > 0) return scaleByDecimals(amount, decimals)
   return amount
+}
+
+/**
+ * Divide `amount` (raw integer string) by 10^`decimals`, trimming trailing
+ * zeros in the fractional part. BigInt-precision so foreign-chain tokens
+ * with `decimals=18` (Ethereum-style) round-trip without precision loss.
+ * Returns `'0'` on unparseable input.
+ */
+export function scaleByDecimals(amount: string, decimals: number): string {
+  if (decimals <= 0) return amount
+  try {
+    const intPart = amount.split('.')[0] ?? '0'
+    const big = BigInt(intPart)
+    const scale = 10n ** BigInt(decimals)
+    const whole = big / scale
+    const frac = (big % scale).toString().padStart(decimals, '0').replace(/0+$/, '')
+    return frac ? `${whole.toString()}.${frac}` : whole.toString()
+  } catch {
+    return '0'
+  }
 }
 
 /**

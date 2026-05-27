@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { RefreshButton } from '@/components/RefreshButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { displayDenom, formatCoinAmount, useAllBalances } from '@/lib/balance'
+import { useChainByChainId } from '@/lib/cosmosRegistry'
 import { useDenomTrace, useIbcChannels } from '@/lib/ibc'
 import { useActiveSigner } from '@/lib/signer'
 
@@ -82,16 +83,29 @@ function BalanceRow({ coin }: { coin: Coin }) {
     return channel?.counterpartyChainId ?? null
   })()
 
-  // Compose the primary label. Prefer the traced shape; fall back to the
-  // truncated-hash shape when trace hasn't landed yet (or isn't available).
+  // Registry entry for the source chain. Gives us the pretty name (e.g.
+  // "Cosmos Hub" instead of `cosmoshub-4`), the display symbol (e.g. `ATOM`
+  // instead of `UATOM`), and the decimals exponent for amount scaling
+  // (e.g. divide by 10^6 for ATOM/OSMO/JUNO). `useChainByChainId` returns
+  // undefined when the registry index hasn't loaded yet OR the chain isn't
+  // listed (rare on cosmos majors); both cases fall through to the
+  // hash-traced defaults.
+  const sourceChain = useChainByChainId(sourceChainId ?? undefined)
+
+  // Compose the primary label. Prefer registry symbol + pretty name; fall
+  // back to the trace's upper-case base denom + chain ID; final fallback is
+  // the truncated-hash shape when trace hasn't landed yet.
   const primary = (() => {
     if (!isIbc) return displayDenom(coin.denom)
     if (trace.data) {
-      const base = trace.data.baseDenom.toUpperCase()
-      return sourceChainId ? `${base} (via ${sourceChainId})` : base
+      const symbol = sourceChain?.symbol ?? trace.data.baseDenom.toUpperCase()
+      const chainLabel = sourceChain?.pretty_name ?? sourceChainId
+      return chainLabel ? `${symbol} (via ${chainLabel})` : symbol
     }
     return displayDenom(coin.denom)
   })()
+
+  const decimals = sourceChain?.decimals
 
   return (
     <li
@@ -115,12 +129,12 @@ function BalanceRow({ coin }: { coin: Coin }) {
       <span
         className="font-mono font-medium tabular-nums"
         title={
-          isIbc
-            ? t`Raw amount — IBC-wrapped denoms use the source chain's native decimals.`
+          isIbc && typeof decimals !== 'number'
+            ? t`Raw amount — source chain's decimals not in registry; rendering integer.`
             : undefined
         }
       >
-        {formatCoinAmount(coin.amount, coin.denom)}
+        {formatCoinAmount(coin.amount, coin.denom, decimals)}
       </span>
     </li>
   )
