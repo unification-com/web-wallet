@@ -10,7 +10,6 @@ import { ProposalDetail } from '@/components/ProposalDetail'
 import { ProposalList } from '@/components/ProposalList'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
-import { SendIbc } from '@/components/SendIbc'
 import { Settings } from '@/components/Settings'
 import { TxHistory } from '@/components/TxHistory'
 import { Card, CardContent } from '@/components/ui/card'
@@ -34,6 +33,9 @@ const StreamsList = lazy(() =>
 )
 const Enterprise = lazy(() =>
   import('@/components/Enterprise').then((m) => ({ default: m.Enterprise })),
+)
+const SendIbc = lazy(() =>
+  import('@/components/SendIbc').then((m) => ({ default: m.SendIbc })),
 )
 
 type Surface = 'popup' | 'standalone' | 'web'
@@ -105,6 +107,7 @@ type UnlockedView =
   | 'gov'
   | 'streams'
   | 'enterprise'
+  | 'ibc'
   | 'history'
   | 'settings'
 
@@ -219,6 +222,9 @@ function UnlockedShell({ surface }: { surface: Surface }) {
         <ViewTab active={view === 'streams'} onClick={() => setView('streams')}>
           <Trans>Streams</Trans>
         </ViewTab>
+        <ViewTab active={view === 'ibc'} onClick={() => setView('ibc')}>
+          <Trans>IBC</Trans>
+        </ViewTab>
         {canSeeEnterprise && (
           <ViewTab
             active={view === 'enterprise'}
@@ -245,8 +251,19 @@ function UnlockedShell({ surface }: { surface: Surface }) {
             <Receive />
             <Balances />
             <Send />
-            <SendIbc />
           </>
+        )}
+
+        {view === 'ibc' && (
+          <Suspense
+            fallback={
+              <p className="text-xs text-muted-foreground italic">
+                <Trans>Loading IBC…</Trans>
+              </p>
+            }
+          >
+            <SendIbc />
+          </Suspense>
         )}
 
         {view === 'staking' && (

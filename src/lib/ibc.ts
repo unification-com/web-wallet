@@ -76,26 +76,24 @@ export function useIbcChannels() {
         const open = channels.channels.filter(
           (c) => c.state === ChannelState.STATE_OPEN && c.portId === 'transfer',
         )
-        // Resolve counterparty chain IDs in parallel — the client-state
-        // query is per-channel.
+        // Resolve counterparty chain ID + client status per channel in
+        // parallel. STATE_OPEN alone isn't enough — the backing light
+        // client may have expired (no relayer update within the trusting
+        // period), in which case the channel can't actually pass packets.
+        // The chain's `client_status` query is the canonical signal —
+        // returns `"Active" | "Expired" | "Frozen" | "Unauthorized" | "Unknown"`.
+        // We filter to `Active` so the dropdown reflects what's truly usable.
         const resolved = await Promise.all(
           open.map(async (c) => {
             try {
               const res = await ibc.ibc.channel.clientState(c.portId, c.channelId)
-              // The client state is a generic `Any`; cosmjs has a
-              // `stateTm` helper that decodes Tendermint light clients
-              // specifically. Use the generic shape here since we only
-              // need `chainId` and that field lives at a stable offset
-              // in the Tendermint variant.
-              const cs = res.identifiedClientState?.clientState
-              if (!cs) return null
-              // The Any payload's `value` bytes need decoding. cosmjs
-              // exposes `ibc.client.stateTm` which auto-decodes; we use
-              // it via a second call since `clientState` returns the
-              // wrapped form.
-              const tm = await ibc.ibc.client.stateTm(
-                res.identifiedClientState?.clientId ?? '',
-              )
+              const clientId = res.identifiedClientState?.clientId ?? ''
+              if (!clientId) return null
+              const [tm, status] = await Promise.all([
+                ibc.ibc.client.stateTm(clientId),
+                fetchClientStatus(endpoint.rest, clientId),
+              ])
+              if (status !== 'Active') return null
               return {
                 channelId: c.channelId,
                 portId: c.portId,
@@ -112,10 +110,25 @@ export function useIbcChannels() {
         disconnect()
       }
     },
-    // Channels are governance / relayer-managed — changes are rare.
+    // Channels are governance / relayer-managed — changes are rare. Client
+    // expiry IS more dynamic (typical 14-day trusting period) but a 60-min
+    // stale window is well below that, so we won't miss a freshly-expired
+    // client by more than an hour.
     staleTime: 60 * 60_000, // 60 min
     refetchInterval: false,
   })
+}
+
+/** REST-only call — cosmjs's IBC extension doesn't expose `client_status`. */
+async function fetchClientStatus(rest: string, clientId: string): Promise<string> {
+  try {
+    const res = await fetch(`${rest}/ibc/core/client/v1/client_status/${clientId}`)
+    if (!res.ok) return 'Unknown'
+    const body = (await res.json()) as { status?: string }
+    return body.status ?? 'Unknown'
+  } catch {
+    return 'Unknown'
+  }
 }
 
 // ---------------------------------------------------------------------------

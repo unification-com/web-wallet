@@ -1098,6 +1098,10 @@ msgstr "I support this proposal"
 msgid "I've written the seed phrase down somewhere safe."
 msgstr "I've written the seed phrase down somewhere safe."
 
+#: src/App.tsx
+msgid "IBC"
+msgstr "IBC"
+
 #: src/components/Balances.tsx
 msgid "IBC-wrapped"
 msgstr "IBC-wrapped"
@@ -1258,6 +1262,10 @@ msgstr "Loading enterprise…"
 #: src/components/TxHistory.tsx
 msgid "Loading history…"
 msgstr "Loading history…"
+
+#: src/App.tsx
+msgid "Loading IBC…"
+msgstr "Loading IBC…"
 
 #: src/components/ProposalDetail.tsx
 msgid "Loading proposal…"
