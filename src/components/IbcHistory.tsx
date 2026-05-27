@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { displayDenom, formatCoinAmount } from '@/lib/balance'
 import { useActiveEndpoint } from '@/lib/chain'
+import { useChainByChainId } from '@/lib/cosmosRegistry'
 import {
   useBlockTime,
   useIbcChannels,
@@ -109,7 +110,12 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
     ? `${explorerBase}${packet.txHash.toUpperCase()}`
     : null
   const channelInfo = channels.find((c) => c.channelId === packet.channelId)
-  const counterpartyChain = channelInfo?.counterpartyChainId ?? '?'
+  const counterpartyChainId = channelInfo?.counterpartyChainId ?? ''
+  // Cosmos registry lookup — gives us pretty_name (e.g. "Gravity Bridge" vs
+  // raw "gravity-bridge-3") plus access to bech32_prefix for label hints.
+  const counterpartyEntry = useChainByChainId(counterpartyChainId)
+  const counterpartyChain =
+    counterpartyEntry?.pretty_name ?? (counterpartyChainId || '?')
 
   // Per-row status: outbound is enriched by usePacketStatus (returns
   // acknowledged / timed-out / in-transit). Inbound's status is already

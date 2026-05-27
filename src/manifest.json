@@ -6,6 +6,9 @@
   "homepage_url": "https://unification.com",
   "default_locale": "en",
   "permissions": ["storage"],
+  "host_permissions": [
+    "https://chains.cosmos.directory/*"
+  ],
   "icons": {
     "16": "icons/16.png",
     "48": "icons/48.png",

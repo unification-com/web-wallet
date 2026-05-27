@@ -23,6 +23,7 @@ import {
   userAmountToChain,
 } from '@/lib/balance'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
+import { useChainByChainId } from '@/lib/cosmosRegistry'
 import { useIbcChannels } from '@/lib/ibc'
 import {
   buildMsgTransfer,
@@ -78,12 +79,31 @@ export function SendIbc() {
     }
   }, [channels, form])
 
-  if (!address) return null
-
   const selectedDenom = form.watch('denom')
   const selectedBalance = balances?.find((c) => c.denom === selectedDenom)
   const selectedChannel = form.watch('sourceChannel')
   const selectedChannelInfo = channels?.find((c) => c.channelId === selectedChannel)
+  const watchedReceiver = form.watch('receiver')
+
+  // Pull the destination chain's bech32 prefix from the cosmos registry to
+  // do client-side prefix validation. Skips when registry data hasn't
+  // landed yet (degrades to the loose any-prefix bech32 validator in the
+  // form schema). MUST be called before any early return for rules-of-hooks.
+  const destinationChain = useChainByChainId(
+    selectedChannelInfo?.counterpartyChainId,
+  )
+
+  if (!address) return null
+
+
+  const expectedPrefix = destinationChain?.bech32_prefix
+  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+  const prefixMatch = watchedReceiver.match(/^([a-z][a-z0-9]+)1[a-z0-9]+$/)
+  const receiverPrefix = prefixMatch?.[1] ?? null
+  const prefixMismatch =
+    expectedPrefix &&
+    receiverPrefix &&
+    receiverPrefix !== expectedPrefix
 
   const onSubmit = (values: SendIbcFormValues) => {
     setPendingValues(values)
@@ -219,10 +239,30 @@ export function SendIbc() {
             )}
             {selectedChannelInfo && (
               <span className="text-[10px] text-muted-foreground">
+                {expectedPrefix ? (
+                  <Trans>
+                    Use a <span className="font-mono">{expectedPrefix}1…</span>{' '}
+                    address (
+                    {destinationChain?.pretty_name ??
+                      selectedChannelInfo.counterpartyChainId}
+                    ).
+                  </Trans>
+                ) : (
+                  <Trans>
+                    Use a bech32 address valid on{' '}
+                    <span className="font-mono">{selectedChannelInfo.counterpartyChainId}</span>.
+                    Wrong-prefix addresses are rejected on broadcast.
+                  </Trans>
+                )}
+              </span>
+            )}
+            {prefixMismatch && (
+              <span className="text-xs text-destructive">
                 <Trans>
-                  Use a bech32 address valid on{' '}
-                  <span className="font-mono">{selectedChannelInfo.counterpartyChainId}</span>.
-                  Wrong-prefix addresses are rejected on broadcast.
+                  Address prefix <span className="font-mono">{receiverPrefix}1…</span>{' '}
+                  doesn&apos;t match destination chain{' '}
+                  <span className="font-mono">{expectedPrefix}1…</span>. The
+                  packet would land somewhere unintended.
                 </Trans>
               </span>
             )}
@@ -280,7 +320,11 @@ export function SendIbc() {
             <Input id="ibc-memo" {...form.register('memo')} maxLength={256} />
           </div>
 
-          <Button type="submit" size="sm" disabled={noChannels}>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={noChannels || Boolean(prefixMismatch)}
+          >
             <Trans>Continue</Trans>
           </Button>
         </form>

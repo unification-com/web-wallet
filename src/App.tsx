@@ -17,6 +17,7 @@ import { UnlockScreen } from '@/components/UnlockScreen'
 import { Validators } from '@/components/Validators'
 import { VaultSetup } from '@/components/VaultSetup'
 import { useActiveEndpoint, useChainInfo } from '@/lib/chain'
+import { useCosmosRegistryStore } from '@/lib/cosmosRegistry'
 import { useIsWhitelistedLite } from '@/lib/enterpriseWhitelist'
 import { useIdleActivity } from '@/lib/hooks/useIdleActivity'
 import { ThemeApplier } from '@/lib/hooks/useTheme'
@@ -54,6 +55,25 @@ export function App({ surface }: { surface: Surface }) {
   useEffect(() => {
     void hydrate()
   }, [hydrate])
+
+  // Hydrate the cosmos registry cache from chrome.storage on mount. The
+  // refresh-on-unlock effect below kicks in once the user authenticates;
+  // until then the cached data (from the previous session) is fine.
+  const hydrateCosmosRegistry = useCosmosRegistryStore((s) => s.hydrate)
+  useEffect(() => {
+    void hydrateCosmosRegistry()
+  }, [hydrateCosmosRegistry])
+
+  // Refresh the cosmos registry whenever the vault transitions to
+  // `unlocked`. Per operator brief 2026-05-27: each login = fresh chain
+  // metadata. Failure is non-blocking — the wallet keeps the prior cached
+  // data if the network fetch fails.
+  const refreshCosmosRegistry = useCosmosRegistryStore((s) => s.refresh)
+  useEffect(() => {
+    if (status === 'unlocked') {
+      void refreshCosmosRegistry()
+    }
+  }, [status, refreshCosmosRegistry])
 
   // Listen for cross-window vault changes (popup vs standalone tab). If
   // another surface created / reset the vault while THIS surface is idle

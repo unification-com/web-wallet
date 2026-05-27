@@ -68,10 +68,6 @@ msgstr "{0} — private key"
 msgid "{0} — seed phrase"
 msgstr "{0} — seed phrase"
 
-#: src/components/IbcHistory.tsx
-#~ msgid "{0} · seq {1}"
-#~ msgstr "{0} · seq {1}"
-
 #. placeholder {0}: (watched.memo ?? '').length
 #: src/components/RaisePurchaseOrderModal.tsx
 msgid "{0} / 100"
@@ -127,10 +123,6 @@ msgstr "{0} recorded"
 #: src/components/TxHistory.tsx
 msgid "{0} shown"
 msgstr "{0} shown"
-
-#: src/components/TxHistory.tsx
-#~ msgid "{0} txs"
-#~ msgstr "{0} txs"
 
 #. placeholder {0}: minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`
 #: src/components/Enterprise.tsx
@@ -276,6 +268,10 @@ msgstr "Additional deposit (FUND)"
 #: src/lib/msgs/presenters.ts
 msgid "Address"
 msgstr "Address"
+
+#: src/components/SendIbc.tsx
+msgid "Address prefix <0>{receiverPrefix}1…</0> doesn't match destination chain <1>{expectedPrefix}1…</1>. The packet would land somewhere unintended."
+msgstr "Address prefix <0>{receiverPrefix}1…</0> doesn't match destination chain <1>{expectedPrefix}1…</1>. The packet would land somewhere unintended."
 
 #: src/components/GasAccordion.tsx
 msgid "Advanced: gas + fee"
@@ -1261,10 +1257,6 @@ msgstr "length ok"
 #: src/components/AppearanceSettings.tsx
 msgid "Light"
 msgstr "Light"
-
-#: src/components/TxHistory.tsx
-#~ msgid "Load {0} more"
-#~ msgstr "Load {0} more"
 
 #: src/components/IbcHistory.tsx
 #: src/components/TxHistory.tsx
@@ -2500,6 +2492,11 @@ msgstr "Updated address whitelist"
 #: src/lib/msgs/presenters.ts
 msgid "Updated stream flow rate"
 msgstr "Updated stream flow rate"
+
+#. placeholder {0}: destinationChain?.pretty_name ?? selectedChannelInfo.counterpartyChainId
+#: src/components/SendIbc.tsx
+msgid "Use a <0>{expectedPrefix}1…</0> address ({0})."
+msgstr "Use a <0>{expectedPrefix}1…</0> address ({0})."
 
 #. placeholder {0}: selectedChannelInfo.counterpartyChainId
 #: src/components/SendIbc.tsx
