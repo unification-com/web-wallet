@@ -10,6 +10,7 @@ import { ProposalDetail } from '@/components/ProposalDetail'
 import { ProposalList } from '@/components/ProposalList'
 import { Receive } from '@/components/Receive'
 import { Send } from '@/components/Send'
+import { SendIbc } from '@/components/SendIbc'
 import { Settings } from '@/components/Settings'
 import { TxHistory } from '@/components/TxHistory'
 import { Card, CardContent } from '@/components/ui/card'
@@ -244,6 +245,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
             <Receive />
             <Balances />
             <Send />
+            <SendIbc />
           </>
         )}
 

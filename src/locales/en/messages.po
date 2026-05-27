@@ -52,6 +52,11 @@ msgstr "(opens tab)"
 msgid "(untitled)"
 msgstr "(untitled)"
 
+#. placeholder {0}: trace.data.path
+#: src/components/Balances.tsx
+msgid "{0}"
+msgstr "{0}"
+
 #. placeholder {0}: account.label
 #. placeholder {0}: entry.label
 #: src/components/VaultEntryManager.tsx
@@ -278,12 +283,14 @@ msgid "Allowance"
 msgstr "Allowance"
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Amount"
 msgstr "Amount"
 
 #. placeholder {0}: displayDenom(selectedDenom)
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 msgid "Amount ({0})"
 msgstr "Amount ({0})"
 
@@ -333,6 +340,7 @@ msgstr "Back"
 #. placeholder {0}: formatCoinAmount(selectedBalance.amount, selectedBalance.denom)
 #. placeholder {1}: displayDenom(selectedBalance.denom)
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 msgid "Balance: <0>{0}</0> {1}"
 msgstr "Balance: <0>{0}</0> {1}"
 
@@ -371,6 +379,7 @@ msgid "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for
 msgstr "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/components/TxModal.tsx
 msgid "Broadcasting…"
 msgstr "Broadcasting…"
@@ -381,6 +390,7 @@ msgstr "Built-in"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/RevealSecretDialog.tsx
+#: src/components/SendIbc.tsx
 #: src/components/StreamLabel.tsx
 #: src/components/StreamsList.tsx
 #: src/components/TxModal.tsx
@@ -516,6 +526,7 @@ msgstr "click to switch"
 msgid "click to switch account"
 msgstr "click to switch account"
 
+#: src/components/SendIbc.tsx
 #: src/components/TxModal.tsx
 msgid "Close"
 msgstr "Close"
@@ -545,6 +556,10 @@ msgstr "Confirm"
 msgid "Confirm + send"
 msgstr "Confirm + send"
 
+#: src/components/SendIbc.tsx
+msgid "Confirm IBC transfer"
+msgstr "Confirm IBC transfer"
+
 #: src/components/VaultSetup.tsx
 msgid "Confirm password"
 msgstr "Confirm password"
@@ -552,6 +567,10 @@ msgstr "Confirm password"
 #: src/components/Send.tsx
 msgid "Confirm send"
 msgstr "Confirm send"
+
+#: src/components/SendIbc.tsx
+msgid "Confirm transfer"
+msgstr "Confirm transfer"
 
 #: src/App.tsx
 msgid "Connecting…"
@@ -562,6 +581,7 @@ msgid "Content"
 msgstr "Content"
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/components/VaultSetup.tsx
 msgid "Continue"
 msgstr "Continue"
@@ -727,6 +747,7 @@ msgid "Deleting…"
 msgstr "Deleting…"
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Denom"
 msgstr "Denom"
@@ -762,6 +783,14 @@ msgstr "Deposited to proposal"
 #: src/components/AddSignerCard.tsx
 msgid "Derived address: {candidateAddress}"
 msgstr "Derived address: {candidateAddress}"
+
+#: src/components/SendIbc.tsx
+msgid "Destination"
+msgstr "Destination"
+
+#: src/components/SendIbc.tsx
+msgid "Destination chain"
+msgstr "Destination chain"
 
 #: src/components/InFlightQueues.tsx
 msgid "destination locked until completion"
@@ -869,6 +898,10 @@ msgstr "Failed"
 #: src/App.tsx
 msgid "Failed to connect: {0}"
 msgstr "Failed to connect: {0}"
+
+#: src/components/SendIbc.tsx
+msgid "Failed to discover IBC channels — try refreshing."
+msgstr "Failed to discover IBC channels — try refreshing."
 
 #. placeholder {0}: error instanceof Error ? error.message : String(error)
 #: src/components/TxHistory.tsx
@@ -1069,6 +1102,10 @@ msgstr "I've written the seed phrase down somewhere safe."
 msgid "IBC-wrapped"
 msgstr "IBC-wrapped"
 
+#: src/components/SendIbc.tsx
+msgid "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
+msgstr "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
+
 #: src/components/Send.tsx
 msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
 msgstr "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
@@ -1205,6 +1242,10 @@ msgstr "Loaded: {fileName}"
 msgid "Loading balances…"
 msgstr "Loading balances…"
 
+#: src/components/SendIbc.tsx
+msgid "Loading channels…"
+msgstr "Loading channels…"
+
 #: src/components/ActiveDelegations.tsx
 msgid "Loading delegations…"
 msgstr "Loading delegations…"
@@ -1272,6 +1313,7 @@ msgid "Max"
 msgstr "Max"
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Memo"
@@ -1279,6 +1321,7 @@ msgstr "Memo"
 
 #: src/components/DelegateModal.tsx
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 #: src/components/StakingActionModals.tsx
 #: src/components/StreamActionModals.tsx
 #: src/components/VoteModal.tsx
@@ -1388,6 +1431,10 @@ msgstr "No incoming streams."
 msgid "no keystore file selected"
 msgstr "no keystore file selected"
 
+#: src/components/SendIbc.tsx
+msgid "No open IBC channels found on this network. IBC transfer is unavailable."
+msgstr "No open IBC channels found on this network. IBC transfer is unavailable."
+
 #: src/components/StreamsList.tsx
 msgid "No outgoing streams. Use Create to open one."
 msgstr "No outgoing streams. Use Create to open one."
@@ -1487,6 +1534,10 @@ msgstr "Order ID"
 #: src/components/StreamsList.tsx
 msgid "Original deposit amount including the pending accrual."
 msgstr "Original deposit amount including the pending accrual."
+
+#: src/components/SendIbc.tsx
+msgid "osmo1… / cosmos1… / …"
+msgstr "osmo1… / cosmos1… / …"
 
 #: src/components/StreamsList.tsx
 msgid "Outgoing streams"
@@ -1660,8 +1711,8 @@ msgid "Raised eFUND purchase order"
 msgstr "Raised eFUND purchase order"
 
 #: src/components/Balances.tsx
-msgid "Raw amount — decimals unknown until M9 IBC denom-trace lands."
-msgstr "Raw amount — decimals unknown until M9 IBC denom-trace lands."
+msgid "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
+msgstr "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
 
 #. placeholder {0}: account.index.toString()
 #: src/components/VaultEntryManager.tsx
@@ -1699,12 +1750,17 @@ msgid "Receiver"
 msgstr "Receiver"
 
 #: src/components/Send.tsx
+#: src/components/SendIbc.tsx
 msgid "Recipient"
 msgstr "Recipient"
 
 #: src/components/StreamActionModals.tsx
 msgid "Recipient address"
 msgstr "Recipient address"
+
+#: src/components/SendIbc.tsx
+msgid "Recipient address (destination chain)"
+msgstr "Recipient address (destination chain)"
 
 #. placeholder {0}: source?.receiver ?? ''
 #: src/components/StreamActionModals.tsx
@@ -1821,6 +1877,10 @@ msgstr "Reset the wallet? This wipes the encrypted vault permanently."
 #: src/components/UnlockScreen.tsx
 msgid "Reset wallet"
 msgstr "Reset wallet"
+
+#: src/components/Balances.tsx
+msgid "resolving denom trace…"
+msgstr "resolving denom trace…"
 
 #: src/lib/chain.ts
 msgid "REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. ({inner})"
@@ -1944,6 +2004,14 @@ msgstr "Self-bond"
 #: src/components/Send.tsx
 msgid "Send"
 msgstr "Send"
+
+#: src/components/SendIbc.tsx
+msgid "Send a token to an IBC-connected chain. The destination list is discovered from this chain's open IBC channels at runtime — no hardcoded chain list, no third-party services."
+msgstr "Send a token to an IBC-connected chain. The destination list is discovered from this chain's open IBC channels at runtime — no hardcoded chain list, no third-party services."
+
+#: src/components/SendIbc.tsx
+msgid "Send via IBC"
+msgstr "Send via IBC"
 
 #: src/lib/msgs/presenters.ts
 msgid "Sender"
@@ -2110,6 +2178,11 @@ msgstr "Submitted evidence"
 msgid "Submitted proposal"
 msgstr "Submitted proposal"
 
+#. placeholder {0}: endpoint.txExplorerBase ? ( <a href={txExplorerUrl(endpoint, txHash) ?? '#'} target="_blank" rel="noreferrer noopener" className="font-mono underline-offset-2 hover:underline" > {txHash} </a> ) : ( <span className="font-mono">{txHash}</span> )
+#: src/components/SendIbc.tsx
+msgid "Submitted! Tx: {0}"
+msgstr "Submitted! Tx: {0}"
+
 #: src/components/TxModal.tsx
 msgid "Submitted! Tx: <0>{txHash}</0>"
 msgstr "Submitted! Tx: <0>{txHash}</0>"
@@ -2196,6 +2269,10 @@ msgstr "This private key's address ({address}) already exists in your vault as {
 #: src/lib/vault/store.ts
 msgid "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 msgstr "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+
+#: src/components/SendIbc.tsx
+msgid "This sends a token across IBC. The Tx lands on this chain immediately; the relay packet typically arrives at the destination within seconds-to-minutes. If no relayer picks it up before the timeout, the funds refund automatically."
+msgstr "This sends a token across IBC. The Tx lands on this chain immediately; the relay packet typically arrives at the destination within seconds-to-minutes. If no relayer picks it up before the timeout, the funds refund automatically."
 
 #: src/components/StreamActionModals.tsx
 msgid "This stream is non-cancellable (chain-enforced — typically because it's funded by eFUND)."
@@ -2366,6 +2443,11 @@ msgstr "Updated address whitelist"
 #: src/lib/msgs/presenters.ts
 msgid "Updated stream flow rate"
 msgstr "Updated stream flow rate"
+
+#. placeholder {0}: selectedChannelInfo.counterpartyChainId
+#: src/components/SendIbc.tsx
+msgid "Use a bech32 address valid on <0>{0}</0>. Wrong-prefix addresses are rejected on broadcast."
+msgstr "Use a bech32 address valid on <0>{0}</0>. Wrong-prefix addresses are rejected on broadcast."
 
 #: src/components/AddSignerCard.tsx
 msgid "v1 keystore file"

@@ -1,8 +1,10 @@
+import { type Coin } from '@cosmjs/proto-signing'
 import { Trans, useLingui } from '@lingui/react/macro'
 
 import { RefreshButton } from '@/components/RefreshButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { displayDenom, formatCoinAmount, useAllBalances } from '@/lib/balance'
+import { useDenomTrace, useIbcChannels } from '@/lib/ibc'
 import { useActiveSigner } from '@/lib/signer'
 
 /**
@@ -10,16 +12,15 @@ import { useActiveSigner } from '@/lib/signer'
  * native `nund` (rendered as FUND) plus any IBC-wrapped tokens received from
  * other chains.
  *
- * IBC denom hashes are rendered truncated (`ibc/AB12…CD34`) with the full
- * hash available via tooltip; resolving them to friendly labels (e.g. "ATOM
- * from Cosmos Hub") needs `ibc.applications.transfer.v1.QueryDenomTrace`
- * which is properly homed in M9 IBC alongside the rest of cross-chain work.
- * For pre-M9, the truncated hash is the honest representation.
+ * For IBC denoms (`ibc/<hash>`), we run `useDenomTrace` per row to surface
+ * the base denom + source channel, then cross-reference channels from
+ * `useIbcChannels` to render "ATOM (via osmosis-1)" rather than an opaque
+ * hash. Both queries cache aggressively (denom traces never change; channels
+ * change rarely), so the cost amortises across renders.
  */
 export function Balances() {
   const { address } = useActiveSigner()
   const { data: balances, isLoading } = useAllBalances(address)
-  const { t } = useLingui()
 
   if (!address) return null
 
@@ -46,38 +47,81 @@ export function Balances() {
         )}
         {rows.length > 0 && (
           <ul className="flex flex-col gap-1">
-            {rows.map((coin) => {
-              const isIbc = coin.denom.startsWith('ibc/')
-              return (
-                <li
-                  key={coin.denom}
-                  className="flex items-center justify-between gap-2 rounded border border-border p-2"
-                  title={isIbc ? coin.denom : undefined}
-                >
-                  <span className="flex flex-col min-w-0">
-                    <span className="font-medium">{displayDenom(coin.denom)}</span>
-                    {isIbc && (
-                      <span className="font-mono text-[10px] text-muted-foreground">
-                        <Trans>IBC-wrapped</Trans>
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className="font-mono font-medium tabular-nums"
-                    title={
-                      isIbc
-                        ? t`Raw amount — decimals unknown until M9 IBC denom-trace lands.`
-                        : undefined
-                    }
-                  >
-                    {formatCoinAmount(coin.amount, coin.denom)}
-                  </span>
-                </li>
-              )
-            })}
+            {rows.map((coin) => (
+              <BalanceRow key={coin.denom} coin={coin} />
+            ))}
           </ul>
         )}
       </CardContent>
     </Card>
+  )
+}
+
+/**
+ * Single row. Extracted so each row can run its own conditional
+ * `useDenomTrace` — `enabled` gating in the hook keeps non-IBC rows
+ * zero-cost (the query never fires for a `denom !== 'ibc/…'`).
+ */
+function BalanceRow({ coin }: { coin: Coin }) {
+  const { t } = useLingui()
+  const isIbc = coin.denom.startsWith('ibc/')
+  const trace = useDenomTrace(isIbc ? coin.denom : null)
+  const { data: channels } = useIbcChannels()
+
+  // Resolve trace.path → counterparty chain ID via our channel list. Format
+  // of `path` is `"transfer/channel-N"` (or longer for multi-hop, which we
+  // don't bother to fully resolve — the first hop is the one the user
+  // recognises).
+  const sourceChainId = (() => {
+    if (!trace.data || !channels) return null
+    // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+    const channelMatch = trace.data.path.match(/transfer\/(channel-\d+)/)
+    if (!channelMatch) return null
+    const channelId = channelMatch[1]
+    const channel = channels.find((c) => c.channelId === channelId)
+    return channel?.counterpartyChainId ?? null
+  })()
+
+  // Compose the primary label. Prefer the traced shape; fall back to the
+  // truncated-hash shape when trace hasn't landed yet (or isn't available).
+  const primary = (() => {
+    if (!isIbc) return displayDenom(coin.denom)
+    if (trace.data) {
+      const base = trace.data.baseDenom.toUpperCase()
+      return sourceChainId ? `${base} (via ${sourceChainId})` : base
+    }
+    return displayDenom(coin.denom)
+  })()
+
+  return (
+    <li
+      className="flex items-center justify-between gap-2 rounded border border-border p-2"
+      title={isIbc ? coin.denom : undefined}
+    >
+      <span className="flex flex-col min-w-0">
+        <span className="font-medium truncate">{primary}</span>
+        {isIbc && (
+          <span className="font-mono text-[10px] text-muted-foreground">
+            {trace.data ? (
+              <Trans>{trace.data.path}</Trans>
+            ) : trace.isLoading ? (
+              <Trans>resolving denom trace…</Trans>
+            ) : (
+              <Trans>IBC-wrapped</Trans>
+            )}
+          </span>
+        )}
+      </span>
+      <span
+        className="font-mono font-medium tabular-nums"
+        title={
+          isIbc
+            ? t`Raw amount — IBC-wrapped denoms use the source chain's native decimals.`
+            : undefined
+        }
+      >
+        {formatCoinAmount(coin.amount, coin.denom)}
+      </span>
+    </li>
   )
 }
