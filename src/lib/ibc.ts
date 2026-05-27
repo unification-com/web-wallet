@@ -1,9 +1,15 @@
-import { QueryClient, setupIbcExtension } from '@cosmjs/stargate'
+import {
+  QueryClient,
+  setupIbcExtension,
+  StargateClient,
+  type IndexedTx,
+} from '@cosmjs/stargate'
 import { Comet38Client } from '@cosmjs/tendermint-rpc'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel'
 
 import { useActiveEndpoint } from './chain'
+import { txSearchPage } from './txsearchPaginated'
 
 // ---------------------------------------------------------------------------
 // Module note — IBC queries via cosmjs's bundled extension
@@ -180,4 +186,265 @@ export function useDenomTrace(denom: string | null) {
     staleTime: 24 * 60 * 60_000, // 24h — denom hashes are content-addressed
     refetchInterval: false,
   })
+}
+
+// ---------------------------------------------------------------------------
+// Packet history (outbound + inbound IBC transfers)
+// ---------------------------------------------------------------------------
+
+export type IbcPacketDirection = 'outbound' | 'inbound'
+
+/** Cross-chain packet status — what the user's IBC transfer is doing right now. */
+export type IbcPacketStatus =
+  | 'in-transit' // outbound: send_packet committed, no ack/timeout yet
+  | 'acknowledged' // outbound: counterparty received + acked back to us
+  | 'timed-out' // outbound: timeout fired; funds refunded to sender
+  | 'received' // inbound: packet processed on this chain, funds in user's balance
+  | 'failed' // inbound: fungible_token_packet.success === 'false' (denom refused, etc.)
+
+export interface IbcPacket {
+  direction: IbcPacketDirection
+  status: IbcPacketStatus
+  /** Tx hash on THIS chain — for outbound it's the send tx; for inbound it's the recv tx. */
+  txHash: string
+  height: number
+  /** Block timestamp for the row's tx. Optional — defaults to undefined if
+   * block-time lookup fails (rare). Block times are immutable so the value
+   * once resolved is final. */
+  timestamp?: Date
+  /** Outbound: source channel from this chain's perspective. Inbound: dest channel. */
+  channelId: string
+  /** Packet sequence number (unique per channel). */
+  sequence: string
+  /** Counterparty bech32 (recipient on outbound, sender on inbound). */
+  counterparty: string
+  /** Coin denom as it appears on this chain (raw — `nund` for FUND sends out;
+   * `transfer/channel-N/...` for inbound packet data before minting). */
+  denom: string
+  /** Coin amount, raw chain-side integer string. */
+  amount: string
+}
+
+interface RawEventAttr {
+  key: string
+  value: string
+}
+interface RawEvent {
+  type: string
+  attributes: readonly RawEventAttr[]
+}
+
+function eventAttr(events: readonly RawEvent[], type: string, key: string): string {
+  for (const e of events) {
+    if (e.type !== type) continue
+    const found = e.attributes.find((a) => a.key === key)
+    if (found) return found.value
+  }
+  return ''
+}
+
+interface PacketDataJson {
+  amount?: string
+  denom?: string
+  sender?: string
+  receiver?: string
+}
+
+function parsePacketData(raw: string): PacketDataJson {
+  try {
+    return JSON.parse(raw) as PacketDataJson
+  } catch {
+    return {}
+  }
+}
+
+export interface IbcHistoryPage {
+  packets: IbcPacket[]
+  page: number
+  hasMore: boolean
+}
+
+/**
+ * Cursor-paginated IBC packet history for `address`. Outbound + inbound are
+ * fetched in parallel per page; status (in-transit / acknowledged / timed-out
+ * for outbound) is resolved on demand by the per-row `usePacketStatus` hook,
+ * keeping the list query fast even for accounts with thousands of packets.
+ * Block-times resolve via `useBlockTime` per row, similarly cached.
+ *
+ * Each "Load more" click fetches `TX_SEARCH_PAGE_SIZE` outbound + the same
+ * inbound (so up to 50 packets per click).
+ */
+export function useIbcHistory(address: string | null) {
+  const endpoint = useActiveEndpoint()
+  return useInfiniteQuery<IbcHistoryPage>({
+    queryKey: ['ibc', 'history', endpoint.id, address],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as number
+      if (!address) return { packets: [], page, hasMore: false }
+      const [outbound, inbound] = await Promise.all([
+        txSearchPage(endpoint.rpc, [{ key: 'ibc_transfer.sender', value: address }], page),
+        txSearchPage(
+          endpoint.rpc,
+          [{ key: 'fungible_token_packet.receiver', value: address }],
+          page,
+        ),
+      ])
+      const outboundPackets = outbound.txs
+        .map((tx) => parseOutboundPacketShallow(tx))
+        .filter((p): p is IbcPacket => p !== null)
+      const inboundPackets = inbound.txs
+        .map((tx) => parseInboundPacket(tx, address))
+        .filter((p): p is IbcPacket => p !== null)
+      const packets = [...outboundPackets, ...inboundPackets].sort(
+        (a, b) => b.height - a.height,
+      )
+      return {
+        packets,
+        page,
+        hasMore: outbound.hasMore || inbound.hasMore,
+      }
+    },
+    getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
+    enabled: !!address,
+    refetchInterval: 30_000,
+  })
+}
+
+/**
+ * Parse an outbound MsgTransfer tx into a packet — no status lookup. Status
+ * is resolved on-demand by `usePacketStatus` per row so the list query stays
+ * fast for accounts with thousands of packets.
+ */
+function parseOutboundPacketShallow(tx: IndexedTx): IbcPacket | null {
+  const events = tx.events as RawEvent[]
+  const channelId = eventAttr(events, 'send_packet', 'packet_src_channel')
+  const sequence = eventAttr(events, 'send_packet', 'packet_sequence')
+  if (!channelId || !sequence) return null
+  const packetData = parsePacketData(eventAttr(events, 'send_packet', 'packet_data'))
+  const counterparty =
+    packetData.receiver ?? eventAttr(events, 'ibc_transfer', 'receiver')
+  return {
+    direction: 'outbound',
+    // `in-transit` is the optimistic default — `usePacketStatus` upgrades
+    // to acknowledged / timed-out asynchronously when its query resolves.
+    status: 'in-transit',
+    txHash: tx.hash,
+    height: tx.height,
+    channelId,
+    sequence,
+    counterparty,
+    denom: packetData.denom ?? '',
+    amount: packetData.amount ?? '0',
+  }
+}
+
+/**
+ * Per-row outbound status lookup — searches for the matching
+ * acknowledge_packet or timeout_packet for `(channelId, sequence)`. Returns
+ * `null` while loading. Cache time is infinite for terminal statuses (`acknowledged`
+ * / `timed-out` never flip) and bounded for `in-transit` so a freshly-acked
+ * packet's status updates promptly on next render.
+ *
+ * No-op when `direction === 'inbound'` — inbound status is already known
+ * from the recv tx's `fungible_token_packet.success` attribute.
+ */
+export function usePacketStatus(
+  direction: IbcPacketDirection,
+  channelId: string,
+  sequence: string,
+) {
+  const endpoint = useActiveEndpoint()
+  return useQuery<IbcPacketStatus | null>({
+    queryKey: ['ibc', 'packet-status', endpoint.id, channelId, sequence],
+    queryFn: async () => {
+      // For outbound packets, look up ack OR timeout. Each query is a single
+      // page; we only need to know "does any match exist".
+      const [acks, timeouts] = await Promise.all([
+        txSearchPage(
+          endpoint.rpc,
+          [
+            { key: 'acknowledge_packet.packet_src_channel', value: channelId },
+            { key: 'acknowledge_packet.packet_sequence', value: sequence },
+          ],
+          1,
+        ),
+        txSearchPage(
+          endpoint.rpc,
+          [
+            { key: 'timeout_packet.packet_src_channel', value: channelId },
+            { key: 'timeout_packet.packet_sequence', value: sequence },
+          ],
+          1,
+        ),
+      ])
+      if (acks.totalCount > 0) return 'acknowledged'
+      if (timeouts.totalCount > 0) return 'timed-out'
+      return 'in-transit'
+    },
+    enabled: direction === 'outbound',
+    // Once acknowledged / timed-out, status never changes — cache forever.
+    // While in-transit, refetch every 30 s to catch fresh acks.
+    refetchInterval: (q) => {
+      const status = q.state.data
+      if (status === 'acknowledged' || status === 'timed-out') return false
+      return 30_000
+    },
+    staleTime: Infinity,
+  })
+}
+
+/**
+ * Per-row block-time lookup. Block times are immutable, so cache time is
+ * infinite. React Query dedupes parallel requests for the same height, so
+ * multiple packet rows in the same block resolve via one RPC round-trip.
+ */
+export function useBlockTime(height: number) {
+  const endpoint = useActiveEndpoint()
+  return useQuery({
+    queryKey: ['block-time', endpoint.id, height],
+    queryFn: async (): Promise<Date | null> => {
+      const client = await StargateClient.connect(endpoint.rpc)
+      try {
+        const block = await client.getBlock(height)
+        return new Date(block.header.time)
+      } finally {
+        client.disconnect()
+      }
+    },
+    enabled: height > 0,
+    staleTime: Infinity,
+  })
+}
+
+function parseInboundPacket(tx: IndexedTx, address: string): IbcPacket | null {
+  const events = tx.events as RawEvent[]
+  // Find the fungible_token_packet whose receiver matches the user — a
+  // single tx can carry multiple recv_packets (e.g. relayer batches) so
+  // we pick the one targeting this address.
+  const ftp = events.find(
+    (e) =>
+      e.type === 'fungible_token_packet' &&
+      e.attributes.some((a) => a.key === 'receiver' && a.value === address),
+  )
+  if (!ftp) return null
+  const channelId = eventAttr(events, 'recv_packet', 'packet_dst_channel')
+  const sequence = eventAttr(events, 'recv_packet', 'packet_sequence')
+  if (!channelId || !sequence) return null
+  const sender = ftp.attributes.find((a) => a.key === 'sender')?.value ?? ''
+  const denom = ftp.attributes.find((a) => a.key === 'denom')?.value ?? ''
+  const amount = ftp.attributes.find((a) => a.key === 'amount')?.value ?? '0'
+  const success =
+    ftp.attributes.find((a) => a.key === 'success')?.value ?? 'true'
+  return {
+    direction: 'inbound',
+    status: success === 'true' ? 'received' : 'failed',
+    txHash: tx.hash,
+    height: tx.height,
+    channelId,
+    sequence,
+    counterparty: sender,
+    denom,
+    amount,
+  }
 }

@@ -1,19 +1,19 @@
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing'
 import { StargateClient, type IndexedTx } from '@cosmjs/stargate'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { useActiveEndpoint } from './chain'
+import { txSearchPage, TX_SEARCH_PAGE_SIZE } from './txsearchPaginated'
 
 // ---------------------------------------------------------------------------
 // Module note
 // ---------------------------------------------------------------------------
-// cosmjs's `StargateClient.searchTx` calls the Tendermint `tx_search` RPC
-// underneath, which supports an `AND`-only query language (no `OR`). To
-// fetch every tx the active account is involved in, we run two queries
-// (sent + received) and merge + dedupe by hash. searchTx internally pages
-// through ALL results — for long histories this is expensive; if mainnet
-// experience surfaces real slowness, switch to a paged fetch (or move to
-// the indexer pattern in a later milestone).
+// Tendermint `tx_search` supports `AND` but not `OR`, so we run two queries
+// (sent + received) per page and union them client-side. Each query is now
+// cursor-paged via `txSearchPage` — clicking "Load more" fetches the next
+// page from BOTH directions in parallel. For addresses with thousands of
+// txs (heavy IBC users, etc.) this is dramatically faster than the
+// previous un-paged variant which looped through every page upfront.
 // ---------------------------------------------------------------------------
 
 /**
@@ -65,34 +65,49 @@ function hydrate(txs: readonly IndexedTx[]): DecodedIndexedTx[] {
   }))
 }
 
+export interface TxHistoryPage {
+  txs: DecodedIndexedTx[]
+  page: number
+  hasMore: boolean
+  /** Sum of total_count across both directions — `hasMore` is the better
+   * "should we show the Load more button" signal but `totalCount` is useful
+   * for "showing X of N" copy if surfaced. */
+  totalCount: number
+}
+
 /**
- * Tx history for `address`: every tx where `address` is either the
- * `message.sender` (outbound) OR the `transfer.recipient` (inbound).
- * Refetches every 30 s while mounted; that's enough to surface new txs
- * shortly after they're indexed without hammering the RPC for a slow-
- * moving history view.
+ * Cursor-paginated tx history for `address`. Use `data.pages.flatMap(p => p.txs)`
+ * to render the full flattened list, or iterate `data.pages` to render per-
+ * page sections. Call `fetchNextPage()` when the user clicks "Load more".
+ *
+ * Each page fetches page N of `message.sender=address` + page N of
+ * `transfer.recipient=address` in parallel, then merges + dedupes. With
+ * `TX_SEARCH_PAGE_SIZE = 25`, that's up to 50 fresh txs per "Load more"
+ * click.
  */
 export function useTxHistory(address: string | null) {
   const endpoint = useActiveEndpoint()
-  return useQuery({
+  return useInfiniteQuery<TxHistoryPage>({
     queryKey: ['txhistory', endpoint.id, address],
-    queryFn: async (): Promise<DecodedIndexedTx[]> => {
-      if (!address) return []
-      const client = await StargateClient.connect(endpoint.rpc)
-      try {
-        // Two queries (sender + recipient). tx_search supports AND but not
-        // OR, so we union client-side. Each query returns all matching
-        // pages — cap risk: very long histories pull a lot at once. If
-        // that becomes a problem, swap for a paged variant.
-        const [sent, received] = await Promise.all([
-          client.searchTx([{ key: 'message.sender', value: address }]),
-          client.searchTx([{ key: 'transfer.recipient', value: address }]),
-        ])
-        return hydrate(mergeTxLists(sent, received))
-      } finally {
-        client.disconnect()
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as number
+      if (!address) {
+        return { txs: [], page, hasMore: false, totalCount: 0 }
+      }
+      const [sent, received] = await Promise.all([
+        txSearchPage(endpoint.rpc, [{ key: 'message.sender', value: address }], page),
+        txSearchPage(endpoint.rpc, [{ key: 'transfer.recipient', value: address }], page),
+      ])
+      const merged = mergeTxLists(sent.txs, received.txs)
+      return {
+        txs: hydrate(merged),
+        page,
+        hasMore: sent.hasMore || received.hasMore,
+        totalCount: sent.totalCount + received.totalCount,
       }
     },
+    getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
     enabled: !!address,
     refetchInterval: 30_000,
   })
@@ -120,3 +135,6 @@ export function useTx(hash: string | null) {
     enabled: !!hash,
   })
 }
+
+/** Re-export for consumers building "showing X of Y" UI. */
+export { TX_SEARCH_PAGE_SIZE }

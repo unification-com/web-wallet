@@ -37,6 +37,9 @@ const Enterprise = lazy(() =>
 const SendIbc = lazy(() =>
   import('@/components/SendIbc').then((m) => ({ default: m.SendIbc })),
 )
+const IbcHistory = lazy(() =>
+  import('@/components/IbcHistory').then((m) => ({ default: m.IbcHistory })),
+)
 
 type Surface = 'popup' | 'standalone' | 'web'
 
@@ -263,6 +266,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
             }
           >
             <SendIbc />
+            <IbcHistory />
           </Suspense>
         )}
 

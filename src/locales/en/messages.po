@@ -68,6 +68,10 @@ msgstr "{0} — private key"
 msgid "{0} — seed phrase"
 msgstr "{0} — seed phrase"
 
+#: src/components/IbcHistory.tsx
+#~ msgid "{0} · seq {1}"
+#~ msgstr "{0} · seq {1}"
+
 #. placeholder {0}: (watched.memo ?? '').length
 #: src/components/RaisePurchaseOrderModal.tsx
 msgid "{0} / 100"
@@ -117,10 +121,16 @@ msgstr "{0} of {1}"
 msgid "{0} recorded"
 msgstr "{0} recorded"
 
-#. placeholder {0}: all.length.toString()
+#. placeholder {0}: allTxs.length.toString()
+#. placeholder {0}: rows.length.toString()
+#: src/components/IbcHistory.tsx
 #: src/components/TxHistory.tsx
-msgid "{0} txs"
-msgstr "{0} txs"
+msgid "{0} shown"
+msgstr "{0} shown"
+
+#: src/components/TxHistory.tsx
+#~ msgid "{0} txs"
+#~ msgstr "{0} txs"
 
 #. placeholder {0}: minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`
 #: src/components/Enterprise.tsx
@@ -212,6 +222,10 @@ msgstr "accountIndex must be a non-negative integer"
 #: src/components/AccountSwitcher.tsx
 msgid "Accounts"
 msgstr "Accounts"
+
+#: src/components/IbcHistory.tsx
+msgid "Acknowledged"
+msgstr "Acknowledged"
 
 #: src/lib/msgs/presenters.ts
 msgid "Action"
@@ -360,6 +374,11 @@ msgstr "Base type"
 #: src/lib/msgs/presenters.ts
 msgid "Beacon ID"
 msgstr "Beacon ID"
+
+#. placeholder {0}: packet.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "block {0}"
+msgstr "block {0}"
 
 #. placeholder {0}: event.height.toLocaleString()
 #: src/components/StreamHistoryPanel.tsx
@@ -888,6 +907,7 @@ msgstr "Explorer base URL (optional)"
 msgid "Extends by"
 msgstr "Extends by"
 
+#: src/components/IbcHistory.tsx
 #: src/components/ProposalList.tsx
 #: src/components/ProposalStatusBadge.tsx
 #: src/components/TxRow.tsx
@@ -987,6 +1007,7 @@ msgstr "Flow rate must be ≥ 1 nund/second. Try a larger amount or a shorter pe
 msgid "Forgot your password?"
 msgstr "Forgot your password?"
 
+#: src/components/IbcHistory.tsx
 #: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
 msgid "From"
@@ -1102,6 +1123,10 @@ msgstr "I've written the seed phrase down somewhere safe."
 msgid "IBC"
 msgstr "IBC"
 
+#: src/components/IbcHistory.tsx
+msgid "IBC packet history"
+msgstr "IBC packet history"
+
 #: src/components/Balances.tsx
 msgid "IBC-wrapped"
 msgstr "IBC-wrapped"
@@ -1169,6 +1194,10 @@ msgstr "Imported keys"
 msgid "Importing…"
 msgstr "Importing…"
 
+#: src/components/IbcHistory.tsx
+msgid "In transit"
+msgstr "In transit"
+
 #: src/components/Validators.tsx
 msgid "INACTIVE"
 msgstr "INACTIVE"
@@ -1233,10 +1262,14 @@ msgstr "length ok"
 msgid "Light"
 msgstr "Light"
 
-#. placeholder {0}: Math.min(more, PAGE_SIZE).toString()
 #: src/components/TxHistory.tsx
-msgid "Load {0} more"
-msgstr "Load {0} more"
+#~ msgid "Load {0} more"
+#~ msgstr "Load {0} more"
+
+#: src/components/IbcHistory.tsx
+#: src/components/TxHistory.tsx
+msgid "Load more"
+msgstr "Load more"
 
 #: src/components/AddSignerCard.tsx
 msgid "Loaded: {fileName}"
@@ -1262,6 +1295,10 @@ msgstr "Loading enterprise…"
 #: src/components/TxHistory.tsx
 msgid "Loading history…"
 msgstr "Loading history…"
+
+#: src/components/IbcHistory.tsx
+msgid "Loading IBC history…"
+msgstr "Loading IBC history…"
 
 #: src/App.tsx
 msgid "Loading IBC…"
@@ -1296,7 +1333,9 @@ msgstr "Loading validators…"
 msgid "loading…"
 msgstr "loading…"
 
+#: src/components/IbcHistory.tsx
 #: src/components/RevealSecretDialog.tsx
+#: src/components/TxHistory.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -1429,6 +1468,10 @@ msgstr "No events yet."
 #: src/components/VaultSetup.tsx
 msgid "No file selected"
 msgstr "No file selected"
+
+#: src/components/IbcHistory.tsx
+msgid "No IBC transfers yet."
+msgstr "No IBC transfers yet."
 
 #: src/components/StreamsList.tsx
 msgid "No incoming streams."
@@ -1739,6 +1782,7 @@ msgstr "Re-enter your wallet password to reveal the seed phrase."
 msgid "Receive"
 msgstr "Receive"
 
+#: src/components/IbcHistory.tsx
 #: src/components/StreamHistoryPanel.tsx
 #: src/components/TxRow.tsx
 #: src/lib/msgs/presenters.ts
@@ -2293,6 +2337,10 @@ msgstr "This stream is non-cancellable (chain-enforced — typically because it'
 msgid "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 msgstr "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
 
+#: src/components/IbcHistory.tsx
+msgid "Timed out"
+msgstr "Timed out"
+
 #: src/lib/msgs/presenters.ts
 msgid "Timestamp ID"
 msgstr "Timestamp ID"
@@ -2301,6 +2349,7 @@ msgstr "Timestamp ID"
 msgid "Title"
 msgstr "Title"
 
+#: src/components/IbcHistory.tsx
 #: src/components/Send.tsx
 #: src/components/StreamsList.tsx
 #: src/lib/msgs/presenters.ts
