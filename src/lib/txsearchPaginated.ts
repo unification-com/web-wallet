@@ -18,9 +18,12 @@ import { Comet38Client } from '@cosmjs/tendermint-rpc'
 // downstream code is interchangeable between the paged + un-paged variants.
 // ---------------------------------------------------------------------------
 
-/** Page size — 25 strikes a balance between RPC latency and number of
- * "Load more" clicks for a typical history view. */
-export const TX_SEARCH_PAGE_SIZE = 25
+/** Page size — 10 keeps initial render snappy on heavy accounts (thousands
+ * of IBC packets). Larger pages mean fewer "Load more" clicks but each
+ * costs N per-row block-time + status lookups that the user pays for in
+ * latency. Reduce further if perf complaints surface; raise if power users
+ * complain about clicking. */
+export const TX_SEARCH_PAGE_SIZE = 10
 
 export interface TxSearchPage {
   txs: IndexedTx[]
