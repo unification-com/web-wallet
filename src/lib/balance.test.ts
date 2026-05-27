@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { displayDenom, formatCoinAmount, getBaseDenom, scaleByDecimals } from './balance'
+import {
+  displayDenom,
+  formatCoinAmount,
+  getBaseDenom,
+  scaleByDecimals,
+  scaleToInteger,
+  userAmountToChain,
+} from './balance'
 
 describe('balance.getBaseDenom', () => {
   it('passes nund through unchanged', () => {
@@ -82,6 +89,70 @@ describe('balance.formatCoinAmount', () => {
 
   it('returns the raw integer for ibc/HASH denoms without decimals', () => {
     expect(formatCoinAmount('1500000', 'ibc/AB12')).toBe('1500000')
+  })
+})
+
+describe('balance.scaleToInteger (inverse of scaleByDecimals)', () => {
+  it('scales 1.5 by 6 → 1500000', () => {
+    expect(scaleToInteger('1.5', 6)).toBe('1500000')
+  })
+
+  it('handles a whole number', () => {
+    expect(scaleToInteger('2', 6)).toBe('2000000')
+  })
+
+  it('truncates fractional digits past `decimals`', () => {
+    expect(scaleToInteger('1.123456789', 6)).toBe('1123456')
+  })
+
+  it('pads short fractional digits', () => {
+    expect(scaleToInteger('1.5', 18)).toBe('1500000000000000000')
+  })
+
+  it('returns "0" for empty/blank input', () => {
+    expect(scaleToInteger('', 6)).toBe('0')
+    expect(scaleToInteger('   ', 6)).toBe('0')
+  })
+
+  it('strips non-digit garbage', () => {
+    expect(scaleToInteger('1abc.5xyz', 6)).toBe('1500000')
+  })
+
+  it('returns the cleaned integer when decimals is 0', () => {
+    expect(scaleToInteger('123abc', 0)).toBe('123')
+  })
+
+  it('round-trips with scaleByDecimals at high precision', () => {
+    const userInput = '12.345678'
+    const chainSide = scaleToInteger(userInput, 6)
+    expect(chainSide).toBe('12345678')
+    expect(scaleByDecimals(chainSide, 6)).toBe(userInput)
+  })
+})
+
+describe('balance.userAmountToChain', () => {
+  it('scales nund (FUND → nund)', () => {
+    expect(userAmountToChain('1.5', 'nund')).toBe('1500000000')
+  })
+
+  it('treats wrapped nund the same as nund', () => {
+    expect(userAmountToChain('1.5', 'transfer/channel-2/nund')).toBe('1500000000')
+  })
+
+  it('uses explicit decimals for IBC-wrapped tokens', () => {
+    expect(userAmountToChain('1.5', 'ibc/AB12', 6)).toBe('1500000')
+  })
+
+  it('falls back to integer-strip without decimals', () => {
+    expect(userAmountToChain('1500000', 'ibc/AB12')).toBe('1500000')
+  })
+
+  it('strips garbage without decimals', () => {
+    expect(userAmountToChain('1500abc', 'ibc/AB12')).toBe('1500')
+  })
+
+  it('returns "0" for empty input without decimals', () => {
+    expect(userAmountToChain('', 'ibc/AB12')).toBe('0')
   })
 })
 

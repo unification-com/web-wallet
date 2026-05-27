@@ -1,3 +1,4 @@
+import { type Coin } from '@cosmjs/proto-signing'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { useQueryClient } from '@tanstack/react-query'
@@ -18,14 +19,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  displayDenom,
   formatCoinAmount,
   useAllBalances,
   userAmountToChain,
 } from '@/lib/balance'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
 import { useChainByChainId, useCosmosRegistryStore } from '@/lib/cosmosRegistry'
-import { useCounterpartyAccountUrl, useIbcChannels } from '@/lib/ibc'
+import {
+  useCounterpartyAccountUrl,
+  useIbcChannels,
+  useResolvedDenom,
+} from '@/lib/ibc'
 import {
   buildMsgTransfer,
   defaultTimeoutTimestampNs,
@@ -86,6 +90,13 @@ export function SendIbc() {
   const selectedChannelInfo = channels?.find((c) => c.channelId === selectedChannel)
   const watchedReceiver = form.watch('receiver')
 
+  // Resolved metadata for the currently-selected denom — drives the
+  // amount-input label (`Amount (ATOM)`), the balance pill in the header,
+  // and the chain-side scaling in `userAmountToChain`. For non-`nund`
+  // denoms the registry-derived `decimals` is what makes the user typing
+  // `1.5` translate to the correct `1500000` integer (instead of `15`).
+  const selectedResolved = useResolvedDenom(selectedDenom)
+
   // Pull the destination chain's bech32 prefix from the cosmos registry to
   // do client-side prefix validation. Skips when registry data hasn't
   // landed yet (degrades to the loose any-prefix bech32 validator in the
@@ -131,6 +142,7 @@ export function SendIbc() {
             amountChainSide: userAmountToChain(
               pendingValues.amountFund,
               pendingValues.denom,
+              selectedResolved.decimals,
             ),
             denom: pendingValues.denom,
             timeoutTimestampNs: defaultTimeoutTimestampNs(),
@@ -174,9 +186,13 @@ export function SendIbc() {
             <Trans>
               Balance:{' '}
               <span className="font-mono">
-                {formatCoinAmount(selectedBalance.amount, selectedBalance.denom)}
+                {formatCoinAmount(
+                  selectedBalance.amount,
+                  selectedBalance.denom,
+                  selectedResolved.decimals,
+                )}
               </span>{' '}
-              {displayDenom(selectedBalance.denom)}
+              {selectedResolved.symbol}
             </Trans>
           </span>
         )}
@@ -293,9 +309,7 @@ export function SendIbc() {
                 className="h-9 rounded-md border border-input bg-background px-2 text-xs"
               >
                 {(balances ?? []).map((c) => (
-                  <option key={c.denom} value={c.denom}>
-                    {displayDenom(c.denom)} — {formatCoinAmount(c.amount, c.denom)}
-                  </option>
+                  <BalanceOption key={c.denom} coin={c} />
                 ))}
               </select>
             </div>
@@ -303,7 +317,7 @@ export function SendIbc() {
 
           <div className="flex flex-col gap-1">
             <Label htmlFor="ibc-amount">
-              <Trans>Amount ({displayDenom(selectedDenom)})</Trans>
+              <Trans>Amount ({selectedResolved.symbol})</Trans>
             </Label>
             <Input
               id="ibc-amount"
@@ -316,12 +330,11 @@ export function SendIbc() {
                 {form.formState.errors.amountFund.message}
               </span>
             )}
-            {selectedDenom !== 'nund' && (
+            {selectedDenom !== 'nund' && typeof selectedResolved.decimals !== 'number' && (
               <span className="text-[10px] text-muted-foreground">
                 <Trans>
-                  IBC-wrapped denoms are sent in raw chain-side integer units
-                  (no FUND-style decimal scaling) until denom-trace metadata
-                  lands a future polish.
+                  Source chain&apos;s decimals aren&apos;t in the registry —
+                  enter the amount as a raw chain-side integer.
                 </Trans>
               </span>
             )}
@@ -386,7 +399,7 @@ export function SendIbc() {
                   <Trans>Amount</Trans>
                 </dt>
                 <dd className="font-mono">
-                  {pendingValues.amountFund} {displayDenom(pendingValues.denom)}
+                  {pendingValues.amountFund} {selectedResolved.symbol}
                 </dd>
                 {pendingValues.memo && (
                   <>
@@ -452,5 +465,25 @@ export function SendIbc() {
         </Dialog>
       </CardContent>
     </Card>
+  )
+}
+
+/**
+ * Single `<option>` for the denom dropdown. Extracted so it can run its
+ * own `useResolvedDenom` lookup per row — `<select>` would otherwise
+ * force per-iteration hook calls inside the parent, which violates rules
+ * of hooks. Returns just the `<option>` element so React's `<select>`
+ * child handling sees it transparently.
+ */
+function BalanceOption({ coin }: { coin: Coin }) {
+  const resolved = useResolvedDenom(coin.denom)
+  const amount = formatCoinAmount(coin.amount, coin.denom, resolved.decimals)
+  const label = resolved.chainLabel
+    ? `${resolved.symbol} (${resolved.chainLabel})`
+    : resolved.symbol
+  return (
+    <option value={coin.denom}>
+      {label} — {amount}
+    </option>
   )
 }

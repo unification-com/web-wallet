@@ -3,9 +3,8 @@ import { Trans, useLingui } from '@lingui/react/macro'
 
 import { RefreshButton } from '@/components/RefreshButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { displayDenom, formatCoinAmount, useAllBalances } from '@/lib/balance'
-import { useChainByChainId } from '@/lib/cosmosRegistry'
-import { useDenomTrace, useIbcChannels } from '@/lib/ibc'
+import { formatCoinAmount, useAllBalances } from '@/lib/balance'
+import { useDenomTrace, useResolvedDenom } from '@/lib/ibc'
 import { useActiveSigner } from '@/lib/signer'
 
 /**
@@ -67,45 +66,11 @@ function BalanceRow({ coin }: { coin: Coin }) {
   const { t } = useLingui()
   const isIbc = coin.denom.startsWith('ibc/')
   const trace = useDenomTrace(isIbc ? coin.denom : null)
-  const { data: channels } = useIbcChannels()
+  const resolved = useResolvedDenom(coin.denom)
 
-  // Resolve trace.path → counterparty chain ID via our channel list. Format
-  // of `path` is `"transfer/channel-N"` (or longer for multi-hop, which we
-  // don't bother to fully resolve — the first hop is the one the user
-  // recognises).
-  const sourceChainId = (() => {
-    if (!trace.data || !channels) return null
-    // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-    const channelMatch = trace.data.path.match(/transfer\/(channel-\d+)/)
-    if (!channelMatch) return null
-    const channelId = channelMatch[1]
-    const channel = channels.find((c) => c.channelId === channelId)
-    return channel?.counterpartyChainId ?? null
-  })()
-
-  // Registry entry for the source chain. Gives us the pretty name (e.g.
-  // "Cosmos Hub" instead of `cosmoshub-4`), the display symbol (e.g. `ATOM`
-  // instead of `UATOM`), and the decimals exponent for amount scaling
-  // (e.g. divide by 10^6 for ATOM/OSMO/JUNO). `useChainByChainId` returns
-  // undefined when the registry index hasn't loaded yet OR the chain isn't
-  // listed (rare on cosmos majors); both cases fall through to the
-  // hash-traced defaults.
-  const sourceChain = useChainByChainId(sourceChainId ?? undefined)
-
-  // Compose the primary label. Prefer registry symbol + pretty name; fall
-  // back to the trace's upper-case base denom + chain ID; final fallback is
-  // the truncated-hash shape when trace hasn't landed yet.
-  const primary = (() => {
-    if (!isIbc) return displayDenom(coin.denom)
-    if (trace.data) {
-      const symbol = sourceChain?.symbol ?? trace.data.baseDenom.toUpperCase()
-      const chainLabel = sourceChain?.pretty_name ?? sourceChainId
-      return chainLabel ? `${symbol} (via ${chainLabel})` : symbol
-    }
-    return displayDenom(coin.denom)
-  })()
-
-  const decimals = sourceChain?.decimals
+  const primary = resolved.chainLabel
+    ? `${resolved.symbol} (via ${resolved.chainLabel})`
+    : resolved.symbol
 
   return (
     <li
@@ -129,12 +94,12 @@ function BalanceRow({ coin }: { coin: Coin }) {
       <span
         className="font-mono font-medium tabular-nums"
         title={
-          isIbc && typeof decimals !== 'number'
+          isIbc && typeof resolved.decimals !== 'number'
             ? t`Raw amount — source chain's decimals not in registry; rendering integer.`
             : undefined
         }
       >
-        {formatCoinAmount(coin.amount, coin.denom, decimals)}
+        {formatCoinAmount(coin.amount, coin.denom, resolved.decimals)}
       </span>
     </li>
   )

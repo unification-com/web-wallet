@@ -1767,8 +1767,12 @@ msgid "Raised eFUND purchase order"
 msgstr "Raised eFUND purchase order"
 
 #: src/components/Balances.tsx
-msgid "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
-msgstr "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
+#~ msgid "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
+#~ msgstr "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
+
+#: src/components/Balances.tsx
+msgid "Raw amount — source chain's decimals not in registry; rendering integer."
+msgstr "Raw amount — source chain's decimals not in registry; rendering integer."
 
 #. placeholder {0}: account.index.toString()
 #: src/components/VaultEntryManager.tsx

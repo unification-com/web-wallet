@@ -111,15 +111,38 @@ export function displayDenom(denom: string): string {
 
 /**
  * Convert a user-entered amount to the chain-side integer for the given
- * denom. For `nund`, scales by 10^9 (FUND → nund — the user types FUND).
- * For everything else (IBC-wrapped tokens primarily), returns the raw
- * integer as-typed; the source chain's native decimals are unknown until
- * M9 IBC denom-trace lands, so treating the input as already-chain-side is
- * the honest behaviour. Non-numeric input is stripped.
+ * denom. For `nund` (and wrapped `transfer/.../nund`), scales by 10^9
+ * (FUND → nund — the user types FUND). For other denoms, callers can pass
+ * an explicit `decimals` exponent (typically from the cosmos.directory
+ * registry, e.g. 6 for ATOM/OSMO/JUNO, 18 for Ethereum-style assets) to
+ * scale `1.5` → `1500000`. Without `decimals`, the raw integer is taken
+ * as-typed (honest fallback — but caller should warn the user).
  */
-export function userAmountToChain(amount: string, denom: string): string {
-  if (denom === 'nund') return fundToNund(amount)
+export function userAmountToChain(amount: string, denom: string, decimals?: number): string {
+  if (getBaseDenom(denom) === 'nund') return fundToNund(amount)
+  if (typeof decimals === 'number' && decimals > 0) return scaleToInteger(amount, decimals)
   return amount.replace(/[^0-9]/g, '') || '0'
+}
+
+/**
+ * Multiply a decimal-string `amount` by 10^`decimals` to produce the
+ * chain-side integer. Inverse of {@link scaleByDecimals}. Handles
+ * unprintable / malformed input by stripping to 0. BigInt-precision so
+ * 18-decimal Ethereum-style tokens round-trip without loss.
+ */
+export function scaleToInteger(amount: string, decimals: number): string {
+  if (decimals <= 0) return amount.replace(/[^0-9]/g, '') || '0'
+  const trimmed = amount.trim()
+  if (!trimmed) return '0'
+  const [intPart = '0', fracRaw = ''] = trimmed.split('.')
+  const intDigits = intPart.replace(/[^0-9]/g, '')
+  const fracDigits = fracRaw.replace(/[^0-9]/g, '').slice(0, decimals).padEnd(decimals, '0')
+  try {
+    const big = BigInt(intDigits || '0') * 10n ** BigInt(decimals) + BigInt(fracDigits || '0')
+    return big.toString()
+  } catch {
+    return '0'
+  }
 }
 
 /**

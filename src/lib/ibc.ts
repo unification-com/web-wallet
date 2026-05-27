@@ -9,6 +9,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel'
 import { useEffect } from 'react'
 
+import { getBaseDenom } from './balance'
 import { useActiveEndpoint } from './chain'
 import { useCosmosRegistryStore } from './cosmosRegistry'
 import { txSearchPage } from './txsearchPaginated'
@@ -188,6 +189,94 @@ export function useDenomTrace(denom: string | null) {
     staleTime: 24 * 60 * 60_000, // 24h — denom hashes are content-addressed
     refetchInterval: false,
   })
+}
+
+/**
+ * Resolved display + scaling metadata for a denom. Combines `useDenomTrace`
+ * (REST denom-trace lookup for `ibc/HASH` forms) with the cosmos.directory
+ * registry (per-chain `symbol`, `decimals`, `pretty_name`) into the
+ * single shape every UI surface needs: the human label + the exponent for
+ * user-units ↔ chain-units scaling.
+ *
+ * Returns sensible fallbacks at every stage so call sites don't need to
+ * branch on "is it loading", "is it traced", "is it in the registry":
+ *
+ *   - `nund` (and wrapped variants `transfer/channel-X/nund`):
+ *       `{ symbol: 'FUND', decimals: 9, chainLabel: null, baseDenom: 'nund' }`
+ *   - `ibc/HASH` with trace + registry hit:
+ *       `{ symbol: 'ATOM', decimals: 6, chainLabel: 'Cosmos Hub', baseDenom: 'uatom' }`
+ *   - `ibc/HASH` with trace only (chain not in registry):
+ *       `{ symbol: 'UATOM', decimals: undefined, chainLabel: 'cosmoshub-4', baseDenom: 'uatom' }`
+ *   - `ibc/HASH` mid-resolve (no trace yet):
+ *       `{ symbol: 'ibc/AB12…CD34', decimals: undefined, chainLabel: null, baseDenom: denom }`
+ *   - Plain non-`nund` denom (`uatom` on its own — rare on Unification):
+ *       `{ symbol: 'UATOM', decimals: undefined, chainLabel: null, baseDenom: 'uatom' }`
+ *
+ * Used by `<Balances />`, `<SendIbc />` (dropdown + amount label + confirm
+ * modal), and `<IbcHistory />`. Single DRY surface for IBC denom rendering.
+ */
+export interface ResolvedDenom {
+  /** Display symbol, e.g. `'ATOM'`, `'FUND'`, `'ibc/AB12…CD34'`. */
+  symbol: string
+  /** Decimal exponent for user-units ↔ chain-units scaling. Undefined when
+   * the registry has no entry and the denom isn't a known special-case. */
+  decimals: number | undefined
+  /** Pretty chain label, e.g. `'Cosmos Hub'`. Null for native FUND. */
+  chainLabel: string | null
+  /** Underlying base denom (post-trace), e.g. `'uatom'`. Same as input for
+   * non-IBC denoms. */
+  baseDenom: string
+}
+
+// First-hop matcher for IBC trace paths — `transfer/channel-N` (multi-hop
+// forms append further `transfer/channel-X` segments which we don't bother
+// to resolve; the first hop is the user-recognisable origin).
+// eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+const matchFirstHop = (path: string) => path.match(/transfer\/(channel-\d+)/)
+
+export function useResolvedDenom(denom: string): ResolvedDenom {
+  const isIbcHash = denom.startsWith('ibc/')
+  const trace = useDenomTrace(isIbcHash ? denom : null)
+  const { data: channels } = useIbcChannels()
+  const chainsByChainId = useCosmosRegistryStore((s) => s.chainsByChainId)
+
+  // Wrapped or bare nund → FUND. `getBaseDenom` handles
+  // `transfer/channel-X/nund` and multi-hop forms; checking against the
+  // resolved trace's baseDenom catches the `ibc/HASH` → `nund` case too.
+  const tracedBase = trace.data?.baseDenom ?? null
+  if (getBaseDenom(denom) === 'nund' || tracedBase === 'nund') {
+    return { symbol: 'FUND', decimals: 9, chainLabel: null, baseDenom: 'nund' }
+  }
+
+  // Map trace.path → source chain ID via this chain's IBC channel list.
+  const sourceChainId = (() => {
+    if (!trace.data || !channels) return null
+    const match = matchFirstHop(trace.data.path)
+    if (!match) return null
+    return channels.find((c) => c.channelId === match[1])?.counterpartyChainId ?? null
+  })()
+  const sourceChain = sourceChainId ? (chainsByChainId.get(sourceChainId) ?? null) : null
+
+  const baseDenom = tracedBase ?? denom
+  const symbol = (() => {
+    if (sourceChain?.symbol) return sourceChain.symbol
+    if (isIbcHash && !trace.data) {
+      // Mid-resolve: render the truncated-hash placeholder so the UI
+      // doesn't flash an UPPERCASE intermediate state on its way to the
+      // pretty form. Matches `displayDenom`'s shape verbatim.
+      const hash = denom.slice(4)
+      return `ibc/${hash.slice(0, 4)}…${hash.slice(-4)}`
+    }
+    return baseDenom.toUpperCase()
+  })()
+  const chainLabel = sourceChain?.pretty_name ?? sourceChainId ?? null
+
+  return {
+    symbol,
+    decimals: sourceChain?.decimals,
+    chainLabel,
+    baseDenom,
+  }
 }
 
 // ---------------------------------------------------------------------------
