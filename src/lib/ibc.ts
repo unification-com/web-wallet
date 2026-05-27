@@ -7,8 +7,10 @@ import {
 import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { State as ChannelState } from 'cosmjs-types/ibc/core/channel/v1/channel'
+import { useEffect } from 'react'
 
 import { useActiveEndpoint } from './chain'
+import { useCosmosRegistryStore } from './cosmosRegistry'
 import { txSearchPage } from './txsearchPaginated'
 
 // ---------------------------------------------------------------------------
@@ -447,4 +449,159 @@ function parseInboundPacket(tx: IndexedTx, address: string): IbcPacket | null {
     denom,
     amount,
   }
+}
+
+// ---------------------------------------------------------------------------
+// Counterpart-chain tx lookup (cross-chain enrichment)
+// ---------------------------------------------------------------------------
+
+export interface CounterpartTxInfo {
+  /** Counterpart-side tx hash (upper-case hex). */
+  txHash: string
+  /** Block height on the counterpart chain. */
+  height: number
+  /** Templated explorer URL with the tx hash already substituted. Null when
+   * the registry has no explorers entry or none have a `tx_page` template. */
+  explorerUrl: string | null
+  /** Pretty name for display, e.g. "Gravity Bridge". Falls back to chain_id. */
+  chainPrettyName: string
+}
+
+/**
+ * Look up a packet's counterpart tx on the OTHER chain — for outbound
+ * packets that's the recv_packet tx on the destination chain; for inbound
+ * packets that's the send_packet tx on the source chain.
+ *
+ * Resolution path:
+ *   1. Look up our channel's counterparty chain_id (from `useIbcChannels`).
+ *   2. Resolve chain_id → chain_name via the cosmos.directory index
+ *      (`useCosmosRegistryStore.chainsByChainId`).
+ *   3. Lazy-fetch chain rich data via `ensureDetails(chainName)` to get the
+ *      `best_apis.rpc[]` list + `explorers[]`.
+ *   4. Try each RPC in order with a 5 s timeout each, looking for a single
+ *      `recv_packet` (outbound) or `send_packet` (inbound) tx matching the
+ *      packet's `(channelId, sequence)`.
+ *   5. Compose the explorer URL from the first explorer entry with a
+ *      `tx_page` template.
+ *
+ * Returns `null` when:
+ *   - Counterparty chain isn't in the cosmos registry (rare on cosmos majors)
+ *   - All counterpart RPCs failed (CORS / timeout / 5xx)
+ *   - Counterpart RPC has tx-index pruning past this packet's height
+ *
+ * Cached forever once resolved (terminal data; sequences are immutable).
+ */
+export function useCounterpartPacketTx(packet: IbcPacket | null) {
+  const channels = useIbcChannels()
+  const chainsByChainId = useCosmosRegistryStore((s) => s.chainsByChainId)
+  const detailsByChainName = useCosmosRegistryStore((s) => s.detailsByChainName)
+  const ensureDetails = useCosmosRegistryStore((s) => s.ensureDetails)
+
+  // Resolve the counterparty chain_id from the wallet's channel discovery,
+  // then walk the registry to chain_name + rich data. All synchronous from
+  // store / channel-list state.
+  const channelInfo = packet
+    ? channels.data?.find((c) => c.channelId === packet.channelId)
+    : undefined
+  const counterpartyChainId = channelInfo?.counterpartyChainId ?? ''
+  const indexEntry = counterpartyChainId
+    ? (chainsByChainId.get(counterpartyChainId) ?? null)
+    : null
+  const chainName = indexEntry?.chain_name ?? null
+  const details = chainName ? (detailsByChainName[chainName] ?? null) : null
+  const chainPrettyName =
+    indexEntry?.pretty_name ?? (counterpartyChainId || '?')
+
+  // Lazy-fetch rich data (RPC list + explorers) when we know the chain_name
+  // but haven't fetched details yet. The store de-dupes concurrent requests
+  // for the same chain.
+  useEffect(() => {
+    if (chainName && !details) {
+      void ensureDetails(chainName)
+    }
+  }, [chainName, details, ensureDetails])
+
+  return useQuery<CounterpartTxInfo | null>({
+    queryKey: [
+      'ibc',
+      'counterpart-tx',
+      packet?.direction,
+      packet?.channelId,
+      packet?.sequence,
+      chainName,
+    ],
+    queryFn: async () => {
+      if (!packet || !details) return null
+      const rpcs =
+        details.best_apis?.rpc?.map((r) => r.address) ??
+        details.apis?.rpc?.map((r) => r.address) ??
+        []
+      if (rpcs.length === 0) return null
+
+      // Cross-chain query shape — see the long comment block above for why
+      // the `packet_src_channel` filter is OUR channel ID for outbound
+      // (counterpart's recv_packet copies it through) and OUR channel ID
+      // for inbound via `packet_dst_channel` (counterpart's send_packet
+      // emits both).
+      const filters =
+        packet.direction === 'outbound'
+          ? [
+              { key: 'recv_packet.packet_src_channel', value: packet.channelId },
+              { key: 'recv_packet.packet_sequence', value: packet.sequence },
+            ]
+          : [
+              { key: 'send_packet.packet_dst_channel', value: packet.channelId },
+              { key: 'send_packet.packet_sequence', value: packet.sequence },
+            ]
+
+      const hit = await tryRpcsForTx(rpcs, filters)
+      if (!hit) return null
+
+      const explorerTemplate = details.explorers?.find((e) => e.tx_page)?.tx_page
+      const explorerUrl = explorerTemplate
+        ? explorerTemplate.replace('${txHash}', hit.hash.toUpperCase())
+        : null
+
+      return {
+        txHash: hit.hash,
+        height: hit.height,
+        explorerUrl,
+        chainPrettyName,
+      }
+    },
+    enabled: !!packet && !!details,
+    staleTime: Infinity,
+    // Single attempt per RPC list — if all RPCs fail, don't keep retrying.
+    retry: false,
+  })
+}
+
+/**
+ * Try each RPC in `rpcs` for a tx matching `filters`. First-success wins.
+ * Each attempt has a 5 s timeout to avoid hanging rows when a counterpart
+ * RPC is unreachable. Returns the first matching tx or null when all fail.
+ */
+async function tryRpcsForTx(
+  rpcs: readonly string[],
+  filters: { key: string; value: string }[],
+): Promise<{ hash: string; height: number } | null> {
+  for (const rpc of rpcs) {
+    try {
+      const result = await Promise.race([
+        txSearchPage(rpc, filters, 1),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('rpc timeout')), 5000),
+        ),
+      ])
+      if (result.txs.length > 0) {
+        const tx = result.txs[0]
+        if (!tx) continue
+        return { hash: tx.hash, height: tx.height }
+      }
+    } catch {
+      // Try the next RPC. We don't surface the per-RPC error since the
+      // outer hook just exposes the final "found / not found" answer.
+    }
+  }
+  return null
 }

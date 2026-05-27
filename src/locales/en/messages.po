@@ -652,6 +652,10 @@ msgstr "couldn't reach the RPC endpoint — please check the URL"
 msgid "Count"
 msgstr "Count"
 
+#: src/components/IbcHistory.tsx
+msgid "Counterpart tx not found (RPC pruning or CORS blocked)"
+msgstr "Counterpart tx not found (RPC pruning or CORS blocked)"
+
 #: src/components/StreamsList.tsx
 msgid "Create"
 msgstr "Create"
@@ -1339,6 +1343,14 @@ msgstr "Lock wallet"
 msgid "Locked balance"
 msgstr "Locked balance"
 
+#: src/components/IbcHistory.tsx
+msgid "Looking up receipt on counterpart chain…"
+msgstr "Looking up receipt on counterpart chain…"
+
+#: src/components/IbcHistory.tsx
+msgid "Looking up source tx on counterpart chain…"
+msgstr "Looking up source tx on counterpart chain…"
+
 #: src/components/AppearanceSettings.tsx
 msgid "Mainframe"
 msgstr "Mainframe"
@@ -1785,6 +1797,12 @@ msgstr "Received"
 msgid "Received (multi)"
 msgstr "Received (multi)"
 
+#. placeholder {0}: counterpart.data.chainPrettyName
+#. placeholder {1}: counterpart.data.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "Received on {0} · block {1}"
+msgstr "Received on {0} · block {1}"
+
 #: src/lib/msgs/presenters.ts
 msgid "Received via IBC"
 msgstr "Received via IBC"
@@ -2074,6 +2092,12 @@ msgstr "Sent"
 #: src/lib/msgs/presenters.ts
 msgid "Sent (multi)"
 msgstr "Sent (multi)"
+
+#. placeholder {0}: counterpart.data.chainPrettyName
+#. placeholder {1}: counterpart.data.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "Sent from {0} · block {1}"
+msgstr "Sent from {0} · block {1}"
 
 #: src/lib/msgs/presenters.ts
 msgid "Sent via IBC"

@@ -9,6 +9,7 @@ import { useActiveEndpoint } from '@/lib/chain'
 import { useChainByChainId } from '@/lib/cosmosRegistry'
 import {
   useBlockTime,
+  useCounterpartPacketTx,
   useIbcChannels,
   useIbcHistory,
   usePacketStatus,
@@ -129,6 +130,11 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
   // height, so multiple packets in one block resolve via one round-trip.
   const blockTime = useBlockTime(packet.height)
 
+  // Counterpart-chain enrichment — cross-chain tx lookup via the chain's
+  // cosmos.directory RPC list. Resolves "where did this packet land /
+  // come from" + an explorer deep-link.
+  const counterpart = useCounterpartPacketTx(packet)
+
   return (
     <li
       className="flex flex-col gap-1 rounded border border-border p-2"
@@ -198,6 +204,51 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
       <div className="text-[10px] text-muted-foreground font-mono">
         {packet.channelId} · seq {packet.sequence}
       </div>
+      {/* Counterpart-chain enrichment — appears once the cosmos.directory
+       *  RPC lookup resolves the matching recv_packet (outbound) or
+       *  send_packet (inbound) on the other side. Loading + missing states
+       *  rendered separately so the user can see when enrichment failed vs
+       *  is still in flight. */}
+      {counterpart.isLoading && (
+        <div className="text-[10px] text-muted-foreground font-mono italic">
+          {isOutbound ? (
+            <Trans>Looking up receipt on counterpart chain…</Trans>
+          ) : (
+            <Trans>Looking up source tx on counterpart chain…</Trans>
+          )}
+        </div>
+      )}
+      {!counterpart.isLoading && counterpart.data && (
+        <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+          <span>
+            {isOutbound ? (
+              <Trans>Received on {counterpart.data.chainPrettyName} · block {counterpart.data.height.toLocaleString()}</Trans>
+            ) : (
+              <Trans>Sent from {counterpart.data.chainPrettyName} · block {counterpart.data.height.toLocaleString()}</Trans>
+            )}
+          </span>
+          {counterpart.data.explorerUrl ? (
+            <a
+              href={counterpart.data.explorerUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline-offset-2 hover:underline"
+            >
+              {counterpart.data.txHash.slice(0, 8)}…
+            </a>
+          ) : (
+            <span title={counterpart.data.txHash}>{counterpart.data.txHash.slice(0, 8)}…</span>
+          )}
+        </div>
+      )}
+      {!counterpart.isLoading &&
+        counterpart.isFetched &&
+        !counterpart.data &&
+        (displayStatus === 'acknowledged' || displayStatus === 'received') && (
+          <div className="text-[10px] text-muted-foreground font-mono italic">
+            <Trans>Counterpart tx not found (RPC pruning or CORS blocked)</Trans>
+          </div>
+        )}
     </li>
   )
 }
