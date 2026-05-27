@@ -44,6 +44,10 @@ msgstr "(gas {0})"
 msgid "(no messages)"
 msgstr "(no messages)"
 
+#: src/components/AuthzPanel.tsx
+msgid "(no scope guards)"
+msgstr "(no scope guards)"
+
 #: src/components/AddSignerCard.tsx
 msgid "(opens tab)"
 msgstr "(opens tab)"
@@ -288,6 +292,10 @@ msgstr "All"
 msgid "All {0} derived account{1} will be removed from the vault."
 msgstr "All {0} derived account{1} will be removed from the vault."
 
+#: src/components/AuthzPanel.tsx
+msgid "allow: {monikers}"
+msgstr "allow: {monikers}"
+
 #: src/lib/msgs/presenters.ts
 msgid "Allowance"
 msgstr "Allowance"
@@ -299,6 +307,7 @@ msgid "Amount"
 msgstr "Amount"
 
 #. placeholder {0}: displayDenom(selectedDenom)
+#. placeholder {0}: selectedResolved.symbol
 #: src/components/Send.tsx
 #: src/components/SendIbc.tsx
 msgid "Amount ({0})"
@@ -321,6 +330,14 @@ msgstr "Amount to redelegate (FUND)"
 msgid "Amount to undelegate (FUND)"
 msgstr "Amount to undelegate (FUND)"
 
+#: src/components/AuthzPanel.tsx
+msgid "Any staking action"
+msgstr "Any staking action"
+
+#: src/components/AuthzPanel.tsx
+msgid "any validator"
+msgstr "any validator"
+
 #: src/components/AppearanceSettings.tsx
 msgid "Appearance"
 msgstr "Appearance"
@@ -333,9 +350,21 @@ msgstr "Apply estimate"
 msgid "Authorisation"
 msgstr "Authorisation"
 
+#: src/components/AuthzActionModals.tsx
+msgid "Authorise another account to send specific Msgs on your behalf. For Restake-style auto-compounding, grant <0>Stake</0> to the bot operator's address."
+msgstr "Authorise another account to send specific Msgs on your behalf. For Restake-style auto-compounding, grant <0>Stake</0> to the bot operator's address."
+
 #: src/lib/msgs/presenters.ts
 msgid "Authority"
 msgstr "Authority"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Authorization"
+msgstr "Authorization"
+
+#: src/components/AuthzPanel.tsx
+msgid "Authorizations"
+msgstr "Authorizations"
 
 #: src/lib/vault/store.ts
 msgid "auto-lock timeout must be a positive integer (ms)"
@@ -347,8 +376,10 @@ msgstr "auto-lock timeout must be a positive integer (ms)"
 msgid "Back"
 msgstr "Back"
 
+#. placeholder {0}: formatCoinAmount( selectedBalance.amount, selectedBalance.denom, selectedResolved.decimals, )
 #. placeholder {0}: formatCoinAmount(selectedBalance.amount, selectedBalance.denom)
 #. placeholder {1}: displayDenom(selectedBalance.denom)
+#. placeholder {1}: selectedResolved.symbol
 #: src/components/Send.tsx
 #: src/components/SendIbc.tsx
 msgid "Balance: <0>{0}</0> {1}"
@@ -721,6 +752,7 @@ msgstr "Dark"
 msgid "Decision"
 msgstr "Decision"
 
+#: src/components/AuthzPanel.tsx
 #: src/components/DelegateModal.tsx
 #: src/components/Validators.tsx
 msgid "Delegate"
@@ -770,6 +802,10 @@ msgstr "Deleting…"
 #: src/lib/msgs/presenters.ts
 msgid "Denom"
 msgstr "Denom"
+
+#: src/components/AuthzPanel.tsx
+msgid "deny: {monikers}"
+msgstr "deny: {monikers}"
 
 #: src/components/ProposalDetail.tsx
 #: src/components/ProposalList.tsx
@@ -1047,6 +1083,15 @@ msgstr "Generate a new seed"
 msgid "Generate new seed"
 msgstr "Generate new seed"
 
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+msgid "Generic"
+msgstr "Generic"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Generic grants have no scope guards — the grantee can broadcast any Msg of the chosen type on your behalf. Only grant if you fully trust the grantee."
+msgstr "Generic grants have no scope guards — the grantee can broadcast any Msg of the chosen type on your behalf. Only grant if you fully trust the grantee."
+
 #: src/lib/msgs/presenters.ts
 msgid "Genesis hash"
 msgstr "Genesis hash"
@@ -1054,6 +1099,18 @@ msgstr "Genesis hash"
 #: src/App.tsx
 msgid "Governance"
 msgstr "Governance"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Grant"
+msgstr "Grant"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Grant authorization"
+msgstr "Grant authorization"
+
+#: src/components/AuthzPanel.tsx
+msgid "Grant new"
+msgstr "Grant new"
 
 #: src/lib/msgs/presenters.ts
 msgid "Granted authz"
@@ -1067,13 +1124,23 @@ msgstr "Granted authz (received)"
 msgid "Granted fee allowance"
 msgstr "Granted fee allowance"
 
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Grantee"
 msgstr "Grantee"
 
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee (bot address)"
+msgstr "Grantee (bot address)"
+
 #: src/lib/msgs/presenters.ts
 msgid "Granter"
 msgstr "Granter"
+
+#: src/components/AuthzPanel.tsx
+msgid "Grants you've given to other accounts (typically auto-compounder bots). Revoking stops the grantee from acting on your behalf; your stake itself is unaffected."
+msgstr "Grants you've given to other accounts (typically auto-compounder bots). Revoking stops the grantee from acting on your behalf; your stake itself is unaffected."
 
 #. placeholder {0}: tx.height.toString()
 #. placeholder {1}: presented.length.toString()
@@ -1132,8 +1199,8 @@ msgid "IBC-wrapped"
 msgstr "IBC-wrapped"
 
 #: src/components/SendIbc.tsx
-msgid "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
-msgstr "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
+#~ msgid "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
+#~ msgstr "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
 
 #: src/components/Send.tsx
 msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
@@ -1254,6 +1321,10 @@ msgstr "label is required"
 msgid "Label this stream"
 msgstr "Label this stream"
 
+#: src/components/AuthzActionModals.tsx
+msgid "Leave blank for no cap. Restake convention: leave blank since the cap can be replaced by a fresh grant if needed."
+msgstr "Leave blank for no cap. Restake convention: leave blank since the cap can be replaced by a fresh grant if needed."
+
 #: src/components/VaultSetup.tsx
 msgid "length ok"
 msgstr "length ok"
@@ -1286,6 +1357,10 @@ msgstr "Loading delegations…"
 #: src/App.tsx
 msgid "Loading enterprise…"
 msgstr "Loading enterprise…"
+
+#: src/components/AuthzPanel.tsx
+msgid "Loading grants…"
+msgstr "Loading grants…"
 
 #: src/components/StreamsList.tsx
 #: src/components/TxHistory.tsx
@@ -1407,9 +1482,14 @@ msgstr "Module"
 msgid "Moniker"
 msgstr "Moniker"
 
+#: src/components/AuthzActionModals.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Msg type"
 msgstr "Msg type"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Msg type URL"
+msgstr "Msg type URL"
 
 #: src/components/StreamActionModals.tsx
 msgid "Must be a valid und1… address."
@@ -1452,6 +1532,10 @@ msgstr "NO"
 #: src/components/ActiveDelegations.tsx
 msgid "No active delegations. Pick a validator above to start earning rewards."
 msgstr "No active delegations. Pick a validator above to start earning rewards."
+
+#: src/components/AuthzPanel.tsx
+msgid "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+msgstr "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
 
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
@@ -1843,6 +1927,7 @@ msgid "Recorded wrkchain block"
 msgstr "Recorded wrkchain block"
 
 #: src/components/ActiveDelegations.tsx
+#: src/components/AuthzPanel.tsx
 #: src/components/StakingActionModals.tsx
 msgid "Redelegate"
 msgstr "Redelegate"
@@ -1983,6 +2068,15 @@ msgstr "Reveal seed phrase"
 msgid "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
 msgstr "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
 
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+msgid "Revoke"
+msgstr "Revoke"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Revoke authorization"
+msgstr "Revoke authorization"
+
 #: src/lib/msgs/presenters.ts
 msgid "Revoked authz"
 msgstr "Revoked authz"
@@ -1990,6 +2084,10 @@ msgstr "Revoked authz"
 #: src/lib/msgs/presenters.ts
 msgid "Revoked fee allowance"
 msgstr "Revoked fee allowance"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Revoking stops the grantee from acting on your behalf for this message type. Your stake itself (delegations, rewards) is unaffected."
+msgstr "Revoking stops the grantee from acting on your behalf for this message type. Your stake itself (delegations, rewards) is unaffected."
 
 #: src/components/Settings.tsx
 msgid "RPC URL"
@@ -2068,6 +2166,7 @@ msgstr "Select your v1 `.json` keystore file and enter its password. The file wi
 msgid "Self-bond"
 msgstr "Self-bond"
 
+#: src/components/AuthzPanel.tsx
 #: src/components/Send.tsx
 msgid "Send"
 msgstr "Send"
@@ -2160,6 +2259,14 @@ msgstr "simulation failed — the chain rejected the dry-run"
 msgid "Slow ({0})"
 msgstr "Slow ({0})"
 
+#: src/components/SendIbc.tsx
+msgid "Source chain's decimals aren't in the registry — enter the amount as a raw chain-side integer."
+msgstr "Source chain's decimals aren't in the registry — enter the amount as a raw chain-side integer."
+
+#: src/components/AuthzActionModals.tsx
+msgid "Spend cap (FUND, optional)"
+msgstr "Spend cap (FUND, optional)"
+
 #: src/components/Enterprise.tsx
 msgid "Spent eFUND"
 msgstr "Spent eFUND"
@@ -2167,6 +2274,10 @@ msgstr "Spent eFUND"
 #: src/lib/msgs/presenters.ts
 msgid "Splits"
 msgstr "Splits"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Stake"
+msgstr "Stake"
 
 #: src/components/Validators.tsx
 msgid "staked"
@@ -2377,6 +2488,15 @@ msgstr "Title"
 msgid "To"
 msgstr "To"
 
+#. placeholder {0}: decoded.allowList.length
+#: src/components/AuthzPanel.tsx
+msgid "to {0} allow-listed address(es)"
+msgstr "to {0} allow-listed address(es)"
+
+#: src/components/AuthzPanel.tsx
+msgid "to any recipient"
+msgstr "to any recipient"
+
 #: src/lib/msgs/presenters.ts
 msgid "To validator"
 msgstr "To validator"
@@ -2440,6 +2560,7 @@ msgid "und1…"
 msgstr "und1…"
 
 #: src/components/ActiveDelegations.tsx
+#: src/components/AuthzPanel.tsx
 #: src/components/StakingActionModals.tsx
 msgid "Undelegate"
 msgstr "Undelegate"
@@ -2465,6 +2586,11 @@ msgstr "Unjailed validator"
 #: src/components/ProposalStatusBadge.tsx
 msgid "Unknown"
 msgstr "Unknown"
+
+#. placeholder {0}: decoded.typeUrl
+#: src/components/AuthzPanel.tsx
+msgid "Unknown authorization type: <0>{0}</0>"
+msgstr "Unknown authorization type: <0>{0}</0>"
 
 #: src/lib/useSubmitTx.ts
 msgid "unknown error"
@@ -2504,6 +2630,11 @@ msgstr "unsupported v1 keystore PRF: {0}"
 #: src/lib/msgs/presenters.ts
 msgid "Unwhitelisted address"
 msgstr "Unwhitelisted address"
+
+#. placeholder {0}: nundToFund(decoded.maxTokens.amount)
+#: src/components/AuthzPanel.tsx
+msgid "up to <0>{0}</0> FUND"
+msgstr "up to <0>{0}</0> FUND"
 
 #: src/components/StreamActionModals.tsx
 #: src/components/StreamsList.tsx
@@ -2557,6 +2688,11 @@ msgstr "Validator"
 #: src/lib/msgs/presenters.ts
 msgid "Validator fee"
 msgstr "Validator fee"
+
+#. placeholder {0}: validators.length
+#: src/components/AuthzActionModals.tsx
+msgid "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
+msgstr "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
 
 #: src/components/Validators.tsx
 msgid "Validators"
