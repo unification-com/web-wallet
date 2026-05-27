@@ -3,7 +3,6 @@ import { AlertTriangle, ArrowLeft, Check, Loader2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { AppearanceSettings } from '@/components/AppearanceSettings'
-import { AuthzPanel } from '@/components/AuthzPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -359,8 +358,6 @@ export function Settings({
           </div>
         </CardContent>
       </Card>
-
-      <AuthzPanel />
 
       <VaultEntryManager surface={surface} />
     </main>
