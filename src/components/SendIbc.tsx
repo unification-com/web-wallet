@@ -23,7 +23,7 @@ import {
   userAmountToChain,
 } from '@/lib/balance'
 import { txExplorerUrl, useActiveEndpoint } from '@/lib/chain'
-import { useChainByChainId } from '@/lib/cosmosRegistry'
+import { useChainByChainId, useCosmosRegistryStore } from '@/lib/cosmosRegistry'
 import { useIbcChannels } from '@/lib/ibc'
 import {
   buildMsgTransfer,
@@ -92,6 +92,11 @@ export function SendIbc() {
   const destinationChain = useChainByChainId(
     selectedChannelInfo?.counterpartyChainId,
   )
+  // Full chain-id → entry map for the dropdown's per-option label
+  // enrichment. Read once at render top so the .map() iteration below can
+  // do non-hook lookups (per rules-of-hooks: no hooks inside loops with
+  // variable item counts).
+  const chainsByChainId = useCosmosRegistryStore((s) => s.chainsByChainId)
 
   if (!address) return null
 
@@ -209,11 +214,15 @@ export function SendIbc() {
             >
               {channelsLoading && <option value="">{t`Loading channels…`}</option>}
               {!channelsLoading &&
-                (channels ?? []).map((c) => (
-                  <option key={c.channelId} value={c.channelId}>
-                    {c.counterpartyChainId} (via {c.channelId})
-                  </option>
-                ))}
+                (channels ?? []).map((c) => {
+                  const entry = chainsByChainId.get(c.counterpartyChainId)
+                  const label = entry?.pretty_name ?? c.counterpartyChainId
+                  return (
+                    <option key={c.channelId} value={c.channelId}>
+                      {label} (via {c.channelId})
+                    </option>
+                  )
+                })}
             </select>
             {form.formState.errors.sourceChannel && (
               <span className="text-xs text-destructive">
