@@ -20,9 +20,9 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lingui:extract": "lingui extract",
+    "lingui:extract": "lingui extract --clean --overwrite",
     "lingui:compile": "lingui compile --typescript",
-    "lingui:check": "lingui extract --clean --overwrite && git diff --exit-code src/locales/",
+    "lingui:check": "yarn lingui:extract && git diff --exit-code src/locales/",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
