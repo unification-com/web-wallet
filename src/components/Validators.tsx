@@ -17,6 +17,7 @@ import {
   useValidators,
   type Validator,
 } from '@/lib/staking'
+import { timestampToDate } from '@/lib/time'
 
 /** Format a `Dec`-string token amount (nund) as FUND with thousand separators. */
 function formatTokensAsFund(tokens: string): string {
@@ -48,7 +49,10 @@ function ValidatorDetail({ validator }: { validator: Validator }) {
   const rates = validator.commission?.commissionRates
   const maxRatePct = (decRateToFraction(rates?.maxRate) * 100).toFixed(2)
   const maxChangePct = (decRateToFraction(rates?.maxChangeRate) * 100).toFixed(2)
-  const updateTime = validator.commission?.updateTime
+  // cosmjs returns the proto `Timestamp` shape ({ seconds, nanos }) at
+  // runtime even though earlier hand-written types claimed `Date`; the
+  // shared `timestampToDate` helper now accepts both forms.
+  const updateTime = timestampToDate(validator.commission?.updateTime)
   const hasMinSelf =
     validator.minSelfDelegation !== '' && validator.minSelfDelegation !== '0'
   const desc = validator.description
@@ -57,6 +61,13 @@ function ValidatorDetail({ validator }: { validator: Validator }) {
 
   return (
     <dl className="ml-7 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 border-t border-border/60 pt-1.5 text-[10px]">
+      <dt className="text-muted-foreground">
+        <Trans>Operator</Trans>
+      </dt>
+      <dd className="break-all">
+        <AddressLink address={validator.operatorAddress} kind="validator" truncate={false} />
+      </dd>
+
       <dt className="text-muted-foreground">
         <Trans>Commission max</Trans>
       </dt>
@@ -276,11 +287,20 @@ export function Validators() {
                           </span>
                         )}
                       </span>
-                      <AddressLink
-                        address={v.operatorAddress}
-                        kind="validator"
-                        className="text-[10px] text-muted-foreground truncate"
-                      />
+                      {/* Plain-text valoper preview. AddressLink (with the
+                          explorer-link <a target="_blank">) moves into the
+                          detail panel so clicking the row doesn't fight
+                          with a nested navigation hit-target — clicking
+                          on the address text in MV3 popup-mode used to
+                          open the explorer + auto-close the popup. */}
+                      <span
+                        className="font-mono text-[10px] text-muted-foreground truncate"
+                        title={v.operatorAddress}
+                      >
+                        {v.operatorAddress.length > 24
+                          ? `${v.operatorAddress.slice(0, 14)}…${v.operatorAddress.slice(-6)}`
+                          : v.operatorAddress}
+                      </span>
                     </span>
                     <span className="flex flex-col items-end text-[10px]">
                       {active ? (

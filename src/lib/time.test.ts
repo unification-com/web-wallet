@@ -77,4 +77,9 @@ describe('time.timestampToDate', () => {
     const ts = { seconds: 0n, nanos: 999_999 } // 0.999999 ms → 0 ms
     expect(timestampToDate(ts)!.getTime()).toBe(0)
   })
+
+  it('passes a Date input through unchanged (some cosmjs paths pre-coerce)', () => {
+    const d = new Date('2026-05-21T12:00:00Z')
+    expect(timestampToDate(d)).toBe(d)
+  })
 })

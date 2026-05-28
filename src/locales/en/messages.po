@@ -1761,6 +1761,7 @@ msgstr "Open in block explorer"
 msgid "Open in tab"
 msgstr "Open in tab"
 
+#: src/components/Validators.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Operator"
 msgstr "Operator"

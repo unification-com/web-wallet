@@ -10,9 +10,18 @@ export interface ProtoTimestamp {
  * Convert a cosmjs-decoded proto `Timestamp` to a JS `Date`. Returns
  * `undefined` for missing / zero timestamps (the proto default-init shape).
  * Nanosecond precision is dropped — JS `Date` is millisecond resolution.
+ *
+ * Also accepts `Date` inputs verbatim — some cosmjs query paths (e.g.
+ * `setupStakingExtension`'s wrapper) hand-roll the Timestamp → Date
+ * conversion before returning, while others (`Comet38Client.txSearch`'s
+ * raw decode) leave the proto shape intact. Accepting both keeps every
+ * consumer agnostic to which path produced the value.
  */
-export function timestampToDate(ts: ProtoTimestamp | undefined): Date | undefined {
+export function timestampToDate(
+  ts: ProtoTimestamp | Date | undefined,
+): Date | undefined {
   if (!ts) return undefined
+  if (ts instanceof Date) return ts
   if (ts.seconds === 0n && ts.nanos === 0) return undefined
   const ms = Number(ts.seconds) * 1000 + Math.floor(ts.nanos / 1_000_000)
   return new Date(ms)

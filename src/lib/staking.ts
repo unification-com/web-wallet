@@ -9,6 +9,7 @@ import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useQuery } from '@tanstack/react-query'
 
 import { useActiveEndpoint } from './chain'
+import { type ProtoTimestamp } from './time'
 
 // ---------------------------------------------------------------------------
 // Module note — fundjs-react vs cosmjs choice (2026-05-21)
@@ -57,8 +58,16 @@ export interface Validator {
   delegatorShares: string
   description: ValidatorDescription
   unbondingHeight: bigint
-  unbondingTime: Date | undefined
-  commission: { commissionRates: ValidatorCommissionRates; updateTime: Date | undefined } | undefined
+  /** cosmjs returns proto `Timestamp` ({ seconds, nanos }) at runtime
+   * even though earlier hand-written types claimed `Date`. Use
+   * `timestampToDate` from `./time` to coerce safely. */
+  unbondingTime: ProtoTimestamp | Date | undefined
+  commission:
+    | {
+        commissionRates: ValidatorCommissionRates
+        updateTime: ProtoTimestamp | Date | undefined
+      }
+    | undefined
   minSelfDelegation: string
 }
 
