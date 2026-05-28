@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react'
 import type { MouseEvent } from 'react'
 
 import { accountExplorerUrl, useActiveEndpoint, validatorExplorerUrl } from '@/lib/chain'
+import { safeExternalUrl } from '@/lib/utils'
 
 /**
  * Render a bech32 address with truncation, copy-on-hover title, and (when
@@ -80,14 +81,22 @@ export function AddressLink({
   // foreign-prefix address (osmo1, cosmos1, …) without an explicit `url`
   // means "render plain text" — linking it to the Unification explorer
   // would 404.
-  let resolvedUrl: string | null = url ?? null
-  if (resolvedUrl === null) {
+  let candidateUrl: string | null = url ?? null
+  if (candidateUrl === null) {
     if (effectiveKind === 'validator' && address.startsWith(VALOPER_PREFIX)) {
-      resolvedUrl = validatorExplorerUrl(endpoint, address)
+      candidateUrl = validatorExplorerUrl(endpoint, address)
     } else if (effectiveKind === 'account' && address.startsWith(ACCOUNT_PREFIX)) {
-      resolvedUrl = accountExplorerUrl(endpoint, address)
+      candidateUrl = accountExplorerUrl(endpoint, address)
     }
   }
+  // SECURITY: the `url` prop (passed for foreign-chain IBC counterparties)
+  // is sourced from the cosmos.directory registry's account_page template
+  // — community-curated but defence in depth. Custom endpoints'
+  // accountExplorerBase / validatorExplorerBase are user-supplied. Either
+  // surface could carry a `javascript:` URL that would execute in the
+  // extension context on click. Strip to http(s) only; null falls through
+  // to the plain-text render below.
+  const resolvedUrl = safeExternalUrl(candidateUrl)
 
   const display = truncate ? truncateAddress(address, truncateHead, truncateTail) : address
   const mergedClass = `font-mono ${className ?? ''}`.trim()

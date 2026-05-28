@@ -20,7 +20,7 @@ import {
 } from '@/lib/ibc'
 import { useActiveSigner } from '@/lib/signer'
 import { formatRelativeDeadline } from '@/lib/time'
-import { cn } from '@/lib/utils'
+import { cn, safeExternalUrl } from '@/lib/utils'
 
 /**
  * IBC packet history table — paginated. Outbound + inbound packets fetched
@@ -248,9 +248,9 @@ function PacketRow({ packet, channels, explorerBase, t }: PacketRowProps) {
               <Trans>Sent from {counterpart.data.chainPrettyName} · block {counterpart.data.height.toLocaleString()}</Trans>
             )}
           </span>
-          {counterpart.data.explorerUrl ? (
+          {safeExternalUrl(counterpart.data.explorerUrl) ? (
             <a
-              href={counterpart.data.explorerUrl}
+              href={safeExternalUrl(counterpart.data.explorerUrl) ?? '#'}
               target="_blank"
               rel="noreferrer noopener"
               className="underline-offset-2 hover:underline"

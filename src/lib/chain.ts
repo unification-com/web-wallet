@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { i18n } from './i18n'
+import { safeExternalUrl } from './utils'
 import { useVaultStore } from './vault'
 import { BUILT_IN_ENDPOINT_IDS, type CustomEndpoint } from './vault/types'
 
@@ -74,30 +75,40 @@ const BUILT_IN: Record<string, ChainEndpoint> = {
  * Build the explorer-link URL for a given tx hash on the active endpoint.
  * Returns null when the endpoint has no `txExplorerBase` configured — UI
  * callers should render the hash as plain monospace text in that case.
+ *
+ * SECURITY: explorer-base URLs for built-in endpoints are hardcoded above
+ * to safe `https://` URLs, but custom endpoints store user-supplied bases
+ * in the encrypted vault. A user could (deliberately or accidentally) set
+ * a `javascript:` URL there and click a tx-history hash to execute the
+ * code in the extension context. `safeExternalUrl` rejects non-http(s)
+ * schemes; the helper returns null in that case so consumers render
+ * plain text.
  */
 export function txExplorerUrl(endpoint: ChainEndpoint, hash: string): string | null {
   if (!endpoint.txExplorerBase) return null
-  return `${endpoint.txExplorerBase}${hash.toUpperCase()}`
+  return safeExternalUrl(`${endpoint.txExplorerBase}${hash.toUpperCase()}`)
 }
 
 /**
  * Build the explorer-link URL for an account (`und1…`) on the active
  * endpoint. Returns null when no `accountExplorerBase` is configured;
  * `<AddressLink>` falls back to rendering plain monospace text in that case.
+ *
+ * Same `safeExternalUrl` defence as {@link txExplorerUrl}.
  */
 export function accountExplorerUrl(endpoint: ChainEndpoint, address: string): string | null {
   if (!endpoint.accountExplorerBase) return null
-  return `${endpoint.accountExplorerBase}${address}`
+  return safeExternalUrl(`${endpoint.accountExplorerBase}${address}`)
 }
 
 /**
  * Build the explorer-link URL for a validator (`undvaloper1…`) on the
  * active endpoint. Returns null when no `validatorExplorerBase` is
- * configured.
+ * configured. Same `safeExternalUrl` defence as {@link txExplorerUrl}.
  */
 export function validatorExplorerUrl(endpoint: ChainEndpoint, valoper: string): string | null {
   if (!endpoint.validatorExplorerBase) return null
-  return `${endpoint.validatorExplorerBase}${valoper}`
+  return safeExternalUrl(`${endpoint.validatorExplorerBase}${valoper}`)
 }
 
 /** Look up a built-in endpoint by id. Returns null for unknown ids. */

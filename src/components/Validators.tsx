@@ -19,6 +19,7 @@ import {
   type Validator,
 } from '@/lib/staking'
 import { timestampToDate } from '@/lib/time'
+import { safeExternalUrl } from '@/lib/utils'
 
 /** Format a `Dec`-string token amount (nund) as FUND with thousand separators. */
 function formatTokensAsFund(tokens: string): string {
@@ -132,23 +133,44 @@ function ValidatorDetail({ validator }: { validator: Validator }) {
         </>
       )}
 
-      {desc?.website && (
-        <>
-          <dt className="text-muted-foreground">
-            <Trans>Website</Trans>
-          </dt>
-          <dd className="break-all">
-            <a
-              href={desc.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              {desc.website}
-            </a>
-          </dd>
-        </>
-      )}
+      {desc?.website &&
+        (() => {
+          // SECURITY: validator description.website is set freely on-chain by
+          // anyone registering a validator; without protocol validation a
+          // malicious operator could set `javascript:steal(...)` and a user
+          // clicking the link in the detail panel would execute attacker code
+          // in the extension context (chrome.storage.local access etc.).
+          // `safeExternalUrl` returns null for anything outside http(s); we
+          // render the website as plain text in that case so the user still
+          // sees the value but can't be redirected.
+          const safeHref = safeExternalUrl(desc.website)
+          return (
+            <>
+              <dt className="text-muted-foreground">
+                <Trans>Website</Trans>
+              </dt>
+              <dd className="break-all">
+                {safeHref ? (
+                  <a
+                    href={safeHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {desc.website}
+                  </a>
+                ) : (
+                  <span
+                    className="text-muted-foreground"
+                    title={t`Website URL has unsafe scheme; rendered as plain text`}
+                  >
+                    {desc.website}
+                  </span>
+                )}
+              </dd>
+            </>
+          )
+        })()}
       {desc?.identity && (
         <>
           <dt className="text-muted-foreground">
