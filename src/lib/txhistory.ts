@@ -109,17 +109,27 @@ export function useTxHistory(address: string | null) {
       if (!address) {
         return { txs: [], page, hasMore: false, totalCount: 0 }
       }
+      // SDK-typed-event attribute values (fully-qualified event types like
+      // `cosmos.authz.v1beta1.EventGrant`) are JSON-encoded in the tx_index
+      // on this chain — the indexed value is literally `"und1…"` with
+      // surrounding double quotes. Legacy non-typed events
+      // (`message.sender`, `transfer.recipient`, etc.) store the raw value
+      // unquoted. So the typed-event filters need the address pre-wrapped;
+      // legacy ones don't. Confirmed against TestNet 2026-05-28 — without
+      // the quoting the EventGrant query returns 0 hits even when the
+      // chain has matching events.
+      const jsonQuoted = `"${address}"`
       const [sent, received, grantsReceived, revokesReceived] = await Promise.all([
         txSearchPage(endpoint.rpc, [{ key: 'message.sender', value: address }], page),
         txSearchPage(endpoint.rpc, [{ key: 'transfer.recipient', value: address }], page),
         txSearchPage(
           endpoint.rpc,
-          [{ key: 'cosmos.authz.v1beta1.EventGrant.grantee', value: address }],
+          [{ key: 'cosmos.authz.v1beta1.EventGrant.grantee', value: jsonQuoted }],
           page,
         ),
         txSearchPage(
           endpoint.rpc,
-          [{ key: 'cosmos.authz.v1beta1.EventRevoke.grantee', value: address }],
+          [{ key: 'cosmos.authz.v1beta1.EventRevoke.grantee', value: jsonQuoted }],
           page,
         ),
       ])
