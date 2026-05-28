@@ -11,71 +11,28 @@ jobs:
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
-      # `@unification-com/fundjs-react` is installed via
-      # `link:../fundjs/packages/fundjs-react/dist` (see M0 setup in the
-      # web-wallet TRACKER). The link resolves at the sibling layout
-      # `../fundjs/...` so we check out BOTH repos side-by-side and build
-      # fundjs first. Once Stage 10 publishes fundjs-react to npm, this
-      # workflow simplifies back to a single checkout + the link entry
-      # gets swapped for the npm version in package.json.
-      - name: Check out web-wallet
-        uses: actions/checkout@v4
-        with:
-          path: web-wallet
-      - name: Check out fundjs (sibling for the link: dep)
-        uses: actions/checkout@v4
-        with:
-          repository: unification-com/fundjs
-          ref: vaxildan
-          path: fundjs
-
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: web-wallet/.nvmrc
-          cache: yarn
-          cache-dependency-path: |
-            web-wallet/yarn.lock
-            fundjs/yarn.lock
-
-      - name: Install + build fundjs (produces packages/fundjs-react/dist)
-        working-directory: fundjs
-        run: |
-          yarn install --frozen-lockfile
-          yarn build
-
-      - name: Install web-wallet deps
-        working-directory: web-wallet
-        run: yarn install --frozen-lockfile
-
-      - name: Lint
-        working-directory: web-wallet
-        run: yarn lint
-      - name: Typecheck
-        working-directory: web-wallet
-        run: yarn typecheck
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+      - run: yarn typecheck
       # CI gate for the lingui i18n catalogue: re-extract from source and fail
       # if the resulting en/messages.po differs from what's committed. Catches
       # un-extracted Trans/t macros + stale entries from removed strings.
-      - name: Lingui catalogue check
-        working-directory: web-wallet
-        run: yarn lingui:check
-      - name: Test
-        working-directory: web-wallet
-        run: yarn test
-      - name: Build extension
-        working-directory: web-wallet
-        run: yarn build
-      - name: Build web bundle
-        working-directory: web-wallet
-        run: yarn build:web
-
+      - run: yarn lingui:check
+      - run: yarn test
+      - run: yarn build
+      - run: yarn build:web
       - uses: actions/upload-artifact@v4
         with:
           name: web-wallet-extension
-          path: web-wallet/dist/
+          path: dist/
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
           name: web-wallet-web
-          path: web-wallet/dist-web/
+          path: dist-web/
           retention-days: 14
