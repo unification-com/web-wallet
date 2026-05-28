@@ -380,14 +380,6 @@ msgstr "Authorise another account to send specific Msgs on your behalf. For Rest
 msgid "Authority"
 msgstr "Authority"
 
-#: src/components/AuthzActionModals.tsx
-#~ msgid "Authorization"
-#~ msgstr "Authorization"
-
-#: src/components/AuthzPanel.tsx
-#~ msgid "Authorizations"
-#~ msgstr "Authorizations"
-
 #: src/lib/vault/store.ts
 msgid "auto-lock timeout must be a positive integer (ms)"
 msgstr "auto-lock timeout must be a positive integer (ms)"
@@ -1156,10 +1148,6 @@ msgstr "Grant"
 msgid "Grant authorisation"
 msgstr "Grant authorisation"
 
-#: src/components/AuthzActionModals.tsx
-#~ msgid "Grant authorization"
-#~ msgstr "Grant authorization"
-
 #: src/components/AuthzPanel.tsx
 msgid "Grant new"
 msgstr "Grant new"
@@ -1268,10 +1256,6 @@ msgstr "IBC packet history"
 #: src/components/Balances.tsx
 msgid "IBC-wrapped"
 msgstr "IBC-wrapped"
-
-#: src/components/SendIbc.tsx
-#~ msgid "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
-#~ msgstr "IBC-wrapped denoms are sent in raw chain-side integer units (no FUND-style decimal scaling) until denom-trace metadata lands a future polish."
 
 #: src/components/Send.tsx
 msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
@@ -1636,10 +1620,6 @@ msgstr "No active delegations. Pick a validator above to start earning rewards."
 msgid "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
 msgstr "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
 
-#: src/components/AuthzPanel.tsx
-#~ msgid "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
-#~ msgstr "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
-
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
 msgstr "no active signer — unlock the vault and select an account"
@@ -1991,10 +1971,6 @@ msgid "Raised eFUND purchase order"
 msgstr "Raised eFUND purchase order"
 
 #: src/components/Balances.tsx
-#~ msgid "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
-#~ msgstr "Raw amount — IBC-wrapped denoms use the source chain's native decimals."
-
-#: src/components/Balances.tsx
 msgid "Raw amount — source chain's decimals not in registry; rendering integer."
 msgstr "Raw amount — source chain's decimals not in registry; rendering integer."
 
@@ -2238,10 +2214,6 @@ msgstr "Revoke"
 #: src/components/AuthzActionModals.tsx
 msgid "Revoke authorisation"
 msgstr "Revoke authorisation"
-
-#: src/components/AuthzActionModals.tsx
-#~ msgid "Revoke authorization"
-#~ msgstr "Revoke authorization"
 
 #: src/lib/msgs/presenters.ts
 msgid "Revoked authz"
@@ -2776,10 +2748,6 @@ msgstr "Unknown"
 msgid "Unknown authorisation type: <0>{0}</0>"
 msgstr "Unknown authorisation type: <0>{0}</0>"
 
-#: src/components/AuthzPanel.tsx
-#~ msgid "Unknown authorization type: <0>{0}</0>"
-#~ msgstr "Unknown authorization type: <0>{0}</0>"
-
 #: src/lib/useSubmitTx.ts
 msgid "unknown error"
 msgstr "unknown error"
@@ -2881,10 +2849,6 @@ msgstr "Validator fee"
 msgid "Validator scope"
 msgstr "Validator scope"
 
-#: src/components/AuthzActionModals.tsx
-#~ msgid "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
-#~ msgstr "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
-
 #: src/components/Validators.tsx
 msgid "Validators"
 msgstr "Validators"
@@ -2962,6 +2926,10 @@ msgstr "Wallet"
 #: src/components/Validators.tsx
 msgid "Website"
 msgstr "Website"
+
+#: src/components/Validators.tsx
+msgid "Website URL has unsafe scheme; rendered as plain text"
+msgstr "Website URL has unsafe scheme; rendered as plain text"
 
 #: src/components/Settings.tsx
 msgid "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
