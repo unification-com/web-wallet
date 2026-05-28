@@ -179,8 +179,21 @@ export function Settings({
     }
   }
 
+  // In popup-surface the parent `<div>` is `h-screen overflow-hidden` so
+  // the wallet popup respects Chrome's MV3 popup-height constraint. Without
+  // an explicit scroll container here, the long Settings content gets
+  // clipped + the user can't reach the lower cards (vault entries,
+  // authz, etc.). Standalone / web surfaces let the document grow
+  // naturally so no scroll wrapper is needed there.
+  const isPopup = surface === 'popup'
   return (
-    <main className="flex flex-col gap-4 p-4">
+    <main
+      className={
+        isPopup
+          ? 'flex flex-col gap-4 p-4 h-screen overflow-y-auto'
+          : 'flex flex-col gap-4 p-4'
+      }
+    >
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2">
           <ArrowLeft className="h-4 w-4" />

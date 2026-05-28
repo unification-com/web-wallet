@@ -104,7 +104,16 @@ export function AddressLink({
     event.stopPropagation()
   }
 
-  return (
+  // Layout split:
+  //  - truncate=true (default): inline-flex keeps the address + icon on a
+  //    single line; the inner span carries `truncate` (overflow-hidden +
+  //    text-ellipsis + nowrap) so it clips inside its flex parent.
+  //  - truncate=false: render inline with `break-all` so long bech32
+  //    strings actually wrap inside narrow containers (popup-width
+  //    receive view, validator detail panel). Using `inline-flex +
+  //    nowrap` here would force the address onto one line and overflow
+  //    the container — the original bug.
+  return truncate ? (
     <a
       href={resolvedUrl}
       target="_blank"
@@ -115,6 +124,20 @@ export function AddressLink({
     >
       <span className="truncate">{display}</span>
       {!hideIcon && <ExternalLink className="h-3 w-3 shrink-0" />}
+    </a>
+  ) : (
+    <a
+      href={resolvedUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={stopBubble}
+      className={`${mergedClass} text-primary hover:underline break-all`}
+      title={`${address} — ${t`Open in block explorer`}`}
+    >
+      {display}
+      {!hideIcon && (
+        <ExternalLink className="h-3 w-3 inline-block align-baseline ml-0.5 shrink-0" />
+      )}
     </a>
   )
 }
