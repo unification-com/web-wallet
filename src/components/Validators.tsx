@@ -7,6 +7,7 @@ import { DelegateModal } from '@/components/DelegateModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { useKeybaseAvatar } from '@/lib/keybase'
 import { useActiveSigner } from '@/lib/signer'
 import {
   commissionRate,
@@ -58,9 +59,42 @@ function ValidatorDetail({ validator }: { validator: Validator }) {
   const desc = validator.description
   const hasDescription =
     desc?.website || desc?.identity || desc?.details || desc?.securityContact
+  // Lazy Keybase lookup — only fires when the row is expanded AND the
+  // validator has a non-empty `identity` field. Returns null on miss
+  // (no avatar / unknown identity / fetch failure).
+  const avatar = useKeybaseAvatar(desc?.identity)
+  const moniker = desc?.moniker ?? validator.operatorAddress
 
   return (
-    <dl className="ml-7 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 border-t border-border/60 pt-1.5 text-[10px]">
+    <div className="ml-7 flex flex-col gap-1.5 border-t border-border/60 pt-1.5">
+      {desc?.identity && (
+        <div className="flex items-center gap-2">
+          {avatar.isLoading ? (
+            <div className="h-10 w-10 rounded-full border border-border bg-muted/50 animate-pulse" />
+          ) : avatar.data ? (
+            <img
+              src={avatar.data}
+              alt={t`${moniker} avatar (from Keybase)`}
+              className="h-10 w-10 rounded-full object-cover border border-border"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-10 w-10 rounded-full border border-border bg-muted/50 flex items-center justify-center text-[10px] text-muted-foreground">
+              {moniker.slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <span className="text-[10px] text-muted-foreground italic">
+            {avatar.isLoading ? (
+              <Trans>loading Keybase avatar…</Trans>
+            ) : avatar.data ? (
+              <Trans>via Keybase</Trans>
+            ) : (
+              <Trans>no Keybase avatar</Trans>
+            )}
+          </span>
+        </div>
+      )}
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-[10px]">
       <dt className="text-muted-foreground">
         <Trans>Operator</Trans>
       </dt>
@@ -146,7 +180,8 @@ function ValidatorDetail({ validator }: { validator: Validator }) {
           <Trans>No description metadata published.</Trans>
         </span>
       )}
-    </dl>
+      </dl>
+    </div>
   )
 }
 

@@ -137,6 +137,10 @@ msgstr "{accepts} ✓ / {rejects} ✗{0}"
 msgid "{module}: {short}"
 msgstr "{module}: {short}"
 
+#: src/components/Validators.tsx
+msgid "{moniker} avatar (from Keybase)"
+msgstr "{moniker} avatar (from Keybase)"
+
 #: src/components/InFlightQueues.tsx
 msgid "{srcMoniker} → {dstMoniker}"
 msgstr "{srcMoniker} → {dstMoniker}"
@@ -1445,6 +1449,10 @@ msgstr "Loading IBC history…"
 msgid "Loading IBC…"
 msgstr "Loading IBC…"
 
+#: src/components/Validators.tsx
+msgid "loading Keybase avatar…"
+msgstr "loading Keybase avatar…"
+
 #: src/components/ProposalDetail.tsx
 msgid "Loading proposal…"
 msgstr "Loading proposal…"
@@ -1650,6 +1658,10 @@ msgstr "No IBC transfers yet."
 #: src/components/StreamsList.tsx
 msgid "No incoming streams."
 msgstr "No incoming streams."
+
+#: src/components/Validators.tsx
+msgid "no Keybase avatar"
+msgstr "no Keybase avatar"
 
 #: src/components/AddSignerCard.tsx
 #: src/components/VaultSetup.tsx
@@ -2858,6 +2870,10 @@ msgstr "Verifying…"
 #: src/lib/msgs/presenters.ts
 msgid "VETO"
 msgstr "VETO"
+
+#: src/components/Validators.tsx
+msgid "via Keybase"
+msgstr "via Keybase"
 
 #. placeholder {0}: proposal?.id.toString() ?? ''
 #: src/components/VoteModal.tsx
