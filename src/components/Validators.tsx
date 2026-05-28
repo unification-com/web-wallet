@@ -222,6 +222,8 @@ export function Validators() {
               // Rank prefix `01`, `02`, … (two-digit pad to keep the column
               // tidy; larger sets just wrap to three digits naturally).
               const rank = (i + 1).toString().padStart(2, '0')
+              const toggleExpanded = () =>
+                setExpandedAddress(expanded ? null : v.operatorAddress)
               return (
                 <li
                   key={v.operatorAddress}
@@ -230,22 +232,36 @@ export function Validators() {
                     (canDelegate ? 'border-border' : 'border-border opacity-60')
                   }
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedAddress(expanded ? null : v.operatorAddress)
+                  {/* Row is a clickable region (not a <button> because
+                      AddressLink + Delegate are nested interactive
+                      elements — invalid HTML). onClick + role="button" +
+                      key handler give it equivalent semantics. Nested
+                      interactives stopPropagation so they don't trigger
+                      the row toggle as a side-effect. */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={toggleExpanded}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        toggleExpanded()
                       }
-                      className="shrink-0 inline-flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-accent"
-                      aria-expanded={expanded}
-                      aria-label={expanded ? t`Hide details` : t`Show details`}
+                    }}
+                    aria-expanded={expanded}
+                    className="flex items-center justify-between gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                    title={expanded ? t`Hide details` : t`Show details`}
+                  >
+                    <span
+                      className="shrink-0 inline-flex h-5 w-5 items-center justify-center text-muted-foreground"
+                      aria-hidden="true"
                     >
                       {expanded ? (
                         <ChevronDown className="h-3 w-3" />
                       ) : (
                         <ChevronRight className="h-3 w-3" />
                       )}
-                    </button>
+                    </span>
                     <span className="font-mono text-[10px] text-muted-foreground shrink-0 w-6 text-right">
                       {rank}
                     </span>
@@ -297,7 +313,10 @@ export function Validators() {
                       variant="outline"
                       className="h-7 text-[11px] px-2 shrink-0"
                       disabled={!canDelegate}
-                      onClick={() => setDelegateTarget(v)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDelegateTarget(v)
+                      }}
                       title={
                         canDelegate
                           ? t`Delegate to ${moniker}`
