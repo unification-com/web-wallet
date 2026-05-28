@@ -43,12 +43,29 @@ export interface TxSearchAttr {
 }
 
 /**
+ * Tendermint returns this error message (verbatim) when the caller asks for
+ * a page beyond the result set's last page. The four-direction merge in
+ * `txhistory.ts` advances every direction's page in lockstep, so a sparse
+ * direction (e.g. zero authz grants received) is asked for page 2 even
+ * though it only has 1 page; the RPC rejects with this message. We treat
+ * the rejection as "this direction has no more pages" rather than letting
+ * a single short query fail the whole merge.
+ *
+ * Format observed on TestNet 2026-05-28: `"page should be within [1, 1]
+ * range, given 2"`. The bracket range is `[1, totalPages]`.
+ */
+const PAGE_OUT_OF_RANGE_RE = /page should be within \[\d+, \d+\] range/i
+
+/**
  * Fetch one page of tx_search results for the given `attrs` (joined by AND).
  * Returns `IndexedTx[]` shape-compatible with `StargateClient.searchTx`.
  *
  * `order_by: 'desc'` sorts newest-first at the RPC level, so the first page
  * is the most recent activity (matches block-explorer convention + what users
  * expect when paginating a history view).
+ *
+ * Page-out-of-range errors are swallowed (treated as empty page) — see
+ * `PAGE_OUT_OF_RANGE_RE` rationale.
  */
 export async function txSearchPage(
   rpc: string,
@@ -61,13 +78,22 @@ export async function txSearchPage(
   const query = attrs.map((a) => `${a.key}='${a.value}'`).join(' AND ')
   const cometClient = await Comet38Client.connect(rpc)
   try {
-    const res = await cometClient.txSearch({
-      query,
-      page,
-      per_page: TX_SEARCH_PAGE_SIZE,
-      prove: false,
-      order_by: 'desc',
-    })
+    let res
+    try {
+      res = await cometClient.txSearch({
+        query,
+        page,
+        per_page: TX_SEARCH_PAGE_SIZE,
+        prove: false,
+        order_by: 'desc',
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      if (PAGE_OUT_OF_RANGE_RE.test(message)) {
+        return { txs: [], totalCount: 0, hasMore: false, page }
+      }
+      throw err
+    }
     // cosmjs's `Uint8Array<ArrayBuffer>` generic confuses typescript-eslint's
     // typed-rule narrowing (same friction as in seeds.ts / vault-keystore /
     // txhistory.ts — the runtime shape is correct, the typed-lint just can't
