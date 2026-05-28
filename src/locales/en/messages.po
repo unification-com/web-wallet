@@ -819,6 +819,11 @@ msgstr "Delete \"{0}\"?"
 msgid "Delete key"
 msgstr "Delete key"
 
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Delete key {0}"
+msgstr "Delete key {0}"
+
 #: src/components/VaultEntryManager.tsx
 msgid "Delete seed"
 msgstr "Delete seed"
@@ -1773,6 +1778,14 @@ msgstr "Open in block explorer"
 msgid "Open in tab"
 msgstr "Open in tab"
 
+#: src/components/Header.tsx
+msgid "Open settings"
+msgstr "Open settings"
+
+#: src/components/Header.tsx
+msgid "Open wallet in a new tab"
+msgstr "Open wallet in a new tab"
+
 #: src/components/Validators.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Operator"
@@ -2130,9 +2143,19 @@ msgstr "Remove endpoint"
 msgid "Rename account"
 msgstr "Rename account"
 
+#. placeholder {0}: account.label
+#: src/components/VaultEntryManager.tsx
+msgid "Rename account {0}"
+msgstr "Rename account {0}"
+
 #: src/components/VaultEntryManager.tsx
 msgid "Rename key"
 msgstr "Rename key"
+
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Rename key {0}"
+msgstr "Rename key {0}"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Rename seed"
@@ -2179,6 +2202,12 @@ msgstr "Reveal"
 #: src/components/VaultEntryManager.tsx
 msgid "Reveal private key"
 msgstr "Reveal private key"
+
+#. placeholder {0}: account.label
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal private key for {0}"
+msgstr "Reveal private key for {0}"
 
 #: src/components/VaultEntryManager.tsx
 msgid "Reveal seed phrase"

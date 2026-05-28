@@ -131,6 +131,7 @@ function InlineRename({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={save}
         title={t`Save`}
+        aria-label={t`Save`}
       >
         <Check className="h-3.5 w-3.5" />
       </Button>
@@ -142,6 +143,7 @@ function InlineRename({
         disabled={busy}
         onClick={onCancel}
         title={t`Cancel`}
+        aria-label={t`Cancel`}
       >
         <X className="h-3.5 w-3.5" />
       </Button>
@@ -253,6 +255,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 className="h-6 w-6"
                 onClick={() => setRevealOpen(true)}
                 title={t`Reveal seed phrase`}
+                aria-label={t`Reveal seed phrase`}
               >
                 <Eye className="h-3 w-3" />
               </Button>
@@ -262,6 +265,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 className="h-6 w-6"
                 onClick={() => setRenaming(true)}
                 title={t`Rename seed`}
+                aria-label={t`Rename seed`}
               >
                 <Pencil className="h-3 w-3" />
               </Button>
@@ -271,6 +275,7 @@ function SeedRow({ seed }: { seed: SeedEntry }) {
                 className="h-6 w-6 text-muted-foreground hover:text-destructive"
                 onClick={() => setConfirmDelete(true)}
                 title={t`Delete seed`}
+                aria-label={t`Delete seed`}
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -393,6 +398,7 @@ function AccountRow({
             className="h-6 w-6"
             onClick={() => setRevealKeyOpen(true)}
             title={t`Reveal private key`}
+            aria-label={t`Reveal private key for ${account.label}`}
           >
             <KeyRound className="h-3 w-3" />
           </Button>
@@ -402,6 +408,7 @@ function AccountRow({
             className="h-6 w-6"
             onClick={() => setRenaming(true)}
             title={t`Rename account`}
+            aria-label={t`Rename account ${account.label}`}
           >
             <Pencil className="h-3 w-3" />
           </Button>
@@ -494,6 +501,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               className="h-6 w-6"
               onClick={() => setRevealKeyOpen(true)}
               title={t`Reveal private key`}
+              aria-label={t`Reveal private key for ${entry.label}`}
             >
               <KeyRound className="h-3 w-3" />
             </Button>
@@ -503,6 +511,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               className="h-6 w-6"
               onClick={() => setRenaming(true)}
               title={t`Rename key`}
+              aria-label={t`Rename key ${entry.label}`}
             >
               <Pencil className="h-3 w-3" />
             </Button>
@@ -512,6 +521,7 @@ function ImportedKeyRow({ entry }: { entry: ImportedKeyEntry }) {
               className="h-6 w-6 text-muted-foreground hover:text-destructive"
               onClick={() => setConfirmDelete(true)}
               title={t`Delete key`}
+              aria-label={t`Delete key ${entry.label}`}
             >
               <Trash2 className="h-3 w-3" />
             </Button>

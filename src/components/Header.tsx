@@ -53,6 +53,7 @@ export function Header({
             onClick={openInTab}
             className="h-7 w-7"
             title={t`Open in tab`}
+            aria-label={t`Open wallet in a new tab`}
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </Button>
@@ -63,6 +64,7 @@ export function Header({
           onClick={onOpenSettings}
           className="h-7 w-7"
           title={t`Settings`}
+          aria-label={t`Open settings`}
         >
           <SettingsIcon className="h-3.5 w-3.5" />
         </Button>
@@ -72,6 +74,7 @@ export function Header({
           onClick={lock}
           className="h-7 w-7"
           title={t`Lock wallet`}
+          aria-label={t`Lock wallet`}
         >
           <Lock className="h-3.5 w-3.5" />
         </Button>
