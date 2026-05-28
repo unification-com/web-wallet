@@ -117,6 +117,7 @@ function InlineRename({
           if (e.key === 'Enter') void save()
           if (e.key === 'Escape') onCancel()
         }}
+        aria-label={t`New name`}
         // eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus the rename input on open
         autoFocus
         disabled={busy}

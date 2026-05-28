@@ -1064,6 +1064,10 @@ msgstr "Fill the amount with your full current delegation"
 msgid "Filter by moniker…"
 msgstr "Filter by moniker…"
 
+#: src/components/Validators.tsx
+msgid "Filter validators by moniker"
+msgstr "Filter validators by moniker"
+
 #: src/components/VaultSetup.tsx
 msgid "Finish setup"
 msgstr "Finish setup"
@@ -1611,6 +1615,10 @@ msgstr "Never share. Never type into a website. Unification will never ask for i
 msgid "New flow rate"
 msgstr "New flow rate"
 
+#: src/components/VaultEntryManager.tsx
+msgid "New name"
+msgstr "New name"
+
 #: src/components/ProposalDetail.tsx
 #: src/components/VoteModal.tsx
 msgid "No"
@@ -2135,6 +2143,11 @@ msgstr "Remaining deposit"
 msgid "Remaining deposit: <0>{0}</0> {denomLabel}"
 msgstr "Remaining deposit: <0>{0}</0> {denomLabel}"
 
+#. placeholder {0}: monikerOf(valoper)
+#: src/components/AuthzActionModals.tsx
+msgid "Remove {0} from list"
+msgstr "Remove {0} from list"
+
 #: src/components/Settings.tsx
 msgid "Remove endpoint"
 msgstr "Remove endpoint"
@@ -2289,6 +2302,10 @@ msgstr "Scroll tabs right"
 #: src/components/AuthzActionModals.tsx
 msgid "Search by moniker or undvaloper1…"
 msgstr "Search by moniker or undvaloper1…"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Search validators by moniker or operator address"
+msgstr "Search validators by moniker or operator address"
 
 #: src/components/Validators.tsx
 msgid "Security contact"

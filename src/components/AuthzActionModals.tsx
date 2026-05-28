@@ -103,7 +103,7 @@ function msgTypeUrlFromDecoded(decoded: DecodedAuthorisation | undefined): strin
 // The modal hosts two flavour forms (Stake / Generic) selected by a
 // segmented control. Form state lives in the parent so `<TxModal>`'s
 // `canSubmit` + `buildMsgs` props can read from the active flavour.
-// SendAuthorization is out of scope for v0.22 (vanishingly rare in
+// SendAuthorization is out of scope for v1.0 (vanishingly rare in
 // practice; the M10 tracker's out-of-scope list captures it).
 
 type GrantKind = 'stake' | 'generic'
@@ -375,6 +375,7 @@ function ValidatorPicker({ mode, selected, onChange, validators }: ValidatorPick
               onClick={() => toggle(valoper)}
               className="inline-flex items-center gap-1 rounded border border-primary/40 bg-primary/5 px-1.5 py-0.5 text-[10px] hover:bg-primary/10"
               title={valoper}
+              aria-label={t`Remove ${monikerOf(valoper)} from list`}
             >
               <span className="font-medium">{monikerOf(valoper)}</span>
               <span className="text-muted-foreground">×</span>
@@ -394,6 +395,7 @@ function ValidatorPicker({ mode, selected, onChange, validators }: ValidatorPick
         placeholder={t`Search by moniker or undvaloper1…`}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        aria-label={t`Search validators by moniker or operator address`}
         className="font-mono"
       />
       <ul className="max-h-40 overflow-y-auto rounded border border-border bg-background/50">
@@ -410,6 +412,7 @@ function ValidatorPicker({ mode, selected, onChange, validators }: ValidatorPick
               <button
                 type="button"
                 onClick={() => toggle(v.operatorAddress)}
+                aria-pressed={isSelected}
                 className={
                   'flex w-full items-center justify-between gap-2 border-b border-border px-2 py-1 text-left text-[11px] last:border-b-0 hover:bg-accent ' +
                   (isSelected ? 'bg-primary/5' : '')

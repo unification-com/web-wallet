@@ -176,7 +176,7 @@ export function buildMsgGrantGeneric(params: {
 // Build a `SendAuthorization` programmatically — exported as a thin
 // pre-encode helper so callers can preview the inner shape before grant
 // builders consume it. Currently unused by the UI (Send/Stake/Generic
-// chosen as the v0.22 surface) but kept exported so M10's "out-of-scope"
+// chosen as the v1.0 surface) but kept exported so M10's "out-of-scope"
 // list stays honest — adding the Send-grant form later doesn't need new
 // types.
 export { SEND_AUTHORISATION_URL }

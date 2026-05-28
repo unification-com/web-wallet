@@ -240,6 +240,7 @@ export function Validators() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t`Filter by moniker…`}
+          aria-label={t`Filter validators by moniker`}
           className="text-xs"
         />
 
