@@ -113,7 +113,17 @@ export function sortValidators(validators: readonly Validator[]): Validator[] {
 
 /** Commission rate as a 0..1 number — converts the proto `Dec` string. */
 export function commissionRate(v: Validator): number {
-  const raw = v.commission?.commissionRates?.rate ?? '0'
+  return decRateToFraction(v.commission?.commissionRates?.rate)
+}
+
+/**
+ * Convert a raw proto `LegacyDec` rate string (integer × 10⁻¹⁸) to a JS
+ * fraction (0–1). Used for commission rates (`rate`, `maxRate`,
+ * `maxChangeRate` — same Dec format) so consumers can format with their
+ * preferred precision. Returns 0 for missing / unparseable input.
+ */
+export function decRateToFraction(raw: string | undefined): number {
+  if (!raw) return 0
   // proto Dec is stored as integer * 10^18 (e.g. "100000000000000000" = 0.1).
   try {
     const big = BigInt(raw)

@@ -603,6 +603,10 @@ msgstr "Closed"
 msgid "Code"
 msgstr "Code"
 
+#: src/components/Validators.tsx
+msgid "Commission max"
+msgstr "Commission max"
+
 #: src/components/Enterprise.tsx
 msgid "Completed"
 msgstr "Completed"
@@ -882,6 +886,7 @@ msgid "Destination validator"
 msgstr "Destination validator"
 
 #: src/components/Enterprise.tsx
+#: src/components/Validators.tsx
 msgid "Details"
 msgstr "Details"
 
@@ -1209,6 +1214,10 @@ msgstr "Hash"
 msgid "Height"
 msgstr "Height"
 
+#: src/components/Validators.tsx
+msgid "Hide details"
+msgstr "Hide details"
+
 #: src/App.tsx
 #: src/components/TxHistory.tsx
 msgid "History"
@@ -1254,6 +1263,10 @@ msgstr "IBC-wrapped"
 #: src/components/Send.tsx
 msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
 msgstr "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
+
+#: src/components/Validators.tsx
+msgid "Identity"
+msgstr "Identity"
 
 #: src/components/VaultSetup.tsx
 msgid "Import a v1 wallet file"
@@ -1358,6 +1371,10 @@ msgstr "Invoice #12345 — server costs"
 msgid "JAILED"
 msgstr "JAILED"
 
+#: src/components/Validators.tsx
+msgid "Keybase identity hash"
+msgstr "Keybase identity hash"
+
 #: src/components/Settings.tsx
 msgid "Label"
 msgstr "Label"
@@ -1369,6 +1386,10 @@ msgstr "label is required"
 #: src/components/StreamLabel.tsx
 msgid "Label this stream"
 msgstr "Label this stream"
+
+#: src/components/Validators.tsx
+msgid "Last commission update"
+msgstr "Last commission update"
 
 #: src/components/AuthzActionModals.tsx
 msgid "Leave blank for no cap. Restake convention: leave blank since the cap can be replaced by a fresh grant if needed."
@@ -1487,6 +1508,10 @@ msgstr "Maturing…"
 msgid "Max"
 msgstr "Max"
 
+#: src/components/Validators.tsx
+msgid "Max change / day"
+msgstr "Max change / day"
+
 #: src/components/Send.tsx
 #: src/components/SendIbc.tsx
 #: src/components/TxRow.tsx
@@ -1514,6 +1539,10 @@ msgstr "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key onl
 #: src/components/VaultSetup.tsx
 msgid "Migrate from v1"
 msgstr "Migrate from v1"
+
+#: src/components/Validators.tsx
+msgid "Min self-delegation"
+msgstr "Min self-delegation"
 
 #: src/components/AddSignerCard.tsx
 msgid "Mnemonic"
@@ -1601,6 +1630,10 @@ msgstr "No balances yet — receive some FUND to get started."
 #: src/components/StreamsList.tsx
 msgid "No cancelled streams."
 msgstr "No cancelled streams."
+
+#: src/components/Validators.tsx
+msgid "No description metadata published."
+msgstr "No description metadata published."
 
 #: src/components/StreamHistoryPanel.tsx
 msgid "No events yet."
@@ -2215,6 +2248,10 @@ msgstr "Scroll tabs right"
 msgid "Search by moniker or undvaloper1…"
 msgstr "Search by moniker or undvaloper1…"
 
+#: src/components/Validators.tsx
+msgid "Security contact"
+msgstr "Security contact"
+
 #. placeholder {0}: ref.seedId
 #: src/lib/signer.ts
 msgid "seed {0} not found in vault"
@@ -2313,6 +2350,10 @@ msgstr "Settings"
 #: src/components/Receive.tsx
 msgid "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
 msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+
+#: src/components/Validators.tsx
+msgid "Show details"
+msgstr "Show details"
 
 #: src/components/TxHistory.tsx
 msgid "Showing txs indexed by this RPC. Public nodes typically prune older entries from the tx index — for full history, see your account on a block explorer."
@@ -2854,6 +2895,10 @@ msgstr "Voting is closed for this proposal."
 #: src/components/Header.tsx
 msgid "Wallet"
 msgstr "Wallet"
+
+#: src/components/Validators.tsx
+msgid "Website"
+msgstr "Website"
 
 #: src/components/Settings.tsx
 msgid "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
