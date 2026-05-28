@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   AuthorizationType,
-  GENERIC_AUTHORIZATION_URL,
+  GENERIC_AUTHORISATION_URL,
   GenericAuthorization,
-  STAKE_AUTHORIZATION_URL,
+  STAKE_AUTHORISATION_URL,
   StakeAuthorization,
 } from '../authz'
 
@@ -66,7 +66,7 @@ describe('msgs/authz.buildMsgGrantStake', () => {
     const value = msg.value as MsgGrantValue
     expect(value.granter).toBe(GRANTER)
     expect(value.grantee).toBe(GRANTEE)
-    expect(value.grant?.authorization?.typeUrl).toBe(STAKE_AUTHORIZATION_URL)
+    expect(value.grant?.authorization?.typeUrl).toBe(STAKE_AUTHORISATION_URL)
     expect(value.grant?.expiration).toBeUndefined()
 
     const decoded = StakeAuthorization.decode(value.grant?.authorization?.value ?? new Uint8Array())
@@ -179,7 +179,7 @@ describe('msgs/authz.buildMsgGrantGeneric', () => {
     })
     expect(msg.typeUrl).toBe('/cosmos.authz.v1beta1.MsgGrant')
     const value = msg.value as MsgGrantValue
-    expect(value.grant?.authorization?.typeUrl).toBe(GENERIC_AUTHORIZATION_URL)
+    expect(value.grant?.authorization?.typeUrl).toBe(GENERIC_AUTHORISATION_URL)
     const decoded = GenericAuthorization.decode(value.grant?.authorization?.value ?? new Uint8Array())
     expect(decoded.msg).toBe('/cosmos.bank.v1beta1.MsgSend')
   })

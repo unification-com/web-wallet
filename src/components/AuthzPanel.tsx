@@ -2,17 +2,17 @@ import { Trans, useLingui } from '@lingui/react/macro'
 import { useState } from 'react'
 
 import { AddressLink } from '@/components/AddressLink'
-import { GrantAuthorizationModal, RevokeGrantModal } from '@/components/AuthzActionModals'
+import { GrantAuthorisationModal, RevokeGrantModal } from '@/components/AuthzActionModals'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   AuthorizationType,
-  GENERIC_AUTHORIZATION_URL,
-  SEND_AUTHORIZATION_URL,
-  STAKE_AUTHORIZATION_URL,
+  GENERIC_AUTHORISATION_URL,
+  SEND_AUTHORISATION_URL,
+  STAKE_AUTHORISATION_URL,
   useGranterGrants,
   type AuthzGrantRow,
-  type DecodedAuthorization,
+  type DecodedAuthorisation,
 } from '@/lib/authz'
 import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
@@ -41,7 +41,7 @@ export function AuthzPanel() {
     <Card>
       <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between gap-2 space-y-0">
         <CardTitle className="text-sm">
-          <Trans>Authorizations</Trans>
+          <Trans>Authorisations</Trans>
         </CardTitle>
         <Button size="sm" variant="outline" onClick={() => setGrantOpen(true)}>
           <Trans>Grant new</Trans>
@@ -63,7 +63,7 @@ export function AuthzPanel() {
         {!isLoading && (grants ?? []).length === 0 && (
           <p className="text-muted-foreground italic">
             <Trans>
-              No active grants. Grant an authorization to enable a
+              No active grants. Grant an authorisation to enable a
               third-party (e.g. an auto-compounder) to act on your
               behalf for specific message types.
             </Trans>
@@ -88,7 +88,7 @@ export function AuthzPanel() {
         granter={address}
         onClose={() => setRevokeTarget(null)}
       />
-      <GrantAuthorizationModal
+      <GrantAuthorisationModal
         open={grantOpen}
         onOpenChange={setGrantOpen}
         granter={address}
@@ -125,17 +125,17 @@ function GrantRow({ row, validators, onRevoke }: GrantRowProps) {
           <Trans>Revoke</Trans>
         </Button>
       </div>
-      <AuthorizationSummary decoded={row.decoded} validators={validators} />
+      <AuthorisationSummary decoded={row.decoded} validators={validators} />
       <span className="text-[10px] text-muted-foreground">{expiryLabel}</span>
     </li>
   )
 }
 
-function AuthorizationSummary({
+function AuthorisationSummary({
   decoded,
   validators,
 }: {
-  decoded: DecodedAuthorization
+  decoded: DecodedAuthorisation
   validators: readonly Validator[]
 }) {
   if (decoded.kind === 'stake') {
@@ -209,7 +209,7 @@ function AuthorizationSummary({
   return (
     <span className="text-[11px] text-muted-foreground">
       <Trans>
-        Unknown authorization type: <span className="font-mono">{decoded.typeUrl}</span>
+        Unknown authorisation type: <span className="font-mono">{decoded.typeUrl}</span>
       </Trans>
     </span>
   )
@@ -264,7 +264,7 @@ function formatExpiry(
 
 // Re-export the URL constants so debugging contexts have a single import point.
 export {
-  GENERIC_AUTHORIZATION_URL,
-  SEND_AUTHORIZATION_URL,
-  STAKE_AUTHORIZATION_URL,
+  GENERIC_AUTHORISATION_URL,
+  SEND_AUTHORISATION_URL,
+  STAKE_AUTHORISATION_URL,
 }

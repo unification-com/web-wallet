@@ -3,10 +3,10 @@ import { z } from 'zod'
 
 import {
   AuthorizationType,
-  GENERIC_AUTHORIZATION_URL,
+  GENERIC_AUTHORISATION_URL,
   GenericAuthorization,
-  SEND_AUTHORIZATION_URL,
-  STAKE_AUTHORIZATION_URL,
+  SEND_AUTHORISATION_URL,
+  STAKE_AUTHORISATION_URL,
   StakeAuthorization,
 } from '@/lib/authz'
 
@@ -60,15 +60,15 @@ export function buildMsgRevoke(params: {
 // MsgGrant — three flavours (Stake / Send / Generic)
 // ---------------------------------------------------------------------------
 // MsgGrant wraps an `Authorization` in an `Any`; cosmjs's default registry
-// needs the inner authorization encoded ahead of time. Each builder below
+// needs the inner authorisation encoded ahead of time. Each builder below
 // constructs the `Any` from the proto-generated `encode` then composes the
 // MsgGrant value.
 
 /**
  * Build an `Any` from a proto-encoded message + its typeUrl. Used by the
- * MsgGrant builders below to wrap inner Authorization shapes.
+ * MsgGrant builders below to wrap inner Authorisation shapes.
  */
-function encodeAuthorizationAny(
+function encodeAuthorisationAny(
   typeUrl: string,
   bytes: Uint8Array,
 ): { typeUrl: string; value: Uint8Array } {
@@ -120,7 +120,7 @@ export function buildMsgGrantStake(params: {
   values: StakeGrantFormValues
 }): EncodeObject {
   const { grantee, authzType, maxFund, listMode, validators, expiresAtMs } = params.values
-  const authorization = StakeAuthorization.fromPartial({
+  const authorisation = StakeAuthorization.fromPartial({
     authorizationType: AUTHZ_TYPE_MAP[authzType],
     ...(maxFund && maxFund !== ''
       ? { maxTokens: { denom: 'nund', amount: fundToNund(maxFund) } }
@@ -128,14 +128,14 @@ export function buildMsgGrantStake(params: {
     ...(listMode === 'allow' ? { allowList: { address: validators } } : {}),
     ...(listMode === 'deny' ? { denyList: { address: validators } } : {}),
   })
-  const encoded = StakeAuthorization.encode(authorization).finish()
+  const encoded = StakeAuthorization.encode(authorisation).finish()
   return {
     typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
     value: {
       granter: params.granter,
       grantee,
       grant: {
-        authorization: encodeAuthorizationAny(STAKE_AUTHORIZATION_URL, encoded),
+        authorization: encodeAuthorisationAny(STAKE_AUTHORISATION_URL, encoded),
         expiration: dateToTimestamp(expiresAtMs),
       },
     },
@@ -155,17 +155,17 @@ export function buildMsgGrantGeneric(params: {
   granter: string
   values: GenericGrantFormValues
 }): EncodeObject {
-  const authorization = GenericAuthorization.fromPartial({
+  const authorisation = GenericAuthorization.fromPartial({
     msg: params.values.msgTypeUrl,
   })
-  const encoded = GenericAuthorization.encode(authorization).finish()
+  const encoded = GenericAuthorization.encode(authorisation).finish()
   return {
     typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
     value: {
       granter: params.granter,
       grantee: params.values.grantee,
       grant: {
-        authorization: encodeAuthorizationAny(GENERIC_AUTHORIZATION_URL, encoded),
+        authorization: encodeAuthorisationAny(GENERIC_AUTHORISATION_URL, encoded),
         expiration: dateToTimestamp(params.values.expiresAtMs),
       },
     },
@@ -179,4 +179,4 @@ export function buildMsgGrantGeneric(params: {
 // chosen as the v0.22 surface) but kept exported so M10's "out-of-scope"
 // list stays honest — adding the Send-grant form later doesn't need new
 // types.
-export { SEND_AUTHORIZATION_URL }
+export { SEND_AUTHORISATION_URL }

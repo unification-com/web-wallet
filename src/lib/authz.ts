@@ -40,13 +40,13 @@ export {
 }
 
 // ---------------------------------------------------------------------------
-// Known authorization typeUrls — used for routing the per-row detail
+// Known authorisation typeUrls — used for routing the per-row detail
 // renderer (StakeAuthz vs SendAuthz vs Generic vs unknown).
 // ---------------------------------------------------------------------------
 
-export const STAKE_AUTHORIZATION_URL = '/cosmos.staking.v1beta1.StakeAuthorization'
-export const SEND_AUTHORIZATION_URL = '/cosmos.bank.v1beta1.SendAuthorization'
-export const GENERIC_AUTHORIZATION_URL = '/cosmos.authz.v1beta1.GenericAuthorization'
+export const STAKE_AUTHORISATION_URL = '/cosmos.staking.v1beta1.StakeAuthorization'
+export const SEND_AUTHORISATION_URL = '/cosmos.bank.v1beta1.SendAuthorization'
+export const GENERIC_AUTHORISATION_URL = '/cosmos.authz.v1beta1.GenericAuthorization'
 
 // ---------------------------------------------------------------------------
 // Query client setup
@@ -67,7 +67,7 @@ async function makeAuthzClient(rpc: string): Promise<{
 }
 
 // ---------------------------------------------------------------------------
-// Decoded-authorization view models
+// Decoded-authorisation view models
 // ---------------------------------------------------------------------------
 
 /**
@@ -76,12 +76,12 @@ async function makeAuthzClient(rpc: string): Promise<{
  * is one of three protobuf-encoded payloads. Decoding once in the query
  * layer keeps every consumer purely declarative.
  *
- * Falls back to `{ kind: 'unknown', typeUrl }` for any authorization type
+ * Falls back to `{ kind: 'unknown', typeUrl }` for any authorisation type
  * we don't recognise (rare on Unification today — gov stake + Restake
  * grants dominate — but defensive). The unknown variant lets the UI list
  * the grant as "revoke this opaque grant" without exploding.
  */
-export type DecodedAuthorization =
+export type DecodedAuthorisation =
   | {
       kind: 'stake'
       /** Delegate / undelegate / redelegate (or unspecified = any). */
@@ -110,13 +110,13 @@ export type DecodedAuthorization =
       typeUrl: string
     }
 
-/** Decode an on-chain `Any`-wrapped authorization into our view-model union. */
-export function decodeAuthorization(
+/** Decode an on-chain `Any`-wrapped authorisation into our view-model union. */
+export function decodeAuthorisation(
   authorization: { typeUrl: string; value: Uint8Array } | undefined,
-): DecodedAuthorization {
+): DecodedAuthorisation {
   if (!authorization) return { kind: 'unknown', typeUrl: '' }
   try {
-    if (authorization.typeUrl === STAKE_AUTHORIZATION_URL) {
+    if (authorization.typeUrl === STAKE_AUTHORISATION_URL) {
       const stake = StakeAuthorization.decode(authorization.value)
       return {
         kind: 'stake',
@@ -126,7 +126,7 @@ export function decodeAuthorization(
         denyList: stake.denyList?.address ?? null,
       }
     }
-    if (authorization.typeUrl === SEND_AUTHORIZATION_URL) {
+    if (authorization.typeUrl === SEND_AUTHORISATION_URL) {
       const send = SendAuthorization.decode(authorization.value)
       return {
         kind: 'send',
@@ -134,7 +134,7 @@ export function decodeAuthorization(
         allowList: send.allowList,
       }
     }
-    if (authorization.typeUrl === GENERIC_AUTHORIZATION_URL) {
+    if (authorization.typeUrl === GENERIC_AUTHORISATION_URL) {
       const generic = GenericAuthorization.decode(authorization.value)
       return { kind: 'generic', msgTypeUrl: generic.msg }
     }
@@ -149,11 +149,11 @@ export function decodeAuthorization(
 export interface AuthzGrantRow {
   granter: string
   grantee: string
-  /** Original `Any`-wrapped authorization — kept around so revoke flows have the
+  /** Original `Any`-wrapped authorisation — kept around so revoke flows have the
    * exact typeUrl to send back without re-encoding. */
   authorization: { typeUrl: string; value: Uint8Array } | undefined
   /** Decoded view model for the renderer. */
-  decoded: DecodedAuthorization
+  decoded: DecodedAuthorisation
   /** Unix milliseconds; null means "no expiration" (the grant never auto-expires). */
   expiresAtMs: number | null
 }
@@ -166,7 +166,7 @@ function asRow(g: GrantAuthorization): AuthzGrantRow {
     granter: g.granter,
     grantee: g.grantee,
     authorization: g.authorization,
-    decoded: decodeAuthorization(g.authorization),
+    decoded: decodeAuthorisation(g.authorization),
     expiresAtMs,
   }
 }

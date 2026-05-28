@@ -141,6 +141,10 @@ msgstr "{module}: {short}"
 msgid "{srcMoniker} → {dstMoniker}"
 msgstr "{srcMoniker} → {dstMoniker}"
 
+#: src/components/AuthzActionModals.tsx
+msgid "/cosmos.bank.v1beta1.MsgSend"
+msgstr "/cosmos.bank.v1beta1.MsgSend"
+
 #. placeholder {0}: proposal.id.toString()
 #. placeholder {1}: getProposalTitle(proposal) || '(untitled)'
 #: src/components/ProposalDetail.tsx
@@ -330,6 +334,7 @@ msgstr "Amount to redelegate (FUND)"
 msgid "Amount to undelegate (FUND)"
 msgstr "Amount to undelegate (FUND)"
 
+#: src/components/AuthzActionModals.tsx
 #: src/components/AuthzPanel.tsx
 msgid "Any staking action"
 msgstr "Any staking action"
@@ -346,9 +351,14 @@ msgstr "Appearance"
 msgid "Apply estimate"
 msgstr "Apply estimate"
 
+#: src/components/AuthzActionModals.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Authorisation"
 msgstr "Authorisation"
+
+#: src/components/AuthzPanel.tsx
+msgid "Authorisations"
+msgstr "Authorisations"
 
 #: src/components/AuthzActionModals.tsx
 msgid "Authorise another account to send specific Msgs on your behalf. For Restake-style auto-compounding, grant <0>Stake</0> to the bot operator's address."
@@ -359,12 +369,12 @@ msgid "Authority"
 msgstr "Authority"
 
 #: src/components/AuthzActionModals.tsx
-msgid "Authorization"
-msgstr "Authorization"
+#~ msgid "Authorization"
+#~ msgstr "Authorization"
 
 #: src/components/AuthzPanel.tsx
-msgid "Authorizations"
-msgstr "Authorizations"
+#~ msgid "Authorizations"
+#~ msgstr "Authorizations"
 
 #: src/lib/vault/store.ts
 msgid "auto-lock timeout must be a positive integer (ms)"
@@ -758,6 +768,10 @@ msgstr "Decision"
 msgid "Delegate"
 msgstr "Delegate"
 
+#: src/components/AuthzActionModals.tsx
+msgid "Delegate (auto-compounder pattern)"
+msgstr "Delegate (auto-compounder pattern)"
+
 #: src/components/DelegateModal.tsx
 msgid "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
 msgstr "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
@@ -882,6 +896,10 @@ msgstr "Download"
 #: src/lib/msgs/presenters.ts
 msgid "Drains at"
 msgstr "Drains at"
+
+#: src/components/AuthzActionModals.tsx
+msgid "e.g. 1000"
+msgstr "e.g. 1000"
 
 #: src/components/StreamLabel.tsx
 msgid "Edit stream label"
@@ -1105,8 +1123,12 @@ msgid "Grant"
 msgstr "Grant"
 
 #: src/components/AuthzActionModals.tsx
-msgid "Grant authorization"
-msgstr "Grant authorization"
+msgid "Grant authorisation"
+msgstr "Grant authorisation"
+
+#: src/components/AuthzActionModals.tsx
+#~ msgid "Grant authorization"
+#~ msgstr "Grant authorization"
 
 #: src/components/AuthzPanel.tsx
 msgid "Grant new"
@@ -1534,8 +1556,12 @@ msgid "No active delegations. Pick a validator above to start earning rewards."
 msgstr "No active delegations. Pick a validator above to start earning rewards."
 
 #: src/components/AuthzPanel.tsx
-msgid "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
-msgstr "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+msgid "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+msgstr "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+
+#: src/components/AuthzPanel.tsx
+#~ msgid "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+#~ msgstr "No active grants. Grant an authorization to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
 
 #: src/lib/useSubmitTx.ts
 msgid "no active signer — unlock the vault and select an account"
@@ -1927,6 +1953,7 @@ msgid "Recorded wrkchain block"
 msgstr "Recorded wrkchain block"
 
 #: src/components/ActiveDelegations.tsx
+#: src/components/AuthzActionModals.tsx
 #: src/components/AuthzPanel.tsx
 #: src/components/StakingActionModals.tsx
 msgid "Redelegate"
@@ -2074,8 +2101,12 @@ msgid "Revoke"
 msgstr "Revoke"
 
 #: src/components/AuthzActionModals.tsx
-msgid "Revoke authorization"
-msgstr "Revoke authorization"
+msgid "Revoke authorisation"
+msgstr "Revoke authorisation"
+
+#: src/components/AuthzActionModals.tsx
+#~ msgid "Revoke authorization"
+#~ msgstr "Revoke authorization"
 
 #: src/lib/msgs/presenters.ts
 msgid "Revoked authz"
@@ -2555,11 +2586,13 @@ msgstr "Type"
 msgid "Unbonding"
 msgstr "Unbonding"
 
+#: src/components/AuthzActionModals.tsx
 #: src/components/Send.tsx
 msgid "und1…"
 msgstr "und1…"
 
 #: src/components/ActiveDelegations.tsx
+#: src/components/AuthzActionModals.tsx
 #: src/components/AuthzPanel.tsx
 #: src/components/StakingActionModals.tsx
 msgid "Undelegate"
@@ -2589,8 +2622,12 @@ msgstr "Unknown"
 
 #. placeholder {0}: decoded.typeUrl
 #: src/components/AuthzPanel.tsx
-msgid "Unknown authorization type: <0>{0}</0>"
-msgstr "Unknown authorization type: <0>{0}</0>"
+msgid "Unknown authorisation type: <0>{0}</0>"
+msgstr "Unknown authorisation type: <0>{0}</0>"
+
+#: src/components/AuthzPanel.tsx
+#~ msgid "Unknown authorization type: <0>{0}</0>"
+#~ msgstr "Unknown authorization type: <0>{0}</0>"
 
 #: src/lib/useSubmitTx.ts
 msgid "unknown error"

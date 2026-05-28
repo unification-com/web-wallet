@@ -3,15 +3,15 @@ import { describe, expect, it } from 'vitest'
 import {
   AuthorizationType,
   GenericAuthorization,
-  GENERIC_AUTHORIZATION_URL,
-  SEND_AUTHORIZATION_URL,
-  STAKE_AUTHORIZATION_URL,
+  GENERIC_AUTHORISATION_URL,
+  SEND_AUTHORISATION_URL,
+  STAKE_AUTHORISATION_URL,
   SendAuthorization,
   StakeAuthorization,
-  decodeAuthorization,
+  decodeAuthorisation,
 } from './authz'
 
-describe('authz.decodeAuthorization', () => {
+describe('authz.decodeAuthorisation', () => {
   it('decodes a delegate-only StakeAuthorization', () => {
     const enc = StakeAuthorization.encode(
       StakeAuthorization.fromPartial({
@@ -19,7 +19,7 @@ describe('authz.decodeAuthorization', () => {
         maxTokens: { denom: 'nund', amount: '1000000000' },
       }),
     ).finish()
-    const decoded = decodeAuthorization({ typeUrl: STAKE_AUTHORIZATION_URL, value: enc })
+    const decoded = decodeAuthorisation({ typeUrl: STAKE_AUTHORISATION_URL, value: enc })
     expect(decoded.kind).toBe('stake')
     if (decoded.kind !== 'stake') throw new Error('unreachable')
     expect(decoded.authzType).toBe(AuthorizationType.AUTHORIZATION_TYPE_DELEGATE)
@@ -35,7 +35,7 @@ describe('authz.decodeAuthorization', () => {
         allowList: { address: ['undvaloper1abc', 'undvaloper1def'] },
       }),
     ).finish()
-    const decoded = decodeAuthorization({ typeUrl: STAKE_AUTHORIZATION_URL, value: enc })
+    const decoded = decodeAuthorisation({ typeUrl: STAKE_AUTHORISATION_URL, value: enc })
     if (decoded.kind !== 'stake') throw new Error('expected stake')
     expect(decoded.allowList).toEqual(['undvaloper1abc', 'undvaloper1def'])
     expect(decoded.denyList).toBeNull()
@@ -48,7 +48,7 @@ describe('authz.decodeAuthorization', () => {
         allowList: ['und1xyz'],
       }),
     ).finish()
-    const decoded = decodeAuthorization({ typeUrl: SEND_AUTHORIZATION_URL, value: enc })
+    const decoded = decodeAuthorisation({ typeUrl: SEND_AUTHORISATION_URL, value: enc })
     if (decoded.kind !== 'send') throw new Error('expected send')
     expect(decoded.spendLimit).toHaveLength(1)
     expect(decoded.spendLimit[0]).toEqual({ denom: 'nund', amount: '500000000' })
@@ -59,13 +59,13 @@ describe('authz.decodeAuthorization', () => {
     const enc = GenericAuthorization.encode(
       GenericAuthorization.fromPartial({ msg: '/cosmos.bank.v1beta1.MsgSend' }),
     ).finish()
-    const decoded = decodeAuthorization({ typeUrl: GENERIC_AUTHORIZATION_URL, value: enc })
+    const decoded = decodeAuthorisation({ typeUrl: GENERIC_AUTHORISATION_URL, value: enc })
     if (decoded.kind !== 'generic') throw new Error('expected generic')
     expect(decoded.msgTypeUrl).toBe('/cosmos.bank.v1beta1.MsgSend')
   })
 
   it('returns unknown for an unrecognised typeUrl', () => {
-    const decoded = decodeAuthorization({
+    const decoded = decodeAuthorisation({
       typeUrl: '/cosmos.something.unknown',
       value: new Uint8Array([1, 2, 3]),
     })
@@ -75,15 +75,15 @@ describe('authz.decodeAuthorization', () => {
   })
 
   it('returns unknown for an undefined authorization', () => {
-    const decoded = decodeAuthorization(undefined)
+    const decoded = decodeAuthorisation(undefined)
     expect(decoded.kind).toBe('unknown')
   })
 
   it('falls back to unknown on corrupt bytes (no throw)', () => {
     // Wrong typeUrl/bytes combination — proto decode will either throw or
     // produce garbage. Either way we expect a clean fallback.
-    const decoded = decodeAuthorization({
-      typeUrl: STAKE_AUTHORIZATION_URL,
+    const decoded = decodeAuthorisation({
+      typeUrl: STAKE_AUTHORISATION_URL,
       value: new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff]),
     })
     // Could decode to a zero-stake authz OR fall to unknown depending on

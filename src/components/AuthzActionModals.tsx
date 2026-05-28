@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { TxModal } from '@/components/TxModal'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { type AuthzGrantRow, type DecodedAuthorization } from '@/lib/authz'
+import { type AuthzGrantRow, type DecodedAuthorisation } from '@/lib/authz'
 import {
   buildMsgGrantGeneric,
   buildMsgGrantStake,
@@ -39,7 +39,7 @@ export function RevokeGrantModal({ target, granter, onClose }: RevokeGrantModalP
       onOpenChange={(next) => {
         if (!next) onClose()
       }}
-      title={<Trans>Revoke authorization</Trans>}
+      title={<Trans>Revoke authorisation</Trans>}
       description={
         <Trans>
           Revoking stops the grantee from acting on your behalf for this
@@ -75,9 +75,9 @@ export function RevokeGrantModal({ target, granter, onClose }: RevokeGrantModalP
 }
 
 /**
- * Map a decoded authorization back to the msg-type-url that `MsgRevoke`
+ * Map a decoded authorisation back to the msg-type-url that `MsgRevoke`
  * needs. x/authz keys grants by the inner-Msg type-url, not the wrapping
- * Authorization typeUrl:
+ * Authorisation typeUrl:
  *
  *   - stake authz → `/cosmos.staking.v1beta1.MsgDelegate` is the
  *     canonical entry. Restake-style auto-compounder grants are always
@@ -89,7 +89,7 @@ export function RevokeGrantModal({ target, granter, onClose }: RevokeGrantModalP
  *     authorised to send.
  *   - unknown → null (the Revoke button is gated off in that row).
  */
-function msgTypeUrlFromDecoded(decoded: DecodedAuthorization | undefined): string | null {
+function msgTypeUrlFromDecoded(decoded: DecodedAuthorisation | undefined): string | null {
   if (!decoded) return null
   if (decoded.kind === 'stake') return '/cosmos.staking.v1beta1.MsgDelegate'
   if (decoded.kind === 'send') return '/cosmos.bank.v1beta1.MsgSend'
@@ -98,7 +98,7 @@ function msgTypeUrlFromDecoded(decoded: DecodedAuthorization | undefined): strin
 }
 
 // ---------------------------------------------------------------------------
-// Grant new authorization
+// Grant new authorisation
 // ---------------------------------------------------------------------------
 // The modal hosts two flavour forms (Stake / Generic) selected by a
 // segmented control. Form state lives in the parent so `<TxModal>`'s
@@ -108,20 +108,19 @@ function msgTypeUrlFromDecoded(decoded: DecodedAuthorization | undefined): strin
 
 type GrantKind = 'stake' | 'generic'
 
-interface GrantAuthorizationModalProps {
+interface GrantAuthorisationModalProps {
   open: boolean
   onOpenChange: (next: boolean) => void
   granter: string
   validators: readonly Validator[]
 }
 
-export function GrantAuthorizationModal({
+export function GrantAuthorisationModal({
   open,
   onOpenChange,
   granter,
   validators,
-}: GrantAuthorizationModalProps) {
-  const { t } = useLingui()
+}: GrantAuthorisationModalProps) {
   const [kind, setKind] = useState<GrantKind>('stake')
 
   const stakeForm = useForm<StakeGrantFormValues>({
@@ -172,7 +171,7 @@ export function GrantAuthorizationModal({
         }
         onOpenChange(next)
       }}
-      title={<Trans>Grant authorization</Trans>}
+      title={<Trans>Grant authorisation</Trans>}
       description={
         <Trans>
           Authorise another account to send specific Msgs on your behalf.
@@ -206,9 +205,9 @@ export function GrantAuthorizationModal({
             </button>
           </div>
           {kind === 'stake' ? (
-            <StakeGrantFields form={stakeForm} validators={validators} t={t} />
+            <StakeGrantFields form={stakeForm} validators={validators} />
           ) : (
-            <GenericGrantFields form={genericForm} t={t} />
+            <GenericGrantFields form={genericForm} />
           )}
         </div>
       }
@@ -229,10 +228,14 @@ export function GrantAuthorizationModal({
 interface StakeGrantFieldsProps {
   form: ReturnType<typeof useForm<StakeGrantFormValues>>
   validators: readonly Validator[]
-  t: ReturnType<typeof useLingui>['t']
 }
 
-function StakeGrantFields({ form, validators, t }: StakeGrantFieldsProps) {
+function StakeGrantFields({ form, validators }: StakeGrantFieldsProps) {
+  // Use lingui locally — passing `t` as a prop prevents the babel macro
+  // from compiling the template-literal calls below (the plugin only
+  // recognises `t` symbols bound in the same scope via useLingui() or
+  // the `@lingui/core/macro` import).
+  const { t } = useLingui()
   return (
     <div className="flex flex-col gap-3 text-xs">
       <div className="flex flex-col gap-1">
@@ -254,7 +257,7 @@ function StakeGrantFields({ form, validators, t }: StakeGrantFieldsProps) {
 
       <div className="flex flex-col gap-1">
         <Label htmlFor="grant-authz-type">
-          <Trans>Authorization</Trans>
+          <Trans>Authorisation</Trans>
         </Label>
         <select
           id="grant-authz-type"
@@ -300,10 +303,10 @@ function StakeGrantFields({ form, validators, t }: StakeGrantFieldsProps) {
 
 interface GenericGrantFieldsProps {
   form: ReturnType<typeof useForm<GenericGrantFormValues>>
-  t: ReturnType<typeof useLingui>['t']
 }
 
-function GenericGrantFields({ form, t }: GenericGrantFieldsProps) {
+function GenericGrantFields({ form }: GenericGrantFieldsProps) {
+  const { t } = useLingui()
   return (
     <div className="flex flex-col gap-3 text-xs">
       <div className="rounded border border-destructive/40 bg-destructive/5 p-2 text-[11px] text-destructive">
