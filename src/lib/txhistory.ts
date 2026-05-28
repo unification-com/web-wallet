@@ -8,12 +8,26 @@ import { txSearchPage, TX_SEARCH_PAGE_SIZE } from './txsearchPaginated'
 // ---------------------------------------------------------------------------
 // Module note
 // ---------------------------------------------------------------------------
-// Tendermint `tx_search` supports `AND` but not `OR`, so we run two queries
-// (sent + received) per page and union them client-side. Each query is now
-// cursor-paged via `txSearchPage` — clicking "Load more" fetches the next
-// page from BOTH directions in parallel. For addresses with thousands of
-// txs (heavy IBC users, etc.) this is dramatically faster than the
-// previous un-paged variant which looped through every page upfront.
+// Tendermint `tx_search` supports `AND` but not `OR`, so we run a handful of
+// queries per page and union them client-side. Each query is cursor-paged
+// via `txSearchPage` — clicking "Load more" fetches the next page from
+// every direction in parallel.
+//
+// The four directions:
+//   1. `message.sender = address` — Txs the user signed (covers MsgSend,
+//      MsgDelegate, MsgGrant the user gave, MsgExec the user did, …).
+//   2. `transfer.recipient = address` — Bank transfers received.
+//   3. `cosmos.authz.v1beta1.EventGrant.grantee = address` — Grants RECEIVED
+//      (the granter signed; the user is named as the grantee). Without this
+//      the user wouldn't see authz grants made FOR them.
+//   4. `cosmos.authz.v1beta1.EventRevoke.grantee = address` — Revokes
+//      received (symmetric to #3).
+//
+// MsgExec on the user's behalf (grantee runs a Msg for the user) is
+// covered by #1 from the grantee's side; the granter doesn't sign, so it
+// won't appear in their history — that's correct, the granter isn't on the
+// transaction. The receive-side bank credit from the inner Msg shows up
+// via #2 if it was a transfer.
 // ---------------------------------------------------------------------------
 
 /**
@@ -80,10 +94,10 @@ export interface TxHistoryPage {
  * to render the full flattened list, or iterate `data.pages` to render per-
  * page sections. Call `fetchNextPage()` when the user clicks "Load more".
  *
- * Each page fetches page N of `message.sender=address` + page N of
- * `transfer.recipient=address` in parallel, then merges + dedupes. With
- * `TX_SEARCH_PAGE_SIZE = 25`, that's up to 50 fresh txs per "Load more"
- * click.
+ * Each page fetches page N of four parallel queries (see module note),
+ * then merges + dedupes. With `TX_SEARCH_PAGE_SIZE = 25`, that's up to
+ * 100 fresh txs per "Load more" click in the heavy-user case — but the
+ * dedupe + height-sort collapses overlap correctly.
  */
 export function useTxHistory(address: string | null) {
   const endpoint = useActiveEndpoint()
@@ -95,16 +109,39 @@ export function useTxHistory(address: string | null) {
       if (!address) {
         return { txs: [], page, hasMore: false, totalCount: 0 }
       }
-      const [sent, received] = await Promise.all([
+      const [sent, received, grantsReceived, revokesReceived] = await Promise.all([
         txSearchPage(endpoint.rpc, [{ key: 'message.sender', value: address }], page),
         txSearchPage(endpoint.rpc, [{ key: 'transfer.recipient', value: address }], page),
+        txSearchPage(
+          endpoint.rpc,
+          [{ key: 'cosmos.authz.v1beta1.EventGrant.grantee', value: address }],
+          page,
+        ),
+        txSearchPage(
+          endpoint.rpc,
+          [{ key: 'cosmos.authz.v1beta1.EventRevoke.grantee', value: address }],
+          page,
+        ),
       ])
-      const merged = mergeTxLists(sent.txs, received.txs)
+      const merged = mergeTxLists(
+        sent.txs,
+        received.txs,
+        grantsReceived.txs,
+        revokesReceived.txs,
+      )
       return {
         txs: hydrate(merged),
         page,
-        hasMore: sent.hasMore || received.hasMore,
-        totalCount: sent.totalCount + received.totalCount,
+        hasMore:
+          sent.hasMore ||
+          received.hasMore ||
+          grantsReceived.hasMore ||
+          revokesReceived.hasMore,
+        totalCount:
+          sent.totalCount +
+          received.totalCount +
+          grantsReceived.totalCount +
+          revokesReceived.totalCount,
       }
     },
     getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
