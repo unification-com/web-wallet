@@ -10,6 +10,7 @@ import {
   GENERIC_AUTHORISATION_URL,
   SEND_AUTHORISATION_URL,
   STAKE_AUTHORISATION_URL,
+  useGranteeGrants,
   useGranterGrants,
   type AuthzGrantRow,
   type DecodedAuthorisation,
@@ -19,23 +20,27 @@ import { useActiveSigner } from '@/lib/signer'
 import { useValidators, type Validator } from '@/lib/staking'
 
 /**
- * Authz management surface — lives inside the Settings panel as a card.
- * Lists every grant the active signer has given out (the common case —
+ * Authz management surface — lives in the Wallet tab below Send. Lists
+ * every grant the active signer has given out (the common case —
  * Restake-style auto-compounder grants in particular), with a Revoke
- * action per row + a Grant-new button at the bottom.
+ * action per row + a Grant-new button.
  *
- * Grants-received (active signer is grantee) is out of scope for v0.22 —
- * vanishingly rare for regular wallet users; the Restake-style bots that
- * receive thousands of grants don't run this wallet.
+ * Also surfaces grants RECEIVED by the active signer when any exist —
+ * read-only (the granter is the only party authorised to revoke their own
+ * grants). The received-grants section is hidden when empty so 99% of
+ * users (who never act as grantee) don't see noise.
  */
 export function AuthzPanel() {
   const { address } = useActiveSigner()
   const { data: grants, isLoading } = useGranterGrants(address)
+  const { data: granteeGrants } = useGranteeGrants(address)
   const { data: validators } = useValidators()
   const [revokeTarget, setRevokeTarget] = useState<AuthzGrantRow | null>(null)
   const [grantOpen, setGrantOpen] = useState(false)
 
   if (!address) return null
+
+  const hasReceivedGrants = (granteeGrants ?? []).length > 0
 
   return (
     <Card>
@@ -72,7 +77,7 @@ export function AuthzPanel() {
         <ul className="flex flex-col gap-2">
           {(grants ?? []).map((row) => (
             <GrantRow
-              key={`${row.grantee}-${row.authorization?.typeUrl ?? 'unknown'}-${(
+              key={`granter-${row.grantee}-${row.authorization?.typeUrl ?? 'unknown'}-${(
                 row.decoded.kind === 'generic' ? row.decoded.msgTypeUrl : ''
               )}`}
               row={row}
@@ -81,6 +86,36 @@ export function AuthzPanel() {
             />
           ))}
         </ul>
+
+        {hasReceivedGrants && (
+          <>
+            <hr className="my-2 border-border" />
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                <Trans>Granted to you</Trans>
+              </h4>
+              <p className="text-[11px] text-muted-foreground">
+                <Trans>
+                  Other accounts have authorised you to act on their
+                  behalf for these message types. Only the granter can
+                  revoke their own grant.
+                </Trans>
+              </p>
+              <ul className="flex flex-col gap-2">
+                {(granteeGrants ?? []).map((row) => (
+                  <GrantRow
+                    key={`grantee-${row.granter}-${row.authorization?.typeUrl ?? 'unknown'}-${(
+                      row.decoded.kind === 'generic' ? row.decoded.msgTypeUrl : ''
+                    )}`}
+                    row={row}
+                    validators={validators ?? []}
+                    perspective="grantee"
+                  />
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
       </CardContent>
 
       <RevokeGrantModal
@@ -101,29 +136,36 @@ export function AuthzPanel() {
 interface GrantRowProps {
   row: AuthzGrantRow
   validators: readonly Validator[]
-  onRevoke: () => void
+  /** `granter` (default) shows the grantee + Revoke button. `grantee` shows
+   * the granter and no Revoke button (only the granter can revoke). */
+  perspective?: 'granter' | 'grantee'
+  onRevoke?: () => void
 }
 
-function GrantRow({ row, validators, onRevoke }: GrantRowProps) {
+function GrantRow({ row, validators, perspective = 'granter', onRevoke }: GrantRowProps) {
   const { t } = useLingui()
   const expiryLabel = formatExpiry(row.expiresAtMs, t)
+  const showRevoke = perspective === 'granter' && onRevoke !== undefined
+  const counterpartyAddress = perspective === 'granter' ? row.grantee : row.granter
   return (
     <li className="flex flex-col gap-1 rounded border border-border p-2">
       <div className="flex items-center justify-between gap-2">
         <span className="flex flex-col min-w-0 gap-0.5">
           <span className="text-[10px] uppercase tracking-[0.06em] text-muted-foreground font-mono">
-            <Trans>Grantee</Trans>
+            {perspective === 'granter' ? <Trans>Grantee</Trans> : <Trans>Granter</Trans>}
           </span>
-          <AddressLink address={row.grantee} className="text-[11px] truncate" />
+          <AddressLink address={counterpartyAddress} className="text-[11px] truncate" />
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 text-[11px] px-2 shrink-0"
-          onClick={onRevoke}
-        >
-          <Trans>Revoke</Trans>
-        </Button>
+        {showRevoke && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[11px] px-2 shrink-0"
+            onClick={onRevoke}
+          >
+            <Trans>Revoke</Trans>
+          </Button>
+        )}
       </div>
       <AuthorisationSummary decoded={row.decoded} validators={validators} />
       <span className="text-[10px] text-muted-foreground">{expiryLabel}</span>

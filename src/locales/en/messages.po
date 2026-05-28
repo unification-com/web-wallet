@@ -1146,6 +1146,10 @@ msgstr "Granted authz (received)"
 msgid "Granted fee allowance"
 msgstr "Granted fee allowance"
 
+#: src/components/AuthzPanel.tsx
+msgid "Granted to you"
+msgstr "Granted to you"
+
 #: src/components/AuthzActionModals.tsx
 #: src/components/AuthzPanel.tsx
 #: src/lib/msgs/presenters.ts
@@ -1156,6 +1160,7 @@ msgstr "Grantee"
 msgid "Grantee (bot address)"
 msgstr "Grantee (bot address)"
 
+#: src/components/AuthzPanel.tsx
 #: src/lib/msgs/presenters.ts
 msgid "Granter"
 msgstr "Granter"
@@ -1704,6 +1709,10 @@ msgstr "Original deposit amount including the pending accrual."
 #: src/components/SendIbc.tsx
 msgid "osmo1… / cosmos1… / …"
 msgstr "osmo1… / cosmos1… / …"
+
+#: src/components/AuthzPanel.tsx
+msgid "Other accounts have authorised you to act on their behalf for these message types. Only the granter can revoke their own grant."
+msgstr "Other accounts have authorised you to act on their behalf for these message types. Only the granter can revoke their own grant."
 
 #: src/components/StreamsList.tsx
 msgid "Outgoing streams"
