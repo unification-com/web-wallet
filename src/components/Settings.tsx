@@ -365,7 +365,7 @@ export function Settings({
 }
 
 function PingHint({ ping }: { ping: PerEndpointPing }) {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   if (ping.status === 'idle') return null
   if (ping.status === 'pinging') {
     return (
@@ -382,7 +382,7 @@ function PingHint({ ping }: { ping: PerEndpointPing }) {
         <Trans>Chain <span className="font-mono">{ping.chainId ?? ''}</span></Trans>
         {typeof ping.height === 'number' && ping.height > 0 && (
           <span className="text-muted-foreground">
-            <Trans>· height {ping.height.toLocaleString()}</Trans>
+            <Trans>· height {i18n.number(ping.height)}</Trans>
           </span>
         )}
       </span>

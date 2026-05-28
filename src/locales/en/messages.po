@@ -30,7 +30,7 @@ msgstr "—"
 msgid "?"
 msgstr "?"
 
-#. placeholder {0}: ping.height.toLocaleString()
+#. placeholder {0}: i18n.number(ping.height)
 #: src/components/Settings.tsx
 msgid "· height {0}"
 msgstr "· height {0}"
@@ -296,6 +296,10 @@ msgstr "All"
 msgid "All {0} derived account{1} will be removed from the vault."
 msgstr "All {0} derived account{1} will be removed from the vault."
 
+#: src/components/AuthzActionModals.tsx
+msgid "Allow list (only these validators)"
+msgstr "Allow list (only these validators)"
+
 #: src/components/AuthzPanel.tsx
 msgid "allow: {monikers}"
 msgstr "allow: {monikers}"
@@ -342,6 +346,10 @@ msgstr "Any staking action"
 #: src/components/AuthzPanel.tsx
 msgid "any validator"
 msgstr "any validator"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Any validator"
+msgstr "Any validator"
 
 #: src/components/AppearanceSettings.tsx
 msgid "Appearance"
@@ -817,6 +825,10 @@ msgstr "Deleting…"
 msgid "Denom"
 msgstr "Denom"
 
+#: src/components/AuthzActionModals.tsx
+msgid "Deny list (every validator EXCEPT these)"
+msgstr "Deny list (every validator EXCEPT these)"
+
 #: src/components/AuthzPanel.tsx
 msgid "deny: {monikers}"
 msgstr "deny: {monikers}"
@@ -1159,6 +1171,16 @@ msgstr "Grantee"
 #: src/components/AuthzActionModals.tsx
 msgid "Grantee (bot address)"
 msgstr "Grantee (bot address)"
+
+#. placeholder {0}: selected.length
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee may act on every validator EXCEPT the {0} picked."
+msgstr "Grantee may act on every validator EXCEPT the {0} picked."
+
+#. placeholder {0}: selected.length
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee may only act on the {0} picked validator(s)."
+msgstr "Grantee may only act on the {0} picked validator(s)."
 
 #: src/components/AuthzPanel.tsx
 #: src/lib/msgs/presenters.ts
@@ -1601,6 +1623,10 @@ msgstr "No incoming streams."
 msgid "no keystore file selected"
 msgstr "no keystore file selected"
 
+#: src/components/AuthzActionModals.tsx
+msgid "No matches."
+msgstr "No matches."
+
 #: src/components/SendIbc.tsx
 msgid "No open IBC channels found on this network. IBC transfer is unavailable."
 msgstr "No open IBC channels found on this network. IBC transfer is unavailable."
@@ -1636,6 +1662,14 @@ msgstr "No txs found for this account yet. Send or receive FUND to see your acti
 #: src/components/Validators.tsx
 msgid "No validators match the filter."
 msgstr "No validators match the filter."
+
+#: src/components/AuthzActionModals.tsx
+msgid "No validators picked — grant currently applies to every validator."
+msgstr "No validators picked — grant currently applies to every validator."
+
+#: src/components/AuthzActionModals.tsx
+msgid "No validators picked yet — pick at least one to continue."
+msgstr "No validators picked yet — pick at least one to continue."
 
 #: src/lib/vault/store.ts
 msgid "no vault to unlock"
@@ -1789,6 +1823,10 @@ msgstr "Periods"
 #: src/components/VaultSetup.tsx
 msgid "Pick a start"
 msgstr "Pick a start"
+
+#: src/components/AuthzActionModals.tsx
+msgid "picked"
+msgstr "picked"
 
 #. placeholder {0}: po.id.toString()
 #: src/components/Enterprise.tsx
@@ -2172,6 +2210,10 @@ msgstr "Scroll tabs left"
 #: src/App.tsx
 msgid "Scroll tabs right"
 msgstr "Scroll tabs right"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Search by moniker or undvaloper1…"
+msgstr "Search by moniker or undvaloper1…"
 
 #. placeholder {0}: ref.seedId
 #: src/lib/signer.ts
@@ -2735,10 +2777,13 @@ msgstr "Validator"
 msgid "Validator fee"
 msgstr "Validator fee"
 
-#. placeholder {0}: validators.length
 #: src/components/AuthzActionModals.tsx
-msgid "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
-msgstr "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
+msgid "Validator scope"
+msgstr "Validator scope"
+
+#: src/components/AuthzActionModals.tsx
+#~ msgid "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
+#~ msgstr "Validator scope (allow / deny list of {0} known validators) ships as a follow-up. For v0.22 grants apply to any validator — match Restake's default and grant a per-validator cap separately when needed."
 
 #: src/components/Validators.tsx
 msgid "Validators"

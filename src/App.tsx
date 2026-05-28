@@ -51,6 +51,7 @@ export function App({ surface }: { surface: Surface }) {
     (s) => s.vault?.preferences.activeSignerRef !== undefined,
   )
   const hydrate = useVaultStore((s) => s.hydrate)
+  const syncFromStorage = useVaultStore((s) => s.syncFromStorage)
 
   // Detect existing vault on mount → set status to 'locked' or 'no-vault'.
   useEffect(() => {
@@ -76,21 +77,26 @@ export function App({ surface }: { surface: Surface }) {
     }
   }, [status, refreshCosmosRegistry])
 
-  // Listen for cross-window vault changes (popup vs standalone tab). If
-  // another surface created / reset the vault while THIS surface is idle
-  // (no-vault or locked), re-hydrate so the UI reflects the new blob state.
-  // Skipped while unlocked — re-hydrating would clobber the active session
-  // and force the user back to UnlockScreen. Full unlocked-state sync is M9.
+  // Listen for cross-window vault changes (popup vs standalone tab):
+  //   - status='no-vault' or 'locked' → re-hydrate so the UI reflects the
+  //     new blob state (vault was created / reset in another surface).
+  //   - status='unlocked' → re-decrypt the new blob with our cached
+  //     password and merge into the in-memory vault. Without this the two
+  //     surfaces silently diverge after the first cross-context mutation
+  //     (rename / switch account / add account / etc.). M12.1 polish.
   useEffect(() => {
     if (typeof chrome === 'undefined' || !chrome.storage?.onChanged) return
     const listener = (changes: Record<string, chrome.storage.StorageChange>) => {
       if (!('webwallet:vault:v1' in changes)) return
-      if (useVaultStore.getState().status === 'unlocked') return
-      void hydrate()
+      if (useVaultStore.getState().status === 'unlocked') {
+        void syncFromStorage()
+      } else {
+        void hydrate()
+      }
     }
     chrome.storage.onChanged.addListener(listener)
     return () => chrome.storage.onChanged.removeListener(listener)
-  }, [hydrate])
+  }, [hydrate, syncFromStorage])
 
   // An unlocked vault with no active signer is mid-setup (just-created or
   // re-opened after a partial setup) — route back to VaultSetup until the
@@ -139,6 +145,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
   const endpoint = useActiveEndpoint()
   const { data, isLoading, isError, error } = useChainInfo()
   const { address } = useActiveSigner()
+  const { i18n } = useLingui()
   const [view, setView] = useState<UnlockedView>('wallet')
   const [activeProposalId, setActiveProposalId] = useState<bigint | null>(null)
 
@@ -210,7 +217,7 @@ function UnlockedShell({ surface }: { surface: Surface }) {
               <dt className="text-muted-foreground">
                 <Trans>Height</Trans>
               </dt>
-              <dd className="font-mono">{data.height.toLocaleString()}</dd>
+              <dd className="font-mono">{i18n.number(data.height)}</dd>
             </dl>
           )}
         </CardContent>

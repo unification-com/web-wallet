@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trans, useLingui } from '@lingui/react/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { TxModal } from '@/components/TxModal'
@@ -17,7 +17,7 @@ import {
   type GenericGrantFormValues,
   type StakeGrantFormValues,
 } from '@/lib/msgs/authz'
-import { type Validator } from '@/lib/staking'
+import { sortValidators, type Validator } from '@/lib/staking'
 
 // ---------------------------------------------------------------------------
 // Revoke
@@ -236,6 +236,9 @@ function StakeGrantFields({ form, validators }: StakeGrantFieldsProps) {
   // recognises `t` symbols bound in the same scope via useLingui() or
   // the `@lingui/core/macro` import).
   const { t } = useLingui()
+  const listMode = form.watch('listMode')
+  const selected = form.watch('validators')
+
   return (
     <div className="flex flex-col gap-3 text-xs">
       <div className="flex flex-col gap-1">
@@ -289,14 +292,152 @@ function StakeGrantFields({ form, validators }: StakeGrantFieldsProps) {
         </span>
       </div>
 
-      <p className="text-[10px] text-muted-foreground">
-        <Trans>
-          Validator scope (allow / deny list of {validators.length}{' '}
-          known validators) ships as a follow-up. For v0.22 grants apply
-          to any validator — match Restake&apos;s default and grant a
-          per-validator cap separately when needed.
-        </Trans>
-      </p>
+      <div className="flex flex-col gap-1">
+        <Label htmlFor="grant-list-mode">
+          <Trans>Validator scope</Trans>
+        </Label>
+        <select
+          id="grant-list-mode"
+          {...form.register('listMode')}
+          className="h-9 rounded-md border border-input bg-background px-2 text-xs"
+        >
+          <option value="any">{t`Any validator`}</option>
+          <option value="allow">{t`Allow list (only these validators)`}</option>
+          <option value="deny">{t`Deny list (every validator EXCEPT these)`}</option>
+        </select>
+      </div>
+
+      {listMode !== 'any' && (
+        <ValidatorPicker
+          mode={listMode}
+          selected={selected}
+          onChange={(next) => form.setValue('validators', next, { shouldValidate: true })}
+          validators={validators}
+        />
+      )}
+      {form.formState.errors.validators && (
+        <span className="text-xs text-destructive">
+          {form.formState.errors.validators.message}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// ValidatorPicker — chip-multi-select for Stake-grant allow/deny lists (M10.7)
+// ---------------------------------------------------------------------------
+
+interface ValidatorPickerProps {
+  mode: 'allow' | 'deny'
+  selected: readonly string[]
+  onChange: (next: string[]) => void
+  validators: readonly Validator[]
+}
+
+function ValidatorPicker({ mode, selected, onChange, validators }: ValidatorPickerProps) {
+  const { t } = useLingui()
+  const [search, setSearch] = useState('')
+
+  const sorted = useMemo(() => sortValidators(validators), [validators])
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return sorted.slice(0, 20)
+    return sorted
+      .filter((v) => {
+        const moniker = (v.description?.moniker ?? '').toLowerCase()
+        return moniker.includes(q) || v.operatorAddress.toLowerCase().includes(q)
+      })
+      .slice(0, 20)
+  }, [sorted, search])
+
+  const monikerOf = (valoper: string): string => {
+    const m = validators.find((v) => v.operatorAddress === valoper)?.description?.moniker
+    return m && m.length > 0 ? m : `${valoper.slice(0, 12)}…${valoper.slice(-4)}`
+  }
+
+  const toggle = (valoper: string) => {
+    if (selected.includes(valoper)) {
+      onChange(selected.filter((v) => v !== valoper))
+    } else {
+      onChange([...selected, valoper])
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {selected.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          {selected.map((valoper) => (
+            <button
+              key={valoper}
+              type="button"
+              onClick={() => toggle(valoper)}
+              className="inline-flex items-center gap-1 rounded border border-primary/40 bg-primary/5 px-1.5 py-0.5 text-[10px] hover:bg-primary/10"
+              title={valoper}
+            >
+              <span className="font-medium">{monikerOf(valoper)}</span>
+              <span className="text-muted-foreground">×</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[10px] italic text-muted-foreground">
+          {mode === 'allow' ? (
+            <Trans>No validators picked yet — pick at least one to continue.</Trans>
+          ) : (
+            <Trans>No validators picked — grant currently applies to every validator.</Trans>
+          )}
+        </p>
+      )}
+      <Input
+        placeholder={t`Search by moniker or undvaloper1…`}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="font-mono"
+      />
+      <ul className="max-h-40 overflow-y-auto rounded border border-border bg-background/50">
+        {filtered.length === 0 && (
+          <li className="px-2 py-1 text-[10px] italic text-muted-foreground">
+            <Trans>No matches.</Trans>
+          </li>
+        )}
+        {filtered.map((v) => {
+          const isSelected = selected.includes(v.operatorAddress)
+          const moniker = v.description?.moniker ?? v.operatorAddress
+          return (
+            <li key={v.operatorAddress}>
+              <button
+                type="button"
+                onClick={() => toggle(v.operatorAddress)}
+                className={
+                  'flex w-full items-center justify-between gap-2 border-b border-border px-2 py-1 text-left text-[11px] last:border-b-0 hover:bg-accent ' +
+                  (isSelected ? 'bg-primary/5' : '')
+                }
+              >
+                <span className="flex flex-col min-w-0">
+                  <span className="truncate font-medium">{moniker}</span>
+                  <span className="truncate font-mono text-[9px] text-muted-foreground">
+                    {v.operatorAddress}
+                  </span>
+                </span>
+                {isSelected && (
+                  <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                    <Trans>picked</Trans>
+                  </span>
+                )}
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <span className="text-[10px] text-muted-foreground">
+        {mode === 'allow' ? (
+          <Trans>Grantee may only act on the {selected.length} picked validator(s).</Trans>
+        ) : (
+          <Trans>Grantee may act on every validator EXCEPT the {selected.length} picked.</Trans>
+        )}
+      </span>
     </div>
   )
 }

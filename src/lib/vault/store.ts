@@ -55,6 +55,21 @@ interface VaultState {
   // Initialisation
   /** Check storage for an existing encrypted blob → set status to 'locked' or 'no-vault'. */
   hydrate: () => Promise<void>
+  /**
+   * Re-decrypt the on-disk blob with the cached password and merge any
+   * newer state into the in-memory vault. Called by the App's
+   * `chrome.storage.onChanged` listener when ANOTHER context (popup vs
+   * standalone tab) mutates the vault — without this, the two surfaces
+   * diverge silently after the first cross-context mutation (e.g. user
+   * renames an account in popup; standalone keeps the old label).
+   *
+   * No-op when not unlocked or when the on-disk blob is missing.
+   * Decrypt failures are swallowed (logged) — they'd indicate the
+   * password was rotated in another context, which we don't yet
+   * support; in that case the user will get re-prompted at the next
+   * idle-lock cycle.
+   */
+  syncFromStorage: () => Promise<void>
 
   // Vault lifecycle
   createVault: (password: string) => Promise<void>
@@ -285,6 +300,33 @@ export const useVaultStore = create<VaultState>((set, get) => {
       // overwrite that with 'locked' just because the blob now exists.
       if (get().status === 'unlocked') return
       set({ status: blob === null ? 'no-vault' : 'locked' })
+    },
+
+    async syncFromStorage() {
+      // Only meaningful while unlocked — locked / no-vault contexts route
+      // through hydrate() which sets status from the on-disk presence.
+      if (get().status !== 'unlocked' || cachedPassword === null) return
+      const blob = await loadEncryptedVault()
+      if (!blob) return
+      let next: Vault
+      try {
+        next = await decryptVault(blob, cachedPassword)
+      } catch (err) {
+        // Almost always indicates the password was rotated in another
+        // context. We don't yet support that (no password-change flow),
+        // so this is a defensive guard rather than a real path. Log and
+        // leave the in-memory vault untouched; the user will get
+        // re-prompted at next idle-lock or via verifyPassword failures.
+        console.warn('[vault] syncFromStorage decrypt failed', err)
+        return
+      }
+      const current = get().vault
+      if (current && next.lastModifiedAt <= current.lastModifiedAt) {
+        // Either this context wrote the change OR another context wrote
+        // an older snapshot (shouldn't happen, but harmless). Skip.
+        return
+      }
+      set({ vault: next })
     },
 
     async createVault(password) {
