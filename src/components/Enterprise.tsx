@@ -1,0 +1,507 @@
+import { Trans, useLingui } from '@lingui/react/macro'
+import { ChevronDown } from 'lucide-react'
+import { useMemo, useState } from 'react'
+
+import { AddressLink } from '@/components/AddressLink'
+import { RaisePurchaseOrderModal } from '@/components/RaisePurchaseOrderModal'
+import { RefreshButton } from '@/components/RefreshButton'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  PurchaseOrderStatus,
+  sortPurchaseOrders,
+  statusLabel,
+  useEnterpriseAccount,
+  useEnterpriseParams,
+  useIsWhitelisted,
+  usePurchaseOrders,
+  type EnterpriseUndPurchaseOrder,
+  type PurchaseOrderDecision,
+} from '@/lib/enterprise'
+import { nundToFund } from '@/lib/msgs/send'
+import { useActiveSigner } from '@/lib/signer'
+import { cn } from '@/lib/utils'
+
+/**
+ * Status-filter chip values. `'all'` shows every PO; the other four match
+ * the `statusLabel()` strings, so filtering can compare label-to-label
+ * without needing to remember the upstream enum int values.
+ */
+type StatusFilter = 'all' | 'raised' | 'accepted' | 'rejected' | 'completed'
+
+/**
+ * Enterprise tab — purchase-order surface for whitelisted accounts.
+ *
+ * Layout:
+ *   1. Locked-eFUND balance card (always shown when address is set —
+ *      surfaces what the chain has already minted, regardless of whitelist
+ *      status).
+ *   2. Whitelist-gated "Raise PO" affordance:
+ *        - whitelisted: button opens RaisePurchaseOrderModal
+ *        - not whitelisted: explainer card (mirrors v1's `!entWhitelisted` block)
+ *   3. PO history list (most-recent first; status-coloured chip per row).
+ */
+export function Enterprise() {
+  const { address } = useActiveSigner()
+  const { t } = useLingui()
+  const whitelisted = useIsWhitelisted(address)
+  const account = useEnterpriseAccount(address)
+  const orders = usePurchaseOrders(address, PurchaseOrderStatus.STATUS_NIL)
+  const params = useEnterpriseParams()
+  const minAccepts = params.data?.minAccepts ?? null
+  const [raiseOpen, setRaiseOpen] = useState(false)
+  const [filter, setFilter] = useState<StatusFilter>('all')
+
+  // Count-per-status + filtered view derived from a single fetch — chain
+  // returns every order regardless of status when we query with STATUS_NIL,
+  // so client-side filtering keeps the UI responsive without N+1 RPCs per
+  // filter chip click.
+  const sorted = useMemo(
+    () => sortPurchaseOrders(orders.data ?? []),
+    [orders.data],
+  )
+  const counts = useMemo(() => {
+    const c: Record<Exclude<StatusFilter, 'all'>, number> = {
+      raised: 0,
+      accepted: 0,
+      rejected: 0,
+      completed: 0,
+    }
+    for (const po of sorted) {
+      const label = statusLabel(po.status)
+      if (label in c) c[label as keyof typeof c]++
+    }
+    return c
+  }, [sorted])
+  const filteredOrders = useMemo(() => {
+    if (filter === 'all') return sorted
+    return sorted.filter((po) => statusLabel(po.status) === filter)
+  }, [sorted, filter])
+
+  if (!address) return null
+
+  return (
+    <>
+      <Card>
+        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+          <CardTitle className="text-sm">
+            <Trans>Enterprise eFUND</Trans>
+          </CardTitle>
+          <RefreshButton queryKeys={[['enterprise', 'account']]} />
+        </CardHeader>
+        <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+          <p>
+            <Trans>
+              Enterprise members raise purchase orders for eFUND — a locked
+              balance the chain mints to pay BEACON / WRKCHAIN / stream
+              creation fees. eFUND can&apos;t be transferred or used outside
+              chain fees.
+            </Trans>
+          </p>
+          <EFundMetric
+            label={<Trans>Locked balance</Trans>}
+            coin={account.data?.lockedEfund}
+            loading={account.isLoading}
+            tooltip={t`Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees.`}
+          />
+          <EFundMetric
+            label={<Trans>Spent eFUND</Trans>}
+            coin={account.data?.spentEfund}
+            loading={account.isLoading}
+            tooltip={t`Running tally of eFUND consumed on chain fees since this account was first whitelisted.`}
+          />
+          <EFundMetric
+            label={<Trans>Total spendable on fees</Trans>}
+            coin={account.data?.spendable}
+            loading={account.isLoading}
+            tooltip={t`Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees.`}
+            emphasis
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-sm">
+            <Trans>Raise a purchase order</Trans>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+          {whitelisted.isLoading && (
+            <p className="text-muted-foreground italic">
+              <Trans>Checking whitelist…</Trans>
+            </p>
+          )}
+          {!whitelisted.isLoading && whitelisted.data === true && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-muted-foreground">
+                <Trans>This account is whitelisted to raise enterprise POs.</Trans>
+              </p>
+              <Button
+                variant="brand"
+                size="sm"
+                onClick={() => setRaiseOpen(true)}
+                className="h-7 text-xs shrink-0"
+              >
+                <Trans>Raise PO</Trans>
+              </Button>
+            </div>
+          )}
+          {!whitelisted.isLoading && whitelisted.data === false && (
+            <p className="text-muted-foreground italic">
+              <Trans>
+                This account isn&apos;t on the enterprise whitelist. POs can only
+                be raised by approved enterprise members. Contact an
+                administrator to be added.
+              </Trans>
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+          <CardTitle className="text-sm">
+            <Trans>Purchase order history</Trans>
+          </CardTitle>
+          <RefreshButton queryKeys={[['enterprise', 'orders']]} />
+        </CardHeader>
+        <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+          {orders.isLoading && (
+            <p className="text-muted-foreground">
+              <Trans>Loading purchase orders…</Trans>
+            </p>
+          )}
+          {!orders.isLoading && sorted.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <FilterChip
+                active={filter === 'all'}
+                onClick={() => setFilter('all')}
+                count={sorted.length}
+                tone="all"
+              >
+                <Trans>All</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'raised'}
+                onClick={() => setFilter('raised')}
+                count={counts.raised}
+                tone="raised"
+              >
+                <Trans>Raised</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'accepted'}
+                onClick={() => setFilter('accepted')}
+                count={counts.accepted}
+                tone="accepted"
+              >
+                <Trans>Accepted</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'rejected'}
+                onClick={() => setFilter('rejected')}
+                count={counts.rejected}
+                tone="rejected"
+              >
+                <Trans>Rejected</Trans>
+              </FilterChip>
+              <FilterChip
+                active={filter === 'completed'}
+                onClick={() => setFilter('completed')}
+                count={counts.completed}
+                tone="completed"
+              >
+                <Trans>Completed</Trans>
+              </FilterChip>
+            </div>
+          )}
+          {!orders.isLoading && sorted.length === 0 && (
+            <p className="text-muted-foreground italic">
+              <Trans>No purchase orders yet.</Trans>
+            </p>
+          )}
+          {!orders.isLoading && sorted.length > 0 && filteredOrders.length === 0 && (
+            <p className="text-muted-foreground italic">
+              <Trans>No purchase orders with this status.</Trans>
+            </p>
+          )}
+          <ul className="flex flex-col gap-2">
+            {filteredOrders.map((po) => (
+              <PurchaseOrderRow
+                key={po.id.toString()}
+                po={po}
+                t={t}
+                {...(minAccepts !== null ? { minAccepts } : {})}
+              />
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <RaisePurchaseOrderModal open={raiseOpen} onOpenChange={setRaiseOpen} />
+    </>
+  )
+}
+
+interface PurchaseOrderRowProps {
+  po: EnterpriseUndPurchaseOrder
+  t: ReturnType<typeof useLingui>['t']
+  /** From `Params.minAccepts` — the quorum threshold of signer accepts needed
+   * before the chain processes the PO. Optional because params haven't always
+   * loaded by the time the first PO renders. */
+  minAccepts?: bigint
+}
+
+function PurchaseOrderRow({ po, minAccepts }: PurchaseOrderRowProps) {
+  const [expanded, setExpanded] = useState(false)
+  const status = statusLabel(po.status)
+  const denomLabel = po.amount.denom === 'nund' ? 'FUND' : po.amount.denom
+
+  // raise_time + completion_time are Unix seconds. Convert to JS Date for locale formatting.
+  const raisedAt = po.raiseTime > 0n ? new Date(Number(po.raiseTime) * 1000) : null
+  const completedAt =
+    po.completionTime > 0n ? new Date(Number(po.completionTime) * 1000) : null
+
+  const accepts = po.decisions.filter(
+    (d) => d.decision === PurchaseOrderStatus.STATUS_ACCEPTED,
+  ).length
+  const rejects = po.decisions.filter(
+    (d) => d.decision === PurchaseOrderStatus.STATUS_REJECTED,
+  ).length
+
+  return (
+    <li className="flex flex-col gap-1 rounded border border-border p-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex flex-col min-w-0 gap-0.5">
+          <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+            <Trans>PO #{po.id.toString()}</Trans>
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            {raisedAt ? raisedAt.toLocaleString() : '—'}
+          </span>
+        </span>
+        <span className="flex flex-col items-end tabular-nums">
+          <PurchaseOrderStatusChip status={status} />
+          <span className="font-mono font-medium">
+            {nundToFund(po.amount.amount)} {denomLabel}
+          </span>
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+        <span>
+          <Trans>
+            {accepts} ✓ / {rejects} ✗
+            {minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`}
+          </Trans>
+        </span>
+        <button
+          type="button"
+          onClick={() => setExpanded((o) => !o)}
+          aria-expanded={expanded}
+          className="flex items-center gap-1 hover:text-foreground transition-colors uppercase tracking-[0.06em]"
+        >
+          <Trans>Details</Trans>
+          <ChevronDown
+            aria-hidden
+            className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')}
+          />
+        </button>
+      </div>
+      {expanded && (
+        <div className="flex flex-col gap-1 rounded border border-border bg-surface-sunk p-2 text-[11px]">
+          {completedAt && (
+            <div className="flex items-center justify-between gap-2 font-mono">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                <Trans>Completed</Trans>
+              </span>
+              <span>{completedAt.toLocaleString()}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2 font-mono">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+              <Trans>Signer decisions</Trans>
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {po.decisions.length === 0 ? (
+                <Trans>none yet</Trans>
+              ) : (
+                <Trans>{po.decisions.length.toString()} recorded</Trans>
+              )}
+            </span>
+          </div>
+          {po.decisions.length > 0 && (
+            <ul className="flex flex-col gap-1">
+              {[...po.decisions]
+                .sort((a, b) => Number(a.decisionTime - b.decisionTime))
+                .map((d) => (
+                  <DecisionRow
+                    key={`${d.signer}-${d.decisionTime.toString()}`}
+                    decision={d}
+                  />
+                ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </li>
+  )
+}
+
+function DecisionRow({ decision }: { decision: PurchaseOrderDecision }) {
+  const isAccept = decision.decision === PurchaseOrderStatus.STATUS_ACCEPTED
+  const decisionAt =
+    decision.decisionTime > 0n ? new Date(Number(decision.decisionTime) * 1000) : null
+  return (
+    <li className="flex items-center justify-between gap-2 font-mono">
+      <span className="flex flex-col min-w-0">
+        <span
+          className={cn(
+            'px-1 rounded text-[9px] font-semibold uppercase tracking-[0.06em] inline-flex w-fit',
+            isAccept
+              ? 'bg-success/15 text-success'
+              : 'bg-destructive/15 text-destructive',
+          )}
+        >
+          {isAccept ? <Trans>Accept</Trans> : <Trans>Reject</Trans>}
+        </span>
+        <AddressLink
+          address={decision.signer}
+          className="truncate text-[10px] text-muted-foreground"
+        />
+      </span>
+      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+        {decisionAt ? decisionAt.toLocaleString() : '—'}
+      </span>
+    </li>
+  )
+}
+
+function PurchaseOrderStatusChip({ status }: { status: string }) {
+  const cls = (() => {
+    switch (status) {
+      case 'raised':
+        return 'bg-muted text-muted-foreground'
+      case 'accepted':
+        return 'bg-success/15 text-success'
+      case 'rejected':
+        return 'bg-destructive/15 text-destructive'
+      case 'completed':
+        return 'bg-primary/15 text-primary'
+      default:
+        return 'bg-muted text-muted-foreground'
+    }
+  })()
+  return (
+    <span
+      className={
+        'px-1.5 py-0.5 rounded font-mono uppercase tracking-[0.06em] text-[9px] font-semibold ' +
+        cls
+      }
+    >
+      <StatusLabel status={status} />
+    </span>
+  )
+}
+
+interface FilterChipProps {
+  active: boolean
+  onClick: () => void
+  count: number
+  /** Drives the active/inactive accent — matches the per-row status colour
+   * scheme so the filter chip reads as "show me only the green ones" etc. */
+  tone: 'all' | 'raised' | 'accepted' | 'rejected' | 'completed'
+  children: React.ReactNode
+}
+
+function FilterChip({ active, onClick, count, tone, children }: FilterChipProps) {
+  const activeCls = (() => {
+    switch (tone) {
+      case 'raised':
+        return 'bg-muted text-foreground border-muted-foreground/30'
+      case 'accepted':
+        return 'bg-success/15 text-success border-success/30'
+      case 'rejected':
+        return 'bg-destructive/15 text-destructive border-destructive/30'
+      case 'completed':
+        return 'bg-primary/15 text-primary border-primary/30'
+      case 'all':
+      default:
+        return 'bg-accent text-accent-foreground border-foreground/20'
+    }
+  })()
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      disabled={count === 0 && tone !== 'all'}
+      className={
+        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-mono uppercase tracking-[0.06em] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ' +
+        (active
+          ? activeCls
+          : 'bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/30')
+      }
+    >
+      <span>{children}</span>
+      <span className="tabular-nums">{count}</span>
+    </button>
+  )
+}
+
+interface EFundMetricProps {
+  label: React.ReactNode
+  coin: { denom: string; amount: string } | undefined
+  loading: boolean
+  tooltip: string
+  /** Render the value heavier — used for the spendable summary row at the
+   * bottom of the eFUND card so the "what can I actually spend" line stands
+   * out from its individual-component metrics above. */
+  emphasis?: boolean
+}
+
+function EFundMetric({ label, coin, loading, tooltip, emphasis = false }: EFundMetricProps) {
+  const denomLabel = coin?.denom === 'nund' ? 'FUND' : (coin?.denom ?? '')
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-between',
+        emphasis && 'pt-1 mt-1 border-t border-border',
+      )}
+      title={tooltip}
+    >
+      <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+        {label}
+      </span>
+      <span
+        className={cn(
+          'font-mono tabular-nums',
+          emphasis ? 'font-semibold text-primary' : 'font-medium',
+        )}
+      >
+        {loading ? (
+          <Trans>loading…</Trans>
+        ) : (
+          <>
+            {nundToFund(coin?.amount ?? '0')} {denomLabel}
+          </>
+        )}
+      </span>
+    </div>
+  )
+}
+
+function StatusLabel({ status }: { status: string }) {
+  switch (status) {
+    case 'raised':
+      return <Trans>Raised</Trans>
+    case 'accepted':
+      return <Trans>Accepted</Trans>
+    case 'rejected':
+      return <Trans>Rejected</Trans>
+    case 'completed':
+      return <Trans>Completed</Trans>
+    default:
+      return <Trans>Unknown</Trans>
+  }
+}

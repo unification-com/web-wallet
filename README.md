@@ -2,128 +2,125 @@
 
 # Unification Mainchain Web wallet
 
-Official Unification Mainchain Web-based wallet.
+The Unification Mainchain web wallet. Distributed primarily as a Chrome Extension; also buildable as a standalone web bundle.
 
-**Please Note** this is currently heavily under development.
+## Status
 
-Two options are currently available - running as a [Google Chrome browser
-extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk),
- or running as a local (Dockerised) web application.
+**v2 (React + Vite + TypeScript) on the `vaxildan` branch — feature-complete at v1.0.0, pending the Web Store release.** The legacy Vue 2 source (v0.21.0) has been removed now v2 is at feature parity; historic build artefacts remain under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
 
-**The best method is to install the 
-[Google Chrome browser extension](https://chrome.google.com/webstore/detail/mkjjflkhdddfjhonakofipfojoepfndk)**
+Planning docs live under `../project_docs/planning/web-wallet/`.
 
-## Running the Dockerised web application locally
+## Stack
 
-If you don't use Chrome, the production version of the web application
-can be run in a Docker environment:
+| Layer | Choice |
+|---|---|
+| Framework | React 18 |
+| Build | Vite 6 + `@crxjs/vite-plugin` (MV3) |
+| Language | TypeScript 5.6 |
+| State (server) | TanStack Query 5 |
+| State (client) | Zustand 5 (planned, M1) |
+| UI | Tailwind v4 + shadcn/ui (Radix primitives) |
+| Chain SDK | `@unification-com/fundjs ^0.2.0` (added at M1 once Stage 10 publishes) + `@cosmjs/*` |
+| Hardware wallet | `@ledgerhq/hw-app-cosmos` + WebHID (M8) |
+| Testing | Vitest + Playwright |
 
-```bash
-docker-compose -f Docker/docker-compose.yml up --build
-```
+## Development
 
-Alternativey, using the `make` target:
-
-```bash
-make docker-wallet
-```
-
-The Web Wallet will be available on http://localhost:8080
-
-## Development and Testing
-
-To develop, test, or run the Web Wallet locally, follow the guide below.
-
-Note: requires Node JS >=v14.17.6
-
-### Project setup
-
-To set up the environment, first install the node dependencies:
+**Requires Node ≥ 22** (active LTS; see `.nvmrc`). If you use `nvm`, `nvm use` in this directory selects the right version automatically.
 
 ```bash
 yarn install
+yarn dev       # Vite dev server with HMR; extension auto-reloads via crxjs
+yarn build     # production extension build → dist/
+yarn build:web # standalone web bundle → dist-web/
+yarn lint
+yarn test
 ```
 
-### Compiles and hot-reloads for development
+### Linked `fundjs-react` (local sibling repo)
 
-Both the web application and the Chrome extension use the same code-base.
-However, there are two different methods for running the code, depending
-on what is being developed/tested.
-
-Thess methods should only be used during development, since the code is not
-optimised, and features such as creating or unlocking a wallet will be much
-slower than a production environment
-
-#### Web Application
-
-For development and testing, the Web Wallet can be run and hot-reloaded locally
-by running:
+While `@unification-com/fundjs-react@^0.2.0` is unpublished (pending vaxildan Stage 10), web-wallet consumes the local sibling at `../fundjs/packages/fundjs-react/dist` via yarn's `link:` protocol. Iterate on fundjs source as needed; rebuild its dist to surface changes here:
 
 ```bash
-yarn run serve:web
+# from web-wallet/
+cd ../fundjs/packages/fundjs-react && yarn build && cd -
+# the symlink picks up the new dist/ automatically; no yarn install needed in web-wallet
 ```
 
-By default, this will open the application in your browser at http://localhost:8080
+If you change `web-wallet/package.json` and re-run `yarn install`, the link is preserved as long as the `link:../fundjs/packages/fundjs-react/dist` entry stays. Once Stage 10 publishes the npm release, swap the entry for `"@unification-com/fundjs-react": "^0.2.0"`.
 
-Any changes to the code will automatically be relaoded, and the browser refreshed.
+To load the extension in Chrome:
 
-#### Chrome Extension
+- **Production-mode** (standalone, no dev server needed):
+  1. `yarn build` → produces `dist/`
+  2. `chrome://extensions` → Developer mode → "Load unpacked" → select `dist/`
 
-For development and testing of the Chrome Extension, run the following:
+- **Dev-mode** (HMR; requires `yarn dev` running):
+  1. `yarn dev` → starts Vite dev server, writes `dist-dev/` with HMR loader (localhost URLs)
+  2. `chrome://extensions` → "Load unpacked" → select `dist-dev/`
+  3. Keep `yarn dev` running; the extension auto-reloads on file changes.
 
-```bash
-yarn run serve
+`dist/` and `dist-dev/` are kept separate so a stale dev build can't accidentally be loaded as a production extension (which would fail with `Service worker registration failed. Status code: 3` because the dev SW loader references `localhost:5173`).
+
+## Internationalisation (lingui)
+
+Every user-facing string is extracted into a single catalogue at `src/locales/en/messages.po` via [lingui](https://lingui.dev) v6. The wallet ships with British English as the source locale; additional locales are landed post-M9 by translators.
+
+**Adding a new user-facing string**:
+
+```tsx
+import { Trans, useLingui } from '@lingui/react/macro'
+
+function Example() {
+  const { t } = useLingui()
+  return (
+    <>
+      <h1><Trans>Welcome</Trans></h1>
+      <input placeholder={t`type a phrase`} />
+    </>
+  )
+}
 ```
 
-The process is similar, with some additional steps:
+Then run `yarn lingui:extract` to update `src/locales/en/messages.po`. Commit the .po change alongside your component change. The CI `yarn lingui:check` gate fails if you forget to extract.
 
-1. Open Google Chrome, and naviagte to chrome://extensions
-2. Enable Developer Mode by clicking on the toggle in the top right
-3. Click on the "Load Unpacked" button in the top left
-4. Select the `dist` directory
+For errors thrown from non-React code (`src/lib/**`), use the `msg` macro from `@lingui/core/macro` + the singleton `i18n._()`:
 
-This will load the extension, and you should see the Extension button for Web wallet
-in your browser.
+```ts
+import { msg } from '@lingui/core/macro'
+import { i18n } from '@/lib/i18n'
 
-Any code changes made are hot-reloaded, but the tab with the extension loaded
-must be manually refreshed.
-
-### Compiles and minifies for production
-
-As with the development process above, two options are available for building
-the production bundles.
-
-#### Web Application
-
-The following command will build and optimise web application the code for 
-production deployment:
-
-```bash
-yarn run build:web
+throw new Error(i18n._(msg`something went wrong`))
 ```
 
-The final code will be output to `dist/web`
+**Catalogue conventions**: British English everywhere. Identifier names + commit messages also British (see project `CLAUDE.md`). Third-party API names keep upstream spelling. Don't edit `messages.po` by hand for new entries — always go through `yarn lingui:extract`. Translator edits to `msgstr` lines are fine (that's what the .po is for).
 
-#### Chrome Extension
+**Compile vs extract**:
 
-The following command will build and optimise the chrome extension code for
-production deployment:
+- `yarn lingui:extract` reads sources → writes/updates `messages.po`. Run when adding/changing strings.
+- `yarn lingui:compile` reads `messages.po` → writes runtime `.mjs` catalogues. Run before production build (or as part of CI). Source-locale `en` doesn't strictly need a compiled catalogue since macros fall through to the source string, but compile anyway so the production code path matches non-en locales.
+- `yarn lingui:check` re-extracts and fails if the on-disk `.po` differs from what extraction would produce — the CI gate.
 
-```bash
-yarn run build
+## Directory layout
+
+```
+.
+├── popup.html          Vite entry — extension popup (≤ 500×600 UI)
+├── standalone.html     Vite entry — full-tab extension page
+├── web.html            Vite entry — non-extension browser bundle
+├── public/             Static assets (icons, _locales, favicon)
+├── src/
+│   ├── manifest.json   MV3 manifest (v1 identity preserved + storage permission)
+│   ├── popup/          Popup entry + components
+│   ├── standalone/     Standalone entry + components
+│   ├── web/            Web entry
+│   ├── background/     MV3 service worker
+│   ├── components/     Shared UI
+│   ├── lib/            Shared infrastructure (chain client, query, vault, utils)
+│   └── App.tsx         Shared root component (per-surface variants)
+└── OLD_DIST/           v0.21.0 build outputs + historic release zips (local only)
 ```
 
-The final code will be output to `dist/chrome-extension`
+## License
 
-#### Dev Notes - post build actions
-
-Manifest has been updated from v2 to v3. However, a couple of post-build actions are required:
-
-1. Copy `src/background.js` to `dist/chrome-extension/js/background.js`, as the webpack version won't work.
-2. Replace the same file in the `artifacts/web-wallet-VERSION-production.zip`
-
-### Run unit tests
-
-```bash
-yarn run test:unit
-```
+MIT — see `LICENSE`.

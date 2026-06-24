@@ -1,24 +1,30 @@
 {
   "manifest_version": 3,
   "name": "Unification Web Wallet",
-  "homepage_url": "https://unification.com",
+  "version": "1.0.0",
   "description": "Unification Web Wallet Browser Extension",
+  "homepage_url": "https://unification.com",
   "default_locale": "en",
-  "permissions": [],
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://chains.cosmos.directory/*",
+    "https://keybase.io/*"
+  ],
   "icons": {
     "16": "icons/16.png",
     "48": "icons/48.png",
     "128": "icons/128.png"
   },
-  "background": {
-    "service_worker": "js/background.js",
-    "type": "module"
-  },
   "action": {
     "default_title": "Unification Web Wallet",
+    "default_popup": "popup.html",
     "default_icon": {
       "19": "icons/19.png",
       "38": "icons/38.png"
     }
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
   }
 }

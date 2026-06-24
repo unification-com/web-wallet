@@ -1,0 +1,3042 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-05-21 13:17+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: additional.toString()
+#: src/components/TxRow.tsx
+msgid " + {0} more"
+msgstr " + {0} more"
+
+#: src/components/StakingActionModals.tsx
+msgid "-- pick a destination --"
+msgstr "-- pick a destination --"
+
+#: src/components/ProposalDetail.tsx
+msgid "—"
+msgstr "—"
+
+#: src/components/ProposalStatusBadge.tsx
+msgid "?"
+msgstr "?"
+
+#. placeholder {0}: i18n.number(ping.height)
+#: src/components/Settings.tsx
+msgid "· height {0}"
+msgstr "· height {0}"
+
+#. placeholder {0}: fee.gasLimit.toString()
+#: src/components/TxRow.tsx
+msgid "(gas {0})"
+msgstr "(gas {0})"
+
+#: src/components/TxRow.tsx
+msgid "(no messages)"
+msgstr "(no messages)"
+
+#: src/components/AuthzPanel.tsx
+msgid "(no scope guards)"
+msgstr "(no scope guards)"
+
+#: src/components/AddSignerCard.tsx
+msgid "(opens tab)"
+msgstr "(opens tab)"
+
+#: src/components/ProposalList.tsx
+msgid "(untitled)"
+msgstr "(untitled)"
+
+#. placeholder {0}: trace.data.path
+#: src/components/Balances.tsx
+msgid "{0}"
+msgstr "{0}"
+
+#. placeholder {0}: account.label
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "{0} — private key"
+msgstr "{0} — private key"
+
+#. placeholder {0}: seed.label
+#: src/components/VaultEntryManager.tsx
+msgid "{0} — seed phrase"
+msgstr "{0} — seed phrase"
+
+#. placeholder {0}: (watched.memo ?? '').length
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "{0} / 100"
+msgstr "{0} / 100"
+
+#. placeholder {0}: seed.accounts.length
+#. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
+#: src/components/VaultEntryManager.tsx
+msgid "{0} account{1}"
+msgstr "{0} account{1}"
+
+#. placeholder {0}: nundToFund(entry.balance)
+#. placeholder {0}: nundToFund(stakeNund)
+#: src/components/ActiveDelegations.tsx
+#: src/components/InFlightQueues.tsx
+msgid "{0} FUND"
+msgstr "{0} FUND"
+
+#. placeholder {0}: (delegations ?? []).filter((d) => { const r = rewardsByValidator.get(d.delegation.validatorAddress) return r && BigInt(r.split('.')[0] ?? '0') > 0n }).length
+#: src/components/ActiveDelegations.tsx
+msgid "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
+msgstr "{0} MsgWithdrawDelegatorReward messages will be submitted in one Tx."
+
+#. placeholder {0}: tiers.average.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"average\""
+msgstr "{0} nund/gas — chain-registry \"average\""
+
+#. placeholder {0}: tiers.high.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"high\""
+msgstr "{0} nund/gas — chain-registry \"high\""
+
+#. placeholder {0}: tiers.low.toString()
+#: src/components/GasAccordion.tsx
+msgid "{0} nund/gas — chain-registry \"low\""
+msgstr "{0} nund/gas — chain-registry \"low\""
+
+#. placeholder {0}: filteredSorted.length
+#. placeholder {1}: validators.length
+#: src/components/Validators.tsx
+msgid "{0} of {1}"
+msgstr "{0} of {1}"
+
+#. placeholder {0}: po.decisions.length.toString()
+#: src/components/Enterprise.tsx
+msgid "{0} recorded"
+msgstr "{0} recorded"
+
+#. placeholder {0}: allTxs.length.toString()
+#. placeholder {0}: rows.length.toString()
+#: src/components/IbcHistory.tsx
+#: src/components/TxHistory.tsx
+msgid "{0} shown"
+msgstr "{0} shown"
+
+#. placeholder {0}: minAccepts !== undefined && ` (need ${minAccepts.toString()} ✓)`
+#: src/components/Enterprise.tsx
+msgid "{accepts} ✓ / {rejects} ✗{0}"
+msgstr "{accepts} ✓ / {rejects} ✗{0}"
+
+#: src/lib/msgs/presenters.ts
+msgid "{module}: {short}"
+msgstr "{module}: {short}"
+
+#: src/components/Validators.tsx
+msgid "{moniker} avatar (from Keybase)"
+msgstr "{moniker} avatar (from Keybase)"
+
+#: src/components/InFlightQueues.tsx
+msgid "{srcMoniker} → {dstMoniker}"
+msgstr "{srcMoniker} → {dstMoniker}"
+
+#: src/components/AuthzActionModals.tsx
+msgid "/cosmos.bank.v1beta1.MsgSend"
+msgstr "/cosmos.bank.v1beta1.MsgSend"
+
+#. placeholder {0}: proposal.id.toString()
+#. placeholder {1}: getProposalTitle(proposal) || '(untitled)'
+#: src/components/ProposalDetail.tsx
+msgid "#{0} — {1}"
+msgstr "#{0} — {1}"
+
+#: src/components/ProposalDetail.tsx
+msgid "← Back to list"
+msgstr "← Back to list"
+
+#. placeholder {0}: decCoinToFund(pending)
+#: src/components/ActiveDelegations.tsx
+msgid "+{0} pending"
+msgstr "+{0} pending"
+
+#: src/components/StreamsList.tsx
+msgid "+{pendingFund} pending"
+msgstr "+{pendingFund} pending"
+
+#: src/components/StreamActionModals.tsx
+msgid "≈ {flowRate} nund/sec"
+msgstr "≈ {flowRate} nund/sec"
+
+#: src/components/VaultSetup.tsx
+msgid "12 words"
+msgstr "12 words"
+
+#: src/components/AddSignerCard.tsx
+msgid "12 words (standard)"
+msgstr "12 words (standard)"
+
+#: src/components/VaultSetup.tsx
+msgid "24 words"
+msgstr "24 words"
+
+#: src/components/AddSignerCard.tsx
+msgid "24 words (stronger)"
+msgstr "24 words (stronger)"
+
+#: src/components/AddSignerCard.tsx
+msgid "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
+msgstr "A fresh BIP39 mnemonic will be generated and saved as a new seed in this vault."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Abstain"
+msgstr "Abstain"
+
+#: src/lib/msgs/presenters.ts
+msgid "ABSTAIN"
+msgstr "ABSTAIN"
+
+#: src/components/Enterprise.tsx
+msgid "Accept"
+msgstr "Accept"
+
+#: src/components/Enterprise.tsx
+msgid "Accepted"
+msgstr "Accepted"
+
+#: src/lib/msgs/presenters.ts
+msgid "Accepted eFUND purchase order"
+msgstr "Accepted eFUND purchase order"
+
+#. placeholder {0}: ref.accountIndex.toString()
+#. placeholder {1}: ref.seedId
+#: src/lib/signer.ts
+msgid "account index {0} not found in seed {1}"
+msgstr "account index {0} not found in seed {1}"
+
+#: src/lib/vault/seeds.ts
+msgid "accountIndex must be a non-negative integer"
+msgstr "accountIndex must be a non-negative integer"
+
+#: src/components/AccountSwitcher.tsx
+msgid "Accounts"
+msgstr "Accounts"
+
+#: src/components/IbcHistory.tsx
+msgid "Acknowledged"
+msgstr "Acknowledged"
+
+#: src/lib/msgs/presenters.ts
+msgid "Action"
+msgstr "Action"
+
+#: src/components/AccountSwitcher.tsx
+#: src/components/Settings.tsx
+#: src/components/Validators.tsx
+msgid "ACTIVE"
+msgstr "ACTIVE"
+
+#: src/components/AddSignerCard.tsx
+msgid "Add a fresh seed, recover an existing one, or import a v1 `.json` keystore into this vault. All entries share the same password and auto-lock timer."
+msgstr "Add a fresh seed, recover an existing one, or import a v1 `.json` keystore into this vault. All entries share the same password and auto-lock timer."
+
+#: src/components/AccountSwitcher.tsx
+msgid "Add account"
+msgstr "Add account"
+
+#: src/components/AddSignerCard.tsx
+msgid "Add another"
+msgstr "Add another"
+
+#: src/components/Settings.tsx
+msgid "Add custom endpoint"
+msgstr "Add custom endpoint"
+
+#: src/components/StreamLabel.tsx
+msgid "Add stream label"
+msgstr "Add stream label"
+
+#: src/components/StreamActionModals.tsx
+msgid "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
+msgstr "Add to the deposit covering this stream. The flow rate is unchanged; a larger deposit just pushes the drain date further out."
+
+#: src/lib/msgs/presenters.ts
+msgid "Added"
+msgstr "Added"
+
+#: src/components/AccountSwitcher.tsx
+msgid "Adding…"
+msgstr "Adding…"
+
+#: src/components/StreamActionModals.tsx
+msgid "Additional deposit (FUND)"
+msgstr "Additional deposit (FUND)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Address"
+msgstr "Address"
+
+#: src/components/SendIbc.tsx
+msgid "Address prefix <0>{receiverPrefix}1…</0> doesn't match destination chain <1>{expectedPrefix}1…</1>. The packet would land somewhere unintended."
+msgstr "Address prefix <0>{receiverPrefix}1…</0> doesn't match destination chain <1>{expectedPrefix}1…</1>. The packet would land somewhere unintended."
+
+#: src/components/GasAccordion.tsx
+msgid "Advanced: gas + fee"
+msgstr "Advanced: gas + fee"
+
+#: src/components/Enterprise.tsx
+#: src/components/ProposalList.tsx
+msgid "All"
+msgstr "All"
+
+#. placeholder {0}: seed.accounts.length
+#. placeholder {1}: seed.accounts.length === 1 ? '' : 's'
+#: src/components/VaultEntryManager.tsx
+msgid "All {0} derived account{1} will be removed from the vault."
+msgstr "All {0} derived account{1} will be removed from the vault."
+
+#: src/components/AuthzActionModals.tsx
+msgid "Allow list (only these validators)"
+msgstr "Allow list (only these validators)"
+
+#: src/components/AuthzPanel.tsx
+msgid "allow: {monikers}"
+msgstr "allow: {monikers}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Allowance"
+msgstr "Allowance"
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Amount"
+msgstr "Amount"
+
+#. placeholder {0}: displayDenom(selectedDenom)
+#. placeholder {0}: selectedResolved.symbol
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+msgid "Amount ({0})"
+msgstr "Amount ({0})"
+
+#: src/components/DelegateModal.tsx
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Amount (FUND)"
+msgstr "Amount (FUND)"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Amount must be a positive number."
+msgstr "Amount must be a positive number."
+
+#: src/components/StakingActionModals.tsx
+msgid "Amount to redelegate (FUND)"
+msgstr "Amount to redelegate (FUND)"
+
+#: src/components/StakingActionModals.tsx
+msgid "Amount to undelegate (FUND)"
+msgstr "Amount to undelegate (FUND)"
+
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+msgid "Any staking action"
+msgstr "Any staking action"
+
+#: src/components/AuthzPanel.tsx
+msgid "any validator"
+msgstr "any validator"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Any validator"
+msgstr "Any validator"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Appearance"
+msgstr "Appearance"
+
+#: src/components/GasAccordion.tsx
+msgid "Apply estimate"
+msgstr "Apply estimate"
+
+#: src/components/AuthzActionModals.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Authorisation"
+msgstr "Authorisation"
+
+#: src/components/AuthzPanel.tsx
+msgid "Authorisations"
+msgstr "Authorisations"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Authorise another account to send specific Msgs on your behalf. For Restake-style auto-compounding, grant <0>Stake</0> to the bot operator's address."
+msgstr "Authorise another account to send specific Msgs on your behalf. For Restake-style auto-compounding, grant <0>Stake</0> to the bot operator's address."
+
+#: src/lib/msgs/presenters.ts
+msgid "Authority"
+msgstr "Authority"
+
+#: src/lib/vault/store.ts
+msgid "auto-lock timeout must be a positive integer (ms)"
+msgstr "auto-lock timeout must be a positive integer (ms)"
+
+#: src/components/Send.tsx
+#: src/components/Settings.tsx
+#: src/components/VaultSetup.tsx
+msgid "Back"
+msgstr "Back"
+
+#. placeholder {0}: formatCoinAmount( selectedBalance.amount, selectedBalance.denom, selectedResolved.decimals, )
+#. placeholder {0}: formatCoinAmount(selectedBalance.amount, selectedBalance.denom)
+#. placeholder {1}: displayDenom(selectedBalance.denom)
+#. placeholder {1}: selectedResolved.symbol
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+msgid "Balance: <0>{0}</0> {1}"
+msgstr "Balance: <0>{0}</0> {1}"
+
+#. placeholder {0}: formatNundDisplay(balance.data.amount)
+#: src/components/DelegateModal.tsx
+msgid "Balance: <0>{0}</0> FUND"
+msgstr "Balance: <0>{0}</0> FUND"
+
+#: src/components/Balances.tsx
+msgid "Balances"
+msgstr "Balances"
+
+#: src/lib/msgs/presenters.ts
+msgid "Base type"
+msgstr "Base type"
+
+#: src/lib/msgs/presenters.ts
+msgid "Beacon ID"
+msgstr "Beacon ID"
+
+#. placeholder {0}: packet.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "block {0}"
+msgstr "block {0}"
+
+#. placeholder {0}: event.height.toLocaleString()
+#: src/components/StreamHistoryPanel.tsx
+msgid "Block {0}"
+msgstr "Block {0}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Block hash"
+msgstr "Block hash"
+
+#: src/lib/msgs/presenters.ts
+msgid "Block height"
+msgstr "Block height"
+
+#: src/components/Settings.tsx
+msgid "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
+msgstr "Both RPC and REST URLs are required. HTTPS accepted always; HTTP only for localhost (DevNet). Chain ID is verified automatically when each URL loses focus, or click Test connection to verify both now. Save is enabled once both URLs report the same chain ID."
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/components/TxModal.tsx
+msgid "Broadcasting…"
+msgstr "Broadcasting…"
+
+#: src/components/Settings.tsx
+msgid "Built-in"
+msgstr "Built-in"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/RevealSecretDialog.tsx
+#: src/components/SendIbc.tsx
+#: src/components/StreamLabel.tsx
+#: src/components/StreamsList.tsx
+#: src/components/TxModal.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/components/StreamActionModals.tsx
+msgid "Cancel stream"
+msgstr "Cancel stream"
+
+#: src/components/StreamsList.tsx
+msgid "Cancellation disabled (eFUND-backed stream)"
+msgstr "Cancellation disabled (eFUND-backed stream)"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#. placeholder {0}: c.lastCancelHeight.toLocaleString()
+#: src/components/StreamsList.tsx
+msgid "Cancelled at block {0}"
+msgstr "Cancelled at block {0}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Cancelled proposal"
+msgstr "Cancelled proposal"
+
+#: src/lib/msgs/presenters.ts
+msgid "Cancelled stream"
+msgstr "Cancelled stream"
+
+#: src/lib/msgs/presenters.ts
+msgid "Cancelled unbonding"
+msgstr "Cancelled unbonding"
+
+#: src/lib/msgs/presenters.ts
+msgid "Cancelled upgrade"
+msgstr "Cancelled upgrade"
+
+#: src/components/StreamActionModals.tsx
+msgid "Cancelling stops further outflow immediately. Any amount the recipient has accrued but not yet claimed stays claimable; the unclaimed portion of your deposit returns to your wallet."
+msgstr "Cancelling stops further outflow immediately. Any amount the recipient has accrued but not yet claimed stays claimable; the unclaimed portion of your deposit returns to your wallet."
+
+#: src/components/Validators.tsx
+msgid "Cannot delegate to inactive or jailed validators"
+msgstr "Cannot delegate to inactive or jailed validators"
+
+#: src/components/VoteModal.tsx
+msgid "Cast a vote on this active proposal. Your choice is recorded on-chain against your account and weighted by your staked FUND at the voting-period snapshot."
+msgstr "Cast a vote on this active proposal. Your choice is recorded on-chain against your account and weighted by your staked FUND at the voting-period snapshot."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Cast vote"
+msgstr "Cast vote"
+
+#. placeholder {0}: ping.chainId ?? ''
+#: src/components/Settings.tsx
+msgid "Chain <0>{0}</0>"
+msgstr "Chain <0>{0}</0>"
+
+#: src/App.tsx
+msgid "Chain ID"
+msgstr "Chain ID"
+
+#. placeholder {0}: add.rpcPing.chainId
+#. placeholder {1}: add.restPing.chainId ?? ''
+#: src/components/Settings.tsx
+msgid "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+msgstr "Chain ID mismatch: RPC reports <0>{0}</0>, REST reports <1>{1}</1>. These are different networks — fix one before saving."
+
+#: src/components/Enterprise.tsx
+msgid "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
+msgstr "Chain-minted eFUND available to pay BEACON / WRKCHAIN / stream fees."
+
+#: src/components/StreamActionModals.tsx
+msgid "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
+msgstr "Change the rate at which this stream pays out. Takes effect from the next block — past accrual is unaffected."
+
+#: src/components/ProposalDetail.tsx
+msgid "Change vote"
+msgstr "Change vote"
+
+#: src/lib/msgs/presenters.ts
+msgid "Channel"
+msgstr "Channel"
+
+#: src/components/Enterprise.tsx
+msgid "Checking whitelist…"
+msgstr "Checking whitelist…"
+
+#: src/components/VaultSetup.tsx
+msgid "Choose keystore file…"
+msgstr "Choose keystore file…"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
+msgid "Claim"
+msgstr "Claim"
+
+#: src/components/StakingActionModals.tsx
+msgid "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
+msgstr "Claim accrued staking rewards from this validator. Rewards land in your account as spendable FUND."
+
+#: src/components/ActiveDelegations.tsx
+msgid "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
+msgstr "Claim rewards from every validator you delegate to in a single transaction. Gas scales with the number of delegations."
+
+#: src/components/StreamActionModals.tsx
+msgid "Claim stream"
+msgstr "Claim stream"
+
+#: src/components/StreamsList.tsx
+msgid "Claimable"
+msgstr "Claimable"
+
+#. placeholder {0}: nundToFund(claimableNund)
+#: src/components/StreamActionModals.tsx
+msgid "Claimable: <0>{0}</0> {denomLabel}"
+msgstr "Claimable: <0>{0}</0> {denomLabel}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Claimed stream"
+msgstr "Claimed stream"
+
+#: src/components/EndpointSwitcher.tsx
+msgid "click to switch"
+msgstr "click to switch"
+
+#: src/components/AccountSwitcher.tsx
+msgid "click to switch account"
+msgstr "click to switch account"
+
+#: src/components/SendIbc.tsx
+#: src/components/TxModal.tsx
+msgid "Close"
+msgstr "Close"
+
+#: src/components/ProposalDetail.tsx
+msgid "Closed"
+msgstr "Closed"
+
+#: src/components/TxRow.tsx
+msgid "Code"
+msgstr "Code"
+
+#: src/components/Validators.tsx
+msgid "Commission max"
+msgstr "Commission max"
+
+#: src/components/Enterprise.tsx
+msgid "Completed"
+msgstr "Completed"
+
+#. placeholder {0}: rel.label
+#: src/components/InFlightQueues.tsx
+msgid "completes {0}"
+msgstr "completes {0}"
+
+#: src/components/TxModal.tsx
+msgid "Confirm"
+msgstr "Confirm"
+
+#: src/components/Send.tsx
+msgid "Confirm + send"
+msgstr "Confirm + send"
+
+#: src/components/SendIbc.tsx
+msgid "Confirm IBC transfer"
+msgstr "Confirm IBC transfer"
+
+#: src/components/VaultSetup.tsx
+msgid "Confirm password"
+msgstr "Confirm password"
+
+#: src/components/Send.tsx
+msgid "Confirm send"
+msgstr "Confirm send"
+
+#: src/components/SendIbc.tsx
+msgid "Confirm transfer"
+msgstr "Confirm transfer"
+
+#: src/App.tsx
+msgid "Connecting…"
+msgstr "Connecting…"
+
+#: src/lib/msgs/presenters.ts
+msgid "Content"
+msgstr "Content"
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/components/VaultSetup.tsx
+msgid "Continue"
+msgstr "Continue"
+
+#: src/components/StreamActionModals.tsx
+msgid "Continuously pay the recipient at a chosen rate. The recipient claims accrued amounts whenever they want; you can top up the deposit, change the rate, or cancel at any time (unless the stream is non-cancellable)."
+msgstr "Continuously pay the recipient at a chosen rate. The recipient claims accrued amounts whenever they want; you can top up the deposit, change the rate, or cancel at any time (unless the stream is non-cancellable)."
+
+#: src/components/Receive.tsx
+#: src/components/RevealSecretDialog.tsx
+msgid "Copied"
+msgstr "Copied"
+
+#: src/components/RevealSecretDialog.tsx
+#: src/components/VaultSetup.tsx
+msgid "Copy"
+msgstr "Copy"
+
+#: src/components/Receive.tsx
+msgid "Copy address"
+msgstr "Copy address"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Copy key"
+msgstr "Copy key"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Copy phrase"
+msgstr "Copy phrase"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Cosmos"
+msgstr "Cosmos"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Cosmos is the default — refined, soft, brand-blue. Mainframe is an industrial terminal-style alternate; same wallet, denser visual rhythm."
+msgstr "Cosmos is the default — refined, soft, brand-blue. Mainframe is an industrial terminal-style alternate; same wallet, denser visual rhythm."
+
+#. placeholder {0}: proposalId.toString()
+#: src/components/ProposalDetail.tsx
+msgid "Couldn't load proposal #{0}."
+msgstr "Couldn't load proposal #{0}."
+
+#: src/lib/chain.ts
+msgid "couldn't reach the REST endpoint — please check the URL"
+msgstr "couldn't reach the REST endpoint — please check the URL"
+
+#: src/lib/chain.ts
+msgid "couldn't reach the RPC endpoint — please check the URL"
+msgstr "couldn't reach the RPC endpoint — please check the URL"
+
+#: src/lib/msgs/presenters.ts
+msgid "Count"
+msgstr "Count"
+
+#: src/components/IbcHistory.tsx
+msgid "Counterpart tx not found (RPC pruning or CORS blocked)"
+msgstr "Counterpart tx not found (RPC pruning or CORS blocked)"
+
+#: src/components/StreamsList.tsx
+msgid "Create"
+msgstr "Create"
+
+#: src/components/VaultSetup.tsx
+msgid "Create a fresh BIP39 mnemonic."
+msgstr "Create a fresh BIP39 mnemonic."
+
+#: src/components/StreamActionModals.tsx
+msgid "Create stream"
+msgstr "Create stream"
+
+#: src/components/VaultSetup.tsx
+msgid "Create wallet"
+msgstr "Create wallet"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Created"
+msgstr "Created"
+
+#: src/lib/msgs/presenters.ts
+msgid "Created periodic vesting account"
+msgstr "Created periodic vesting account"
+
+#: src/lib/msgs/presenters.ts
+msgid "Created permanent-locked account"
+msgstr "Created permanent-locked account"
+
+#: src/lib/msgs/presenters.ts
+msgid "Created stream"
+msgstr "Created stream"
+
+#: src/lib/msgs/presenters.ts
+msgid "Created validator"
+msgstr "Created validator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Created vesting account"
+msgstr "Created vesting account"
+
+#: src/components/VaultSetup.tsx
+msgid "Creating…"
+msgstr "Creating…"
+
+#: src/lib/msgs/presenters.ts
+msgid "Creation height"
+msgstr "Creation height"
+
+#. placeholder {0}: nundToFund(currentDelegationNund)
+#: src/components/StakingActionModals.tsx
+msgid "Currently delegated: <0>{0}</0> FUND"
+msgstr "Currently delegated: <0>{0}</0> FUND"
+
+#: src/components/Settings.tsx
+msgid "Custom"
+msgstr "Custom"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Dark"
+msgstr "Dark"
+
+#: src/lib/msgs/presenters.ts
+msgid "Decision"
+msgstr "Decision"
+
+#: src/components/AuthzPanel.tsx
+#: src/components/DelegateModal.tsx
+#: src/components/Validators.tsx
+msgid "Delegate"
+msgstr "Delegate"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Delegate (auto-compounder pattern)"
+msgstr "Delegate (auto-compounder pattern)"
+
+#: src/components/DelegateModal.tsx
+msgid "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
+msgstr "Delegate FUND to this validator. Rewards accrue automatically; undelegating starts an unbonding period defined by the chain's staking params."
+
+#: src/components/DelegateModal.tsx
+#: src/components/Validators.tsx
+msgid "Delegate to {moniker}"
+msgstr "Delegate to {moniker}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Delegated"
+msgstr "Delegated"
+
+#: src/lib/msgs/presenters.ts
+msgid "Delegator"
+msgstr "Delegator"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete"
+msgstr "Delete"
+
+#. placeholder {0}: entry.label
+#. placeholder {0}: seed.label
+#: src/components/VaultEntryManager.tsx
+msgid "Delete \"{0}\"?"
+msgstr "Delete \"{0}\"?"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete key"
+msgstr "Delete key"
+
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Delete key {0}"
+msgstr "Delete key {0}"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Delete seed"
+msgstr "Delete seed"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Deleting…"
+msgstr "Deleting…"
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Denom"
+msgstr "Denom"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Deny list (every validator EXCEPT these)"
+msgstr "Deny list (every validator EXCEPT these)"
+
+#: src/components/AuthzPanel.tsx
+msgid "deny: {monikers}"
+msgstr "deny: {monikers}"
+
+#: src/components/ProposalDetail.tsx
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Deposit"
+msgstr "Deposit"
+
+#: src/components/StreamsList.tsx
+msgid "Deposit drains"
+msgstr "Deposit drains"
+
+#: src/components/ProposalDetail.tsx
+msgid "Deposit ends"
+msgstr "Deposit ends"
+
+#. placeholder {0}: nundToFund(deposit)
+#: src/components/StreamsList.tsx
+msgid "Deposit: {0} {denomLabel}"
+msgstr "Deposit: {0} {denomLabel}"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Deposited"
+msgstr "Deposited"
+
+#: src/lib/msgs/presenters.ts
+msgid "Deposited to proposal"
+msgstr "Deposited to proposal"
+
+#: src/components/AddSignerCard.tsx
+msgid "Derived address: {candidateAddress}"
+msgstr "Derived address: {candidateAddress}"
+
+#: src/components/SendIbc.tsx
+msgid "Destination"
+msgstr "Destination"
+
+#: src/components/SendIbc.tsx
+msgid "Destination chain"
+msgstr "Destination chain"
+
+#: src/components/InFlightQueues.tsx
+msgid "destination locked until completion"
+msgstr "destination locked until completion"
+
+#: src/components/StakingActionModals.tsx
+msgid "Destination validator"
+msgstr "Destination validator"
+
+#: src/components/Enterprise.tsx
+#: src/components/Validators.tsx
+msgid "Details"
+msgstr "Details"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Do not share. Do not screenshot. Anyone with this private key can spend funds held at this address."
+msgstr "Do not share. Do not screenshot. Anyone with this private key can spend funds held at this address."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
+msgstr "Do not share. Do not screenshot. The seed gives full control of every account derived from it."
+
+#: src/components/VoteModal.tsx
+msgid "Don't count my stake for or against"
+msgstr "Don't count my stake for or against"
+
+#: src/components/RevealSecretDialog.tsx
+msgid "Done"
+msgstr "Done"
+
+#: src/components/VaultSetup.tsx
+msgid "Download"
+msgstr "Download"
+
+#: src/lib/msgs/presenters.ts
+msgid "Drains at"
+msgstr "Drains at"
+
+#: src/components/AuthzActionModals.tsx
+msgid "e.g. 1000"
+msgstr "e.g. 1000"
+
+#: src/components/StreamLabel.tsx
+msgid "Edit stream label"
+msgstr "Edit stream label"
+
+#: src/lib/msgs/presenters.ts
+msgid "Edited validator"
+msgstr "Edited validator"
+
+#: src/components/VaultSetup.tsx
+msgid "Encrypt your vault"
+msgstr "Encrypt your vault"
+
+#: src/lib/msgs/presenters.ts
+msgid "End time"
+msgstr "End time"
+
+#: src/lib/vault/store.ts
+msgid "endpoint {id} not found"
+msgstr "endpoint {id} not found"
+
+#: src/App.tsx
+msgid "Enterprise"
+msgstr "Enterprise"
+
+#: src/components/Enterprise.tsx
+msgid "Enterprise eFUND"
+msgstr "Enterprise eFUND"
+
+#: src/components/Enterprise.tsx
+msgid "Enterprise members raise purchase orders for eFUND — a locked balance the chain mints to pay BEACON / WRKCHAIN / stream creation fees. eFUND can't be transferred or used outside chain fees."
+msgstr "Enterprise members raise purchase orders for eFUND — a locked balance the chain mints to pay BEACON / WRKCHAIN / stream creation fees. eFUND can't be transferred or used outside chain fees."
+
+#: src/components/GasAccordion.tsx
+msgid "Estimate from chain"
+msgstr "Estimate from chain"
+
+#: src/components/GasAccordion.tsx
+msgid "Estimating…"
+msgstr "Estimating…"
+
+#: src/lib/msgs/presenters.ts
+msgid "Evidence type"
+msgstr "Evidence type"
+
+#: src/lib/msgs/presenters.ts
+msgid "Executed authz"
+msgstr "Executed authz"
+
+#: src/components/ProposalDetail.tsx
+msgid "Expedited"
+msgstr "Expedited"
+
+#: src/components/Settings.tsx
+msgid "Explorer base URL (optional)"
+msgstr "Explorer base URL (optional)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Extends by"
+msgstr "Extends by"
+
+#: src/components/IbcHistory.tsx
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+#: src/components/TxRow.tsx
+msgid "Failed"
+msgstr "Failed"
+
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/App.tsx
+msgid "Failed to connect: {0}"
+msgstr "Failed to connect: {0}"
+
+#: src/components/SendIbc.tsx
+msgid "Failed to discover IBC channels — try refreshing."
+msgstr "Failed to discover IBC channels — try refreshing."
+
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/TxHistory.tsx
+msgid "Failed to load history: {0}"
+msgstr "Failed to load history: {0}"
+
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/ProposalList.tsx
+msgid "Failed to load proposals: {0}"
+msgstr "Failed to load proposals: {0}"
+
+#. placeholder {0}: String(error)
+#. placeholder {0}: error instanceof Error ? error.message : String(error)
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/Validators.tsx
+msgid "Failed to load: {0}"
+msgstr "Failed to load: {0}"
+
+#: src/components/Settings.tsx
+msgid "failed to reach endpoint"
+msgstr "failed to reach endpoint"
+
+#. placeholder {0}: err.message
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "failed to read file: {0}"
+msgstr "failed to read file: {0}"
+
+#. placeholder {0}: proposal.failedReason
+#: src/components/ProposalDetail.tsx
+msgid "Failure reason: {0}"
+msgstr "Failure reason: {0}"
+
+#. placeholder {0}: tiers.high.toString()
+#: src/components/GasAccordion.tsx
+msgid "Fast ({0})"
+msgstr "Fast ({0})"
+
+#: src/components/Send.tsx
+#: src/components/TxRow.tsx
+msgid "Fee"
+msgstr "Fee"
+
+#. placeholder {0}: effectiveFeeNund.toString()
+#. placeholder {1}: nundToFund(effectiveFeeNund.toString())
+#. placeholder {2}: DEFAULT_MIN_GAS_PRICE_NUND.toString()
+#: src/components/GasAccordion.tsx
+msgid "Fee: <0>{0}</0> nund (<1>{1}</1> FUND). Chain floor is <2>{2}</2> nund/gas."
+msgstr "Fee: <0>{0}</0> nund (<1>{1}</1> FUND). Chain floor is <2>{2}</2> nund/gas."
+
+#: src/components/GasAccordion.tsx
+msgid "fill in the form first — nothing to estimate"
+msgstr "fill in the form first — nothing to estimate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Fill the amount with your full current delegation"
+msgstr "Fill the amount with your full current delegation"
+
+#: src/components/Validators.tsx
+msgid "Filter by moniker…"
+msgstr "Filter by moniker…"
+
+#: src/components/Validators.tsx
+msgid "Filter validators by moniker"
+msgstr "Filter validators by moniker"
+
+#: src/components/VaultSetup.tsx
+msgid "Finish setup"
+msgstr "Finish setup"
+
+#: src/components/VaultSetup.tsx
+msgid "Finishing…"
+msgstr "Finishing…"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Flow rate"
+msgstr "Flow rate"
+
+#: src/components/StreamActionModals.tsx
+msgid "Flow rate must be ≥ 1 nund/second. Try a larger amount or a shorter period."
+msgstr "Flow rate must be ≥ 1 nund/second. Try a larger amount or a shorter period."
+
+#: src/components/UnlockScreen.tsx
+msgid "Forgot your password?"
+msgstr "Forgot your password?"
+
+#: src/components/IbcHistory.tsx
+#: src/components/StreamsList.tsx
+#: src/lib/msgs/presenters.ts
+msgid "From"
+msgstr "From"
+
+#: src/lib/msgs/presenters.ts
+msgid "From validator"
+msgstr "From validator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Funded community pool"
+msgstr "Funded community pool"
+
+#: src/components/GasAccordion.tsx
+msgid "Gas"
+msgstr "Gas"
+
+#: src/components/TxRow.tsx
+msgid "Gas used"
+msgstr "Gas used"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/AddSignerCard.tsx
+msgid "Generate {0} words"
+msgstr "Generate {0} words"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/VaultSetup.tsx
+msgid "Generate {0}-word seed"
+msgstr "Generate {0}-word seed"
+
+#: src/components/VaultSetup.tsx
+msgid "Generate a new seed"
+msgstr "Generate a new seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Generate new seed"
+msgstr "Generate new seed"
+
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+msgid "Generic"
+msgstr "Generic"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Generic grants have no scope guards — the grantee can broadcast any Msg of the chosen type on your behalf. Only grant if you fully trust the grantee."
+msgstr "Generic grants have no scope guards — the grantee can broadcast any Msg of the chosen type on your behalf. Only grant if you fully trust the grantee."
+
+#: src/lib/msgs/presenters.ts
+msgid "Genesis hash"
+msgstr "Genesis hash"
+
+#: src/App.tsx
+msgid "Governance"
+msgstr "Governance"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Grant"
+msgstr "Grant"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Grant authorisation"
+msgstr "Grant authorisation"
+
+#: src/components/AuthzPanel.tsx
+msgid "Grant new"
+msgstr "Grant new"
+
+#: src/lib/msgs/presenters.ts
+msgid "Granted authz"
+msgstr "Granted authz"
+
+#: src/lib/msgs/presenters.ts
+msgid "Granted authz (received)"
+msgstr "Granted authz (received)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Granted fee allowance"
+msgstr "Granted fee allowance"
+
+#: src/components/AuthzPanel.tsx
+msgid "Granted to you"
+msgstr "Granted to you"
+
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Grantee"
+msgstr "Grantee"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee (bot address)"
+msgstr "Grantee (bot address)"
+
+#. placeholder {0}: selected.length
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee may act on every validator EXCEPT the {0} picked."
+msgstr "Grantee may act on every validator EXCEPT the {0} picked."
+
+#. placeholder {0}: selected.length
+#: src/components/AuthzActionModals.tsx
+msgid "Grantee may only act on the {0} picked validator(s)."
+msgstr "Grantee may only act on the {0} picked validator(s)."
+
+#: src/components/AuthzPanel.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Granter"
+msgstr "Granter"
+
+#: src/components/AuthzPanel.tsx
+msgid "Grants you've given to other accounts (typically auto-compounder bots). Revoking stops the grantee from acting on your behalf; your stake itself is unaffected."
+msgstr "Grants you've given to other accounts (typically auto-compounder bots). Revoking stops the grantee from acting on your behalf; your stake itself is unaffected."
+
+#. placeholder {0}: tx.height.toString()
+#. placeholder {1}: presented.length.toString()
+#. placeholder {2}: presented.length === 1 ? <>msg</> : <>msgs</>
+#: src/components/TxRow.tsx
+msgid "h{0} · {1} {2}"
+msgstr "h{0} · {1} {2}"
+
+#: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Hash"
+msgstr "Hash"
+
+#: src/App.tsx
+#: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Height"
+msgstr "Height"
+
+#: src/components/Validators.tsx
+msgid "Hide details"
+msgstr "Hide details"
+
+#: src/App.tsx
+#: src/components/TxHistory.tsx
+msgid "History"
+msgstr "History"
+
+#: src/components/VaultSetup.tsx
+msgid "How would you like to start? Pick one to continue."
+msgstr "How would you like to start? Pick one to continue."
+
+#: src/components/Settings.tsx
+msgid "https://… or http://localhost:26657"
+msgstr "https://… or http://localhost:26657"
+
+#: src/components/VoteModal.tsx
+msgid "I oppose this proposal"
+msgstr "I oppose this proposal"
+
+#: src/components/VoteModal.tsx
+msgid "I support this proposal"
+msgstr "I support this proposal"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "I've written the seed phrase down somewhere safe."
+msgstr "I've written the seed phrase down somewhere safe."
+
+#: src/App.tsx
+msgid "IBC"
+msgstr "IBC"
+
+#: src/components/IbcHistory.tsx
+msgid "IBC packet history"
+msgstr "IBC packet history"
+
+#: src/components/Balances.tsx
+msgid "IBC-wrapped"
+msgstr "IBC-wrapped"
+
+#: src/components/Send.tsx
+msgid "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
+msgstr "IBC-wrapped denoms use the source chain's native decimals; amount is interpreted as raw integer units until M9 denom-trace resolves the scaling."
+
+#: src/components/Validators.tsx
+msgid "Identity"
+msgstr "Identity"
+
+#: src/components/VaultSetup.tsx
+msgid "Import a v1 wallet file"
+msgstr "Import a v1 wallet file"
+
+#: src/components/VaultSetup.tsx
+msgid "Import an existing seed"
+msgstr "Import an existing seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import existing seed"
+msgstr "Import existing seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import key"
+msgstr "Import key"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import keystore"
+msgstr "Import keystore"
+
+#: src/components/AddSignerCard.tsx
+msgid "Import private key"
+msgstr "Import private key"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Import seed"
+msgstr "Import seed"
+
+#. placeholder {0}: account.address
+#. placeholder {0}: entry.address
+#: src/components/VaultEntryManager.tsx
+msgid "Import this hex-encoded key into another wallet (Keplr, Leap, …) to access this account elsewhere. The corresponding address is <0>{0}</0>."
+msgstr "Import this hex-encoded key into another wallet (Keplr, Leap, …) to access this account elsewhere. The corresponding address is <0>{0}</0>."
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Import v1 keystore"
+msgstr "Import v1 keystore"
+
+#. placeholder {0}: ref.id
+#: src/lib/signer.ts
+msgid "imported key {0} not found in vault"
+msgstr "imported key {0} not found in vault"
+
+#: src/components/AccountSwitcher.tsx
+#: src/components/VaultEntryManager.tsx
+msgid "Imported keys"
+msgstr "Imported keys"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "Importing…"
+msgstr "Importing…"
+
+#: src/components/IbcHistory.tsx
+msgid "In transit"
+msgstr "In transit"
+
+#: src/components/Validators.tsx
+msgid "INACTIVE"
+msgstr "INACTIVE"
+
+#: src/components/StreamsList.tsx
+msgid "Incoming streams"
+msgstr "Incoming streams"
+
+#: src/components/TxRow.tsx
+msgid "Info"
+msgstr "Info"
+
+#: src/lib/msgs/presenters.ts
+msgid "Initial deposit"
+msgstr "Initial deposit"
+
+#: src/components/StreamActionModals.tsx
+msgid "Initial deposit (FUND)"
+msgstr "Initial deposit (FUND)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Inner Msgs"
+msgstr "Inner Msgs"
+
+#: src/lib/msgs/presenters.ts
+msgid "Inputs"
+msgstr "Inputs"
+
+#: src/components/DelegateModal.tsx
+msgid "Insufficient balance — delegate would exceed available funds plus fee."
+msgstr "Insufficient balance — delegate would exceed available funds plus fee."
+
+#: src/lib/vault/seeds.ts
+msgid "invalid BIP39 mnemonic (failed checksum or unknown word)"
+msgstr "invalid BIP39 mnemonic (failed checksum or unknown word)"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Invoice #12345 — server costs"
+msgstr "Invoice #12345 — server costs"
+
+#: src/components/Validators.tsx
+msgid "JAILED"
+msgstr "JAILED"
+
+#: src/components/Validators.tsx
+msgid "Keybase identity hash"
+msgstr "Keybase identity hash"
+
+#: src/components/Settings.tsx
+msgid "Label"
+msgstr "Label"
+
+#: src/components/VaultEntryManager.tsx
+msgid "label is required"
+msgstr "label is required"
+
+#: src/components/StreamLabel.tsx
+msgid "Label this stream"
+msgstr "Label this stream"
+
+#: src/components/Validators.tsx
+msgid "Last commission update"
+msgstr "Last commission update"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Leave blank for no cap. Restake convention: leave blank since the cap can be replaced by a fresh grant if needed."
+msgstr "Leave blank for no cap. Restake convention: leave blank since the cap can be replaced by a fresh grant if needed."
+
+#: src/components/VaultSetup.tsx
+msgid "length ok"
+msgstr "length ok"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Light"
+msgstr "Light"
+
+#: src/components/IbcHistory.tsx
+#: src/components/TxHistory.tsx
+msgid "Load more"
+msgstr "Load more"
+
+#: src/components/AddSignerCard.tsx
+msgid "Loaded: {fileName}"
+msgstr "Loaded: {fileName}"
+
+#: src/components/Balances.tsx
+msgid "Loading balances…"
+msgstr "Loading balances…"
+
+#: src/components/SendIbc.tsx
+msgid "Loading channels…"
+msgstr "Loading channels…"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Loading delegations…"
+msgstr "Loading delegations…"
+
+#: src/App.tsx
+msgid "Loading enterprise…"
+msgstr "Loading enterprise…"
+
+#: src/components/AuthzPanel.tsx
+msgid "Loading grants…"
+msgstr "Loading grants…"
+
+#: src/components/StreamsList.tsx
+#: src/components/TxHistory.tsx
+msgid "Loading history…"
+msgstr "Loading history…"
+
+#: src/components/IbcHistory.tsx
+msgid "Loading IBC history…"
+msgstr "Loading IBC history…"
+
+#: src/App.tsx
+msgid "Loading IBC…"
+msgstr "Loading IBC…"
+
+#: src/components/Validators.tsx
+msgid "loading Keybase avatar…"
+msgstr "loading Keybase avatar…"
+
+#: src/components/ProposalDetail.tsx
+msgid "Loading proposal…"
+msgstr "Loading proposal…"
+
+#: src/components/ProposalList.tsx
+msgid "Loading proposals…"
+msgstr "Loading proposals…"
+
+#: src/components/Enterprise.tsx
+msgid "Loading purchase orders…"
+msgstr "Loading purchase orders…"
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "Loading stream events…"
+msgstr "Loading stream events…"
+
+#: src/App.tsx
+#: src/components/StreamsList.tsx
+msgid "Loading streams…"
+msgstr "Loading streams…"
+
+#: src/components/Validators.tsx
+msgid "Loading validators…"
+msgstr "Loading validators…"
+
+#: src/components/Enterprise.tsx
+msgid "loading…"
+msgstr "loading…"
+
+#: src/components/IbcHistory.tsx
+#: src/components/RevealSecretDialog.tsx
+#: src/components/TxHistory.tsx
+msgid "Loading…"
+msgstr "Loading…"
+
+#: src/components/Header.tsx
+msgid "Lock wallet"
+msgstr "Lock wallet"
+
+#: src/components/Enterprise.tsx
+msgid "Locked balance"
+msgstr "Locked balance"
+
+#: src/components/IbcHistory.tsx
+msgid "Looking up receipt on counterpart chain…"
+msgstr "Looking up receipt on counterpart chain…"
+
+#: src/components/IbcHistory.tsx
+msgid "Looking up source tx on counterpart chain…"
+msgstr "Looking up source tx on counterpart chain…"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Mainframe"
+msgstr "Mainframe"
+
+#: src/components/InFlightQueues.tsx
+msgid "Maturing…"
+msgstr "Maturing…"
+
+#: src/components/StakingActionModals.tsx
+msgid "Max"
+msgstr "Max"
+
+#: src/components/Validators.tsx
+msgid "Max change / day"
+msgstr "Max change / day"
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Memo"
+msgstr "Memo"
+
+#: src/components/DelegateModal.tsx
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+#: src/components/StakingActionModals.tsx
+#: src/components/StreamActionModals.tsx
+#: src/components/VoteModal.tsx
+msgid "Memo (optional)"
+msgstr "Memo (optional)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Messages"
+msgstr "Messages"
+
+#: src/components/VaultSetup.tsx
+msgid "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key only — v1 didn't store a mnemonic."
+msgstr "Migrate a `.json` keystore from the legacy v1 web-wallet. Single-key only — v1 didn't store a mnemonic."
+
+#: src/components/VaultSetup.tsx
+msgid "Migrate from v1"
+msgstr "Migrate from v1"
+
+#: src/components/Validators.tsx
+msgid "Min self-delegation"
+msgstr "Min self-delegation"
+
+#: src/components/AddSignerCard.tsx
+msgid "Mnemonic"
+msgstr "Mnemonic"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Mode"
+msgstr "Mode"
+
+#: src/lib/msgs/presenters.ts
+msgid "Module"
+msgstr "Module"
+
+#: src/lib/msgs/presenters.ts
+msgid "Moniker"
+msgstr "Moniker"
+
+#: src/components/AuthzActionModals.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Msg type"
+msgstr "Msg type"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Msg type URL"
+msgstr "Msg type URL"
+
+#: src/components/StreamActionModals.tsx
+msgid "Must be a valid und1… address."
+msgstr "Must be a valid und1… address."
+
+#: src/components/Settings.tsx
+msgid "My DevNet"
+msgstr "My DevNet"
+
+#: src/lib/msgs/presenters.ts
+msgid "Name"
+msgstr "Name"
+
+#: src/components/Settings.tsx
+msgid "Network endpoints"
+msgstr "Network endpoints"
+
+#: src/App.tsx
+msgid "Network:"
+msgstr "Network:"
+
+#: src/components/VaultSetup.tsx
+msgid "Never share. Never type into a website. Unification will never ask for it."
+msgstr "Never share. Never type into a website. Unification will never ask for it."
+
+#: src/components/StreamActionModals.tsx
+#: src/lib/msgs/presenters.ts
+msgid "New flow rate"
+msgstr "New flow rate"
+
+#: src/components/VaultEntryManager.tsx
+msgid "New name"
+msgstr "New name"
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "No"
+msgstr "No"
+
+#: src/lib/msgs/presenters.ts
+msgid "NO"
+msgstr "NO"
+
+#: src/components/ActiveDelegations.tsx
+msgid "No active delegations. Pick a validator above to start earning rewards."
+msgstr "No active delegations. Pick a validator above to start earning rewards."
+
+#: src/components/AuthzPanel.tsx
+msgid "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+msgstr "No active grants. Grant an authorisation to enable a third-party (e.g. an auto-compounder) to act on your behalf for specific message types."
+
+#: src/lib/useSubmitTx.ts
+msgid "no active signer — unlock the vault and select an account"
+msgstr "no active signer — unlock the vault and select an account"
+
+#: src/components/Balances.tsx
+msgid "No balances yet — receive some FUND to get started."
+msgstr "No balances yet — receive some FUND to get started."
+
+#: src/components/StreamsList.tsx
+msgid "No cancelled streams."
+msgstr "No cancelled streams."
+
+#: src/components/Validators.tsx
+msgid "No description metadata published."
+msgstr "No description metadata published."
+
+#: src/components/StreamHistoryPanel.tsx
+msgid "No events yet."
+msgstr "No events yet."
+
+#: src/components/VaultSetup.tsx
+msgid "No file selected"
+msgstr "No file selected"
+
+#: src/components/IbcHistory.tsx
+msgid "No IBC transfers yet."
+msgstr "No IBC transfers yet."
+
+#: src/components/StreamsList.tsx
+msgid "No incoming streams."
+msgstr "No incoming streams."
+
+#: src/components/Validators.tsx
+msgid "no Keybase avatar"
+msgstr "no Keybase avatar"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "no keystore file selected"
+msgstr "no keystore file selected"
+
+#: src/components/AuthzActionModals.tsx
+msgid "No matches."
+msgstr "No matches."
+
+#: src/components/SendIbc.tsx
+msgid "No open IBC channels found on this network. IBC transfer is unavailable."
+msgstr "No open IBC channels found on this network. IBC transfer is unavailable."
+
+#: src/components/StreamsList.tsx
+msgid "No outgoing streams. Use Create to open one."
+msgstr "No outgoing streams. Use Create to open one."
+
+#: src/components/ProposalList.tsx
+msgid "No proposals match this filter."
+msgstr "No proposals match this filter."
+
+#: src/components/Enterprise.tsx
+msgid "No purchase orders with this status."
+msgstr "No purchase orders with this status."
+
+#: src/components/Enterprise.tsx
+msgid "No purchase orders yet."
+msgstr "No purchase orders yet."
+
+#: src/components/ActiveDelegations.tsx
+msgid "No rewards to withdraw from this validator yet."
+msgstr "No rewards to withdraw from this validator yet."
+
+#: src/components/VaultEntryManager.tsx
+msgid "No seeds or imported keys yet — use Add another above to start."
+msgstr "No seeds or imported keys yet — use Add another above to start."
+
+#: src/components/TxHistory.tsx
+msgid "No txs found for this account yet. Send or receive FUND to see your activity here."
+msgstr "No txs found for this account yet. Send or receive FUND to see your activity here."
+
+#: src/components/Validators.tsx
+msgid "No validators match the filter."
+msgstr "No validators match the filter."
+
+#: src/components/AuthzActionModals.tsx
+msgid "No validators picked — grant currently applies to every validator."
+msgstr "No validators picked — grant currently applies to every validator."
+
+#: src/components/AuthzActionModals.tsx
+msgid "No validators picked yet — pick at least one to continue."
+msgstr "No validators picked yet — pick at least one to continue."
+
+#: src/lib/vault/store.ts
+msgid "no vault to unlock"
+msgstr "no vault to unlock"
+
+#: src/components/ProposalDetail.tsx
+msgid "No votes recorded yet."
+msgstr "No votes recorded yet."
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "No with veto"
+msgstr "No with veto"
+
+#: src/components/StreamsList.tsx
+msgid "non-cancel"
+msgstr "non-cancel"
+
+#: src/components/Enterprise.tsx
+msgid "none yet"
+msgstr "none yet"
+
+#. placeholder {0}: tiers.average.toString()
+#: src/components/GasAccordion.tsx
+msgid "Normal ({0})"
+msgstr "Normal ({0})"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "not a v1 keystore file (missing version:1 or crypto block)"
+msgstr "not a v1 keystore file (missing version:1 or crypto block)"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "not a valid BIP39 mnemonic (check wordlist + checksum)"
+msgstr "not a valid BIP39 mnemonic (check wordlist + checksum)"
+
+#: src/components/StreamsList.tsx
+msgid "Nothing claimable yet — wait for accrual."
+msgstr "Nothing claimable yet — wait for accrual."
+
+#: src/lib/msgs/presenters.ts
+msgid "Now drains at"
+msgstr "Now drains at"
+
+#: src/lib/msgs/presenters.ts
+msgid "Old flow rate"
+msgstr "Old flow rate"
+
+#: src/components/AddressLink.tsx
+#: src/components/TxRow.tsx
+msgid "Open in block explorer"
+msgstr "Open in block explorer"
+
+#: src/components/Header.tsx
+msgid "Open in tab"
+msgstr "Open in tab"
+
+#: src/components/Header.tsx
+msgid "Open settings"
+msgstr "Open settings"
+
+#: src/components/Header.tsx
+msgid "Open wallet in a new tab"
+msgstr "Open wallet in a new tab"
+
+#: src/components/Validators.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Operator"
+msgstr "Operator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Order ID"
+msgstr "Order ID"
+
+#: src/components/StreamsList.tsx
+msgid "Original deposit amount including the pending accrual."
+msgstr "Original deposit amount including the pending accrual."
+
+#: src/components/SendIbc.tsx
+msgid "osmo1… / cosmos1… / …"
+msgstr "osmo1… / cosmos1… / …"
+
+#: src/components/AuthzPanel.tsx
+msgid "Other accounts have authorised you to act on their behalf for these message types. Only the granter can revoke their own grant."
+msgstr "Other accounts have authorised you to act on their behalf for these message types. Only the granter can revoke their own grant."
+
+#: src/components/StreamsList.tsx
+msgid "Outgoing streams"
+msgstr "Outgoing streams"
+
+#: src/lib/msgs/presenters.ts
+msgid "Outputs"
+msgstr "Outputs"
+
+#: src/lib/msgs/presenters.ts
+msgid "Owner"
+msgstr "Owner"
+
+#: src/lib/msgs/presenters.ts
+msgid "Parent hash"
+msgstr "Parent hash"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Passed"
+msgstr "Passed"
+
+#: src/components/RevealSecretDialog.tsx
+#: src/components/UnlockScreen.tsx
+msgid "Password"
+msgstr "Password"
+
+#: src/components/VaultSetup.tsx
+msgid "Password (≥ 8 chars)"
+msgstr "Password (≥ 8 chars)"
+
+#: src/components/VaultSetup.tsx
+#: src/lib/vault/store.ts
+msgid "password must be at least 8 characters"
+msgstr "password must be at least 8 characters"
+
+#: src/components/VaultSetup.tsx
+msgid "passwords do not match"
+msgstr "passwords do not match"
+
+#: src/components/VaultSetup.tsx
+msgid "Paste a 12 or 24 word BIP39 phrase."
+msgstr "Paste a 12 or 24 word BIP39 phrase."
+
+#: src/components/AddSignerCard.tsx
+msgid "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
+msgstr "Paste a 12 or 24 word BIP39 phrase. Whitespace and case are normalised."
+
+#: src/components/AddSignerCard.tsx
+msgid "Paste a 64-character hex-encoded secp256k1 private key (32 bytes). 0x prefix is optional. The corresponding address is derived locally; nothing leaves your browser."
+msgstr "Paste a 64-character hex-encoded secp256k1 private key (32 bytes). 0x prefix is optional. The corresponding address is derived locally; nothing leaves your browser."
+
+#: src/components/VaultSetup.tsx
+msgid "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
+msgstr "Paste your existing 12 or 24 word BIP39 phrase. Words are space-separated; case and extra whitespace are normalised automatically."
+
+#: src/components/VaultSetup.tsx
+msgid "Paste your phrase"
+msgstr "Paste your phrase"
+
+#: src/components/VaultSetup.tsx
+msgid "Paste your phrase above."
+msgstr "Paste your phrase above."
+
+#. placeholder {0}: decCoinToFund(pendingRewardsNund)
+#: src/components/StakingActionModals.tsx
+msgid "Pending rewards: <0>{0}</0> FUND"
+msgstr "Pending rewards: <0>{0}</0> FUND"
+
+#: src/lib/msgs/presenters.ts
+msgid "Periods"
+msgstr "Periods"
+
+#: src/components/VaultSetup.tsx
+msgid "Pick a start"
+msgstr "Pick a start"
+
+#: src/components/AuthzActionModals.tsx
+msgid "picked"
+msgstr "picked"
+
+#. placeholder {0}: po.id.toString()
+#: src/components/Enterprise.tsx
+msgid "PO #{0}"
+msgstr "PO #{0}"
+
+#: src/components/DelegateModal.tsx
+msgid "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
+msgstr "Post-delegate balance will be below 0.06 FUND. Leave some FUND behind to cover future gas (claiming rewards, undelegating, etc.)."
+
+#: src/components/GasAccordion.tsx
+msgid "Price (nund/gas)"
+msgstr "Price (nund/gas)"
+
+#: src/components/GasAccordion.tsx
+msgid "Price preset:"
+msgstr "Price preset:"
+
+#: src/components/AddSignerCard.tsx
+msgid "Private key (hex)"
+msgstr "Private key (hex)"
+
+#: src/lib/vault/store.ts
+msgid "private key must be 64 hex characters (32 bytes); 0x prefix optional"
+msgstr "private key must be 64 hex characters (32 bytes); 0x prefix optional"
+
+#: src/lib/msgs/presenters.ts
+msgid "Processed eFUND purchase order"
+msgstr "Processed eFUND purchase order"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Proof of purchase / memo (max 100 chars)"
+msgstr "Proof of purchase / memo (max 100 chars)"
+
+#: src/lib/msgs/presenters.ts
+msgid "Proposal"
+msgstr "Proposal"
+
+#: src/components/ProposalList.tsx
+msgid "Proposals"
+msgstr "Proposals"
+
+#: src/components/ProposalDetail.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Proposer"
+msgstr "Proposer"
+
+#: src/components/StreamActionModals.tsx
+msgid "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
+msgstr "Pull the accrued amount from this stream into your wallet. Future accrual continues at the same rate until the deposit drains."
+
+#: src/components/Enterprise.tsx
+msgid "Purchase order history"
+msgstr "Purchase order history"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased"
+msgstr "Purchased"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased beacon storage"
+msgstr "Purchased beacon storage"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchased wrkchain storage"
+msgstr "Purchased wrkchain storage"
+
+#: src/lib/msgs/presenters.ts
+msgid "Purchaser"
+msgstr "Purchaser"
+
+#: src/components/ProposalDetail.tsx
+msgid "Quorum · In progress"
+msgstr "Quorum · In progress"
+
+#: src/components/Enterprise.tsx
+msgid "Raise a purchase order"
+msgstr "Raise a purchase order"
+
+#: src/components/Enterprise.tsx
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Raise PO"
+msgstr "Raise PO"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Raise purchase order"
+msgstr "Raise purchase order"
+
+#: src/components/Enterprise.tsx
+msgid "Raised"
+msgstr "Raised"
+
+#: src/lib/msgs/presenters.ts
+msgid "Raised eFUND purchase order"
+msgstr "Raised eFUND purchase order"
+
+#: src/components/Balances.tsx
+msgid "Raw amount — source chain's decimals not in registry; rendering integer."
+msgstr "Raw amount — source chain's decimals not in registry; rendering integer."
+
+#. placeholder {0}: account.index.toString()
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the private key for this account. It will be derived from the seed at HD index #{0}."
+msgstr "Re-enter your wallet password to reveal the private key for this account. It will be derived from the seed at HD index #{0}."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the private key."
+msgstr "Re-enter your wallet password to reveal the private key."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Re-enter your wallet password to reveal the seed phrase."
+msgstr "Re-enter your wallet password to reveal the seed phrase."
+
+#: src/components/Receive.tsx
+msgid "Receive"
+msgstr "Receive"
+
+#: src/components/IbcHistory.tsx
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Received"
+msgstr "Received"
+
+#: src/lib/msgs/presenters.ts
+msgid "Received (multi)"
+msgstr "Received (multi)"
+
+#. placeholder {0}: counterpart.data.chainPrettyName
+#. placeholder {1}: counterpart.data.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "Received on {0} · block {1}"
+msgstr "Received on {0} · block {1}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Received via IBC"
+msgstr "Received via IBC"
+
+#: src/lib/msgs/presenters.ts
+msgid "Receiver"
+msgstr "Receiver"
+
+#: src/components/Send.tsx
+#: src/components/SendIbc.tsx
+msgid "Recipient"
+msgstr "Recipient"
+
+#: src/components/StreamActionModals.tsx
+msgid "Recipient address"
+msgstr "Recipient address"
+
+#: src/components/SendIbc.tsx
+msgid "Recipient address (destination chain)"
+msgstr "Recipient address (destination chain)"
+
+#. placeholder {0}: source?.receiver ?? ''
+#: src/components/StreamActionModals.tsx
+msgid "Recipient: <0>{0}</0>"
+msgstr "Recipient: <0>{0}</0>"
+
+#: src/lib/msgs/presenters.ts
+msgid "Recorded beacon timestamp"
+msgstr "Recorded beacon timestamp"
+
+#: src/lib/msgs/presenters.ts
+msgid "Recorded wrkchain block"
+msgstr "Recorded wrkchain block"
+
+#: src/components/ActiveDelegations.tsx
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate"
+msgstr "Redelegate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate from {srcMoniker}"
+msgstr "Redelegate from {srcMoniker}"
+
+#: src/components/StakingActionModals.tsx
+msgid "Redelegate FUND from this validator to another. No unbonding period applies — the destination starts earning rewards immediately — but the destination is locked from further redelegation until the unbonding-period window passes."
+msgstr "Redelegate FUND from this validator to another. No unbonding period applies — the destination starts earning rewards immediately — but the destination is locked from further redelegation until the unbonding-period window passes."
+
+#: src/lib/msgs/presenters.ts
+msgid "Redelegated"
+msgstr "Redelegated"
+
+#: src/components/InFlightQueues.tsx
+msgid "Redelegating"
+msgstr "Redelegating"
+
+#: src/components/RefreshButton.tsx
+msgid "Refresh"
+msgstr "Refresh"
+
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Refunded"
+msgstr "Refunded"
+
+#: src/components/VaultSetup.tsx
+msgid "Regenerate"
+msgstr "Regenerate"
+
+#: src/lib/msgs/presenters.ts
+msgid "Registered beacon"
+msgstr "Registered beacon"
+
+#: src/lib/msgs/presenters.ts
+msgid "Registered wrkchain"
+msgstr "Registered wrkchain"
+
+#: src/components/Enterprise.tsx
+msgid "Reject"
+msgstr "Reject"
+
+#: src/components/Enterprise.tsx
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Rejected"
+msgstr "Rejected"
+
+#: src/lib/msgs/presenters.ts
+msgid "Rejected eFUND purchase order"
+msgstr "Rejected eFUND purchase order"
+
+#: src/components/StreamsList.tsx
+msgid "Remaining"
+msgstr "Remaining"
+
+#: src/lib/msgs/presenters.ts
+msgid "Remaining capacity"
+msgstr "Remaining capacity"
+
+#: src/components/StreamsList.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Remaining deposit"
+msgstr "Remaining deposit"
+
+#. placeholder {0}: nundToFund(remainingDeposit)
+#: src/components/StreamActionModals.tsx
+msgid "Remaining deposit: <0>{0}</0> {denomLabel}"
+msgstr "Remaining deposit: <0>{0}</0> {denomLabel}"
+
+#. placeholder {0}: monikerOf(valoper)
+#: src/components/AuthzActionModals.tsx
+msgid "Remove {0} from list"
+msgstr "Remove {0} from list"
+
+#: src/components/Settings.tsx
+msgid "Remove endpoint"
+msgstr "Remove endpoint"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename account"
+msgstr "Rename account"
+
+#. placeholder {0}: account.label
+#: src/components/VaultEntryManager.tsx
+msgid "Rename account {0}"
+msgstr "Rename account {0}"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename key"
+msgstr "Rename key"
+
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Rename key {0}"
+msgstr "Rename key {0}"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Rename seed"
+msgstr "Rename seed"
+
+#: src/components/GasAccordion.tsx
+msgid "Reset"
+msgstr "Reset"
+
+#: src/components/UnlockScreen.tsx
+msgid "Reset the wallet? This wipes the encrypted vault permanently."
+msgstr "Reset the wallet? This wipes the encrypted vault permanently."
+
+#: src/components/UnlockScreen.tsx
+msgid "Reset wallet"
+msgstr "Reset wallet"
+
+#: src/components/Balances.tsx
+msgid "resolving denom trace…"
+msgstr "resolving denom trace…"
+
+#: src/lib/chain.ts
+msgid "REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. ({inner})"
+msgstr "REST endpoint returned non-JSON — check the URL is a Cosmos REST gateway. ({inner})"
+
+#. placeholder {0}: nodeInfoRes.status
+#. placeholder {1}: nodeInfoRes.statusText
+#: src/lib/chain.ts
+msgid "REST node_info request failed: {0} {1}. Check the URL is a Cosmos REST gateway (not RPC)."
+msgstr "REST node_info request failed: {0} {1}. Check the URL is a Cosmos REST gateway (not RPC)."
+
+#: src/lib/chain.ts
+msgid "REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway."
+msgstr "REST response missing default_node_info.network — endpoint reachable but not a Cosmos SDK REST gateway."
+
+#: src/components/Settings.tsx
+msgid "REST URL"
+msgstr "REST URL"
+
+#: src/components/RevealSecretDialog.tsx
+msgid "Reveal"
+msgstr "Reveal"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal private key"
+msgstr "Reveal private key"
+
+#. placeholder {0}: account.label
+#. placeholder {0}: entry.label
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal private key for {0}"
+msgstr "Reveal private key for {0}"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Reveal seed phrase"
+msgstr "Reveal seed phrase"
+
+#: src/components/Send.tsx
+msgid "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
+msgstr "Review the details below. Once confirmed the Tx broadcasts immediately and cannot be cancelled."
+
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+msgid "Revoke"
+msgstr "Revoke"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Revoke authorisation"
+msgstr "Revoke authorisation"
+
+#: src/lib/msgs/presenters.ts
+msgid "Revoked authz"
+msgstr "Revoked authz"
+
+#: src/lib/msgs/presenters.ts
+msgid "Revoked fee allowance"
+msgstr "Revoked fee allowance"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Revoking stops the grantee from acting on your behalf for this message type. Your stake itself (delegations, rewards) is unaffected."
+msgstr "Revoking stops the grantee from acting on your behalf for this message type. Your stake itself (delegations, rewards) is unaffected."
+
+#: src/components/Settings.tsx
+msgid "RPC URL"
+msgstr "RPC URL"
+
+#: src/components/Enterprise.tsx
+msgid "Running tally of eFUND consumed on chain fees since this account was first whitelisted."
+msgstr "Running tally of eFUND consumed on chain fees since this account was first whitelisted."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Save"
+msgstr "Save"
+
+#: src/components/Settings.tsx
+msgid "Save endpoint"
+msgstr "Save endpoint"
+
+#: src/components/StreamLabel.tsx
+msgid "Save label"
+msgstr "Save label"
+
+#: src/components/AddSignerCard.tsx
+msgid "Save seed"
+msgstr "Save seed"
+
+#: src/components/VaultSetup.tsx
+msgid "Save your seed"
+msgstr "Save your seed"
+
+#: src/components/AddSignerCard.tsx
+msgid "Saving…"
+msgstr "Saving…"
+
+#: src/lib/msgs/presenters.ts
+msgid "Scheduled upgrade"
+msgstr "Scheduled upgrade"
+
+#: src/App.tsx
+msgid "Scroll tabs left"
+msgstr "Scroll tabs left"
+
+#: src/App.tsx
+msgid "Scroll tabs right"
+msgstr "Scroll tabs right"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Search by moniker or undvaloper1…"
+msgstr "Search by moniker or undvaloper1…"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Search validators by moniker or operator address"
+msgstr "Search validators by moniker or operator address"
+
+#: src/components/Validators.tsx
+msgid "Security contact"
+msgstr "Security contact"
+
+#. placeholder {0}: ref.seedId
+#: src/lib/signer.ts
+msgid "seed {0} not found in vault"
+msgstr "seed {0} not found in vault"
+
+#: src/lib/vault/store.ts
+msgid "seed {seedId} not found"
+msgstr "seed {seedId} not found"
+
+#: src/components/VaultSetup.tsx
+msgid "Seed phrase"
+msgstr "Seed phrase"
+
+#: src/components/AddSignerCard.tsx
+msgid "Seed phrase length"
+msgstr "Seed phrase length"
+
+#: src/components/VaultSetup.tsx
+msgid "Seed strength"
+msgstr "Seed strength"
+
+#: src/components/AddSignerCard.tsx
+msgid "Select a v1 `.json` keystore file and enter its password. Decryption happens locally; nothing leaves your browser."
+msgstr "Select a v1 `.json` keystore file and enter its password. Decryption happens locally; nothing leaves your browser."
+
+#: src/components/VaultSetup.tsx
+msgid "Select your v1 `.json` keystore file and enter its password. The file will be decrypted locally — nothing leaves your browser."
+msgstr "Select your v1 `.json` keystore file and enter its password. The file will be decrypted locally — nothing leaves your browser."
+
+#: src/lib/msgs/presenters.ts
+msgid "Self-bond"
+msgstr "Self-bond"
+
+#: src/components/AuthzPanel.tsx
+#: src/components/Send.tsx
+msgid "Send"
+msgstr "Send"
+
+#: src/components/SendIbc.tsx
+msgid "Send a token to an IBC-connected chain. The destination list is discovered from this chain's open IBC channels at runtime — no hardcoded chain list, no third-party services."
+msgstr "Send a token to an IBC-connected chain. The destination list is discovered from this chain's open IBC channels at runtime — no hardcoded chain list, no third-party services."
+
+#: src/components/SendIbc.tsx
+msgid "Send via IBC"
+msgstr "Send via IBC"
+
+#: src/lib/msgs/presenters.ts
+msgid "Sender"
+msgstr "Sender"
+
+#. placeholder {0}: source?.sender ?? ''
+#: src/components/StreamActionModals.tsx
+msgid "Sender: <0>{0}</0>"
+msgstr "Sender: <0>{0}</0>"
+
+#: src/components/TxRow.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Sent"
+msgstr "Sent"
+
+#: src/lib/msgs/presenters.ts
+msgid "Sent (multi)"
+msgstr "Sent (multi)"
+
+#. placeholder {0}: counterpart.data.chainPrettyName
+#. placeholder {1}: counterpart.data.height.toLocaleString()
+#: src/components/IbcHistory.tsx
+msgid "Sent from {0} · block {1}"
+msgstr "Sent from {0} · block {1}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Sent via IBC"
+msgstr "Sent via IBC"
+
+#: src/components/Send.tsx
+msgid "Sent! Tx: <0>{txHash}</0>"
+msgstr "Sent! Tx: <0>{txHash}</0>"
+
+#: src/components/VaultSetup.tsx
+msgid "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
+msgstr "Set a password to encrypt your vault (PBKDF2 + AES-GCM with random salt + IV). There's no recovery — write it down somewhere safe."
+
+#: src/components/GasAccordion.tsx
+msgid "Set gas to estimate × 1.4 safety margin"
+msgstr "Set gas to estimate × 1.4 safety margin"
+
+#: src/lib/msgs/presenters.ts
+msgid "Set withdraw address"
+msgstr "Set withdraw address"
+
+#: src/components/Header.tsx
+#: src/components/Settings.tsx
+msgid "Settings"
+msgstr "Settings"
+
+#: src/components/Receive.tsx
+msgid "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+msgstr "Share this address or scan the QR code to receive FUND. Anyone with the address can send to it; the private key never leaves your vault."
+
+#: src/components/Validators.tsx
+msgid "Show details"
+msgstr "Show details"
+
+#: src/components/TxHistory.tsx
+msgid "Showing txs indexed by this RPC. Public nodes typically prune older entries from the tx index — for full history, see your account on a block explorer."
+msgstr "Showing txs indexed by this RPC. Public nodes typically prune older entries from the tx index — for full history, see your account on a block explorer."
+
+#: src/lib/msgs/presenters.ts
+msgid "Signer"
+msgstr "Signer"
+
+#: src/components/Enterprise.tsx
+msgid "Signer decisions"
+msgstr "Signer decisions"
+
+#. placeholder {0}: simulated.toString()
+#. placeholder {1}: recommendedGas(simulated).toString()
+#: src/components/GasAccordion.tsx
+msgid "Simulated gas: <0>{0}</0> · recommended (×1.4): <1>{1}</1>"
+msgstr "Simulated gas: <0>{0}</0> · recommended (×1.4): <1>{1}</1>"
+
+#: src/components/GasAccordion.tsx
+msgid "simulation failed — the chain rejected the dry-run"
+msgstr "simulation failed — the chain rejected the dry-run"
+
+#. placeholder {0}: tiers.low.toString()
+#: src/components/GasAccordion.tsx
+msgid "Slow ({0})"
+msgstr "Slow ({0})"
+
+#: src/components/SendIbc.tsx
+msgid "Source chain's decimals aren't in the registry — enter the amount as a raw chain-side integer."
+msgstr "Source chain's decimals aren't in the registry — enter the amount as a raw chain-side integer."
+
+#: src/components/AuthzActionModals.tsx
+msgid "Spend cap (FUND, optional)"
+msgstr "Spend cap (FUND, optional)"
+
+#: src/components/Enterprise.tsx
+msgid "Spent eFUND"
+msgstr "Spent eFUND"
+
+#: src/lib/msgs/presenters.ts
+msgid "Splits"
+msgstr "Splits"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Stake"
+msgstr "Stake"
+
+#: src/components/Validators.tsx
+msgid "staked"
+msgstr "staked"
+
+#: src/App.tsx
+msgid "Staking"
+msgstr "Staking"
+
+#: src/components/VaultSetup.tsx
+msgid "standard"
+msgstr "standard"
+
+#: src/components/StakingActionModals.tsx
+msgid "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
+msgstr "Starts a chain-defined unbonding period (typically 21 days on MainNet) before the undelegated FUND becomes spendable. During unbonding the amount stops earning rewards."
+
+#. placeholder {0}: step.toString()
+#. placeholder {1}: total.toString()
+#: src/components/VaultSetup.tsx
+msgid "Step {0} / {1}"
+msgstr "Step {0} / {1}"
+
+#: src/lib/vault/storage.ts
+msgid "stored vault is not valid JSON (corrupted storage)"
+msgstr "stored vault is not valid JSON (corrupted storage)"
+
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
+msgid "Stream history"
+msgstr "Stream history"
+
+#: src/components/StreamsList.tsx
+msgid "Stream is non-cancellable (eFUND-backed)."
+msgstr "Stream is non-cancellable (eFUND-backed)."
+
+#: src/components/StreamLabel.tsx
+msgid "Stream label"
+msgstr "Stream label"
+
+#: src/components/StreamsList.tsx
+msgid "Stream was cancelled at this block."
+msgstr "Stream was cancelled at this block."
+
+#: src/components/StreamsList.tsx
+msgid "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."
+msgstr "Streamed to receiver since last claim — ticks live until they claim or the deposit drains."
+
+#: src/App.tsx
+msgid "Streams"
+msgstr "Streams"
+
+#: src/components/VaultSetup.tsx
+msgid "Strength"
+msgstr "Strength"
+
+#: src/components/VoteModal.tsx
+msgid "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
+msgstr "Strong rejection — if more than 33.4% veto, proposal is rejected and deposit burned"
+
+#: src/components/VaultSetup.tsx
+msgid "stronger"
+msgstr "stronger"
+
+#: src/components/RaisePurchaseOrderModal.tsx
+msgid "Submit a PO for the enterprise admin to process. On acceptance the chain mints the equivalent in eFUND into your enterprise account — locked-balance that can pay chain fees but cannot be transferred."
+msgstr "Submit a PO for the enterprise admin to process. On acceptance the chain mints the equivalent in eFUND into your enterprise account — locked-balance that can pay chain fees but cannot be transferred."
+
+#: src/lib/msgs/presenters.ts
+msgid "Submit time"
+msgstr "Submit time"
+
+#: src/components/ProposalDetail.tsx
+msgid "Submitted"
+msgstr "Submitted"
+
+#: src/lib/msgs/presenters.ts
+msgid "Submitted evidence"
+msgstr "Submitted evidence"
+
+#: src/lib/msgs/presenters.ts
+msgid "Submitted proposal"
+msgstr "Submitted proposal"
+
+#. placeholder {0}: endpoint.txExplorerBase ? ( <a href={txExplorerUrl(endpoint, txHash) ?? '#'} target="_blank" rel="noreferrer noopener" className="font-mono underline-offset-2 hover:underline" > {txHash} </a> ) : ( <span className="font-mono">{txHash}</span> )
+#: src/components/SendIbc.tsx
+msgid "Submitted! Tx: {0}"
+msgstr "Submitted! Tx: {0}"
+
+#: src/components/TxModal.tsx
+msgid "Submitted! Tx: <0>{txHash}</0>"
+msgstr "Submitted! Tx: <0>{txHash}</0>"
+
+#: src/lib/msgs/presenters.ts
+msgid "Submitter"
+msgstr "Submitter"
+
+#: src/components/Enterprise.tsx
+msgid "Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees."
+msgstr "Sum of locked eFUND and your regular FUND — the maximum you could spend on BEACON / WRKCHAIN / stream fees."
+
+#: src/components/AccountSwitcher.tsx
+msgid "Switch between accounts derived from your seeds or imported keys."
+msgstr "Switch between accounts derived from your seeds or imported keys."
+
+#: src/components/AppearanceSettings.tsx
+msgid "System"
+msgstr "System"
+
+#: src/components/ProposalDetail.tsx
+msgid "Tally"
+msgstr "Tally"
+
+#: src/components/Settings.tsx
+msgid "Test connection"
+msgstr "Test connection"
+
+#: src/components/Settings.tsx
+msgid "Testing…"
+msgstr "Testing…"
+
+#: src/components/VaultEntryManager.tsx
+msgid "The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable."
+msgstr "The private key is NOT stored elsewhere. If you do not have a backup of the original v1 JSON file (or an export), funds at this address will be unrecoverable."
+
+#: src/components/VaultEntryManager.tsx
+msgid "The private key will be removed from the vault."
+msgstr "The private key will be removed from the vault."
+
+#: src/components/VaultEntryManager.tsx
+msgid "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
+msgstr "The seed mnemonic is NOT stored elsewhere. If you do not have it written down, the funds in any derived account will be unrecoverable."
+
+#: src/components/AppearanceSettings.tsx
+msgid "Theme"
+msgstr "Theme"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Theme mode"
+msgstr "Theme mode"
+
+#: src/components/AppearanceSettings.tsx
+msgid "Theme palette"
+msgstr "Theme palette"
+
+#: src/components/UnlockScreen.tsx
+msgid "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
+msgstr "There's no password recovery — vaults are encrypted with PBKDF2 + AES-GCM. If you've lost the password, the only path is to reset the wallet and re-import from your seed phrase or v1 keystore file. Resetting wipes the encrypted vault."
+
+#: src/components/Enterprise.tsx
+msgid "This account is whitelisted to raise enterprise POs."
+msgstr "This account is whitelisted to raise enterprise POs."
+
+#: src/components/Enterprise.tsx
+msgid "This account isn't on the enterprise whitelist. POs can only be raised by approved enterprise members. Contact an administrator to be added."
+msgstr "This account isn't on the enterprise whitelist. POs can only be raised by approved enterprise members. Contact an administrator to be added."
+
+#. placeholder {0}: match.containerLabel
+#. placeholder {1}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/components/AddSignerCard.tsx
+msgid "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
+msgstr "This address is already in your vault as <0>{0}{1}</0>. Importing again will create a duplicate entry pointing at the same address — you can still proceed if you want to (e.g. to expose more accounts derived from a seed)."
+
+#. placeholder {0}: match.containerLabel
+#. placeholder {1}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This private key's address ({address}) already exists in your vault as {0}{1}. Delete it first if you want to re-import."
+msgstr "This private key's address ({address}) already exists in your vault as {0}{1}. Delete it first if you want to re-import."
+
+#. placeholder {0}: account0.address
+#. placeholder {1}: match.containerLabel
+#. placeholder {2}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+msgstr "This seed's first account ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+
+#: src/components/SendIbc.tsx
+msgid "This sends a token across IBC. The Tx lands on this chain immediately; the relay packet typically arrives at the destination within seconds-to-minutes. If no relayer picks it up before the timeout, the funds refund automatically."
+msgstr "This sends a token across IBC. The Tx lands on this chain immediately; the relay packet typically arrives at the destination within seconds-to-minutes. If no relayer picks it up before the timeout, the funds refund automatically."
+
+#: src/components/StreamActionModals.tsx
+msgid "This stream is non-cancellable (chain-enforced — typically because it's funded by eFUND)."
+msgstr "This stream is non-cancellable (chain-enforced — typically because it's funded by eFUND)."
+
+#. placeholder {0}: decrypted.address
+#. placeholder {1}: match.containerLabel
+#. placeholder {2}: match.accountLabel ? ` / ${match.accountLabel}` : ''
+#: src/lib/vault/store.ts
+msgid "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+msgstr "This v1 keystore's address ({0}) already exists in your vault as {1}{2}. Delete it first if you want to re-import."
+
+#: src/components/IbcHistory.tsx
+msgid "Timed out"
+msgstr "Timed out"
+
+#: src/lib/msgs/presenters.ts
+msgid "Timestamp ID"
+msgstr "Timestamp ID"
+
+#: src/lib/msgs/presenters.ts
+msgid "Title"
+msgstr "Title"
+
+#: src/components/IbcHistory.tsx
+#: src/components/Send.tsx
+#: src/components/StreamsList.tsx
+#: src/lib/msgs/presenters.ts
+msgid "To"
+msgstr "To"
+
+#. placeholder {0}: decoded.allowList.length
+#: src/components/AuthzPanel.tsx
+msgid "to {0} allow-listed address(es)"
+msgstr "to {0} allow-listed address(es)"
+
+#: src/components/AuthzPanel.tsx
+msgid "to any recipient"
+msgstr "to any recipient"
+
+#: src/lib/msgs/presenters.ts
+msgid "To validator"
+msgstr "To validator"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamHistoryPanel.tsx
+#: src/components/StreamsList.tsx
+msgid "Top up"
+msgstr "Top up"
+
+#: src/components/StreamActionModals.tsx
+msgid "Top up stream deposit"
+msgstr "Top up stream deposit"
+
+#: src/lib/msgs/presenters.ts
+msgid "Topped up stream deposit"
+msgstr "Topped up stream deposit"
+
+#. placeholder {0}: nundToFund(total.toString())
+#: src/components/ProposalDetail.tsx
+msgid "Total <0>{0}</0> FUND"
+msgstr "Total <0>{0}</0> FUND"
+
+#: src/lib/msgs/presenters.ts
+msgid "Total claimed"
+msgstr "Total claimed"
+
+#: src/lib/msgs/presenters.ts
+msgid "Total moved"
+msgstr "Total moved"
+
+#. placeholder {0}: decCoinToFund(totalRewardsNund)
+#: src/components/ActiveDelegations.tsx
+msgid "Total pending across all delegations: <0>{0}</0> FUND"
+msgstr "Total pending across all delegations: <0>{0}</0> FUND"
+
+#: src/components/Enterprise.tsx
+msgid "Total spendable on fees"
+msgstr "Total spendable on fees"
+
+#. placeholder {0}: result.code.toString()
+#. placeholder {1}: result.rawLog ?? i18n._(msg`unknown error`)
+#: src/lib/useSubmitTx.ts
+msgid "transaction rejected (code={0}): {1}"
+msgstr "transaction rejected (code={0}): {1}"
+
+#: src/components/AddSignerCard.tsx
+msgid "Treat the source of this key with the same care as a seed phrase. Anyone with this hex string can spend funds at the derived address."
+msgstr "Treat the source of this key with the same care as a seed phrase. Anyone with this hex string can spend funds at the derived address."
+
+#: src/components/ProposalDetail.tsx
+msgid "Type"
+msgstr "Type"
+
+#: src/components/InFlightQueues.tsx
+msgid "Unbonding"
+msgstr "Unbonding"
+
+#: src/components/AuthzActionModals.tsx
+#: src/components/Send.tsx
+msgid "und1…"
+msgstr "und1…"
+
+#: src/components/ActiveDelegations.tsx
+#: src/components/AuthzActionModals.tsx
+#: src/components/AuthzPanel.tsx
+#: src/components/StakingActionModals.tsx
+msgid "Undelegate"
+msgstr "Undelegate"
+
+#: src/components/StakingActionModals.tsx
+msgid "Undelegate from {moniker}"
+msgstr "Undelegate from {moniker}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Undelegated"
+msgstr "Undelegated"
+
+#: src/components/Header.tsx
+#: src/components/UnlockScreen.tsx
+msgid "Unification Wallet"
+msgstr "Unification Wallet"
+
+#: src/lib/msgs/presenters.ts
+msgid "Unjailed validator"
+msgstr "Unjailed validator"
+
+#: src/components/Enterprise.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Unknown"
+msgstr "Unknown"
+
+#. placeholder {0}: decoded.typeUrl
+#: src/components/AuthzPanel.tsx
+msgid "Unknown authorisation type: <0>{0}</0>"
+msgstr "Unknown authorisation type: <0>{0}</0>"
+
+#: src/lib/useSubmitTx.ts
+msgid "unknown error"
+msgstr "unknown error"
+
+#: src/components/UnlockScreen.tsx
+msgid "Unlock"
+msgstr "Unlock"
+
+#: src/components/Send.tsx
+msgid "Unlock the vault and select an account to send."
+msgstr "Unlock the vault and select an account to send."
+
+#: src/components/GasAccordion.tsx
+msgid "unlock the vault first"
+msgstr "unlock the vault first"
+
+#: src/components/UnlockScreen.tsx
+msgid "Unlocking…"
+msgstr "Unlocking…"
+
+#. placeholder {0}: c.cipher
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore cipher: {0}"
+msgstr "unsupported v1 keystore cipher: {0}"
+
+#. placeholder {0}: c.kdf
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore KDF: {0}"
+msgstr "unsupported v1 keystore KDF: {0}"
+
+#. placeholder {0}: c.kdfparams.prf
+#: src/lib/vault/v1-keystore.ts
+msgid "unsupported v1 keystore PRF: {0}"
+msgstr "unsupported v1 keystore PRF: {0}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Unwhitelisted address"
+msgstr "Unwhitelisted address"
+
+#. placeholder {0}: nundToFund(decoded.maxTokens.amount)
+#: src/components/AuthzPanel.tsx
+msgid "up to <0>{0}</0> FUND"
+msgstr "up to <0>{0}</0> FUND"
+
+#: src/components/StreamActionModals.tsx
+#: src/components/StreamsList.tsx
+msgid "Update"
+msgstr "Update"
+
+#: src/components/StreamActionModals.tsx
+msgid "Update flow rate"
+msgstr "Update flow rate"
+
+#: src/lib/msgs/presenters.ts
+msgid "Updated address whitelist"
+msgstr "Updated address whitelist"
+
+#: src/lib/msgs/presenters.ts
+msgid "Updated stream flow rate"
+msgstr "Updated stream flow rate"
+
+#. placeholder {0}: destinationChain?.pretty_name ?? selectedChannelInfo.counterpartyChainId
+#: src/components/SendIbc.tsx
+msgid "Use a <0>{expectedPrefix}1…</0> address ({0})."
+msgstr "Use a <0>{expectedPrefix}1…</0> address ({0})."
+
+#. placeholder {0}: selectedChannelInfo.counterpartyChainId
+#: src/components/SendIbc.tsx
+msgid "Use a bech32 address valid on <0>{0}</0>. Wrong-prefix addresses are rejected on broadcast."
+msgstr "Use a bech32 address valid on <0>{0}</0>. Wrong-prefix addresses are rejected on broadcast."
+
+#: src/components/AddSignerCard.tsx
+msgid "v1 keystore file"
+msgstr "v1 keystore file"
+
+#: src/lib/vault/v1-keystore.ts
+msgid "v1 keystore MAC check failed — wrong password or corrupted file"
+msgstr "v1 keystore MAC check failed — wrong password or corrupted file"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "v1 keystore password"
+msgstr "v1 keystore password"
+
+#: src/components/VaultSetup.tsx
+msgid "v1 ok"
+msgstr "v1 ok"
+
+#: src/components/DelegateModal.tsx
+#: src/lib/msgs/presenters.ts
+msgid "Validator"
+msgstr "Validator"
+
+#: src/lib/msgs/presenters.ts
+msgid "Validator fee"
+msgstr "Validator fee"
+
+#: src/components/AuthzActionModals.tsx
+msgid "Validator scope"
+msgstr "Validator scope"
+
+#: src/components/Validators.tsx
+msgid "Validators"
+msgstr "Validators"
+
+#: src/components/VaultEntryManager.tsx
+msgid "Vault entries"
+msgstr "Vault entries"
+
+#: src/lib/vault/store.ts
+msgid "vault is already unlocked"
+msgstr "vault is already unlocked"
+
+#: src/lib/vault/store.ts
+msgid "vault is locked"
+msgstr "vault is locked"
+
+#: src/components/UnlockScreen.tsx
+msgid "Vault locked"
+msgstr "Vault locked"
+
+#: src/lib/vault/crypto.ts
+msgid "vault plaintext is not valid JSON (corrupted)"
+msgstr "vault plaintext is not valid JSON (corrupted)"
+
+#: src/components/Settings.tsx
+msgid "Verifying…"
+msgstr "Verifying…"
+
+#: src/lib/msgs/presenters.ts
+msgid "VETO"
+msgstr "VETO"
+
+#: src/components/Validators.tsx
+msgid "via Keybase"
+msgstr "via Keybase"
+
+#. placeholder {0}: proposal?.id.toString() ?? ''
+#: src/components/VoteModal.tsx
+msgid "Vote on proposal #{0}"
+msgstr "Vote on proposal #{0}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Voted (weighted)"
+msgstr "Voted (weighted)"
+
+#. placeholder {0}: voteOptionLabelV1(m.option)
+#. placeholder {0}: voteOptionLabelV1Beta1(m.option)
+#: src/lib/msgs/presenters.ts
+msgid "Voted {0}"
+msgstr "Voted {0}"
+
+#: src/components/ProposalList.tsx
+#: src/components/ProposalStatusBadge.tsx
+msgid "Voting"
+msgstr "Voting"
+
+#: src/components/ProposalDetail.tsx
+msgid "Voting ends"
+msgstr "Voting ends"
+
+#. placeholder {0}: votingEndRel.label
+#: src/components/ProposalList.tsx
+msgid "voting ends {0}"
+msgstr "voting ends {0}"
+
+#: src/components/ProposalDetail.tsx
+msgid "Voting is closed for this proposal."
+msgstr "Voting is closed for this proposal."
+
+#: src/App.tsx
+#: src/components/Header.tsx
+msgid "Wallet"
+msgstr "Wallet"
+
+#: src/components/Validators.tsx
+msgid "Website"
+msgstr "Website"
+
+#: src/components/Validators.tsx
+msgid "Website URL has unsafe scheme; rendered as plain text"
+msgstr "Website URL has unsafe scheme; rendered as plain text"
+
+#: src/components/Settings.tsx
+msgid "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
+msgstr "When set, tx hashes in the wallet become clickable links built by appending the upper-case hash to this URL."
+
+#: src/lib/msgs/presenters.ts
+msgid "Whitelisted address"
+msgstr "Whitelisted address"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw"
+msgstr "Withdraw"
+
+#: src/lib/msgs/presenters.ts
+msgid "Withdraw address"
+msgstr "Withdraw address"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all"
+msgstr "Withdraw all"
+
+#. placeholder {0}: decCoinToFund(totalRewardsNund)
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all (~{0} FUND)"
+msgstr "Withdraw all (~{0} FUND)"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Withdraw all rewards"
+msgstr "Withdraw all rewards"
+
+#: src/components/StakingActionModals.tsx
+msgid "Withdraw rewards"
+msgstr "Withdraw rewards"
+
+#: src/components/StakingActionModals.tsx
+msgid "Withdraw rewards from {moniker}"
+msgstr "Withdraw rewards from {moniker}"
+
+#: src/lib/msgs/presenters.ts
+msgid "Withdrew commission"
+msgstr "Withdrew commission"
+
+#: src/lib/msgs/presenters.ts
+msgid "Withdrew rewards"
+msgstr "Withdrew rewards"
+
+#. placeholder {0}: n.toString()
+#: src/components/VaultSetup.tsx
+msgid "Word count: {0}"
+msgstr "Word count: {0}"
+
+#: src/components/AddSignerCard.tsx
+#: src/components/VaultSetup.tsx
+msgid "word1 word2 word3 …"
+msgstr "word1 word2 word3 …"
+
+#. placeholder {0}: seedSize === 128 ? '12' : '24'
+#: src/components/VaultSetup.tsx
+msgid "Write down these {0} words in order. They're the only way to recover your wallet if you lose your password or device."
+msgstr "Write down these {0} words in order. They're the only way to recover your wallet if you lose your password or device."
+
+#: src/components/VaultEntryManager.tsx
+msgid "Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed."
+msgstr "Write these words down somewhere safe. Anyone with this phrase can spend funds at any account derived from this seed."
+
+#: src/components/AddSignerCard.tsx
+msgid "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
+msgstr "Write these words down somewhere safe. They are the only way to recover the funds in any account derived from this seed."
+
+#: src/lib/msgs/presenters.ts
+msgid "WrkChain ID"
+msgstr "WrkChain ID"
+
+#: src/components/RevealSecretDialog.tsx
+#: src/lib/vault/store.ts
+msgid "wrong password"
+msgstr "wrong password"
+
+#: src/lib/vault/crypto.ts
+msgid "wrong password or corrupted vault"
+msgstr "wrong password or corrupted vault"
+
+#: src/components/ProposalDetail.tsx
+#: src/components/VoteModal.tsx
+msgid "Yes"
+msgstr "Yes"
+
+#: src/lib/msgs/presenters.ts
+msgid "YES"
+msgstr "YES"
+
+#: src/components/ProposalDetail.tsx
+msgid "You haven't voted on this proposal yet."
+msgstr "You haven't voted on this proposal yet."
+
+#: src/components/ProposalDetail.tsx
+msgid "You voted <0><1/></0>"
+msgstr "You voted <0><1/></0>"
+
+#: src/components/VoteModal.tsx
+msgid "Your choice"
+msgstr "Your choice"
+
+#: src/components/ActiveDelegations.tsx
+msgid "Your delegations"
+msgstr "Your delegations"
+
+#: src/components/ProposalDetail.tsx
+msgid "Your vote"
+msgstr "Your vote"

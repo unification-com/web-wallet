@@ -1,0 +1,444 @@
+import { Trans, useLingui } from '@lingui/react/macro'
+import { Plus } from 'lucide-react'
+import { useState } from 'react'
+
+import { RefreshButton } from '@/components/RefreshButton'
+import {
+  CancelStreamModal,
+  ClaimStreamModal,
+  CreateStreamModal,
+  TopUpStreamModal,
+  UpdateFlowRateModal,
+} from '@/components/StreamActionModals'
+import { StreamHistoryPanel } from '@/components/StreamHistoryPanel'
+import { StreamLabel } from '@/components/StreamLabel'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { nundToFund } from '@/lib/msgs/send'
+import { useActiveSigner } from '@/lib/signer'
+import {
+  claimableNow,
+  depositRemainingMs,
+  formatFlowRate,
+  sortStreams,
+  streamDenom,
+  useCancelledStreams,
+  useIncomingStreams,
+  useOutgoingStreams,
+  type CancelledStream,
+  type StreamResult,
+} from '@/lib/stream'
+import { formatRelativeDeadline, useTickingNow } from '@/lib/time'
+
+/**
+ * Format a stream's deposit-zero countdown. Past-due streams show a
+ * destructive-coloured terminal label rather than a stale "X days ago"
+ * because the chain caps outflow at the deposit total — the stream
+ * stopped paying out at depositZeroTime, no matter how long ago that was.
+ *
+ * The terminal label is side-specific: receivers see `complete` (the chain
+ * has nothing further to pay them); senders see `drained` (the deposit they
+ * funded has been fully consumed). Two different framings of the same
+ * on-chain state — receiver gets the positive frame, sender the depletion
+ * frame.
+ */
+function depositCountdown(
+  s: StreamResult,
+  now: Date,
+  side: 'incoming' | 'outgoing',
+): { label: string; drained: boolean } {
+  const remaining = depositRemainingMs(s.stream)
+  if (remaining === null) return { label: '—', drained: false }
+  if (remaining <= 0) {
+    return { label: side === 'incoming' ? 'complete' : 'drained', drained: true }
+  }
+  const target = s.stream?.depositZeroTime
+  if (!target) return { label: '—', drained: false }
+  return { label: formatRelativeDeadline(target, now).label, drained: false }
+}
+
+/**
+ * Stream monitor + action surface. Renders two cards — Incoming (active
+ * account is receiver) and Outgoing (active account is sender) — with
+ * per-row Claim / Top up / Update / Cancel actions, plus a Create button
+ * in the Outgoing card header. All five actions broadcast via the shared
+ * `<TxModal />` shell.
+ */
+export function StreamsList() {
+  const { address } = useActiveSigner()
+  const incoming = useIncomingStreams(address)
+  const outgoing = useOutgoingStreams(address)
+  const cancelled = useCancelledStreams(address)
+  const now = useTickingNow(1_000)
+  const { t } = useLingui()
+
+  const [claimTarget, setClaimTarget] = useState<{
+    source: StreamResult
+    claimableNund: string
+  } | null>(null)
+  const [topUpTarget, setTopUpTarget] = useState<StreamResult | null>(null)
+  const [updateTarget, setUpdateTarget] = useState<StreamResult | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<StreamResult | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+
+  if (!address) return null
+
+  const incomingStreams = sortStreams(incoming.data ?? [])
+  const outgoingStreams = sortStreams(outgoing.data ?? [])
+
+  // Subtract any (sender, receiver, denom) triple that has a currently-active
+  // stream — re-creating a cancelled stream moves it back to active.
+  const activeKeys = new Set<string>()
+  for (const s of incomingStreams) activeKeys.add(`${s.sender}:${s.receiver}:${streamDenom(s)}`)
+  for (const s of outgoingStreams) activeKeys.add(`${s.sender}:${s.receiver}:${streamDenom(s)}`)
+  const cancelledStreams: CancelledStream[] = (cancelled.data ?? []).filter(
+    (c) => !activeKeys.has(`${c.sender}:${c.receiver}:${c.denom}`),
+  )
+
+  return (
+    <>
+      <div className="flex flex-col gap-3">
+        <Card>
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+            <CardTitle className="text-sm">
+              <Trans>Incoming streams</Trans>
+            </CardTitle>
+            <RefreshButton queryKeys={[['stream', 'incoming']]} />
+          </CardHeader>
+          <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+            {incoming.isLoading && (
+              <p className="text-muted-foreground">
+                <Trans>Loading streams…</Trans>
+              </p>
+            )}
+            {!incoming.isLoading && incomingStreams.length === 0 && (
+              <p className="text-muted-foreground italic">
+                <Trans>No incoming streams.</Trans>
+              </p>
+            )}
+            <ul className="flex flex-col gap-2">
+              {incomingStreams.map((s) => {
+                const flow = s.stream ? formatFlowRate(s.stream.flowRate) : null
+                const claimableNund = claimableNow(s.stream)
+                const claim = nundToFund(claimableNund.toString())
+                const deposit = s.stream?.deposit.amount ?? '0'
+                const cd = depositCountdown(s, now, 'incoming')
+                const denom = streamDenom(s)
+                const denomLabel = denom === 'nund' ? 'FUND' : denom
+                return (
+                  <li
+                    key={`${s.sender}-${denom}`}
+                    className="flex flex-col gap-1 rounded border border-border p-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex flex-col min-w-0 gap-0.5">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>From</Trans>
+                        </span>
+                        <StreamLabel
+                          sender={s.sender}
+                          receiver={address}
+                          denom={denom}
+                          counterparty={s.sender}
+                        />
+                      </span>
+                      <span className="flex flex-col items-end tabular-nums">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>Claimable</Trans>
+                        </span>
+                        <span className="font-mono font-medium text-success">
+                          {claim} {denomLabel}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-mono">
+                      <span title={t`Flow rate`}>
+                        {flow ? `${flow.amountFund} / ${flow.period}` : '—'}
+                      </span>
+                      <span title={t`Remaining deposit`}>
+                        {nundToFund(deposit)} {denomLabel}
+                      </span>
+                      <span
+                        className={cd.drained ? 'text-destructive' : undefined}
+                        title={t`Deposit drains`}
+                      >
+                        {cd.label}
+                      </span>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        disabled={claimableNund === 0n}
+                        onClick={() =>
+                          setClaimTarget({ source: s, claimableNund: claimableNund.toString() })
+                        }
+                        title={
+                          claimableNund === 0n
+                            ? t`Nothing claimable yet — wait for accrual.`
+                            : undefined
+                        }
+                      >
+                        <Trans>Claim</Trans>
+                      </Button>
+                    </div>
+                    <StreamHistoryPanel sender={s.sender} receiver={address} />
+                  </li>
+                )
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+            <CardTitle className="text-sm">
+              <Trans>Outgoing streams</Trans>
+            </CardTitle>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="h-3 w-3 mr-1" aria-hidden />
+                <Trans>Create</Trans>
+              </Button>
+              <RefreshButton queryKeys={[['stream', 'outgoing']]} />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+            {outgoing.isLoading && (
+              <p className="text-muted-foreground">
+                <Trans>Loading streams…</Trans>
+              </p>
+            )}
+            {!outgoing.isLoading && outgoingStreams.length === 0 && (
+              <p className="text-muted-foreground italic">
+                <Trans>No outgoing streams. Use Create to open one.</Trans>
+              </p>
+            )}
+            <ul className="flex flex-col gap-2">
+              {outgoingStreams.map((s) => {
+                const flow = s.stream ? formatFlowRate(s.stream.flowRate) : null
+                const deposit = s.stream?.deposit.amount ?? '0'
+                // Live "flowing" amount = what's accrued for the receiver since
+                // last claim, ticking up as time passes. Mirror of the incoming
+                // row's Claimable. Capped at deposit (chain enforces).
+                const pending = claimableNow(s.stream)
+                const pendingFund = nundToFund(pending.toString())
+                // Live remaining = deposit minus pending accrual. Ticks DOWN
+                // visibly as the stream flows. On-chain the deposit only
+                // shrinks when receiver claims, so this is a projected view.
+                let remainingNund: bigint
+                try {
+                  remainingNund = BigInt(deposit) - pending
+                  if (remainingNund < 0n) remainingNund = 0n
+                } catch {
+                  remainingNund = 0n
+                }
+                const remainingFund = nundToFund(remainingNund.toString())
+                const cd = depositCountdown(s, now, 'outgoing')
+                const cancellable = s.stream?.cancellable ?? true
+                const denom = streamDenom(s)
+                const denomLabel = denom === 'nund' ? 'FUND' : denom
+                return (
+                  <li
+                    key={`${s.receiver}-${denom}`}
+                    className="flex flex-col gap-1 rounded border border-border p-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex flex-col min-w-0 gap-0.5">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>To</Trans>
+                        </span>
+                        <StreamLabel
+                          sender={address}
+                          receiver={s.receiver}
+                          denom={denom}
+                          counterparty={s.receiver}
+                        />
+                      </span>
+                      <span className="flex flex-col items-end tabular-nums">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>Remaining</Trans>
+                        </span>
+                        <span className="font-mono font-medium">
+                          {remainingFund} {denomLabel}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-mono">
+                      <span title={t`Flow rate`}>
+                        {flow ? `${flow.amountFund} / ${flow.period}` : '—'}
+                      </span>
+                      <span
+                        title={t`Streamed to receiver since last claim — ticks live until they claim or the deposit drains.`}
+                      >
+                        <Trans>+{pendingFund} pending</Trans>
+                      </span>
+                      <span
+                        className={cd.drained ? 'text-destructive' : undefined}
+                        title={t`Deposit drains`}
+                      >
+                        {cd.label}
+                      </span>
+                      {!cancellable && (
+                        <span
+                          className="px-1 rounded bg-muted text-muted-foreground uppercase tracking-[0.06em] text-[10px]"
+                          title={t`Cancellation disabled (eFUND-backed stream)`}
+                        >
+                          <Trans>non-cancel</Trans>
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+                      <span title={t`Original deposit amount including the pending accrual.`}>
+                        <Trans>Deposit: {nundToFund(deposit)} {denomLabel}</Trans>
+                      </span>
+                    </div>
+                    <div className="flex gap-1 flex-wrap justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => setTopUpTarget(s)}
+                      >
+                        <Trans>Top up</Trans>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => setUpdateTarget(s)}
+                      >
+                        <Trans>Update</Trans>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        disabled={!cancellable}
+                        onClick={() => setCancelTarget(s)}
+                        title={
+                          !cancellable
+                            ? t`Stream is non-cancellable (eFUND-backed).`
+                            : undefined
+                        }
+                      >
+                        <Trans>Cancel</Trans>
+                      </Button>
+                    </div>
+                    <StreamHistoryPanel sender={address} receiver={s.receiver} />
+                  </li>
+                )
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 gap-2">
+            <CardTitle className="text-sm">
+              <Trans>Stream history</Trans>
+            </CardTitle>
+            <RefreshButton queryKeys={[['stream', 'cancelled']]} />
+          </CardHeader>
+          <CardContent className="p-4 pt-2 flex flex-col gap-2 text-xs">
+            {cancelled.isLoading && (
+              <p className="text-muted-foreground">
+                <Trans>Loading history…</Trans>
+              </p>
+            )}
+            {!cancelled.isLoading && cancelledStreams.length === 0 && (
+              <p className="text-muted-foreground italic">
+                <Trans>No cancelled streams.</Trans>
+              </p>
+            )}
+            <ul className="flex flex-col gap-2">
+              {cancelledStreams.map((c) => {
+                const isOutgoing = c.sender === address
+                const counterparty = isOutgoing ? c.receiver : c.sender
+                const denomLabel = c.denom === 'nund' ? 'FUND' : c.denom
+                return (
+                  <li
+                    key={`${c.sender}-${c.receiver}-${c.denom}`}
+                    className="flex flex-col gap-1 rounded border border-border p-2 opacity-90"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex flex-col min-w-0 gap-0.5">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          {isOutgoing ? <Trans>To</Trans> : <Trans>From</Trans>}
+                        </span>
+                        <StreamLabel
+                          sender={c.sender}
+                          receiver={c.receiver}
+                          denom={c.denom}
+                          counterparty={counterparty}
+                        />
+                      </span>
+                      <span className="flex flex-col items-end tabular-nums">
+                        <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.06em]">
+                          <Trans>Refunded</Trans>
+                        </span>
+                        <span className="font-mono font-medium">
+                          {nundToFund(c.refundAmountNund)} {denomLabel}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
+                      <span
+                        className="px-1 rounded bg-destructive/15 text-destructive uppercase tracking-[0.06em]"
+                        title={t`Stream was cancelled at this block.`}
+                      >
+                        <Trans>Cancelled at block {c.lastCancelHeight.toLocaleString()}</Trans>
+                      </span>
+                    </div>
+                    <StreamHistoryPanel sender={c.sender} receiver={c.receiver} />
+                  </li>
+                )
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      <CreateStreamModal open={createOpen} onOpenChange={setCreateOpen} />
+
+      <ClaimStreamModal
+        open={claimTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setClaimTarget(null)
+        }}
+        source={claimTarget?.source ?? null}
+        claimableNund={claimTarget?.claimableNund ?? '0'}
+      />
+
+      <TopUpStreamModal
+        open={topUpTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setTopUpTarget(null)
+        }}
+        source={topUpTarget}
+      />
+
+      <UpdateFlowRateModal
+        open={updateTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setUpdateTarget(null)
+        }}
+        source={updateTarget}
+      />
+
+      <CancelStreamModal
+        open={cancelTarget !== null}
+        onOpenChange={(next) => {
+          if (!next) setCancelTarget(null)
+        }}
+        source={cancelTarget}
+      />
+    </>
+  )
+}
