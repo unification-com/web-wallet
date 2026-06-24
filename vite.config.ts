@@ -55,16 +55,11 @@ export default defineConfig(({ command, mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
-      // Linked deps (fundjs-react via `link:`) point out-of-tree, so their imports of
-      // `@tanstack/react-query` / `react` would otherwise resolve from the linked path's
-      // ancestry instead of from web-wallet's own node_modules. Dedupe forces resolution
-      // through this project's installed copy, preventing both "module not found" build
-      // errors and the "two copies of react" runtime footgun.
-      //
-      // `cosmjs-types` is critical to dedupe: fundjs-react ships its own bundled copy
-      // (16 MB on disk inside the linked dist) and Rollup would otherwise bundle it
-      // alongside the web-wallet's own copy — duplicating ~1.2 MB of generated proto
-      // bindings into the vendor chunk.
+      // fundjs-react ships its own copies of these shared deps (its own @cosmjs/*,
+      // cosmjs-types, and a react ancestry). Without dedupe, Rollup bundles TWO copies —
+      // both the "two copies of react" runtime footgun and a duplicated ~1.2 MB of
+      // generated proto bindings (cosmjs-types) in the vendor chunk. Dedupe forces a
+      // single copy, resolved from web-wallet's own node_modules.
       dedupe: [
         'react',
         'react-dom',
@@ -88,24 +83,19 @@ export default defineConfig(({ command, mode }) => {
       ],
     },
     optimizeDeps: {
-      // Pre-bundle the linked fundjs-react so its imports get resolved through Vite's
-      // bundler using web-wallet's node_modules. Standard fix for `link:` / npm-link setups.
+      // Pre-bundle fundjs-react (a CJS package) so its named exports resolve cleanly
+      // through Vite's dep optimiser using web-wallet's node_modules.
       include: ['@unification-com/fundjs-react'],
     },
     build: {
       outDir: isWebBundle ? 'dist-web' : isDev ? 'dist-dev' : 'dist',
       emptyOutDir: true,
-      // The `link:`-installed `@unification-com/fundjs-react` symlinks to a
-      // location OUTSIDE `node_modules`, which the default commonjs include
-      // pattern misses — so its CJS `exports.Foo = …` named exports aren't
-      // recognised as ESM-style named exports during the Rollup pass and
-      // imports like `import { MsgCreateStream } from '…/tx'` fail with
-      // "not exported by". Widen the commonjs scanner to cover the linked
-      // dist as well. Drop once Stage 10 publishes fundjs-react to npm
-      // (then the linked path resolves through node_modules and the default
-      // include matches).
+      // fundjs-react is a CJS package; its `exports.Foo = …` named exports must be
+      // recognised as ESM-style named exports during the Rollup pass so imports like
+      // `import { MsgCreateStream } from '…/tx'` resolve. The default `[/node_modules/]`
+      // scan covers it now that it's a published node_modules dependency.
       commonjsOptions: {
-        include: [/node_modules/, /fundjs-react/],
+        include: [/node_modules/],
       },
       // crxjs bundles popup.html (via manifest action.default_popup) automatically.
       // standalone.html is an extension page (not manifest-referenced), so we add it
@@ -120,17 +110,13 @@ export default defineConfig(({ command, mode }) => {
         input,
         output: {
           manualChunks(id: string) {
-            // fundjs-react CHECKED FIRST — before the node_modules gate. The `link:`
-            // resolved path is `…/fundjs/packages/fundjs-react/dist/…` which
-            // does NOT contain `node_modules`, so the early-return below
-            // would otherwise skip it. Holds the Unification telescope-
-            // generated proto bindings for x/stream / x/wrkchain / x/beacon /
-            // x/enterprise — kept distinct from cosmjs so its weight is
-            // visible and so lazy stream/enterprise tabs can land their
-            // bindings in route-specific chunks instead of the eager bundle.
+            // fundjs-react + its interchainjs runtime → their own chunk. Holds the
+            // Unification telescope-generated proto bindings for x/stream / x/wrkchain /
+            // x/beacon / x/enterprise — kept distinct from cosmjs so its weight is visible
+            // and so lazy stream/enterprise tabs can land their bindings in route-specific
+            // chunks instead of the eager bundle.
             if (
               id.includes('@unification-com/fundjs-react') ||
-              id.includes('packages/fundjs-react') ||
               id.includes('@interchainjs')
             ) {
               return 'vendor-fundjs'
