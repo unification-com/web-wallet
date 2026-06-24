@@ -6,7 +6,7 @@ The Unification Mainchain web wallet. Distributed primarily as a Chrome Extensio
 
 ## Status
 
-**Mid-rebuild — v2 (React + Vite + TypeScript) on the `vaxildan` branch.** The Vue 2 source from v0.21.0 is parked under `OLD_VUE/` for the duration of the rebuild and will be removed once v2 reaches feature parity. Built artefacts from v0.21.0 are parked under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
+**v2 (React + Vite + TypeScript) on the `vaxildan` branch — feature-complete at v1.0.0, pending the Web Store release.** The legacy Vue 2 source (v0.21.0) has been removed now v2 is at feature parity; historic build artefacts remain under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
 
 Planning docs live under `../project_docs/planning/web-wallet/`.
 
@@ -118,7 +118,6 @@ throw new Error(i18n._(msg`something went wrong`))
 │   ├── components/     Shared UI
 │   ├── lib/            Shared infrastructure (chain client, query, vault, utils)
 │   └── App.tsx         Shared root component (per-surface variants)
-├── OLD_VUE/            v0.21.0 Vue 2 source, parked for the rebuild duration
 └── OLD_DIST/           v0.21.0 build outputs + historic release zips (local only)
 ```
 

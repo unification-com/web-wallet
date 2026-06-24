@@ -15,7 +15,6 @@ export default tseslint.config(
       'dist/**',
       'dist-web/**',
       'dist-dev/**',
-      'OLD_VUE/**',
       'OLD_DIST/**',
       'node_modules/**',
       '**/*.tsbuildinfo',

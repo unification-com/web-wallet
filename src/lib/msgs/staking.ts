@@ -5,10 +5,10 @@ import { fundToNund } from './send'
 
 /**
  * Minimum recommended balance to leave behind after a delegate so the user
- * can pay future gas (claim rewards, undelegate, etc.). Ported from
- * `OLD_VUE/src/constants.js:RECOMMENDED_MIN_BALANCE` — 60,000,000 nund =
- * 0.06 FUND. The Delegate form surfaces a warning (not a hard block) when
- * the post-delegate balance would fall below this threshold.
+ * can pay future gas (claim rewards, undelegate, etc.). 60,000,000 nund =
+ * 0.06 FUND (carried over from the v1 wallet's RECOMMENDED_MIN_BALANCE). The
+ * Delegate form surfaces a warning (not a hard block) when the post-delegate
+ * balance would fall below this threshold.
  */
 export const RECOMMENDED_MIN_BALANCE_NUND = 60_000_000n
 

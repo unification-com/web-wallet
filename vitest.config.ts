@@ -21,10 +21,9 @@ export default defineConfig({
     },
   },
   test: {
-    // Only scan v2 source. OLD_VUE/ contains v1's Vue 2 spec files that don't
-    // run under vitest and aren't relevant to the v2 build.
+    // Only scan v2 source under src/.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules/**', 'OLD_VUE/**', 'OLD_DIST/**', 'dist/**', 'dist-dev/**', 'dist-web/**'],
+    exclude: ['node_modules/**', 'OLD_DIST/**', 'dist/**', 'dist-dev/**', 'dist-web/**'],
     environment: 'node',
     globals: false,
     setupFiles: ['./vitest.setup.ts'],
