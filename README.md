@@ -37,17 +37,9 @@ yarn lint
 yarn test
 ```
 
-### Linked `fundjs-react` (local sibling repo)
+### `fundjs-react`
 
-While `@unification-com/fundjs-react@^0.2.0` is unpublished (pending vaxildan Stage 10), web-wallet consumes the local sibling at `../fundjs/packages/fundjs-react/dist` via yarn's `link:` protocol. Iterate on fundjs source as needed; rebuild its dist to surface changes here:
-
-```bash
-# from web-wallet/
-cd ../fundjs/packages/fundjs-react && yarn build && cd -
-# the symlink picks up the new dist/ automatically; no yarn install needed in web-wallet
-```
-
-If you change `web-wallet/package.json` and re-run `yarn install`, the link is preserved as long as the `link:../fundjs/packages/fundjs-react/dist` entry stays. Once Stage 10 publishes the npm release, swap the entry for `"@unification-com/fundjs-react": "^0.2.0"`.
+`@unification-com/fundjs-react` comes from npm (`^0.2.x` in `package.json`). To pick up a new fundjs release, bump the version range and run `yarn install`.
 
 To load the extension in Chrome:
 
