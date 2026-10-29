@@ -83,8 +83,8 @@ msgstr "{0} / 100"
 msgid "{0} account{1}"
 msgstr "{0} account{1}"
 
-#. placeholder {0}: nundToFund(entry.balance)
-#. placeholder {0}: nundToFund(stakeNund)
+#. placeholder {0}: formatFund(entry.balance)
+#. placeholder {0}: formatFund(stakeNund)
 #: src/components/ActiveDelegations.tsx
 #: src/components/InFlightQueues.tsx
 msgid "{0} FUND"
@@ -159,7 +159,7 @@ msgstr "#{0} — {1}"
 msgid "← Back to list"
 msgstr "← Back to list"
 
-#. placeholder {0}: decCoinToFund(pending)
+#. placeholder {0}: formatRewardFund(pending)
 #: src/components/ActiveDelegations.tsx
 msgid "+{0} pending"
 msgstr "+{0} pending"
@@ -569,7 +569,7 @@ msgstr "Claim stream"
 msgid "Claimable"
 msgstr "Claimable"
 
-#. placeholder {0}: nundToFund(claimableNund)
+#. placeholder {0}: formatFund(claimableNund)
 #: src/components/StreamActionModals.tsx
 msgid "Claimable: <0>{0}</0> {denomLabel}"
 msgstr "Claimable: <0>{0}</0> {denomLabel}"
@@ -753,7 +753,7 @@ msgstr "Creating…"
 msgid "Creation height"
 msgstr "Creation height"
 
-#. placeholder {0}: nundToFund(currentDelegationNund)
+#. placeholder {0}: formatFund(currentDelegationNund)
 #: src/components/StakingActionModals.tsx
 msgid "Currently delegated: <0>{0}</0> FUND"
 msgstr "Currently delegated: <0>{0}</0> FUND"
@@ -853,7 +853,7 @@ msgstr "Deposit drains"
 msgid "Deposit ends"
 msgstr "Deposit ends"
 
-#. placeholder {0}: nundToFund(deposit)
+#. placeholder {0}: formatFund(deposit)
 #: src/components/StreamsList.tsx
 msgid "Deposit: {0} {denomLabel}"
 msgstr "Deposit: {0} {denomLabel}"
@@ -1038,7 +1038,7 @@ msgid "Fee"
 msgstr "Fee"
 
 #. placeholder {0}: effectiveFeeNund.toString()
-#. placeholder {1}: nundToFund(effectiveFeeNund.toString())
+#. placeholder {1}: formatFund(effectiveFeeNund.toString())
 #. placeholder {2}: DEFAULT_MIN_GAS_PRICE_NUND.toString()
 #: src/components/GasAccordion.tsx
 msgid "Fee: <0>{0}</0> nund (<1>{1}</1> FUND). Chain floor is <2>{2}</2> nund/gas."
@@ -1858,7 +1858,7 @@ msgstr "Paste your phrase"
 msgid "Paste your phrase above."
 msgstr "Paste your phrase above."
 
-#. placeholder {0}: decCoinToFund(pendingRewardsNund)
+#. placeholder {0}: formatRewardFund(pendingRewardsNund)
 #: src/components/StakingActionModals.tsx
 msgid "Pending rewards: <0>{0}</0> FUND"
 msgstr "Pending rewards: <0>{0}</0> FUND"
@@ -2114,7 +2114,7 @@ msgstr "Remaining capacity"
 msgid "Remaining deposit"
 msgstr "Remaining deposit"
 
-#. placeholder {0}: nundToFund(remainingDeposit)
+#. placeholder {0}: formatFund(remainingDeposit)
 #: src/components/StreamActionModals.tsx
 msgid "Remaining deposit: <0>{0}</0> {denomLabel}"
 msgstr "Remaining deposit: <0>{0}</0> {denomLabel}"
@@ -2669,7 +2669,7 @@ msgstr "Top up stream deposit"
 msgid "Topped up stream deposit"
 msgstr "Topped up stream deposit"
 
-#. placeholder {0}: nundToFund(total.toString())
+#. placeholder {0}: formatFund(total.toString())
 #: src/components/ProposalDetail.tsx
 msgid "Total <0>{0}</0> FUND"
 msgstr "Total <0>{0}</0> FUND"
@@ -2682,7 +2682,7 @@ msgstr "Total claimed"
 msgid "Total moved"
 msgstr "Total moved"
 
-#. placeholder {0}: decCoinToFund(totalRewardsNund)
+#. placeholder {0}: formatRewardFund(totalRewardsNund)
 #: src/components/ActiveDelegations.tsx
 msgid "Total pending across all delegations: <0>{0}</0> FUND"
 msgstr "Total pending across all delegations: <0>{0}</0> FUND"
@@ -2787,7 +2787,7 @@ msgstr "unsupported v1 keystore PRF: {0}"
 msgid "Unwhitelisted address"
 msgstr "Unwhitelisted address"
 
-#. placeholder {0}: nundToFund(decoded.maxTokens.amount)
+#. placeholder {0}: formatFund(decoded.maxTokens.amount)
 #: src/components/AuthzPanel.tsx
 msgid "up to <0>{0}</0> FUND"
 msgstr "up to <0>{0}</0> FUND"
@@ -2951,7 +2951,7 @@ msgstr "Withdraw address"
 msgid "Withdraw all"
 msgstr "Withdraw all"
 
-#. placeholder {0}: decCoinToFund(totalRewardsNund)
+#. placeholder {0}: formatRewardFund(totalRewardsNund)
 #: src/components/ActiveDelegations.tsx
 msgid "Withdraw all (~{0} FUND)"
 msgstr "Withdraw all (~{0} FUND)"

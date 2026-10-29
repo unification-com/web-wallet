@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 import { useActiveEndpoint } from '@/lib/chain'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useStreamEvents, type StreamEvent } from '@/lib/stream'
 import { cn } from '@/lib/utils'
 
@@ -121,7 +121,7 @@ function StreamEventRow({ event, explorerBase }: StreamEventRowProps) {
               <EventAmountLabel label={event.amountLabel} />
             </span>
             <span className="font-medium">
-              {nundToFund(event.amountNund)} {denomLabel}
+              {formatFund(event.amountNund)} {denomLabel}
             </span>
           </>
         )}

@@ -7,7 +7,9 @@ import { DelegateModal } from '@/components/DelegateModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { formatDecimal } from '@/lib/decimal'
 import { useKeybaseAvatar } from '@/lib/keybase'
+import { nundToFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import {
   commissionRate,
@@ -21,18 +23,13 @@ import {
 import { timestampToDate } from '@/lib/time'
 import { safeExternalUrl } from '@/lib/utils'
 
-/** Format a `Dec`-string token amount (nund) as FUND with thousand separators. */
+/**
+ * Format a nund token amount as whole FUND with digit grouping. The fraction is
+ * dropped on purpose: validator voting power runs to millions of FUND, so
+ * sub-FUND precision is noise.
+ */
 function formatTokensAsFund(tokens: string): string {
-  try {
-    const big = BigInt(tokens)
-    const nund = 1_000_000_000n
-    const whole = big / nund
-    // Drop the fractional part on validator voting power — it's millions of
-    // FUND; sub-FUND precision is noise.
-    return whole.toLocaleString()
-  } catch {
-    return '0'
-  }
+  return formatDecimal(nundToFund(tokens).split('.')[0] ?? '0')
 }
 
 /**

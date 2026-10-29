@@ -3,7 +3,8 @@ import { StargateClient } from '@cosmjs/stargate'
 import { useQuery } from '@tanstack/react-query'
 
 import { useActiveEndpoint } from './chain'
-import { fundToNund, nundToFund } from './msgs/send'
+import { formatDecimal, scaleByDecimals } from './decimal'
+import { formatFund, fundToNund } from './msgs/send'
 
 export interface BalanceResult {
   denom: string
@@ -63,33 +64,13 @@ export function getBaseDenom(denom: string): string {
  * Without `decimals`, returns the raw integer (honest fallback when no
  * metadata is available).
  *
- * Returns the formatted numeric portion only — pair with {@link displayDenom}
- * for the label.
+ * Returns the formatted numeric portion only, digit-grouped for display — pair
+ * with {@link displayDenom} for the label.
  */
 export function formatCoinAmount(amount: string, denom: string, decimals?: number): string {
-  if (getBaseDenom(denom) === 'nund') return nundToFund(amount)
-  if (typeof decimals === 'number' && decimals > 0) return scaleByDecimals(amount, decimals)
-  return amount
-}
-
-/**
- * Divide `amount` (raw integer string) by 10^`decimals`, trimming trailing
- * zeros in the fractional part. BigInt-precision so foreign-chain tokens
- * with `decimals=18` (Ethereum-style) round-trip without precision loss.
- * Returns `'0'` on unparseable input.
- */
-export function scaleByDecimals(amount: string, decimals: number): string {
-  if (decimals <= 0) return amount
-  try {
-    const intPart = amount.split('.')[0] ?? '0'
-    const big = BigInt(intPart)
-    const scale = 10n ** BigInt(decimals)
-    const whole = big / scale
-    const frac = (big % scale).toString().padStart(decimals, '0').replace(/0+$/, '')
-    return frac ? `${whole.toString()}.${frac}` : whole.toString()
-  } catch {
-    return '0'
-  }
+  if (getBaseDenom(denom) === 'nund') return formatFund(amount)
+  if (typeof decimals === 'number' && decimals > 0) return formatDecimal(scaleByDecimals(amount, decimals))
+  return formatDecimal(amount)
 }
 
 /**

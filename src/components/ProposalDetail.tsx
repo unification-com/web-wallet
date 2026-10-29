@@ -18,7 +18,7 @@ import {
   useTallyResult,
   useUserVote,
 } from '@/lib/gov'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import { formatRelativeDeadline, timestampToDate, useTickingNow } from '@/lib/time'
 
@@ -160,7 +160,7 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
                   <dd className="font-mono">
                     {proposal.totalDeposit
                       .map((c) =>
-                        c.denom === 'nund' ? `${nundToFund(c.amount)} FUND` : `${c.amount} ${c.denom}`,
+                        c.denom === 'nund' ? `${formatFund(c.amount)} FUND` : `${c.amount} ${c.denom}`,
                       )
                       .join(', ')}
                   </dd>
@@ -243,7 +243,7 @@ export function ProposalDetail({ proposalId, onBack }: ProposalDetailProps) {
                     <Trans>
                       Total{' '}
                       <span className="font-mono normal-case">
-                        {nundToFund(total.toString())}
+                        {formatFund(total.toString())}
                       </span>{' '}
                       FUND
                     </Trans>
@@ -343,7 +343,7 @@ function TallyBar({
           className="w-24 text-right tabular-nums font-mono text-[10px] text-muted-foreground"
           title={count ?? '0'}
         >
-          {nundToFund(count)} FUND
+          {formatFund(count)} FUND
         </span>
       </div>
     </div>

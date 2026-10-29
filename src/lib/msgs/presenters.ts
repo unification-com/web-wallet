@@ -51,7 +51,7 @@ import {
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx'
 
 import { i18n } from '@/lib/i18n'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 
 // ---------------------------------------------------------------------------
 // Module note — declarative tx-history presenter map
@@ -185,14 +185,14 @@ interface Coin {
 function formatCoins(coins: readonly Coin[] | undefined): string {
   if (!coins || coins.length === 0) return '—'
   return coins
-    .map((c) => (c.denom === 'nund' ? `${nundToFund(c.amount)} FUND` : `${c.amount} ${c.denom}`))
+    .map((c) => (c.denom === 'nund' ? `${formatFund(c.amount)} FUND` : `${c.amount} ${c.denom}`))
     .join(', ')
 }
 
 /** Render a single `Coin` value. */
 function formatCoin(coin: Coin | undefined): string {
   if (!coin) return '—'
-  return coin.denom === 'nund' ? `${nundToFund(coin.amount)} FUND` : `${coin.amount} ${coin.denom}`
+  return coin.denom === 'nund' ? `${formatFund(coin.amount)} FUND` : `${coin.amount} ${coin.denom}`
 }
 
 /**

@@ -14,7 +14,7 @@ import { StreamHistoryPanel } from '@/components/StreamHistoryPanel'
 import { StreamLabel } from '@/components/StreamLabel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import {
   claimableNow,
@@ -120,7 +120,7 @@ export function StreamsList() {
               {incomingStreams.map((s) => {
                 const flow = s.stream ? formatFlowRate(s.stream.flowRate) : null
                 const claimableNund = claimableNow(s.stream)
-                const claim = nundToFund(claimableNund.toString())
+                const claim = formatFund(claimableNund.toString())
                 const deposit = s.stream?.deposit.amount ?? '0'
                 const cd = depositCountdown(s, now, 'incoming')
                 const denom = streamDenom(s)
@@ -156,7 +156,7 @@ export function StreamsList() {
                         {flow ? `${flow.amountFund} / ${flow.period}` : '—'}
                       </span>
                       <span title={t`Remaining deposit`}>
-                        {nundToFund(deposit)} {denomLabel}
+                        {formatFund(deposit)} {denomLabel}
                       </span>
                       <span
                         className={cd.drained ? 'text-destructive' : undefined}
@@ -228,7 +228,7 @@ export function StreamsList() {
                 // last claim, ticking up as time passes. Mirror of the incoming
                 // row's Claimable. Capped at deposit (chain enforces).
                 const pending = claimableNow(s.stream)
-                const pendingFund = nundToFund(pending.toString())
+                const pendingFund = formatFund(pending.toString())
                 // Live remaining = deposit minus pending accrual. Ticks DOWN
                 // visibly as the stream flows. On-chain the deposit only
                 // shrinks when receiver claims, so this is a projected view.
@@ -239,7 +239,7 @@ export function StreamsList() {
                 } catch {
                   remainingNund = 0n
                 }
-                const remainingFund = nundToFund(remainingNund.toString())
+                const remainingFund = formatFund(remainingNund.toString())
                 const cd = depositCountdown(s, now, 'outgoing')
                 const cancellable = s.stream?.cancellable ?? true
                 const denom = streamDenom(s)
@@ -296,7 +296,7 @@ export function StreamsList() {
                     </div>
                     <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground font-mono">
                       <span title={t`Original deposit amount including the pending accrual.`}>
-                        <Trans>Deposit: {nundToFund(deposit)} {denomLabel}</Trans>
+                        <Trans>Deposit: {formatFund(deposit)} {denomLabel}</Trans>
                       </span>
                     </div>
                     <div className="flex gap-1 flex-wrap justify-end">
@@ -384,7 +384,7 @@ export function StreamsList() {
                           <Trans>Refunded</Trans>
                         </span>
                         <span className="font-mono font-medium">
-                          {nundToFund(c.refundAmountNund)} {denomLabel}
+                          {formatFund(c.refundAmountNund)} {denomLabel}
                         </span>
                       </span>
                     </div>

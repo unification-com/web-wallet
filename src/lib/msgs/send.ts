@@ -1,6 +1,8 @@
 import { type EncodeObject } from '@cosmjs/proto-signing'
 import { z } from 'zod'
 
+import { formatDecimal, scaleByDecimals } from '../decimal'
+
 // ---------------------------------------------------------------------------
 // MsgSend (cosmos-sdk bank module) — the bank-transfer Tx type
 // ---------------------------------------------------------------------------
@@ -28,6 +30,9 @@ export type SendFormValues = z.infer<typeof SendFormSchema>
 /** Scaling factor between FUND (human-readable) and nund (chain-side). */
 const NUND_PER_FUND = 1_000_000_000n // 10^9
 
+/** FUND's decimal exponent — nund is 10^-9 FUND. */
+const FUND_DECIMALS = 9
+
 /** Convert a decimal FUND string to a nund integer string (chain-side amount). */
 export function fundToNund(amountFund: string): string {
   // Split on decimal point; both halves default to '0' / '' for safety.
@@ -53,16 +58,16 @@ export function fundToNund(amountFund: string): string {
  * first or display values land 10^18× too large.
  */
 export function nundToFund(amountNund: string | undefined): string {
-  if (!amountNund) return '0'
-  try {
-    const intPart = amountNund.split('.')[0] ?? '0'
-    const big = BigInt(intPart)
-    const whole = big / NUND_PER_FUND
-    const frac = (big % NUND_PER_FUND).toString().padStart(9, '0').replace(/0+$/, '')
-    return frac ? `${whole.toString()}.${frac}` : whole.toString()
-  } catch {
-    return '0'
-  }
+  return amountNund ? scaleByDecimals(amountNund, FUND_DECIMALS) : '0'
+}
+
+/**
+ * {@link nundToFund} with digit grouping for display — `'20000000123456789'`
+ * → `'20,000,000.123456789'`. Not for form inputs (the grouping would fail
+ * amount validation); use {@link nundToFund} to pre-fill those.
+ */
+export function formatFund(amountNund: string | undefined): string {
+  return formatDecimal(nundToFund(amountNund))
 }
 
 /**
@@ -106,6 +111,11 @@ export function decCoinToFund(amountDec: string | undefined): string {
   } catch {
     return '0'
   }
+}
+
+/** {@link decCoinToFund} with digit grouping for display (distribution rewards). */
+export function formatRewardFund(amountDec: string | undefined): string {
+  return formatDecimal(decCoinToFund(amountDec))
 }
 
 export interface BuildMsgSendParams {

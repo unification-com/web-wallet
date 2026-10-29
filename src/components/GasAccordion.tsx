@@ -16,7 +16,7 @@ import {
   simulateGas,
   type GasPriceTier,
 } from '@/lib/gasEstimate'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 
 interface GasAccordionProps {
@@ -269,7 +269,7 @@ export function GasAccordion({
             <Trans>
               Fee:{' '}
               <span className="font-mono">{effectiveFeeNund.toString()}</span> nund (
-              <span className="font-mono">{nundToFund(effectiveFeeNund.toString())}</span> FUND).
+              <span className="font-mono">{formatFund(effectiveFeeNund.toString())}</span> FUND).
               Chain floor is{' '}
               <span className="font-mono">{DEFAULT_MIN_GAS_PRICE_NUND.toString()}</span> nund/gas.
             </Trans>

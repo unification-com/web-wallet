@@ -11,7 +11,7 @@ import {
 import { TxModal } from '@/components/TxModal'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { decCoinToFund, nundToFund } from '@/lib/msgs/send'
+import { formatFund, formatRewardFund } from '@/lib/msgs/send'
 import { buildMsgsWithdrawAllRewards } from '@/lib/msgs/staking'
 import { useActiveSigner } from '@/lib/signer'
 import {
@@ -93,7 +93,7 @@ export function ActiveDelegations() {
                 disabled={!hasAnyRewards}
               >
                 <Trans>
-                  Withdraw all (~{decCoinToFund(totalRewardsNund)} FUND)
+                  Withdraw all (~{formatRewardFund(totalRewardsNund)} FUND)
                 </Trans>
               </Button>
             )}
@@ -139,11 +139,11 @@ export function ActiveDelegations() {
                     </span>
                     <span className="flex flex-col items-end tabular-nums">
                       <span className="font-mono">
-                        <Trans>{nundToFund(stakeNund)} FUND</Trans>
+                        <Trans>{formatFund(stakeNund)} FUND</Trans>
                       </span>
                       {pendingHasValue && (
                         <span className="text-[10px] text-green-700">
-                          <Trans>+{decCoinToFund(pending)} pending</Trans>
+                          <Trans>+{formatRewardFund(pending)} pending</Trans>
                         </span>
                       )}
                     </span>
@@ -250,7 +250,7 @@ export function ActiveDelegations() {
               <Trans>
                 Total pending across all delegations:{' '}
                 <span className="font-mono font-medium">
-                  {decCoinToFund(totalRewardsNund)}
+                  {formatRewardFund(totalRewardsNund)}
                 </span>{' '}
                 FUND
               </Trans>

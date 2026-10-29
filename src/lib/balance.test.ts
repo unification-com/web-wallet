@@ -4,10 +4,10 @@ import {
   displayDenom,
   formatCoinAmount,
   getBaseDenom,
-  scaleByDecimals,
   scaleToInteger,
   userAmountToChain,
 } from './balance'
+import { scaleByDecimals } from './decimal'
 
 describe('balance.getBaseDenom', () => {
   it('passes nund through unchanged', () => {
@@ -39,37 +39,6 @@ describe('balance.getBaseDenom', () => {
   })
 })
 
-describe('balance.scaleByDecimals', () => {
-  it('scales 1500000 by 6 → 1.5', () => {
-    expect(scaleByDecimals('1500000', 6)).toBe('1.5')
-  })
-
-  it('scales a whole number with trailing-zero trim', () => {
-    expect(scaleByDecimals('2000000', 6)).toBe('2')
-  })
-
-  it('handles sub-unit values without leading-zero loss', () => {
-    expect(scaleByDecimals('1', 6)).toBe('0.000001')
-  })
-
-  it('scales an 18-decimal token (Ethereum-style)', () => {
-    expect(scaleByDecimals('1500000000000000000', 18)).toBe('1.5')
-  })
-
-  it('returns "0" for empty input', () => {
-    expect(scaleByDecimals('', 6)).toBe('0')
-  })
-
-  it('returns the input unchanged when decimals is 0', () => {
-    expect(scaleByDecimals('1234', 0)).toBe('1234')
-  })
-
-  it('handles negative-zero-style edge: very-large bigint', () => {
-    const big = '1' + '0'.repeat(40)
-    expect(scaleByDecimals(big, 18)).toBe('10000000000000000000000')
-  })
-})
-
 describe('balance.formatCoinAmount', () => {
   it('scales nund by 10^9', () => {
     expect(formatCoinAmount('1500000000', 'nund')).toBe('1.5')
@@ -83,12 +52,16 @@ describe('balance.formatCoinAmount', () => {
     expect(formatCoinAmount('1500000', 'uatom', 6)).toBe('1.5')
   })
 
-  it('returns the raw integer for non-nund denoms without decimals', () => {
-    expect(formatCoinAmount('1500000', 'uatom')).toBe('1500000')
+  it('returns the raw integer, grouped, for non-nund denoms without decimals', () => {
+    expect(formatCoinAmount('1500000', 'uatom')).toBe('1,500,000')
   })
 
-  it('returns the raw integer for ibc/HASH denoms without decimals', () => {
-    expect(formatCoinAmount('1500000', 'ibc/AB12')).toBe('1500000')
+  it('returns the raw integer, grouped, for ibc/HASH denoms without decimals', () => {
+    expect(formatCoinAmount('1500000', 'ibc/AB12')).toBe('1,500,000')
+  })
+
+  it('groups large FUND amounts without losing precision', () => {
+    expect(formatCoinAmount('20000000123456789', 'nund')).toBe('20,000,000.123456789')
   })
 })
 

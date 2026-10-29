@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { AddressLink } from '@/components/AddressLink'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import {
   useRedelegations,
@@ -82,7 +82,7 @@ export function InFlightQueues() {
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono">
-                          <Trans>{nundToFund(entry.balance)} FUND</Trans>
+                          <Trans>{formatFund(entry.balance)} FUND</Trans>
                         </span>
                         <span
                           className="text-[10px] text-muted-foreground"
@@ -136,7 +136,7 @@ export function InFlightQueues() {
                       </span>
                       <span className="flex flex-col items-end tabular-nums">
                         <span className="font-mono">
-                          <Trans>{nundToFund(entry.balance)} FUND</Trans>
+                          <Trans>{formatFund(entry.balance)} FUND</Trans>
                         </span>
                         <span
                           className="text-[10px] text-muted-foreground"

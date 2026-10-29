@@ -15,7 +15,7 @@ import {
   type AuthzGrantRow,
   type DecodedAuthorisation,
 } from '@/lib/authz'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import { useValidators, type Validator } from '@/lib/staking'
 
@@ -199,7 +199,7 @@ function AuthorisationSummary({
           {' '}
           ·{' '}
           <Trans>
-            up to <span className="font-mono">{nundToFund(decoded.maxTokens.amount)}</span> FUND
+            up to <span className="font-mono">{formatFund(decoded.maxTokens.amount)}</span> FUND
           </Trans>
         </>
       ) : null
@@ -213,7 +213,7 @@ function AuthorisationSummary({
   if (decoded.kind === 'send') {
     const cap = decoded.spendLimit
       .filter((c) => c.denom === 'nund')
-      .map((c) => `${nundToFund(c.amount)} FUND`)
+      .map((c) => `${formatFund(c.amount)} FUND`)
       .join(', ')
     const recipients =
       decoded.allowList.length > 0 ? (

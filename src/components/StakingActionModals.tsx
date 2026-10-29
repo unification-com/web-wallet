@@ -7,7 +7,7 @@ import { TxModal } from '@/components/TxModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { decCoinToFund, nundToFund } from '@/lib/msgs/send'
+import { formatFund, formatRewardFund, nundToFund } from '@/lib/msgs/send'
 import {
   buildMsgBeginRedelegate,
   buildMsgUndelegate,
@@ -117,7 +117,7 @@ export function UndelegateModal({
               <span className="text-[11px] text-muted-foreground">
                 <Trans>
                   Currently delegated:{' '}
-                  <span className="font-mono">{nundToFund(currentDelegationNund)}</span> FUND
+                  <span className="font-mono">{formatFund(currentDelegationNund)}</span> FUND
                 </Trans>
               </span>
             )}
@@ -298,7 +298,7 @@ export function RedelegateModal({
               <span className="text-[11px] text-muted-foreground">
                 <Trans>
                   Currently delegated:{' '}
-                  <span className="font-mono">{nundToFund(currentDelegationNund)}</span> FUND
+                  <span className="font-mono">{formatFund(currentDelegationNund)}</span> FUND
                 </Trans>
               </span>
             )}
@@ -393,7 +393,7 @@ export function WithdrawRewardsModal({
               <Trans>
                 Pending rewards:{' '}
                 <span className="font-mono font-medium">
-                  {decCoinToFund(pendingRewardsNund)}
+                  {formatRewardFund(pendingRewardsNund)}
                 </span>{' '}
                 FUND
               </Trans>

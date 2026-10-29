@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { TxModal } from '@/components/TxModal'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { fundToNund, nundToFund } from '@/lib/msgs/send'
+import { formatFund, fundToNund } from '@/lib/msgs/send'
 import {
   buildMsgCancelStream,
   buildMsgClaimStream,
@@ -271,7 +271,7 @@ export function ClaimStreamModal({
             <Trans>
               Claimable:{' '}
               <span className="font-mono font-medium">
-                {nundToFund(claimableNund)}
+                {formatFund(claimableNund)}
               </span>{' '}
               {denomLabel}
             </Trans>
@@ -591,7 +591,7 @@ export function CancelStreamModal({ open, onOpenChange, source }: CancelStreamMo
             <Trans>
               Remaining deposit:{' '}
               <span className="font-mono font-medium">
-                {nundToFund(remainingDeposit)}
+                {formatFund(remainingDeposit)}
               </span>{' '}
               {denomLabel}
             </Trans>

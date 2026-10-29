@@ -11,7 +11,7 @@ import { QueryClientImpl } from '@unification-com/fundjs-react/mainchain/stream/
 import { type Stream } from '@unification-com/fundjs-react/mainchain/stream/v1/stream'
 
 import { useActiveEndpoint } from './chain'
-import { nundToFund } from './msgs/send'
+import { formatFund } from './msgs/send'
 
 // ---------------------------------------------------------------------------
 // Module note — fundjs-react sub-path imports
@@ -134,12 +134,12 @@ export function formatFlowRate(flowRate: bigint): FlowRateDisplay {
   for (const period of periods) {
     const amount = flowRate * SECONDS_PER_PERIOD[period]
     if (amount >= 1_000_000_000n) {
-      return { amountFund: nundToFund(amount.toString()), period }
+      return { amountFund: formatFund(amount.toString()), period }
     }
   }
   // Sub-FUND-per-month flow rate — display as-is per second (will read as
   // "0 FUND/sec" but is the most honest baseline).
-  return { amountFund: nundToFund(flowRate.toString()), period: 'sec' }
+  return { amountFund: formatFund(flowRate.toString()), period: 'sec' }
 }
 
 /**

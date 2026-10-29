@@ -11,7 +11,7 @@ import {
   type PresenterResult,
   type TxDirection,
 } from '@/lib/msgs/presenters'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import type { DecodedIndexedTx } from '@/lib/txhistory'
 
 interface TxRowProps {
@@ -139,7 +139,7 @@ export function TxRow({ tx, activeAddress }: TxRowProps) {
               {fee && fee.amount.length > 0
                 ? fee.amount
                     .map((c) =>
-                      c.denom === 'nund' ? `${nundToFund(c.amount)} FUND` : `${c.amount} ${c.denom}`,
+                      c.denom === 'nund' ? `${formatFund(c.amount)} FUND` : `${c.amount} ${c.denom}`,
                     )
                     .join(', ')
                 : '—'}

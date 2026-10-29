@@ -18,7 +18,7 @@ import {
   type EnterpriseUndPurchaseOrder,
   type PurchaseOrderDecision,
 } from '@/lib/enterprise'
-import { nundToFund } from '@/lib/msgs/send'
+import { formatFund } from '@/lib/msgs/send'
 import { useActiveSigner } from '@/lib/signer'
 import { cn } from '@/lib/utils'
 
@@ -284,7 +284,7 @@ function PurchaseOrderRow({ po, minAccepts }: PurchaseOrderRowProps) {
         <span className="flex flex-col items-end tabular-nums">
           <PurchaseOrderStatusChip status={status} />
           <span className="font-mono font-medium">
-            {nundToFund(po.amount.amount)} {denomLabel}
+            {formatFund(po.amount.amount)} {denomLabel}
           </span>
         </span>
       </div>
@@ -483,7 +483,7 @@ function EFundMetric({ label, coin, loading, tooltip, emphasis = false }: EFundM
           <Trans>loading…</Trans>
         ) : (
           <>
-            {nundToFund(coin?.amount ?? '0')} {denomLabel}
+            {formatFund(coin?.amount ?? '0')} {denomLabel}
           </>
         )}
       </span>
