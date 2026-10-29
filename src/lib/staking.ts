@@ -9,6 +9,7 @@ import { Comet38Client } from '@cosmjs/tendermint-rpc'
 import { useQuery } from '@tanstack/react-query'
 
 import { useActiveEndpoint } from './chain'
+import { collectPages } from './pagination'
 import { type ProtoTimestamp } from './time'
 
 // ---------------------------------------------------------------------------
@@ -182,9 +183,11 @@ export function useValidators() {
     queryFn: async () => {
       const { client, disconnect } = await makeStakingClient(endpoint.rpc)
       try {
-        // Empty string → all statuses (BONDED + UNBONDED + UNBONDING).
-        const res = await client.staking.validators('')
-        return res.validators as unknown as Validator[]
+        // Empty string → all statuses (BONDED + UNBONDED + UNBONDING), every page.
+        return await collectPages(async (key) => {
+          const res = await client.staking.validators('', key)
+          return { items: res.validators as unknown as Validator[], pagination: res.pagination }
+        })
       } finally {
         disconnect()
       }
@@ -206,8 +209,10 @@ export function useDelegations(address: string | null) {
       if (!address) return []
       const { client, disconnect } = await makeStakingClient(endpoint.rpc)
       try {
-        const res = await client.staking.delegatorDelegations(address)
-        return res.delegationResponses
+        return await collectPages(async (key) => {
+          const res = await client.staking.delegatorDelegations(address, key)
+          return { items: res.delegationResponses, pagination: res.pagination }
+        })
       } finally {
         disconnect()
       }
@@ -226,8 +231,10 @@ export function useUnbondingDelegations(address: string | null) {
       if (!address) return []
       const { client, disconnect } = await makeStakingClient(endpoint.rpc)
       try {
-        const res = await client.staking.delegatorUnbondingDelegations(address)
-        return res.unbondingResponses
+        return await collectPages(async (key) => {
+          const res = await client.staking.delegatorUnbondingDelegations(address, key)
+          return { items: res.unbondingResponses, pagination: res.pagination }
+        })
       } finally {
         disconnect()
       }
@@ -270,8 +277,10 @@ export function useRedelegations(address: string | null) {
       if (!address) return []
       const { client, disconnect } = await makeStakingClient(endpoint.rpc)
       try {
-        const res = await client.staking.redelegations(address, '', '')
-        return res.redelegationResponses
+        return await collectPages(async (key) => {
+          const res = await client.staking.redelegations(address, '', '', key)
+          return { items: res.redelegationResponses, pagination: res.pagination }
+        })
       } finally {
         disconnect()
       }
