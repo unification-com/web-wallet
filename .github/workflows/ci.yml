@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [master, vaxildan]
+  pull_request:
+    branches: [master, vaxildan]
+
+jobs:
+  build:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+      - run: yarn typecheck
+      # CI gate for the lingui i18n catalogue: re-extract from source and fail
+      # if the resulting en/messages.po differs from what's committed. Catches
+      # un-extracted Trans/t macros + stale entries from removed strings.
+      - run: yarn lingui:check
+      - run: yarn test
+      - run: yarn build
+      - run: yarn build:web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-wallet-extension
+          path: dist/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-wallet-web
+          path: dist-web/
+          retention-days: 14

@@ -1,0 +1,77 @@
+import { Trans } from '@lingui/react/macro'
+import { Check, Copy } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
+import { useState } from 'react'
+
+import { AddressLink } from '@/components/AddressLink'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useActiveSigner } from '@/lib/signer'
+
+/**
+ * Compact Receive surface — shows the active signer's bech32 address with
+ * a copy-to-clipboard button. QR display is a follow-up M1.10c polish item.
+ */
+export function Receive() {
+  const { address } = useActiveSigner()
+  const [copied, setCopied] = useState(false)
+
+  if (!address) return null
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('[Receive] clipboard write failed', err)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader className="p-4 pb-2">
+        <CardTitle className="text-base">
+          <Trans>Receive</Trans>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-2 flex flex-col gap-2 items-stretch">
+        <p className="text-xs text-muted-foreground">
+          <Trans>
+            Share this address or scan the QR code to receive FUND. Anyone with the address
+            can send to it; the private key never leaves your vault.
+          </Trans>
+        </p>
+        <div className="self-center rounded border bg-white p-2">
+          <QRCodeSVG value={address} size={128} level="M" />
+        </div>
+        <div className="text-xs break-all rounded border bg-muted p-2">
+          <AddressLink address={address} truncate={false} />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onClick={onCopy}
+          className="self-start"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5" />
+              <span>
+                <Trans>Copied</Trans>
+              </span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3.5 w-3.5" />
+              <span>
+                <Trans>Copy address</Trans>
+              </span>
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
