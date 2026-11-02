@@ -52,6 +52,8 @@ import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx'
 
 import { i18n } from '@/lib/i18n'
 import { formatFund } from '@/lib/msgs/send'
+import { formatFlowRate } from '@/lib/stream'
+import { formatDuration, parseChainTime } from '@/lib/time'
 
 // ---------------------------------------------------------------------------
 // Module note — declarative tx-history presenter map
@@ -136,17 +138,19 @@ export function getAttr(event: Event | null, key: string): string | null {
 /**
  * Build a `PresenterItem` only when the attribute has a non-empty value.
  * Used by event-driven presenters so empty / missing attributes don't show
- * up as blank rows in the detail panel.
+ * up as blank rows in the detail panel. `format` turns the raw chain value
+ * (base-unit coin, seconds, Go time) into its display form; see the
+ * attribute formatters below.
  */
 export function itemFromAttr(
   label: string,
   event: Event | null,
   key: string,
-  opts: { mono?: boolean } = {},
+  opts: { mono?: boolean; format?: (value: string) => string } = {},
 ): PresenterItem | null {
   const value = getAttr(event, key)
   if (value === null || value === '') return null
-  return { label, value, ...(opts.mono ? { mono: true } : {}) }
+  return { label, value: opts.format ? opts.format(value) : value, ...(opts.mono ? { mono: true } : {}) }
 }
 
 export interface PresenterItem {
@@ -193,6 +197,43 @@ function formatCoins(coins: readonly Coin[] | undefined): string {
 function formatCoin(coin: Coin | undefined): string {
   if (!coin) return '—'
   return coin.denom === 'nund' ? `${formatFund(coin.amount)} FUND` : `${coin.amount} ${coin.denom}`
+}
+
+// ---------------------------------------------------------------------------
+// Event-attribute formatters: module events carry raw chain values, so each
+// is turned into its display form here. Anything unparseable is shown as-is
+// rather than hidden.
+// ---------------------------------------------------------------------------
+
+/** An `sdk.Coin.String()` attribute: `100000000000nund` → `100 FUND`. */
+export function formatCoinAttr(value: string): string {
+  const m = /^(\d+)([a-zA-Z][a-zA-Z0-9/:._-]*)$/.exec(value)
+  return m ? formatCoin({ amount: m[1], denom: m[2] }) : value
+}
+
+/**
+ * A stream flow-rate attribute (base units of `denom` per second): FUND
+ * streams in their most readable period, as the streams list shows them
+ * (`1157` → `0.099 FUND / day`); other denoms per second.
+ */
+export function flowRateAttr(denom: string | null): (value: string) => string {
+  return (value) => {
+    if (!/^\d+$/.test(value)) return value
+    if (denom && denom !== 'nund') return `${formatCoin({ amount: value, denom })} / sec`
+    const { amountFund, period } = formatFlowRate(BigInt(value))
+    return `${amountFund} FUND / ${period}`
+  }
+}
+
+/** A seconds attribute: `604800` → `7 days`. */
+export function formatDurationAttr(value: string): string {
+  return /^\d+$/.test(value) ? formatDuration(Number(value), i18n.locale) : value
+}
+
+/** A time attribute (unix seconds or Go `time.Time.String()`) as a local date and time. */
+export function formatTimeAttr(value: string): string {
+  const date = parseChainTime(value)
+  return date ? i18n.date(date, { dateStyle: 'medium', timeStyle: 'short' }) : value
 }
 
 /**
@@ -788,7 +829,7 @@ function presentMsgRecordBeaconTimestamp(
       itemFromAttr(i18n._(msg`Beacon ID`), e, 'beacon_id', { mono: true }),
       itemFromAttr(i18n._(msg`Timestamp ID`), e, 'beacon_timestamp_id', { mono: true }),
       itemFromAttr(i18n._(msg`Hash`), e, 'beacon_timestamp_hash', { mono: true }),
-      itemFromAttr(i18n._(msg`Submit time`), e, 'beacon_timestamp_submit_time', { mono: true }),
+      itemFromAttr(i18n._(msg`Submit time`), e, 'beacon_timestamp_submit_time', { format: formatTimeAttr }),
     ]),
   }
 }
@@ -877,7 +918,7 @@ function presentMsgUndPurchaseOrder(_raw: Uint8Array, ctx: PresenterContext): Pr
     items: filterItems([
       itemFromAttr(i18n._(msg`Order ID`), e, 'id', { mono: true }),
       itemFromAttr(i18n._(msg`Purchaser`), e, 'purchaser', { mono: true }),
-      itemFromAttr(i18n._(msg`Amount`), e, 'amount', { mono: true }),
+      itemFromAttr(i18n._(msg`Amount`), e, 'amount', { mono: true, format: formatCoinAttr }),
     ]),
   }
 }
@@ -945,10 +986,9 @@ function presentMsgCreateStream(_raw: Uint8Array, ctx: PresenterContext): Presen
     items: filterItems([
       itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
       itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
-      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
-      itemFromAttr(i18n._(msg`Flow rate`), e, 'flow_rate', { mono: true }),
-      itemFromAttr(i18n._(msg`Deposit`), e, 'amount_deposited', { mono: true }),
-      itemFromAttr(i18n._(msg`Drains at`), e, 'deposit_zero_time', { mono: true }),
+      itemFromAttr(i18n._(msg`Flow rate`), e, 'flow_rate', { mono: true, format: flowRateAttr(getAttr(e, 'denom')) }),
+      itemFromAttr(i18n._(msg`Deposit`), e, 'amount_deposited', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Drains at`), e, 'deposit_zero_time', { format: formatTimeAttr }),
     ]),
   }
 }
@@ -961,10 +1001,9 @@ function presentMsgTopUpDeposit(_raw: Uint8Array, ctx: PresenterContext): Presen
     items: filterItems([
       itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
       itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
-      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
-      itemFromAttr(i18n._(msg`Added`), e, 'amount_deposited', { mono: true }),
-      itemFromAttr(i18n._(msg`Extends by`), e, 'deposit_duration', { mono: true }),
-      itemFromAttr(i18n._(msg`Now drains at`), e, 'deposit_zero_time', { mono: true }),
+      itemFromAttr(i18n._(msg`Added`), e, 'amount_deposited', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Extends by`), e, 'deposit_duration', { format: formatDurationAttr }),
+      itemFromAttr(i18n._(msg`Now drains at`), e, 'deposit_zero_time', { format: formatTimeAttr }),
     ]),
   }
 }
@@ -977,11 +1016,10 @@ function presentMsgClaimStream(_raw: Uint8Array, ctx: PresenterContext): Present
     items: filterItems([
       itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
       itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
-      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
-      itemFromAttr(i18n._(msg`Received`), e, 'amount_received', { mono: true }),
-      itemFromAttr(i18n._(msg`Validator fee`), e, 'validator_fee', { mono: true }),
-      itemFromAttr(i18n._(msg`Total claimed`), e, 'claim_total', { mono: true }),
-      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true }),
+      itemFromAttr(i18n._(msg`Received`), e, 'amount_received', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Validator fee`), e, 'validator_fee', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Total claimed`), e, 'claim_total', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true, format: formatCoinAttr }),
     ]),
   }
 }
@@ -994,8 +1032,8 @@ function presentMsgUpdateFlowRate(_raw: Uint8Array, ctx: PresenterContext): Pres
     items: filterItems([
       itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
       itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
-      itemFromAttr(i18n._(msg`Old flow rate`), e, 'old_flow_rate', { mono: true }),
-      itemFromAttr(i18n._(msg`New flow rate`), e, 'new_flow_rate', { mono: true }),
+      itemFromAttr(i18n._(msg`Old flow rate`), e, 'old_flow_rate', { mono: true, format: flowRateAttr(getAttr(e, 'denom')) }),
+      itemFromAttr(i18n._(msg`New flow rate`), e, 'new_flow_rate', { mono: true, format: flowRateAttr(getAttr(e, 'denom')) }),
     ]),
   }
 }
@@ -1008,9 +1046,8 @@ function presentMsgCancelStream(_raw: Uint8Array, ctx: PresenterContext): Presen
     items: filterItems([
       itemFromAttr(i18n._(msg`Sender`), e, 'sender', { mono: true }),
       itemFromAttr(i18n._(msg`Receiver`), e, 'receiver', { mono: true }),
-      itemFromAttr(i18n._(msg`Denom`), e, 'denom', { mono: true }),
-      itemFromAttr(i18n._(msg`Refunded`), e, 'refund_amount', { mono: true }),
-      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true }),
+      itemFromAttr(i18n._(msg`Refunded`), e, 'refund_amount', { mono: true, format: formatCoinAttr }),
+      itemFromAttr(i18n._(msg`Remaining deposit`), e, 'remaining_deposit', { mono: true, format: formatCoinAttr }),
     ]),
   }
 }

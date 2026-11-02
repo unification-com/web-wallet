@@ -27,6 +27,25 @@ export function timestampToDate(
   return new Date(ms)
 }
 
+/** Go's `time.Time.String()`: `2026-11-09 12:34:56.789012345 +0000 UTC`. */
+const GO_TIME = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})(?:\.(\d+))? ([+-]\d{2})(\d{2})\b/
+
+/**
+ * Parse a time from a chain event attribute. Modules write them in two
+ * shapes: unix seconds (BEACON's `beacon_timestamp_submit_time`) and Go's
+ * `time.Time.String()` (x/stream's `deposit_zero_time`). Returns
+ * `undefined` for anything else so the caller can show the raw value.
+ */
+export function parseChainTime(value: string): Date | undefined {
+  if (/^\d+$/.test(value)) return new Date(Number(value) * 1000)
+  const m = GO_TIME.exec(value)
+  if (!m) return undefined
+  const [, date, time, frac = '', tzHours, tzMinutes] = m
+  const ms = frac.padEnd(3, '0').slice(0, 3)
+  const parsed = new Date(`${date}T${time}.${ms}${tzHours}:${tzMinutes}`)
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed
+}
+
 /**
  * Re-render the consumer every `intervalMs` so visible deadline countdowns
  * (unbonding entries, redelegation entries) refresh without a full data
@@ -51,6 +70,19 @@ export interface RelativeDeadline {
 }
 
 /**
+ * The largest sensible unit for a span of `seconds` (sign kept, value not
+ * rounded). Shared by the relative-deadline and duration formatters so the
+ * two always agree on when a span reads as minutes, hours or days.
+ */
+function largestTimeUnit(seconds: number): { value: number; unit: 'second' | 'minute' | 'hour' | 'day' } {
+  const abs = Math.abs(seconds)
+  if (abs < 60) return { value: seconds, unit: 'second' }
+  if (abs < 3600) return { value: seconds / 60, unit: 'minute' }
+  if (abs < 86_400) return { value: seconds / 3600, unit: 'hour' }
+  return { value: seconds / 86_400, unit: 'day' }
+}
+
+/**
  * Picks the largest sensible time unit for the gap between `target` and
  * `now`, then formats it via `Intl.RelativeTimeFormat` (locale-aware,
  * pluralisation handled by the platform). Returns `label: '—'` and
@@ -68,22 +100,17 @@ export function formatRelativeDeadline(
   if (!target) return { label: '—', complete: false }
   const diffMs = target.getTime() - now.getTime()
   const fmt = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-  const absSeconds = Math.abs(diffMs) / 1000
+  const { value, unit } = largestTimeUnit(diffMs / 1000)
+  return { label: fmt.format(Math.round(value), unit), complete: diffMs <= 0 }
+}
 
-  let value: number
-  let unit: Intl.RelativeTimeFormatUnit
-  if (absSeconds < 60) {
-    value = Math.round(diffMs / 1000)
-    unit = 'second'
-  } else if (absSeconds < 3600) {
-    value = Math.round(diffMs / 60_000)
-    unit = 'minute'
-  } else if (absSeconds < 86_400) {
-    value = Math.round(diffMs / 3_600_000)
-    unit = 'hour'
-  } else {
-    value = Math.round(diffMs / 86_400_000)
-    unit = 'day'
-  }
-  return { label: fmt.format(value, unit), complete: diffMs <= 0 }
+/**
+ * A length of time in words for the locale, in its largest sensible unit:
+ * `604800` → "7 days", `5400` → "1.5 hours". Pluralisation comes from the
+ * platform (`Intl.NumberFormat` unit style), so there are no catalogue
+ * strings to translate.
+ */
+export function formatDuration(seconds: number, locale = 'en'): string {
+  const { value, unit } = largestTimeUnit(seconds)
+  return new Intl.NumberFormat(locale, { style: 'unit', unit, unitDisplay: 'long', maximumFractionDigits: 1 }).format(value)
 }

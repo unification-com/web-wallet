@@ -1,7 +1,16 @@
 import type { Event } from '@cosmjs/stargate'
 import { describe, expect, it } from 'vitest'
 
-import { findEvent, getAttr, itemFromAttr } from './presenters'
+import {
+  findEvent,
+  flowRateAttr,
+  formatCoinAttr,
+  formatDurationAttr,
+  formatTimeAttr,
+  getAttr,
+  itemFromAttr,
+  presentMsg,
+} from './presenters'
 
 function mkEvent(type: string, attrs: Record<string, string>): Event {
   return {
@@ -104,5 +113,70 @@ describe('presenters.itemFromAttr', () => {
     const item = itemFromAttr('Name', event, 'beacon_name')
     expect(item).not.toBeNull()
     expect('mono' in (item as object)).toBe(false)
+  })
+
+  it('applies the format function to the value', () => {
+    expect(itemFromAttr('ID', event, 'beacon_id', { format: (v) => `#${v}` })).toEqual({ label: 'ID', value: '#42' })
+  })
+})
+
+describe('presenters attribute formatters', () => {
+  it('formats a nund coin attribute as grouped FUND', () => {
+    expect(formatCoinAttr('100000000000nund')).toBe('100 FUND')
+    expect(formatCoinAttr('1234567890123nund')).toBe('1,234.567890123 FUND')
+  })
+
+  it('leaves other denoms in base units and unparseable values as they are', () => {
+    expect(formatCoinAttr('500ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2')).toBe(
+      '500 ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    )
+    expect(formatCoinAttr('not a coin')).toBe('not a coin')
+  })
+
+  it('formats a FUND flow rate in its most readable period', () => {
+    expect(flowRateAttr('nund')('1157')).toBe('2.998944 FUND / month')
+    expect(flowRateAttr('nund')('1000000000')).toBe('1 FUND / sec')
+    // Pre-multi-denom streams carry no denom attribute: they're FUND.
+    expect(flowRateAttr(null)('1000000000')).toBe('1 FUND / sec')
+  })
+
+  it('formats another denom per second in base units', () => {
+    expect(flowRateAttr('uatom')('25')).toBe('25 uatom / sec')
+  })
+
+  it('formats a seconds attribute as words', () => {
+    expect(formatDurationAttr('604800')).toBe('7 days')
+    expect(formatDurationAttr('soon')).toBe('soon')
+  })
+
+  it('formats a time attribute as a date and time, leaving junk as it is', () => {
+    expect(formatTimeAttr('2026-11-09 12:34:56.789 +0000 UTC')).toMatch(/Nov \d{1,2}, 2026/)
+    expect(formatTimeAttr('1730542496')).toMatch(/Nov \d{1,2}, 2024/)
+    expect(formatTimeAttr('whenever')).toBe('whenever')
+  })
+})
+
+describe('presenters stream rows', () => {
+  it('shows a top-up in FUND, words and a date, without the raw denom row', () => {
+    const events = [
+      mkEvent('stream_deposit', {
+        sender: 'und1sender',
+        receiver: 'und1receiver',
+        denom: 'nund',
+        amount_deposited: '100000000000nund',
+        deposit_duration: '604800',
+        deposit_zero_time: '2026-11-09 12:34:56.789 +0000 UTC',
+        remaining_deposit: '150000000000nund',
+      }),
+    ]
+    const result = presentMsg(
+      { typeUrl: '/mainchain.stream.v1.MsgTopUpDeposit', value: new Uint8Array() },
+      { address: 'und1sender', events, msgIndex: 0 },
+    )
+    const byLabel = Object.fromEntries(result.items.map((i) => [i.label, i.value]))
+    expect(byLabel.Added).toBe('100 FUND')
+    expect(byLabel['Extends by']).toBe('7 days')
+    expect(byLabel['Now drains at']).toMatch(/Nov \d{1,2}, 2026/)
+    expect(byLabel).not.toHaveProperty('Denom')
   })
 })

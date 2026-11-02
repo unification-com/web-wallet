@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatRelativeDeadline, timestampToDate } from './time'
+import { formatDuration, formatRelativeDeadline, parseChainTime, timestampToDate } from './time'
 
 const NOW = new Date('2026-05-21T12:00:00Z')
 
@@ -81,5 +81,37 @@ describe('time.timestampToDate', () => {
   it('passes a Date input through unchanged (some cosmjs paths pre-coerce)', () => {
     const d = new Date('2026-05-21T12:00:00Z')
     expect(timestampToDate(d)).toBe(d)
+  })
+})
+
+describe('time.parseChainTime', () => {
+  it('reads unix seconds (BEACON submit time)', () => {
+    expect(parseChainTime('1730542496')?.toISOString()).toBe('2024-11-02T10:14:56.000Z')
+  })
+
+  it("reads Go's time.Time.String() with nanoseconds (x/stream drain time)", () => {
+    expect(parseChainTime('2026-11-09 12:34:56.789012345 +0000 UTC')?.toISOString()).toBe('2026-11-09T12:34:56.789Z')
+  })
+
+  it('reads the Go form without a fraction and with a non-UTC offset', () => {
+    expect(parseChainTime('2026-11-09 12:34:56 +0100 CET')?.toISOString()).toBe('2026-11-09T11:34:56.000Z')
+  })
+
+  it('returns undefined for anything else', () => {
+    expect(parseChainTime('next tuesday')).toBeUndefined()
+    expect(parseChainTime('')).toBeUndefined()
+  })
+})
+
+describe('time.formatDuration', () => {
+  it('uses the largest sensible unit', () => {
+    expect(formatDuration(45)).toBe('45 seconds')
+    expect(formatDuration(60)).toBe('1 minute')
+    expect(formatDuration(5400)).toBe('1.5 hours')
+    expect(formatDuration(604_800)).toBe('7 days')
+  })
+
+  it('keeps one decimal place rather than rounding a day and a half to two days', () => {
+    expect(formatDuration(129_600)).toBe('1.5 days')
   })
 })

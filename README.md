@@ -6,7 +6,7 @@ The Unification Mainchain web wallet. Distributed primarily as a Chrome Extensio
 
 ## Status
 
-**v2 (React + Vite + TypeScript) on the `vaxildan` branch — feature-complete at v1.0.0, pending the Web Store release.** The legacy Vue 2 source (v0.21.0) has been removed now v2 is at feature parity; historic build artefacts remain under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
+**v2 (React + Vite + TypeScript) is live on the Chrome Web Store, from v1.0.0.** The legacy Vue 2 source (v0.21.0) has been removed now v2 is at feature parity; historic build artefacts remain under `OLD_DIST/` (local-only; gitignored). The Chrome Web Store extension ID (`mkjjflkhdddfjhonakofipfojoepfndk`) is preserved by uploading v2's `.zip` to the existing Web Store listing, so v1 users auto-update.
 
 Planning docs live under `../project_docs/planning/web-wallet/`.
 
