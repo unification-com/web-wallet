@@ -826,7 +826,6 @@ msgstr "Deleting…"
 
 #: src/components/Send.tsx
 #: src/components/SendIbc.tsx
-#: src/lib/msgs/presenters.ts
 msgid "Denom"
 msgstr "Denom"
 

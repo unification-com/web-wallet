@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Unification Web Wallet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Unification Web Wallet Browser Extension",
   "homepage_url": "https://unification.com",
   "default_locale": "en",
